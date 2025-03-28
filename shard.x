@@ -11,7 +11,6 @@ program Shard {
 
     // shard_restore blocks until restoration completes.
     ShardResult shard_restore(BlockHeight) = 10;
-
   }
   = 1;
 }
