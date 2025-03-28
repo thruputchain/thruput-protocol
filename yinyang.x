@@ -30,9 +30,9 @@ typedef ValidatorQuorumSlicesSnapshot ValidatorQuorumSlicesSnapshots<>;
 program YinYang {
   version YinYang1 {
 
-    void null(void) = 0;
+    void yinyang_null(void) = 0;
 
-    void update(ValidatorQuorumSlicesSnapshots) = 10;
+    void yinyang_update(ValidatorQuorumSlicesSnapshots) = 10;
   }
   = 1;
 }

@@ -7,14 +7,21 @@ typedef string ServerAddress<>;
 // and randomness)
 typedef opaque UPID[8];
 
+// Protocol describes a specific protocol and version.
+typedef string Protocol<>;
+
 // CoordinatorCard uniquely describes a coordinator instance.
 struct CoordinatorCard {
+
+  Protocol protocol;
 
   UPID upid;
 };
 
 // ExecutorCard uniquely describes an executor instance.
 struct ExecutorCard {
+
+  Protocol protocol;
 
   UPID upid;
 
@@ -23,6 +30,8 @@ struct ExecutorCard {
 
 // DbCard uniquely describes a database shard instance and its initial state.
 struct DbCard {
+
+  Protocol protocol;
 
   UPID upid;
 
@@ -60,19 +69,19 @@ struct ListDbResult {
 program Coordinator {
   version Coordinator1 {
 
-    void null(void) = 0;
+    void coordinator_null(void) = 0;
 
     // intro_db is called by db shards to introduce themselves to the
     // coordinator.
-    IntroDbResult intro_db(DbCard) = 1;
+    IntroDbResult coordinator_intro_db(DbCard) = 1;
 
     // intro_executor is called by executors to introduce themselves to the
     // coordinator.
-    IntroExecutorResult intro_executor(ExecutorCard) = 2;
+    IntroExecutorResult coordinator_intro_executor(ExecutorCard) = 2;
 
     // list_db is called by executors to learn the available set of db shards
     // and whether the db system is ready to use.
-    ListDbResult list_db(void) = 3;
+    ListDbResult coordinator_list_db(void) = 3;
   }
   = 1;
 }
