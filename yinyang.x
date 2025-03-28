@@ -6,14 +6,21 @@ typedef Ed25519PublicKey ValidatorPublicKey;
 
 typedef Ed25519Signature ValidatorSignature;
 
+struct ValidatorCard {
+	ValidatorID validator_id;
+	ValidatorPublicKey validator_pubkey;
+	ServerAddress validator_address;
+};
+
+typedef ValidatorCard QuorumSlice<>;
+
 struct QuorumSlicesSnapshot {
   unsigned int block_height;
   QuorumSlice quorum_slices<>;
 };
 
 struct ValidatorQuorumSlicesSnapshot {
-  ValidatorID validator_id;
-  ValidatorPublicKey validator_pubkey;
+  ValidatorCard validator_card;
   QuorumSlicesSnapshot quorum_slices_snapshot;
   ValidatorSignature validator_signature; // over quorum_slices_snapshot
 };
