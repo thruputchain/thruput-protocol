@@ -7,9 +7,9 @@ typedef Ed25519PublicKey ValidatorPublicKey;
 typedef Ed25519Signature ValidatorSignature;
 
 struct ValidatorCard {
-	ValidatorID validator_id;
-	ValidatorPublicKey validator_pubkey;
-	ServerAddress validator_address;
+  ValidatorID validator_id;
+  ValidatorPublicKey validator_pubkey;
+  ServerAddress validator_address;
 };
 
 typedef ValidatorCard QuorumSlice<>;
