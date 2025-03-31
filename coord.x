@@ -21,8 +21,8 @@ struct CoordinatorCard {
   UPID upid;
 };
 
-// ExecutorCard uniquely describes an executor instance.
-struct ExecutorCard {
+// ExecCard uniquely describes an executor instance.
+struct ExecCard {
 
   Protocol protocol;
 
@@ -72,7 +72,7 @@ program Coordinator {
 
     // coordinator_intro_exec is called by executors to introduce themselves to
     // the coordinator. It blocks until the db is ready to use.
-    IntroExecResult coordinator_intro_exec(ExecutorCard) = 2;
+    IntroExecResult coordinator_intro_exec(ExecCard) = 2;
   }
   = 1;
 }
