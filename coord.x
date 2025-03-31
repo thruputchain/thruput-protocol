@@ -31,8 +31,8 @@ struct ExecutorCard {
   ServerAddress address;
 };
 
-// DbCard uniquely describes a database shard instance and its initial state.
-struct DbCard {
+// ShardCard uniquely describes a database shard instance and its initial state.
+struct ShardCard {
 
   Protocol protocol;
 
@@ -48,17 +48,17 @@ struct DbCard {
   // KeyPrefixes key_prefixes;
 };
 
-struct IntroDbResult {
+struct IntroShardResult {
   // cc holds the identity of the coordinator that responded
   CoordinatorCard cc;
 };
 
-struct IntroExecutorResult {
+struct IntroExecResult {
   // cc holds the identity of the coordinator that responded
   CoordinatorCard cc;
 
   // shards describes a ready db cluster
-  DbCard shards<>;
+  ShardCard shards<>;
 };
 
 program Coordinator {
@@ -66,13 +66,13 @@ program Coordinator {
 
     void coordinator_null(void) = 0;
 
-    // intro_db is called by db shards to introduce themselves to the
-    // coordinator.
-    IntroDbResult coordinator_intro_db(DbCard) = 1;
+    // coordinator_intro_shard is called by db shards to introduce themselves to
+    // the coordinator.
+    IntroShardResult coordinator_intro_shard(ShardCard) = 1;
 
-    // intro_executor is called by executors to introduce themselves to the
-    // coordinator. It blocks until the db is ready to use.
-    IntroExecutorResult coordinator_intro_executor(ExecutorCard) = 2;
+    // coordinator_intro_exec is called by executors to introduce themselves to
+    // the coordinator. It blocks until the db is ready to use.
+    IntroExecResult coordinator_intro_exec(ExecutorCard) = 2;
   }
   = 1;
 }
