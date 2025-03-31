@@ -84,7 +84,6 @@ program Coordinator {
     // intro_executor is called by executors to introduce themselves to the
     // coordinator. It blocks until the db is ready to use.
     IntroExecutorResult coordinator_intro_executor(ExecutorCard) = 2;
-
   }
   = 1;
 }
