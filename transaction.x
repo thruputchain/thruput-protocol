@@ -40,6 +40,6 @@ namespace hogd
   struct ProposedTransaction {
     SignedTransaction signed_tx;
     NondeterministicProposalData nondeterministic_proposal_data;
-  }
+  };
 
 } // namespace hogd
