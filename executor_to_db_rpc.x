@@ -20,10 +20,9 @@ namespace hogd
       void commit_transaction(BlockID, TransactionID) = 1;
       void abort_transaction(BlockID, TransactionID) = 2;
 
-      // Get items other than contents of the retrocausal queue.
-      // If the element is actually a retrocausal queue, the item returned
-      // has that type but does not give the contents.
-      ExpectedStorageItem get_item(BlockID, AddressAndKey) = 3;
+      // Load the snapshot value of a storage item at the supplied address,
+      // if it exists.
+      ExpectedStorageItem get_snapshot_item(BlockID, AddressAndKey) = 3;
 
       // Create a new contract.
       // Arguments:
