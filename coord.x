@@ -56,6 +56,9 @@ struct IntroDbResult {
 struct IntroExecutorResult {
   // cc holds the identity of the coordinator that responded
   CoordinatorCard cc;
+
+  // shards describes a ready db cluster
+  DbCard shards<>;
 };
 
 struct ListDbResult {
@@ -65,7 +68,7 @@ struct ListDbResult {
   // is_ready indicates whether the db cluster is ready to use
   bool is_ready;
 
-  // shards describes all currently available db shards
+  // shards describes a complete db cluster
   DbCard shards<>;
 };
 
@@ -79,12 +82,9 @@ program Coordinator {
     IntroDbResult coordinator_intro_db(DbCard) = 1;
 
     // intro_executor is called by executors to introduce themselves to the
-    // coordinator.
+    // coordinator. It blocks until the db is ready to use.
     IntroExecutorResult coordinator_intro_executor(ExecutorCard) = 2;
 
-    // list_db is called by executors to learn the available set of db shards
-    // and whether the db system is ready to use.
-    ListDbResult coordinator_list_db(void) = 3;
   }
   = 1;
 }
