@@ -61,17 +61,6 @@ struct IntroExecutorResult {
   DbCard shards<>;
 };
 
-struct ListDbResult {
-  // cc holds the identity of the coordinator that responded
-  CoordinatorCard cc;
-
-  // is_ready indicates whether the db cluster is ready to use
-  bool is_ready;
-
-  // shards describes a complete db cluster
-  DbCard shards<>;
-};
-
 program Coordinator {
   version Coordinator1 {
 
