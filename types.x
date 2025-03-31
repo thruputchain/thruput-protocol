@@ -61,4 +61,9 @@ struct AddressAndKey {
   StorageKey key;
 };
 
+struct LogEntry {
+  ContractAddress source_address;
+  opaque message<kMaxLogMessageLen>;
+};
+
 } // namespace hogd
