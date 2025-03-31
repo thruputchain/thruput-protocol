@@ -27,12 +27,12 @@ struct ValidatorQuorumSlicesSnapshot {
 
 typedef ValidatorQuorumSlicesSnapshot ValidatorQuorumSlicesSnapshots<>;
 
-program YinYang {
-  version YinYang1 {
+program Discovery {
+  version Discovery1 {
 
-    void yinyang_null(void) = 0;
+    void discovery_null(void) = 0;
 
-    void yinyang_update(ValidatorQuorumSlicesSnapshots) = 10;
+    void discovery_update(ValidatorQuorumSlicesSnapshots) = 10;
   }
   = 1;
 }
