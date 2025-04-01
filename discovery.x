@@ -3,16 +3,22 @@ namespace hogd {
 typedef opaque ValidatorID[16];
 
 typedef Ed25519PublicKey ValidatorPublicKey;
+typedef Ed25519SecretKey ValidatorSecretKey;
 
 typedef Ed25519Signature ValidatorSignature;
 
-struct ValidatorCard {
-  ValidatorID validator_id;
-  ValidatorPublicKey validator_pubkey;
-  ServerAddress validator_address;
+struct ValidatorPublicInfo {
+  ValidatorID id;
+  ValidatorPublicKey public_key;
+  ServerAddress address;
 };
 
-typedef ValidatorCard QuorumSlice<>;
+struct ValidatorPrivateInfo {
+  ValidatorPublicInfo public_info;
+  ValidatorSecretKey secret_key;
+};
+
+typedef ValidatorPublicInfo QuorumSlice<>;
 
 struct QuorumSlicesSnapshot {
   unsigned int block_height;
@@ -20,7 +26,7 @@ struct QuorumSlicesSnapshot {
 };
 
 struct ValidatorQuorumSlicesSnapshot {
-  ValidatorCard validator_card;
+  ValidatorPublicInfo validator_public_info;
   QuorumSlicesSnapshot quorum_slices_snapshot;
   ValidatorSignature validator_signature; // over quorum_slices_snapshot
 };
