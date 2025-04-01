@@ -8,7 +8,6 @@ typedef Ed25519SecretKey ValidatorSecretKey;
 typedef Ed25519Signature ValidatorSignature;
 
 struct ValidatorPublicInfo {
-  ValidatorID id;
   ValidatorPublicKey public_key;
   ServerAddress address;
 };
