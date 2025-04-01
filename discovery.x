@@ -5,8 +5,6 @@ typedef opaque ValidatorID[32];
 typedef Ed25519PublicKey ValidatorPublicKey;
 typedef Ed25519SecretKey ValidatorSecretKey;
 
-typedef Ed25519Signature ValidatorSignature;
-
 struct ValidatorPublicInfo {
   ValidatorPublicKey public_key;
   ServerAddress address;
@@ -27,7 +25,7 @@ struct QuorumSlicesSnapshot {
 struct ValidatorQuorumSlicesSnapshot {
   ValidatorPublicInfo validator_public_info;
   QuorumSlicesSnapshot quorum_slices_snapshot;
-  ValidatorSignature validator_signature; // over quorum_slices_snapshot
+  Signature validator_signature; // over quorum_slices_snapshot
 };
 
 typedef ValidatorQuorumSlicesSnapshot ValidatorQuorumSlicesSnapshots<>;
