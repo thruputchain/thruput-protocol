@@ -17,14 +17,9 @@ struct ValidatorPrivateInfo {
 
 typedef ValidatorPublicInfo QuorumSlice<>;
 
-struct QuorumSlicesSnapshot {
-  unsigned int block_height;
-  QuorumSlice quorum_slices<>;
-};
-
 struct ValidatorQuorumSlicesSnapshot {
   ValidatorPublicInfo validator_public_info;
-  QuorumSlicesSnapshot quorum_slices_snapshot;
+  QuorumSlice quorum_slices<>;
   Signature validator_signature; // over quorum_slices_snapshot
 };
 
