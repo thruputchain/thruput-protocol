@@ -1,6 +1,6 @@
 namespace hogd {
 
-typedef opaque ValidatorID[16];
+typedef opaque ValidatorID[32];
 
 typedef Ed25519PublicKey ValidatorPublicKey;
 typedef Ed25519SecretKey ValidatorSecretKey;
