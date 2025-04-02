@@ -10,6 +10,10 @@ struct int128_xdr {
   unsigned hyper lowbits;
 };
 
+// int64_t, Unix time as nanoseconds elapsed since
+// January 1, 1970 UTC
+typedef hyper Timestamp;
+
 typedef unsigned int RuntimeMemoryOffset; // uint32_t
 typedef unsigned int RuntimeMemoryLength; // uint32_t
 

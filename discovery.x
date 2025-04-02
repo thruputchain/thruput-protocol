@@ -18,6 +18,7 @@ struct ValidatorPrivateInfo {
 typedef ValidatorPublicInfo QuorumSlice<>;
 
 struct QuorumSlicesSnapshot {
+  Timestamp timestamp;
   QuorumSlice quorum_slices<>;
 };
 
@@ -29,12 +30,17 @@ struct ValidatorQuorumSlicesSnapshot {
 
 typedef ValidatorQuorumSlicesSnapshot ValidatorQuorumSlicesSnapshots<>;
 
+struct UpdateQuorumsResult {
+  ValidatorQuorumSlicesSnapshots quorum_slices_snapshots;
+};
+
 program Discovery {
   version Discovery1 {
 
     void discovery_null(void) = 0;
 
-    void discovery_update(ValidatorQuorumSlicesSnapshots) = 10;
+    UpdateQuorumsResult discovery_update_quorums(
+        ValidatorQuorumSlicesSnapshots) = 10;
   }
   = 1;
 }
