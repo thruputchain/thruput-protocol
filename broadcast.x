@@ -1,44 +1,56 @@
 namespace hogd {
 
-typedef opaque MulticastTreeID[32]; // unique id that determines the randomness
-                                    // in creating the tree
+// unique id that determines the randomness
+// in creating a channel's multicast tree
+typedef opaque BroadcastChannelID[32];
+
 typedef SHA256Hash MulticastTreeHash;
-typedef SHA256Hash MulticastMsgHash;
+typedef SHA256Hash BroadcastMessageHash;
 
 struct MulticastTreeNode {
   ValidatorPublicInfo node;
   MulticastTreeHash children<>;
 };
 
-struct MulticastStripe {
-  ValidatorID source_validator_id;
-  MulticastTreeID tree_id;
+struct BroadcastChannel {
+  ValidatorID source_id;
+  BroadcastChannelID channel_id;
   MulticastTreeHash tree_hash;
-  // sender may optimistically describe the tree in the first message
-  MulticastTreeNode *tree_root;
 };
 
-struct MulticastMsg {
-  unsigned int seq_no;
+struct BroadcastHeader {
+  BroadcastChannel channel;
+  unsigned int seqno;
+  // prev_msg is the hash of the previous BroadcastMessage, or nil if this is
+  // the first message.
+  BroadcastMessageHash *prev_msg;
+};
+
+struct BroadcastMessage {
+  BroadcastHeader header;
   opaque payload<>;
-  MulticastMsgHash *prev_hash; // XXX: hash the stripe data as a first msg?
 };
 
-struct DeliverArg {
-  ValidatorPublicInfo relayer; // the node that made this call
-  MulticastStripe stripe;
-  MulticastMsg msg;
+struct Delivery {
+  // relayer is the identity of the node that made this call to
+  // `broadcast_deliver`
+  ValidatorPublicInfo relayer;
+  BroadcastMessage msg;
+  // Senders may optimistically choose to describe the entire multicast tree in
+  // the first message, in order to reduce the number of attempts (via
+  // `broadcast_expand` rpc) by downstream nodes to recover the multicast tree.
+  MulticastTreeNode *tree;
 };
 
-struct ReconcileArg {
-  int xxx;
+struct ReconcileMessages {
+  BroadcastHeader missing_msgs<>;
 };
 
-struct ReconcileResult {
-  int xxx;
+struct ReconciledMessages {
+  BroadcastMessage msgs<>;
 };
 
-struct ExpandMulticastTreeResult {
+struct ExpandedMulticastTree {
   MulticastTreeNode tree_nodes<>;
 };
 
@@ -47,19 +59,21 @@ program Broadcast {
 
     void broadcast_null(void) = 0;
 
-    void broadcast_deliver(DeliverArg) = 10;
+    void broadcast_deliver(Delivery) = 10;
 
-    // broadcast_reconcile is a reverse-multicast call, i.e.
-    // it should be called by a child to a parent in the multicast tree.
-    // responses to broadcast_reconcile may be cached along the multicast tree.
-    ReconcileResult broadcast_reconcile(ReconcileArg) = 20;
+    // broadcast_reconcile requests a set of messages described by their
+    // headers.
+    //
+    // responses to broadcast_reconcile are cached along the multicast tree for
+    // the lifetime of the channel.
+    ReconciledMessages broadcast_reconcile(ReconcileMessages) = 20;
 
-    // broadcast_expand_multicast_tree is a reverse-multicast call, i.e.
-    // it should be called by a child to a parent in the multicast tree.
-    // responses to broadcast_expand_multicast_tree may be cached along the
-    // multicast tree.
-    ExpandMulticastTreeResult broadcast_expand_multicast_tree(
-        MulticastTreeHash) = 30;
+    // broadcast_expand requests a reconstruction of the entire multicast tree,
+    // given its hash.
+    //
+    // responses to broadcast_expand are cached along the
+    // multicast tree for the lifetime of the channel.
+    ExpandedMulticastTree broadcast_expand(MulticastTreeHash) = 30;
   }
   = 1;
 }
