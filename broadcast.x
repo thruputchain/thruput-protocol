@@ -5,6 +5,7 @@ namespace hogd {
 typedef opaque BroadcastChannelID[32];
 
 typedef unsigned hyper BroadcastEpoch;
+typedef unsigned int SeqNo;
 
 typedef SHA256Hash MulticastTreeHash;
 typedef SHA256Hash BroadcastMessageHash;
@@ -23,7 +24,7 @@ struct BroadcastChannel {
 
 struct BroadcastHeader {
   BroadcastChannel channel;
-  unsigned int seqno;
+  SeqNo seqno;
   // prev_msg is the hash of the previous BroadcastMessage, or nil if this is
   // the first message.
   BroadcastMessageHash *prev_msg;
