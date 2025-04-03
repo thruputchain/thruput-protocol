@@ -4,6 +4,8 @@ namespace hogd {
 // in creating a channel's multicast tree
 typedef opaque BroadcastChannelID[32];
 
+typedef unsigned hyper BroadcastEpoch;
+
 typedef SHA256Hash MulticastTreeHash;
 typedef SHA256Hash BroadcastMessageHash;
 
@@ -15,6 +17,7 @@ struct MulticastTreeNode {
 struct BroadcastChannel {
   ValidatorID source_id;
   BroadcastChannelID channel_id;
+  BroadcastEpoch epoch;
   MulticastTreeHash tree_hash;
 };
 
