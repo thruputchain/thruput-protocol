@@ -15,6 +15,8 @@ struct MulticastTreeNode {
   MulticastTreeHash children<>;
 };
 
+typedef MulticastTreeNode MulticastTreeNodes<>;
+
 struct BroadcastChannel {
   ValidatorID source_id;
   BroadcastChannelID channel_id;
@@ -43,7 +45,7 @@ struct Delivery {
   // Senders may optimistically choose to describe the entire multicast tree in
   // the first message, in order to reduce the number of attempts (via
   // `broadcast_expand` rpc) by downstream nodes to recover the multicast tree.
-  MulticastTreeNode *tree;
+  MulticastTreeNodes *tree;
 };
 
 struct ReconcileMessages {
@@ -52,10 +54,6 @@ struct ReconcileMessages {
 
 struct ReconciledMessages {
   BroadcastMessage msgs<>;
-};
-
-struct ExpandedMulticastTree {
-  MulticastTreeNode tree_nodes<>;
 };
 
 program Broadcast {
@@ -77,7 +75,7 @@ program Broadcast {
     //
     // responses to broadcast_expand are cached along the
     // multicast tree for the lifetime of the channel.
-    ExpandedMulticastTree broadcast_expand(MulticastTreeHash) = 30;
+    MulticastTreeNodes broadcast_expand(MulticastTreeHash) = 30;
   }
   = 1;
 }
