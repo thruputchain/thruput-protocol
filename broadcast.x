@@ -38,6 +38,7 @@ struct BroadcastMessage {
 };
 
 struct Delivery {
+  // XXX: relayer and message have to be signed together by the relayer.
   // relayer is the identity of the node that made this call to
   // `broadcast_deliver`
   ValidatorPublicInfo relayer;
@@ -45,7 +46,7 @@ struct Delivery {
   // Senders may optimistically choose to describe the entire multicast tree in
   // the first message, in order to reduce the number of attempts (via
   // `broadcast_expand` rpc) by downstream nodes to recover the multicast tree.
-  MulticastTreeNodes *tree;
+  MulticastTreeNodes *tree_nodes;
 };
 
 struct ReconcileMessages {
