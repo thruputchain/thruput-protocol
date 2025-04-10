@@ -82,7 +82,7 @@ syscalls:
     returns: false
     number: 8
   - name: "GetDeployAddress"
-=    inputs:
+    inputs:
       - name: "caller_address"
         typename: "ContractAddress"
         optional: yes
