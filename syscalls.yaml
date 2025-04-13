@@ -1,3 +1,4 @@
+---
 syscalls:
   - name: "SHA256"
     needs_context: false
@@ -85,7 +86,7 @@ syscalls:
     inputs:
       - name: "caller_address"
         typename: "ContractAddress"
-        optional: yes
+        optional: true
       - name: "nonce"
         typename: "SHA256Hash"
       - name: "contract_hash"
@@ -123,8 +124,7 @@ syscalls:
         custom_args_required: 2
       - name: "message"
         span_argument: true
-    outputs:
-        # No outputs: check the error code returned
+    outputs:  # No outputs: check the error code returned
     number: 12
   - name: "BytestringGetLen"
     inputs:
@@ -184,7 +184,6 @@ syscalls:
         typename: "StorageKey"
     outputs:
     number: 18
-
 errors:
   - name: "None"
     number: 0
@@ -203,13 +202,16 @@ errors:
     doc: "Failed to find contract"
   - name: "ContractAlreadyDeployed"
     number: 5
-    doc: "Attempt made to deploy a contract twice (same nonce and contract hash, from same address)"
+    doc: "Attempt made to deploy a contract twice \
+         (same nonce and contract hash, from same address)"
   - name: "NoReturnBufferAvailable"
     number: 6
-    doc: "No return buffer is available.  Either the most recent subcall failed, or there have been no subcalls within this call frame."
+    doc: "No return buffer is available.  Either the most recent subcall \
+         failed, or there have been no subcalls within this call frame."
   - name: "InsufficientGasForInvocation"
     number: 7
-    doc: "Insufficient gas in call frame to supply requested gas limit for child invocation"
+    doc: "Insufficient gas in call frame to supply requested gas limit\
+         for child invocation"
   - name: "InvalidSyscallInput"
     number: 8
     doc: "Invalid input to a syscall, such as subtracting below 0 on an nnint64"
