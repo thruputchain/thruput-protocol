@@ -44,7 +44,8 @@ struct BroadcastMessage {
 
 struct Delivery {
   // relayer is the identity of the node that made this call to
-  // `broadcast_deliver`
+  // `broadcast_deliver`. Receiving nodes call into the relayer, if they need to
+  // recover the multicast tree.
   ValidatorPublicInfo relayer;
   BroadcastMessage msg;
   // Senders may optimistically choose to describe the entire multicast tree in
@@ -54,7 +55,8 @@ struct Delivery {
 };
 
 struct ReconcileMessages {
-  BroadcastHeader missing_msgs<>;
+  BroadcastChannel channel;
+  BroadcastMessageHash msg_hashes<>;
 };
 
 struct ReconciledMessages {
