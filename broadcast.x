@@ -16,6 +16,8 @@ struct MulticastTreeNode {
 
 typedef MulticastTreeNode MulticastTreeNodes<>;
 
+// BroadcastChannel is a fixed-width structure, so it can be used conveniently
+// as a key in golang maps.
 struct BroadcastChannel {
   ValidatorID source_id;
   BroadcastChannelID channel_id;
@@ -23,6 +25,11 @@ struct BroadcastChannel {
 };
 
 struct BroadcastHeader {
+  ValidatorPublicInfo source;
+  // The source validator signs the channel to bind together its own identity
+  // with the tree hash. This prevents malicious non-source nodes from changing
+  // the tree.
+  Signature source_signature;
   BroadcastChannel channel;
   SeqNo seqno;
   // prev_msg is the hash of the previous BroadcastMessage, or nil if this is
@@ -36,7 +43,6 @@ struct BroadcastMessage {
 };
 
 struct Delivery {
-  // XXX: relayer and message have to be signed together by the relayer.
   // relayer is the identity of the node that made this call to
   // `broadcast_deliver`
   ValidatorPublicInfo relayer;
