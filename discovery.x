@@ -15,23 +15,28 @@ struct ValidatorPrivateInfo {
   ValidatorSecretKey secret_key;
 };
 
-typedef ValidatorPublicInfo QuorumSlice<>;
+struct QuorumSet {
+  unsigned int threshold;
+  ValidatorID validators<>;
+  QuorumSet inner_sets<>;
+};
 
-struct QuorumSlicesSnapshot {
+struct QuorumSetSnapshot {
   Timestamp timestamp;
-  QuorumSlice quorum_slices<>;
+  QuorumSet quorum_set;
 };
 
-struct ValidatorQuorumSlicesSnapshot {
+struct SignedQuorumSetSnapshot {
   ValidatorPublicInfo validator_public_info;
-  QuorumSlicesSnapshot quorum_slices_snapshot;
-  Signature validator_signature; // over quorum_slices_snapshot
+  QuorumSetSnapshot quorum_set_snapshot;
+  Signature validator_signature;
 };
 
-typedef ValidatorQuorumSlicesSnapshot ValidatorQuorumSlicesSnapshots<>;
+typedef SignedQuorumSetSnapshot SignedQuorumSetSnapshots<>;
 
-struct UpdateQuorumsResult {
-  ValidatorQuorumSlicesSnapshots quorum_slices_snapshots;
+struct KnownQuorumSets {
+  SignedQuorumSetSnapshots signed_quorum_set_snapshots;
+  ValidatorPublicInfo validators<>;
 };
 
 program Discovery {
@@ -39,8 +44,7 @@ program Discovery {
 
     void discovery_null(void) = 0;
 
-    UpdateQuorumsResult discovery_update_quorums(
-        ValidatorQuorumSlicesSnapshots) = 10;
+    KnownQuorumSets discovery_update_quorums(KnownQuorumSets) = 10;
   }
   = 1;
 }
