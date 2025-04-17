@@ -32,10 +32,8 @@ struct SignedQuorumSetSnapshot {
   Signature validator_signature;
 };
 
-typedef SignedQuorumSetSnapshot SignedQuorumSetSnapshots<>;
-
 struct KnownQuorumSets {
-  SignedQuorumSetSnapshots signed_quorum_set_snapshots;
+  SignedQuorumSetSnapshot signed_quorum_set_snapshots<>;
   ValidatorPublicInfo validators<>;
 };
 
