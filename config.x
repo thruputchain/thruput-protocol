@@ -1,7 +1,7 @@
 namespace hogd {
 
-// Config holds the configuration of a validator.
-struct Config {
+// ValidatorConfig holds the network configuration of a validator.
+struct ValidatorConfig {
   ValidatorPrivateInfo private_info;
   QuorumSet quorum_set;
   ValidatorPublicInfo known_validators<>;
