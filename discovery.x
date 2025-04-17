@@ -27,14 +27,25 @@ struct QuorumSetSnapshot {
 };
 
 struct SignedQuorumSetSnapshot {
-  ValidatorPublicInfo validator_public_info;
+  ValidatorPublicInfo signer;
+  Signature signature;
   QuorumSetSnapshot quorum_set_snapshot;
-  Signature validator_signature;
+};
+
+struct ValidatorInfoSnapshot {
+  Timestamp timestamp;
+  ValidatorPublicInfo validator;
+};
+
+struct SignedValidatorInfoSnapshot {
+  ValidatorPublicInfo signer;
+  Signature signature;
+  ValidatorInfoSnapshot validator_snapshot;
 };
 
 struct KnownQuorumSets {
-  SignedQuorumSetSnapshot signed_quorum_set_snapshots<>;
-  ValidatorPublicInfo validators<>;
+  SignedQuorumSetSnapshot quorum_set_snapshots<>;
+  SignedValidatorInfoSnapshot validator_snapshots<>;
 };
 
 program Discovery {
