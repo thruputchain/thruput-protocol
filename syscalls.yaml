@@ -25,7 +25,7 @@ syscalls:
     inputs:
     outputs:
       - name: "buffer"
-        span_argument: truye
+        span_argument: true
       - name: "written_len"
         typename: "RuntimeMemoryLength"
         primitive_type: true
