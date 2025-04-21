@@ -1,4 +1,13 @@
 ---
+type_mappings:
+  - base_name: "int128_t" # The cpp name, which is used in this spec
+    rust_name: "i128"
+    xdr_name: "int128_xdr"
+    rust_uses_to_offset: true
+  - base_name: "uint128_t"
+    rust_name: "u128"
+    xdr_name: "uint128_xdr"
+    rust_uses_to_offset: true
 syscalls:
   - name: "SHA256"
     needs_context: false
@@ -160,9 +169,11 @@ syscalls:
       - name: "current_set"
         typename: "int128_t"
         xdr_typename: "int128_xdr"
+        rust_typename: "i128"
       - name: "current_add"
         typename: "int128_t"
         xdr_typename: "int128_xdr"
+        rust_typename: "i128"
     number: 16
   - name: "NonnegativeIntSetAdd"
     inputs:
@@ -171,10 +182,12 @@ syscalls:
       - name: "set_value"
         typename: "int128_t"
         xdr_typename: "int128_xdr"
+        rust_typename: "i128"
         syscall_pass_by_value: true
       - name: "add_value"
         typename: "int128_t"
         xdr_typename: "int128_xdr"
+        rust_typename: "i128"
         syscall_pass_by_value: true
     outputs:
     number: 17
@@ -218,7 +231,13 @@ errors:
   - name: "StorageKeyNotExist"
     number: 9
     doc: "Accessing a storage key that does not exist in the current view"
-
+    # Used within the SDK
+  - name: "CalldataParseError"
+    number: 100
+    doc: "Failed to parse calldata"
+  - name: "ReturnParseError"
+    number: 101
+    doc: "Failed to parse returned data"
     # those that cause call frames to revert
   - name: "DeterministicWasm"
     number: -1
