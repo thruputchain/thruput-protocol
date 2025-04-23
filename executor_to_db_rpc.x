@@ -20,12 +20,12 @@ namespace hogd
       void abort_transaction(BlockID, TransactionID) = 2;
 
       // Subtransaction control methods.
-      // Subtransactions do not need their own unique IDs; every write from a transaction
-      // must always be applied to the top-level subtransaction.
-      // 
+      // Subtransactions do not need their own unique IDs; every write from a
+      // transaction must always be applied to the top-level subtransaction.
+      //
       // Create a new subtransaction on top of the current (sub)transaction.
       void push_new_subtransaction(BlockID, TransactionID) = 3;
-      
+
       // Revert one or more subtransactions.
       void pop_subtransactions(BlockID, TransactionID, unsigned int) = 4;
 
