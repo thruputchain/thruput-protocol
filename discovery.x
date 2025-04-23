@@ -1,38 +1,59 @@
 namespace hogd {
 
-typedef opaque ValidatorID[16];
+typedef opaque ValidatorID[32];
 
 typedef Ed25519PublicKey ValidatorPublicKey;
+typedef Ed25519SecretKey ValidatorSecretKey;
 
-typedef Ed25519Signature ValidatorSignature;
-
-struct ValidatorCard {
-  ValidatorID validator_id;
-  ValidatorPublicKey validator_pubkey;
-  ServerAddress validator_address;
+struct ValidatorPublicInfo {
+  ValidatorPublicKey public_key;
+  ServerAddress address;
 };
 
-typedef ValidatorCard QuorumSlice<>;
-
-struct QuorumSlicesSnapshot {
-  unsigned int block_height;
-  QuorumSlice quorum_slices<>;
+struct ValidatorPrivateInfo {
+  ValidatorPublicInfo public_info;
+  ValidatorSecretKey secret_key;
 };
 
-struct ValidatorQuorumSlicesSnapshot {
-  ValidatorCard validator_card;
-  QuorumSlicesSnapshot quorum_slices_snapshot;
-  ValidatorSignature validator_signature; // over quorum_slices_snapshot
+struct QuorumSet {
+  unsigned int threshold;
+  ValidatorID validators<>;
+  QuorumSet inner_sets<>;
 };
 
-typedef ValidatorQuorumSlicesSnapshot ValidatorQuorumSlicesSnapshots<>;
+struct QuorumSetSnapshot {
+  Timestamp timestamp;
+  QuorumSet quorum_set;
+};
+
+struct SignedQuorumSetSnapshot {
+  ValidatorPublicInfo signer;
+  Signature signature;
+  QuorumSetSnapshot quorum_set_snapshot;
+};
+
+struct ValidatorInfoSnapshot {
+  Timestamp timestamp;
+  ValidatorPublicInfo validator;
+};
+
+struct SignedValidatorInfoSnapshot {
+  ValidatorPublicInfo signer;
+  Signature signature;
+  ValidatorInfoSnapshot validator_snapshot;
+};
+
+struct KnownQuorumSets {
+  SignedQuorumSetSnapshot quorum_set_snapshots<>;
+  SignedValidatorInfoSnapshot validator_snapshots<>;
+};
 
 program Discovery {
   version Discovery1 {
 
     void discovery_null(void) = 0;
 
-    void discovery_update(ValidatorQuorumSlicesSnapshots) = 10;
+    KnownQuorumSets discovery_update_quorums(KnownQuorumSets) = 10;
   }
   = 1;
 }

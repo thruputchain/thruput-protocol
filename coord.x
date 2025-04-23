@@ -21,8 +21,8 @@ struct CoordinatorCard {
   UPID upid;
 };
 
-// ExecutorCard uniquely describes an executor instance.
-struct ExecutorCard {
+// ExecCard uniquely describes an executor instance.
+struct ExecCard {
 
   Protocol protocol;
 
@@ -31,8 +31,8 @@ struct ExecutorCard {
   ServerAddress address;
 };
 
-// DbCard uniquely describes a database shard instance and its initial state.
-struct DbCard {
+// ShardCard uniquely describes a database shard instance and its initial state.
+struct ShardCard {
 
   Protocol protocol;
 
@@ -48,25 +48,17 @@ struct DbCard {
   // KeyPrefixes key_prefixes;
 };
 
-struct IntroDbResult {
+struct IntroShardResult {
   // cc holds the identity of the coordinator that responded
   CoordinatorCard cc;
 };
 
-struct IntroExecutorResult {
-  // cc holds the identity of the coordinator that responded
-  CoordinatorCard cc;
-};
-
-struct ListDbResult {
+struct IntroExecResult {
   // cc holds the identity of the coordinator that responded
   CoordinatorCard cc;
 
-  // is_ready indicates whether the db cluster is ready to use
-  bool is_ready;
-
-  // shards describes all currently available db shards
-  DbCard shards<>;
+  // shards describes a ready db cluster
+  ShardCard shards<>;
 };
 
 program Coordinator {
@@ -74,17 +66,13 @@ program Coordinator {
 
     void coordinator_null(void) = 0;
 
-    // intro_db is called by db shards to introduce themselves to the
-    // coordinator.
-    IntroDbResult coordinator_intro_db(DbCard) = 1;
+    // coordinator_intro_shard is called by db shards to introduce themselves to
+    // the coordinator.
+    IntroShardResult coordinator_intro_shard(ShardCard) = 1;
 
-    // intro_executor is called by executors to introduce themselves to the
-    // coordinator.
-    IntroExecutorResult coordinator_intro_executor(ExecutorCard) = 2;
-
-    // list_db is called by executors to learn the available set of db shards
-    // and whether the db system is ready to use.
-    ListDbResult coordinator_list_db(void) = 3;
+    // coordinator_intro_exec is called by executors to introduce themselves to
+    // the coordinator. It blocks until the db is ready to use.
+    IntroExecResult coordinator_intro_exec(ExecCard) = 2;
   }
   = 1;
 }

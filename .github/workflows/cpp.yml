@@ -20,5 +20,9 @@ jobs:
       run: gcc --version
     - name: clang version check
       run: clang --version
-    - name: check
+    - name: check format
       run: ./scripts/format.sh -c
+    - name: install yamllint
+      run: sudo apt-get install yamllint
+    - name: lint yaml
+      run: yamllint -s syscalls.yaml

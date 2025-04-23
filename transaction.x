@@ -30,9 +30,13 @@ namespace hogd
   };
 
   // Nondeterministic data attached to a transaction by the proposer.
-  // Left empty until future PRs.
   struct NondeterministicProposalData {
-    void;
+    // string of nondeterministic bits generated during the course
+    // of the transaction.
+    opaque nondeterministic_bits<>;
+    // the length of the nondeterministic_bits string, in bits
+    // (nondeterminstic_bits.size() returns the rounded-up length in bytes)
+    unsigned int nondeterministic_bit_count;
   };
 
   // A signed transaction, with the nondeterministic data from the proposer
