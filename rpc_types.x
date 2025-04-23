@@ -16,9 +16,9 @@ namespace hogd
   typedef unsigned hyper TransactionID;
 
   // This is missing error codes, and is here purely as a placeholder.
-  // These are some of the error codes I suspect we will need, but these 
+  // These are some of the error codes I suspect we will need, but these
   // are not organized in any particular manner.
-  // 
+  //
   // TODO(geoff): This probably should get moved to a different file?
   enum RPCError {
     kNone = 0,
@@ -47,7 +47,8 @@ namespace hogd
     // Set if the item is to be included in the final commitment
     // of a transaction (as opposed to a reservation within a try_invoke block).
     kFinalCommit = 0x00000001,
-    // Should the modified item be exclusively locked, in addition to the modification performed.
+    // Should the modified item be exclusively locked, in addition to the
+    // modification performed.
     kExclusiveLock = 0x00000002
   };
 
@@ -56,8 +57,7 @@ namespace hogd
 
   typedef int128_xdr StorageCost;
 
-  union ExpectedStorageCost switch (RPCError error)
-  {
+  union ExpectedStorageCost switch (RPCError error) {
   case kNone:
     StorageCost storage_cost;
   default:
@@ -65,32 +65,28 @@ namespace hogd
   };
 
   // Is this the XDR pattern we want?
-  union ExpectedContract switch (RPCError error)
-  {
+  union ExpectedContract switch (RPCError error) {
   case kNone:
     Contract contract;
   default:
     void;
   };
 
-  union ExpectedDeployment switch (RPCError error)
-  {
+  union ExpectedDeployment switch (RPCError error) {
   case kNone:
     SHA256Hash deployed_hash;
   default:
     void;
   };
 
-  union ExpectedProposalData switch (RPCError error)
-  {
+  union ExpectedProposalData switch (RPCError error) {
   case kNone:
     NondeterministicProposal proposal_data;
   default:
     void;
   };
 
-  union ExpectedStorageItem switch (RPCError error)
-  {
+  union ExpectedStorageItem switch (RPCError error) {
   case kNone:
     StorageItem item;
   default:

@@ -10,13 +10,12 @@ namespace hogd
 {
   // clang-format on
 
-  program DatabaseToExecutorInterface
-  {
-    version DatabaseToExecutorInterfaceV1
-    {
+  program DatabaseToExecutorInterface {
+    version DatabaseToExecutorInterfaceV1 {
       // Warning: the returned marginal storage cost may be nondeterministic.
-      ExpectedStorageCost try_reserve_delta(BlockID, TransactionID, AddressAndKey,
-                                 StorageDelta, StorageItemRPCFlagSet) = 0;
+      ExpectedStorageCost try_reserve_delta(BlockID, TransactionID,
+                                            AddressAndKey, StorageDelta,
+                                            StorageItemRPCFlagSet) = 0;
       void commit_transaction(BlockID, TransactionID) = 1;
       void abort_transaction(BlockID, TransactionID) = 2;
 
