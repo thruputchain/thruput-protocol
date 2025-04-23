@@ -20,9 +20,9 @@ typedef unsigned int RuntimeMemoryLength; // uint32_t
 typedef unsigned hyper GasAmount; // uint64_t
 typedef unsigned int MethodID;    // uint32_t
 
-typedef opaque Ed25519Signature[64]; // ed25519 sig len is 512 bits
-typedef opaque Ed25519PublicKey[32]; // ed25519 key len is 256 bits
-typedef opaque Ed25519SecretKey[64]; // ed25519 secret key len is 64 bytes
+typedef opaque Ed25519Signature[64]; // #[rust(newtype)] ed25519 sig len is 512 bits
+typedef opaque Ed25519PublicKey[32]; // #[rust(newtype)] ed25519 key len is 256 bits
+typedef opaque Ed25519SecretKey[64]; // #[rust(newtype)] ed25519 secret key len is 64 bytes
 
 enum CryptographicScheme {
   Ed25519 = 0,
@@ -52,11 +52,11 @@ case 0:
   void;
 };
 
-typedef opaque SHA256Hash[32]; // 256 bit hash
+typedef opaque SHA256Hash[32];      // #[rust(newtype)] 256 bit hash
 
-typedef opaque ContractAddress[32]; // 256 bit contract addresses
+typedef opaque ContractAddress[32]; // #[rust(newtype)] 256 bit contract addresses
 
-typedef opaque StorageKey[32]; // arbitrary 32 bytes
+typedef opaque StorageKey[32];      // #[rust(newtype)] arbitrary 32 bytes
 
 const kMaxLogMessageLen = 1024;
 const kMaxReturnBufferLen = 1024;
