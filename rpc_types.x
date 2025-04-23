@@ -44,12 +44,9 @@ namespace hogd
   // Flags modifying one Executor->DB storage item RPC
   enum StorageItemRPCFlags {
     kNone = 0,
-    // Set if the item is to be included in the final commitment
-    // of a transaction (as opposed to a reservation within a try_invoke block).
-    kFinalCommit = 0x00000001,
     // Should the modified item be exclusively locked, in addition to the
     // modification performed.
-    kExclusiveLock = 0x00000002
+    kExclusiveLock = 0x00000001
   };
 
   // XOR of elements in StorageItemRPCFlags
