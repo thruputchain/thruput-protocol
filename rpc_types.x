@@ -21,32 +21,32 @@ namespace hogd
   //
   // TODO(geoff): This probably should get moved to a different file?
   enum RPCError {
-    kNone = 0,
+    kRPCNone = 0,
     // Lookup on contract that does not exist in database
-    kContractNotExist = 1,
+    kRPCContractNotExist = 1,
     // Lookup deployment of contract on address that has no deployed contract
-    kNoContractDeployed = 2,
+    kRPCNoContractDeployed = 2,
     // Executor in bad state to validate or propose
-    kBadExecutorState = 3,
+    kRPCBadExecutorState = 3,
     // BlockID does not exist, or is not in correct state
-    kBadBlockID = 4,
+    kRPCBadBlockID = 4,
     // bad storage modification
-    kStorageWriteFailed = 5,
+    kRPCStorageWriteFailed = 5,
     // Requesting an item that doesn't exist
-    kNoStorageItem = 6,
+    kRPCNoStorageItem = 6,
     // tx validation or proposal failed
-    kTransactionFailed = 7,
+    kRPCTransactionFailed = 7,
     // Some error during validation, beyond just an error in the transaction,
     // such as a nondeterministic RCQ consume not backed by a concurrent insert.
-    kValidationFailure = 8,
+    kRPCValidationFailure = 8,
   };
 
   // Flags modifying one Executor->DB storage item RPC
   enum StorageItemRPCFlags {
-    kNone = 0,
+    kStorageNone = 0,
     // Should the modified item be exclusively locked, in addition to the
     // modification performed.
-    kExclusiveLock = 0x00000001
+    kStorageExclusiveLock = 0x00000001
   };
 
   // XOR of elements in StorageItemRPCFlags
@@ -55,7 +55,7 @@ namespace hogd
   typedef int128_xdr StorageCost;
 
   union ExpectedStorageCost switch (RPCError error) {
-  case kNone:
+  case kRPCNone:
     StorageCost storage_cost;
   default:
     void;
@@ -63,28 +63,28 @@ namespace hogd
 
   // Is this the XDR pattern we want?
   union ExpectedContract switch (RPCError error) {
-  case kNone:
+  case kRPCNone:
     Contract contract;
   default:
     void;
   };
 
   union ExpectedDeployment switch (RPCError error) {
-  case kNone:
+  case kRPCNone:
     SHA256Hash deployed_hash;
   default:
     void;
   };
 
   union ExpectedProposalData switch (RPCError error) {
-  case kNone:
-    NondeterministicProposal proposal_data;
+  case kRPCNone:
+    NondeterministicProposalData proposal_data;
   default:
     void;
   };
 
   union ExpectedStorageItem switch (RPCError error) {
-  case kNone:
+  case kRPCNone:
     StorageItem item;
   default:
     void;
