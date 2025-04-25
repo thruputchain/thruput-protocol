@@ -3,7 +3,12 @@ namespace hogd {
 typedef opaque SoloNodeID[32];
 
 typedef unsigned hyper SoloSlotIndex;
-typedef opaque SoloValue<>;
+
+typedef opaque SoloPayload<>;
+
+struct SoloValue {
+  SoloPayload payloads<>;
+};
 
 enum SoloValidationLevel {
   SoloInvalidValue = 0,
