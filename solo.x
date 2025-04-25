@@ -22,7 +22,7 @@ case StatementGamma:
   void;
 default:
   void;
-}
+};
 
 enum SoloValidationLevel {
   SoloInvalidValue = 0,
