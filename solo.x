@@ -13,7 +13,7 @@ enum SoloStatementType {
 };
 
 // SoloStatement is an extension point
-type SoloStatement switch (SoloStatementType statement_type) {
+union SoloStatement switch (SoloStatementType statement_type) {
 case StatementAlpha:
   void;
 case StatementkBeta:
