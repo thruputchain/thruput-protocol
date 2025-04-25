@@ -5,6 +5,12 @@ typedef opaque SoloNodeID[32];
 typedef unsigned hyper SoloSlotIndex;
 typedef opaque SoloValue<>;
 
+enum SoloValidationLevel {
+  SoloInvalidValue = 0,
+  SoloMaybeValidValue = 1,
+  SoloFullyValidValue = 2,
+};
+
 struct SoloNomination {
   SoloSlotIndex slot_index;
   SoloValue value;
@@ -56,7 +62,7 @@ program SoloClient {
 
     void soloclient_null(void) = 0;
 
-    bool soloclient_validate(SoloSignedValidate) = 10;
+    SoloValidationLevel soloclient_validate(SoloSignedValidate) = 10;
 
     void soloclient_externalized(SoloSignedExternalized) = 20;
   }
