@@ -4,11 +4,25 @@ typedef opaque SoloNodeID[32];
 
 typedef unsigned hyper SoloSlotIndex;
 
-typedef opaque SoloPayload<>;
+typedef opaque SoloValue<>;
 
-struct SoloValue {
-  SoloPayload payloads<>;
+enum SoloStatementType {
+  StatementAlpha = 0,
+  StatementkBeta = 1,
+  StatementGamma = 2,
 };
+
+// SoloStatement is an extension point
+type SoloStatement switch (SoloStatementType statement_type) {
+case StatementAlpha:
+  void;
+case StatementkBeta:
+  void;
+case StatementGamma:
+  void;
+default:
+  void;
+}
 
 enum SoloValidationLevel {
   SoloInvalidValue = 0,
