@@ -16,6 +16,17 @@ struct SoloSignedNomination {
   SoloNomination nomination;
 };
 
+struct SoloValidate {
+  SoloSlotIndex slot_index;
+  SoloValue value;
+};
+
+struct SoloSignedValidate {
+  ValidatorPublicInfo signer;
+  Signature signature;
+  SoloValidate validate;
+};
+
 struct SoloExternalized {
   SoloSlotIndex slot_index;
   SoloValue value;
@@ -45,7 +56,9 @@ program SoloClient {
 
     void soloclient_null(void) = 0;
 
-    void soloclient_externalized(SoloSignedExternalized) = 10;
+    void soloclient_validate(SoloSignedValidate) = 10;
+
+    void soloclient_externalized(SoloSignedExternalized) = 20;
   }
   = 1;
 }
