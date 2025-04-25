@@ -56,7 +56,7 @@ program SoloClient {
 
     void soloclient_null(void) = 0;
 
-    void soloclient_validate(SoloSignedValidate) = 10;
+    bool soloclient_validate(SoloSignedValidate) = 10;
 
     void soloclient_externalized(SoloSignedExternalized) = 20;
   }
