@@ -24,6 +24,10 @@ default:
   void;
 };
 
+struct SoloStatementSet {
+  SoloStatement statements<>;
+};
+
 enum SoloValidationLevel {
   SoloInvalidValue = 0,
   SoloMaybeValidValue = 1,
