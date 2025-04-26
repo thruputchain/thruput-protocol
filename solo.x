@@ -67,27 +67,27 @@ struct SoloSignedExternalized {
   SoloExternalized externalized;
 };
 
-// SoloServer is the server component of the centralized SCP implementation.
-program SoloServer {
-  version SoloServer1 {
+// SoloLeader is the server component of the centralized SCP implementation.
+program SoloLeader {
+  version SoloLeader1 {
 
-    void soloserver_null(void) = 0;
+    void sololeader_null(void) = 0;
 
-    void soloserver_nominate(SoloSignedNomination) = 10;
+    void sololeader_nominate(SoloSignedNomination) = 10;
   }
   = 1;
 }
 = 0x8aa81222;
 
-// SoloClient is the client component of the centralized SCP implementation.
-program SoloClient {
-  version SoloClient1 {
+// SoloFollower is the client component of the centralized SCP implementation.
+program SoloFollower {
+  version SoloFollower1 {
 
-    void soloclient_null(void) = 0;
+    void solofollower_null(void) = 0;
 
-    SoloValidationLevel soloclient_validate(SoloSignedValidate) = 10;
+    SoloValidationLevel solofollower_validate(SoloSignedValidate) = 10;
 
-    void soloclient_externalized(SoloSignedExternalized) = 20;
+    void solofollower_externalized(SoloSignedExternalized) = 20;
   }
   = 1;
 }
