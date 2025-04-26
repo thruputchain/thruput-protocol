@@ -4,6 +4,8 @@ namespace hogd {
 // in creating a channel's multicast tree
 typedef opaque BroadcastChannelID[32];
 
+typedef opaque BatchID[32];
+
 typedef unsigned int SeqNo;
 
 typedef SHA256Hash MulticastTreeHash;
