@@ -45,7 +45,7 @@ enum InvokeErrorCode {
 // HostFnErrorCode. Other HostFnErrorCodes terminate the WebAssembly runtime
 // (returning to the caller), and are handled by the WebAssembly runtime.
 enum HostFnErrorCode {
-  kNoneOrRecoverable = 0,
+  kHostNoneOrRecoverable = 0,
   // Insufficient gas to continue WebAssembly execution.
   //
   // Result: the WebAssembly runtime immediately returns an

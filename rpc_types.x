@@ -39,6 +39,8 @@ namespace hogd
     // Some error during validation, beyond just an error in the transaction,
     // such as a nondeterministic RCQ consume not backed by a concurrent insert.
     kRPCValidationFailure = 8,
+    // Unimplemented RPC
+    kRPCUnimplemented = 9,
   };
 
   // Flags modifying one Executor->DB storage item RPC

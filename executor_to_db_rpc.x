@@ -24,10 +24,10 @@ namespace hogd
       // transaction must always be applied to the top-level subtransaction.
       //
       // Create a new subtransaction on top of the current (sub)transaction.
-      void push_new_subtransaction(BlockID, TransactionID) = 3;
+      RPCError push_new_subtransaction(BlockID, TransactionID) = 3;
 
       // Revert one or more subtransactions.
-      void pop_subtransactions(BlockID, TransactionID, unsigned int) = 4;
+      RPCError pop_subtransactions(BlockID, TransactionID, unsigned int) = 4;
 
       // Load the snapshot value of a storage item at the supplied address,
       // if it exists.

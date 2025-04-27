@@ -195,6 +195,12 @@ syscalls:
         typename: "StorageKey"
     outputs:
     number: 18
+  - name: "GetCurrentAddress"
+    inputs:
+    outputs:
+      - name: "address"
+        typename: "ContractAddress"
+    number: 19
 errors:
   - name: "None"
     number: 0
