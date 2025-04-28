@@ -12,8 +12,8 @@ struct WalletConfig {
 };
 
 struct Config {
-  ValidatorConfig validator_config;
-  WalletConfig wallet_config;
+  ValidatorConfig *validator_config;
+  WalletConfig *wallet_config;
 };
 
 } // namespace hogd
