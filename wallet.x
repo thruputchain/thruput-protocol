@@ -1,7 +1,7 @@
 namespace hogd {
 
 struct WalletUser {
-  string name<>;
+  string login<>;
   SHA256Hash password_hash;
 };
 
