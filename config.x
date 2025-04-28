@@ -7,4 +7,13 @@ struct ValidatorConfig {
   ValidatorPublicInfo known_validators<>;
 };
 
+struct WalletConfig {
+  WalletUser users<>;
+};
+
+struct Config {
+  ValidatorConfig validator_config;
+  WalletConfig wallet_config;
+};
+
 } // namespace hogd
