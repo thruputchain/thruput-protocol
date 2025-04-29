@@ -23,8 +23,8 @@ struct BroadcastChannel {
   ValidatorID source_id;
   BroadcastChannelID channel_id;
   MulticastTreeHash tree_hash;
-  // If batch_size is negative, this is a streaming channel.
-  hyper batch_size;
+  // If batch_count is non-negative, this is a bulk channel.
+  hyper batch_count;
   BroadcastBatchHash batch_hash;
 };
 
