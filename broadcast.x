@@ -8,6 +8,7 @@ typedef unsigned int SeqNo;
 
 typedef SHA256Hash MulticastTreeHash;
 typedef SHA256Hash BroadcastMessageHash;
+typedef SHA256Hash BroadcastBatchHash;
 
 struct MulticastTreeNode {
   ValidatorPublicInfo node;
@@ -22,6 +23,9 @@ struct BroadcastChannel {
   ValidatorID source_id;
   BroadcastChannelID channel_id;
   MulticastTreeHash tree_hash;
+  // If batch_size is negative, this is a streaming channel.
+  hyper batch_size;
+  BroadcastBatchHash batch_hash;
 };
 
 struct BroadcastHeader {
