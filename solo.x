@@ -7,18 +7,18 @@ typedef unsigned hyper SoloSlotIndex;
 typedef opaque SoloValue<>;
 
 enum SoloStatementType {
-  StatementAlpha = 0,
-  StatementkBeta = 1,
-  StatementGamma = 2,
+  SoloStatementAlpha = 0,
+  SoloStatementBeta = 1,
+  SoloStatementGamma = 2,
 };
 
 // SoloStatement is an extension point
 union SoloStatement switch (SoloStatementType statement_type) {
-case StatementAlpha:
+case SoloStatementAlpha:
   void;
-case StatementkBeta:
+case SoloStatementBeta:
   void;
-case StatementGamma:
+case SoloStatementGamma:
   void;
 default:
   void;
