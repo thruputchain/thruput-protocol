@@ -24,7 +24,7 @@ struct BroadcastChannel {
   BroadcastChannelID channel_id;
   MulticastTreeHash tree_hash;
   // If batch_count is non-negative, this is a bulk channel.
-  hyper batch_count;
+  int batch_count;
   BroadcastBatchHash batch_hash;
 };
 
