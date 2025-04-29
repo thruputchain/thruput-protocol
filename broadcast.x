@@ -24,7 +24,10 @@ struct BroadcastChannel {
   BroadcastChannelID channel_id;
   MulticastTreeHash tree_hash;
   // If batch_count is non-negative, this is a bulk channel.
-  int batch_count;
+  // batch_count is the number of messages comprising the bulk payload.
+  hyper batch_count;
+  // batch_size is the size of the bulk payload.
+  hyper batch_size;
   BroadcastBatchHash batch_hash;
 };
 
