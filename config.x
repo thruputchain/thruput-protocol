@@ -17,7 +17,7 @@ struct BroadcastConfig {
 };
 
 struct SpectraConfig {
-  unsigned int num_data_channels;
+  unsigned int num_payload_channels;
   unsigned int num_parity_channels;
 };
 
