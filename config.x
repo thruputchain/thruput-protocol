@@ -13,7 +13,7 @@ struct WalletConfig {
 
 struct BroadcastConfig {
   unsigned int multicast_tree_ttl_msec; // milliseconds
-  hyper int chunk_size;
+  unsigned hyper chunk_size;
 };
 
 struct SpectraConfig {
