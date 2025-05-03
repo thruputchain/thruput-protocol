@@ -13,7 +13,8 @@ namespace hogd {
     kMockTest = 2,
   };
 
-  union Contract switch (ContractType contract_type) {
+  union Contract switch (ContractType contract_type)
+  {
   case kWasmi:
     ContractBlob wasmi_contract;
   case kNative:

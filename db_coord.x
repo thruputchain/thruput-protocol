@@ -1,7 +1,9 @@
 namespace hogd {
 
-program DbCoord {
-  version DbCoord1 {
+program DbCoord
+{
+  version DbCoord1
+  {
 
     void dbcoord_null(void) = 0;
 

@@ -13,7 +13,8 @@ enum SoloStatementType {
 };
 
 // SoloStatement is an extension point
-union SoloStatement switch (SoloStatementType statement_type) {
+union SoloStatement switch (SoloStatementType statement_type)
+{
 case SoloStatementAlpha:
   void;
 case SoloStatementBeta:
@@ -68,8 +69,10 @@ struct SoloSignedExternalized {
 };
 
 // SoloLeader is the server component of the centralized SCP implementation.
-program SoloLeader {
-  version SoloLeader1 {
+program SoloLeader
+{
+  version SoloLeader1
+  {
 
     void sololeader_null(void) = 0;
 
@@ -80,8 +83,10 @@ program SoloLeader {
 = 0x8aa81222;
 
 // SoloFollower is the client component of the centralized SCP implementation.
-program SoloFollower {
-  version SoloFollower1 {
+program SoloFollower
+{
+  version SoloFollower1
+  {
 
     void solofollower_null(void) = 0;
 

@@ -56,7 +56,8 @@ namespace hogd
 
   typedef int128_xdr StorageCost;
 
-  union ExpectedStorageCost switch (RPCError error) {
+  union ExpectedStorageCost switch (RPCError error)
+  {
   case kRPCNone:
     StorageCost storage_cost;
   default:
@@ -64,28 +65,32 @@ namespace hogd
   };
 
   // Is this the XDR pattern we want?
-  union ExpectedContract switch (RPCError error) {
+  union ExpectedContract switch (RPCError error)
+  {
   case kRPCNone:
     Contract contract;
   default:
     void;
   };
 
-  union ExpectedDeployment switch (RPCError error) {
+  union ExpectedDeployment switch (RPCError error)
+  {
   case kRPCNone:
     SHA256Hash deployed_hash;
   default:
     void;
   };
 
-  union ExpectedProposalData switch (RPCError error) {
+  union ExpectedProposalData switch (RPCError error)
+  {
   case kRPCNone:
     NondeterministicProposalData proposal_data;
   default:
     void;
   };
 
-  union ExpectedStorageItem switch (RPCError error) {
+  union ExpectedStorageItem switch (RPCError error)
+  {
   case kRPCNone:
     StorageItem item;
   default:

@@ -48,8 +48,10 @@ struct KnownQuorumSets {
   SignedValidatorInfoSnapshot validator_snapshots<>;
 };
 
-program Discovery {
-  version Discovery1 {
+program Discovery
+{
+  version Discovery1
+  {
 
     void discovery_null(void) = 0;
 

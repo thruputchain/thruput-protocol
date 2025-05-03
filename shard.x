@@ -4,8 +4,10 @@ enum ShardResult {
   ShardOK = 0,
 };
 
-program Shard {
-  version Shard1 {
+program Shard
+{
+  version Shard1
+  {
 
     void shard_null(void) = 0;
 

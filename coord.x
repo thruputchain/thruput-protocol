@@ -61,8 +61,10 @@ struct IntroExecResult {
   ShardCard shards<>;
 };
 
-program Coordinator {
-  version Coordinator1 {
+program Coordinator
+{
+  version Coordinator1
+  {
 
     void coordinator_null(void) = 0;
 

@@ -1,12 +1,15 @@
 namespace hogd {
 
-program ExecutorCoord {
-  version ExecutorCoord1 {
+program ExecutorCoord
+{
+  version ExecutorCoord1
+  {
 
     void executorcoord_null(void) = 0;
 
-    ExpectedProposalData executorcoord_propose_transaction(
-        BlockID, SignedTransaction) = 10;
+    ExpectedProposalData executorcoord_propose_transaction(BlockID,
+                                                           SignedTransaction) =
+        10;
     RPCError executorcoord_validate_transaction(BlockID, ProposedTransaction) =
         20;
 

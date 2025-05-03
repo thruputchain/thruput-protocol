@@ -16,7 +16,8 @@ enum WalletTransactionAckType {
 
 typedef opaque WalletSubmittedTransactionID[32];
 
-union WalletTransactionAck switch (WalletTransactionAckType ack_type) {
+union WalletTransactionAck switch (WalletTransactionAckType ack_type)
+{
 case WalletTransactionNotSubmitted:
   void;
 case WalletTransactionSubmitted:
@@ -30,8 +31,10 @@ struct WalletAck {
 };
 
 // Wallet is an API for wallets submitting transactions to chuckd.
-program Wallet {
-  version Wallet1 {
+program Wallet
+{
+  version Wallet1
+  {
 
     void wallet_null(void) = 0;
 

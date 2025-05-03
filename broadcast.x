@@ -70,8 +70,10 @@ struct ReconciledMessages {
   BroadcastMessage msgs<>;
 };
 
-program Broadcast {
-  version Broadcast1 {
+program Broadcast
+{
+  version Broadcast1
+  {
 
     void broadcast_null(void) = 0;
 
