@@ -7,10 +7,10 @@ namespace hogd
   // clang-format on
 
   enum StorageItemType {
-    kBytestring = 0,
-    kNonnegativeInt = 1,
-    kRetrocausalQueue = 2,
-    kDeleted = -1,
+    kItemTypeBytestring = 0,
+    kItemTypeNonnegativeInt = 1,
+    kItemTypeRetrocausalQueue = 2,
+    kItemTypeDeleted = -1,
   };
 
   const kBytestringMaxLen = 1024;
@@ -19,17 +19,19 @@ namespace hogd
 
   union StorageItem switch (StorageItemType type)
   {
-  case kBytestring:
+  case kItemTypeBytestring:
     Bytestring bytestring;
-  case kNonnegativeInt:
+  case kItemTypeNonnegativeInt:
     int128_xdr nnint;
+  case kItemTypeRetrocausalQueue:
+    void;
   };
 
   enum StorageDeltaType {
-    kBytestringSet = 0,
-    kNonnegativeIntSetAdd = 1,
-    kDelete = 2,
-    kRetrocausalQueue = 3,
+    kDeltaTypeBytestringSet = 0,
+    kDeltaTypeNonnegativeIntSetAdd = 1,
+    kDeltaTypeDelete = 2,
+    kDeltaTypeRetrocausalQueue = 3,
   };
 
   struct NonnegativeInt128SetAddArgs {
@@ -39,13 +41,13 @@ namespace hogd
 
   union StorageDelta switch (StorageDeltaType type)
   {
-  case kBytestringSet:
+  case kDeltaTypeBytestringSet:
     Bytestring bytestring;
-  case kNonnegativeIntSetAdd:
+  case kDeltaTypeNonnegativeIntSetAdd:
     NonnegativeInt128SetAddArgs nnint;
-  case kDelete:
+  case kDeltaTypeDelete:
     void;
-  case kRetrocausalQueue:
+  case kDeltaTypeRetrocausalQueue:
     RetrocausalQueueDelta retrocausal_queue;
   };
 
