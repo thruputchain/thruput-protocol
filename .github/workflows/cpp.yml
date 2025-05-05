@@ -21,7 +21,7 @@ jobs:
     - name: install yamllint
       run: sudo apt-get install yamllint
     - name: install goxdr
-      run: go install github.com/xdrpp/goxdr/cmd/goxdr
+      run: go install github.com/xdrpp/goxdr/cmd/goxdr@latest
     - name: check go build
       run: goxdr -o generated.go *.x
     - name: lint yaml
