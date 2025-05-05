@@ -1,8 +1,5 @@
 namespace hogd {
 
-// BlockHeight is the height of a block.
-typedef unsigned int BlockHeight;
-
 // ServerAddress is an IP (or hostname) and port address, separated by a colon.
 typedef string ServerAddress<>;
 
