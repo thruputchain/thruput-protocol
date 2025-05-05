@@ -8,9 +8,9 @@ namespace hogd
 
   union StorageItemTypeClass switch (StorageItemType item_type)
   {
-  case kBytestring:
+  case kItemTypeBytestring:
     Bytestring bytestring;
-  case kNonnegativeInt:
+  case kItemTypeNonnegativeInt:
     int128_xdr nnint_set;
   default:
     void;
@@ -25,9 +25,9 @@ namespace hogd
 
   union TypeSpecificLock switch (StorageItemType item_type)
   {
-  case kNonnegativeInt:
+  case kItemTypeNonnegativeInt:
     int128_xdr nnint_subtracted_amount;
-  case kRetrocausalQueue:
+  case kItemTypeRetrocausalQueue:
     unsigned int consume_lock; // boolean
   default:
     void;
