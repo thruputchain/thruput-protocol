@@ -13,7 +13,7 @@ struct CatchupBlocksRequest {
   // requester to ask for blocks whose hashes are not known ahead of time. For
   // instance, the caller can request the block that is currently being
   // prepared.
-  BlockHeight starting_block_height;
+  BlockHeight onto_block_height;
 };
 
 struct SignedCatchupBlocksRequest {
