@@ -23,6 +23,6 @@ jobs:
     - name: install goxdr
       run: go install github.com/xdrpp/goxdr/cmd/goxdr@latest
     - name: check go build
-      run: goxdr -o generated.go *.x
+      run: $HOME/go/bin/goxdr -o generated.go *.x
     - name: lint yaml
       run: yamllint -s syscalls.yaml
