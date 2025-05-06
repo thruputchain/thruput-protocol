@@ -35,23 +35,40 @@ namespace hogd
       // if it exists.
       ExpectedStorageItem get_snapshot_item(BlockID, AddressAndKey) = 100;
 
+      // Returns the next block in the retrocausal queue at or after the
+      // supplied block number. Returns kNoRetrocausalQueueBlock if there is no
+      // element in the queue at or after the supplied block number (and before
+      // the current block number).  Does not return data from the current
+      // block, (the retrocausal part), which should be accessed via
+      // get_concurrent_retrocausal_queue_entry().
+      ExpectedRetrocausalQueueBlock get_next_retrocausal_queue_block(
+          BlockID, AddressAndKey, unsigned hyper) = 101;
+
+      // Returns the next unconsumed entry in the retrocausal queue for the
+      // current block. The last argument is the index of the entry to return.
+      // The queried order is nondeterministic.
+      ExpectedQueueEntry get_concurrent_retrocausal_queue_entry(BlockID,
+                                                                AddressAndKey,
+                                                                unsigned int) =
+          102;
+
       // Create a new contract.
       // Arguments:
       //   New Contract
-      void commit_contract_create(BlockID, Contract) = 101;
+      void commit_contract_create(BlockID, Contract) = 200;
 
       // Create a new deployment.
       // Arguments:
       //   ContractAddress
       //   SHA256Hash of contract to be deployed
-      void commit_contract_deploy(BlockID, ContractAddress, SHA256Hash) = 102;
+      void commit_contract_deploy(BlockID, ContractAddress, SHA256Hash) = 201;
 
       // TODO(geoff) consider whether we want to combine these or not.
       // Tradeoff is messages vs maybe sending redundant contracts.
       // Perhaps the sender could cache whether it expects the client to have
       // the contract, and optionally send accordingly.
-      ExpectedContract get_contract(BlockID, SHA256Hash) = 103;
-      ExpectedDeployment get_deployment(BlockID, ContractAddress) = 104;
+      ExpectedContract get_contract(BlockID, SHA256Hash) = 202;
+      ExpectedDeployment get_deployment(BlockID, ContractAddress) = 203;
     }
     = 1;
   }

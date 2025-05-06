@@ -41,6 +41,8 @@ namespace hogd
     kRPCValidationFailure = 8,
     // Unimplemented RPC
     kRPCUnimplemented = 9,
+    // No retrocausal queue block or entryfound
+    kRPCNoQueueEntry = 10,
   };
 
   // Flags modifying one Executor->DB storage item RPC
@@ -93,6 +95,22 @@ namespace hogd
   {
   case kRPCNone:
     StorageItem item;
+  default:
+    void;
+  };
+
+  union ExpectedRetrocausalQueueBlock switch (RPCError error)
+  {
+  case kRPCNone:
+    RetrocausalQueueBlock queue_block;
+  default:
+    void;
+  };
+
+  union ExpectedQueueEntry switch (RPCError error)
+  {
+  case kRPCNone:
+    QueueEntry queue_entry;
   default:
     void;
   };
