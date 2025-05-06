@@ -10,6 +10,7 @@ struct ValidatorConfig {
 };
 
 struct WalletConfig {
+  JWTSecretKey secret_key;
   WalletUser users<>;
 };
 
