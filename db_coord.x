@@ -19,7 +19,7 @@ program DbCoord
     // Any BlockID that is not a descendant of this block will return
     // an error if accessed. This BlockID must be the immediate descendant of
     // the most recently committed block.
-    void dbcoord_commit_snapshot(BlockID) = 20;
+    RPCError dbcoord_commit_snapshot(BlockID) = 20;
 
     // Call to close a block. This indicates that no more transactions
     // will be added to this block. The block must have been previously opened
