@@ -24,12 +24,15 @@ enum InvokeErrorCode {
   // Runtime exceeded its gas budget.
   kInvokeOutOfGas = 2,
   // Nondeterministic error during invocation (e.g. malloc error)
-  // Signals a serious system issue or a serious bug in our code and should be diagnosed ASAP.
+  // Signals a serious system issue or a serious bug in our code and should be
+  // diagnosed ASAP.
   kInvokeUnrecoverable = 3,
   // Discovered during validation that proposer submitted bad data.
   kInvokeValidationFailure = 4,
-  // The transaction was aborted due to an external reason (such as the current block being discarded),
-  // but this is not the result of a totally unrecoverable error. This is to be expected during normal system operation.
+  // The transaction was aborted due to an external reason (such as the current
+  // block being discarded),
+  // but this is not the result of a totally unrecoverable error. This is to be
+  // expected during normal system operation.
   kInvokeAbortTransaction = 5,
 };
 
@@ -59,7 +62,8 @@ enum HostFnErrorCode {
   //
   // Result: the WebAssembly runtime immediately returns an
   // InvokeErrorCode::kUnrecoverable
-  // Signals a serious system issue or a serious bug in our code and should be diagnosed ASAP.
+  // Signals a serious system issue or a serious bug in our code and should be
+  // diagnosed ASAP.
   kHostUnrecoverable = 2,
   // Return from a WebAssembly invocation to the caller.  Registers a byte
   // buffer to be passed back to the caller.
@@ -80,8 +84,9 @@ enum HostFnErrorCode {
   // Result: the WebAssembly runtime immediately returns an
   // InvokeErrorCode::kValidationFailure
   kHostValidationFailure = 5,
-  // The transaction was aborted due to an external reason (such as the current block being discarded),
-  // but this is not the result of a totally unrecoverable error. This is to be expected during normal system operation.
+  // The transaction was aborted due to an external reason (such as the current
+  // block being discarded), but this is not the result of a totally
+  // unrecoverable error. This is to be expected during normal system operation.
   //
   // Result: the WebAssembly runtime immediately returns an
   // InvokeErrorCode::kAbortTransaction
