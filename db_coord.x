@@ -1,4 +1,10 @@
+
+// clang-format off
+%#include "rpc_types.hh"
+
 namespace hogd {
+  // clang-format on
+
 
 program DbCoord
 {
