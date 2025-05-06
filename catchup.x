@@ -9,11 +9,8 @@ struct CatchupBlock {
 
 struct CatchupBlocksRequest {
   Timestamp timestamp;
-  // We intentionally use only block height (and not block hashes) to enable the
-  // requester to ask for blocks whose hashes are not known ahead of time. For
-  // instance, the caller can request the block that is currently being
-  // prepared.
-  BlockHeight onto_block_height;
+  BlockHeight from_block_height;
+  BlockHeight to_block_height;
 };
 
 struct SignedCatchupBlocksRequest {
