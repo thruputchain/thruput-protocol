@@ -12,6 +12,20 @@ namespace hogd {
 
       void dbcoord_null(void) = 0;
 
+      // Examples of valid call sequences to the db:
+      //
+      // dbcoord_open_snapshot
+      //   ... calls to executor
+      // dbcoord_commit_snapshot
+      //
+      // dbcoord_open_snapshot
+      //   ... calls to executor
+      // dbcoord_close_snapshot
+      //
+      // dbcoord_open_snapshot
+      //   ... calls to executor
+      // dbcoord_abandon_snapshot
+
       // Called when creating a new block.
       // The first argument is the ID of the parent block.
       // The database will surface requests from the snapshot
@@ -33,6 +47,9 @@ namespace hogd {
       // Error if the block has been pruned or contains an item in an invalid
       // state (due to e.g. a block validation failure).
       RPCError dbcoord_close_snapshot(BlockID) = 30;
+
+      // Call to abandon a block.
+      RPCError dbcoord_abandon_snapshot(BlockID) = 40;
     }
     = 1;
   }
