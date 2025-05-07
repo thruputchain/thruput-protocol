@@ -14,13 +14,13 @@ struct CatchupSpan {
 
 struct CatchupBlocksRequest {
   Timestamp timestamp;
-  CatchupSpan span;
+  CatchupSpan spans<>;
 };
 
 struct SignedCatchupBlocksRequest {
   ValidatorPublicInfo signer;
   Signature signature;
-  CatchupBlocksRequest requests<>;
+  CatchupBlocksRequest request;
 };
 
 struct CatchupBlocksResult {
