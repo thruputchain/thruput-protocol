@@ -1,6 +1,7 @@
 namespace hogd {
 
-// BlockHeight is the height of a block. It is signed to prevent overflows in calculations.
+// BlockHeight is the height of a block. It is signed to prevent overflows in
+// calculations.
 typedef hyper BlockHeight;
 
 typedef SHA256Hash BlockHash;

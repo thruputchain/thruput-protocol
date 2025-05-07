@@ -2,7 +2,7 @@ namespace hogd {
 
 typedef opaque SoloNodeID[32];
 
-typedef unsigned hyper SoloSlotIndex;
+typedef hyper SoloSlotIndex;
 
 typedef opaque SoloValue<>;
 
