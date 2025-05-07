@@ -20,7 +20,7 @@ struct CatchupBlocksRequest {
 struct SignedCatchupBlocksRequest {
   ValidatorPublicInfo signer;
   Signature signature;
-  CatchupBlocksRequest request;
+  CatchupBlocksRequest requests<>;
 };
 
 struct CatchupBlocksResult {
