@@ -2,6 +2,7 @@
 // clang-format off
 %#include "types.hh"
 %#include "contract.hh"
+%#include "retrocausal_queue.hh"
 
 namespace hogd
 {
@@ -37,6 +38,8 @@ namespace hogd
     // the length of the nondeterministic_bits string, in bits
     // (nondeterminstic_bits.size() returns the rounded-up length in bytes)
     unsigned int nondeterministic_bit_count;
+    // sequence of queue entries observed by the proposer
+    QueueEntry observed_queue_entry_sequence<>;
   };
 
   // A signed transaction, with the nondeterministic data from the proposer
