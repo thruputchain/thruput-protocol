@@ -7,10 +7,14 @@ struct CatchupBlock {
   ProposedTransaction proposed_transactions<>;
 };
 
+struct CatchupSpan {
+  BlockHeight from_block_height;
+  BlockHeight to_block_height; // not including
+};
+
 struct CatchupBlocksRequest {
   Timestamp timestamp;
-  BlockHeight from_block_height;
-  BlockHeight to_block_height;
+  CatchupSpan span;
 };
 
 struct SignedCatchupBlocksRequest {
