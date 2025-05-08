@@ -18,10 +18,10 @@ namespace hogd
     Calldata calldata;
   };
 
-  typedef opaque TransactionID[16];
+  typedef opaque OriginID[16];
 
   struct Transaction {
-    TransactionID id;
+    OriginID id;
     Invocation invocation;
     Contract contracts_to_deploy<>;
   };
