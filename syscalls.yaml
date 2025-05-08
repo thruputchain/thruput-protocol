@@ -3,9 +3,11 @@ type_mappings:
   - base_name: "int128_t"  # The cpp name, which is used in this spec
     rust_name: "i128"
     xdr_name: "int128_xdr"
+    rust_uses_as_ptr: false
   - base_name: "uint128_t"
     rust_name: "u128"
     xdr_name: "uint128_xdr"
+    rust_uses_as_ptr: false
 syscalls:
   - name: "SHA256"
     needs_context: false
