@@ -22,6 +22,7 @@ namespace hogd
 
   struct Transaction {
     OriginID id;
+    Timestamp created;
     Invocation invocation;
     Contract contracts_to_deploy<>;
   };
