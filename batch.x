@@ -5,13 +5,18 @@ namespace hogd {
 typedef SHA256Hash BatchHash;
 
 struct BatchHeader {
-  BatchHash batch_hash;
-  unsigned int batch_size;
+  BlockHash target_block_hash;
+  BlockHash target_prev_block_hash;
+  BlockHeight target_block_height;
+};
+
+struct BatchTransactions {
+  ProposedTransaction transactions<>;
 };
 
 struct BatchMessage {
   BatchHeader batch_header;
-  ProposedTransaction transactions<>;
+  BatchTransactions batch_transactions;
 };
 
 } // namespace hogd
