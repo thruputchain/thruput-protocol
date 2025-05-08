@@ -27,6 +27,8 @@ namespace hogd
     Contract contracts_to_deploy<>;
   };
 
+  typedef SHA256Hash SignedTransactionHash;
+
   // Deliberately leaving this SignedTransaction object
   // (and all the other metadata)
   // for a later PR.
