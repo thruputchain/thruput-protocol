@@ -4,10 +4,10 @@ namespace hogd {
 
 typedef SHA256Hash BatchHash;
 
+// BatchHeader is included in Proposals.
 struct BatchHeader {
-  BlockHash target_block_hash;
-  BlockHash target_prev_block_hash;
-  BlockHeight target_block_height;
+  BatchHash batch_hash;
+  hyper batch_size;
 };
 
 struct BatchTransactions {

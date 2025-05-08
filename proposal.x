@@ -12,7 +12,7 @@ struct Proposal {
   BlockHeight block_height;
   BlockHash block_hash;
   BlockHash prev_block_hash;
-  BatchHash proposed_transaction_batches<>;
+  BatchHeader proposed_transaction_batches<>;
 };
 
 } // namespace hogd
