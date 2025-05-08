@@ -18,7 +18,10 @@ namespace hogd
     Calldata calldata;
   };
 
+  typedef opaque TransactionID[16];
+
   struct Transaction {
+    TransactionID id;
     Invocation invocation;
     Contract contracts_to_deploy<>;
   };
@@ -27,6 +30,7 @@ namespace hogd
   // (and all the other metadata)
   // for a later PR.
   struct SignedTransaction {
+    Signature signature;
     Transaction tx;
   };
 
