@@ -18,6 +18,14 @@ namespace hogd
     Calldata calldata;
   };
 
+
+  enum InvokeFlag {
+    kInvokeFlagNone = 0,
+    kInvokeFlagTryInvoke = 0x00000001,
+  };
+
+  typedef int InvokeFlagSet;
+
   typedef opaque OriginID[16];
 
   struct Transaction {

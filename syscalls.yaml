@@ -58,6 +58,9 @@ syscalls:
         primitive_type: true
       - name: "calldata"
         span_argument: true
+      - name: "flags"
+        typename: "InvokeFlagSet"
+        primitive_type: true
     outputs:
       - name: return_buffer_len
         typename: "RuntimeMemoryLength"
