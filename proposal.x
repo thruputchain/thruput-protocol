@@ -19,4 +19,8 @@ namespace hogd {
     BatchHash proposed_transaction_batches<>;
   };
 
+struct PrevProposalSummary {
+  BlockHash block_hash;
+}
+
 } // namespace hogd
