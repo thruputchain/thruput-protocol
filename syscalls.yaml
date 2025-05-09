@@ -1,4 +1,5 @@
 ---
+syscall_input_count: 7
 type_mappings:
   - base_name: "int128_t"  # The cpp name, which is used in this spec
     rust_name: "i128"
