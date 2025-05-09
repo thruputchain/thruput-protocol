@@ -18,7 +18,6 @@ namespace hogd
     Calldata calldata;
   };
 
-
   enum InvokeFlag {
     kInvokeFlagNone = 0,
     kInvokeFlagTryInvoke = 0x00000001,

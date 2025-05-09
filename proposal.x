@@ -1,4 +1,8 @@
+// clang-format off
+%#include "batch.hh"
+
 namespace hogd {
+  // clang-format on
 
 // BlockHeight is the height of a block. It is signed to prevent overflows in
 // calculations.
