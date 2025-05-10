@@ -212,7 +212,7 @@ syscalls:
       - name: "key"
         typename: "StorageKey"
       - name: "queue_entry"
-        span_argument: yes
+        span_argument: true
     outputs:
     number: 20
   - name: "RetrocausalQueueConsume"
@@ -221,13 +221,13 @@ syscalls:
         typename: "StorageKey"
       - name: "peek"
         typename: "bool"
-        primitive_type: yes
+        primitive_type: true
     outputs:
       - name: "queue_entry"
-        span_argument: yes
+        span_argument: true
       - name: "written_len"
         typename: "RuntimeMemoryLength"
-        primitive_type: yes
+        primitive_type: true
     number: 21
 errors:
   - name: "None"
