@@ -23,12 +23,19 @@ namespace hogd
     kPermanentExclusiveLock = 3,
   };
 
+  struct AssetBalanceLock {
+    int128_xdr asset_add_amount; // positive
+    int128_xdr asset_subtract_amount; // negative
+  };
+
   union TypeSpecificLock switch (StorageItemType item_type)
   {
   case kItemTypeNonnegativeInt:
     int128_xdr nnint_subtracted_amount;
   case kItemTypeRetrocausalQueue:
     unsigned int consume_lock; // boolean
+  case kItemTypeAssetBalance:
+    AssetBalanceLock asset_balance_lock;
   default:
     void;
   };
