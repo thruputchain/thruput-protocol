@@ -27,15 +27,15 @@
 
       // Examples of valid call sequences to the db:
       //
-      // dbcoord_open_snapshot
+      // dbcoord_create_snapshot | dbcoord_open_snapshot
       //   ... calls to executor
       // dbcoord_commit_snapshot
       //
-      // dbcoord_open_snapshot
+      // dbcoord_create_snapshot | dbcoord_open_snapshot
       //   ... calls to executor
       // dbcoord_close_snapshot
       //
-      // dbcoord_open_snapshot
+      // dbcoord_create_snapshot | dbcoord_open_snapshot
       //   ... calls to executor
       // dbcoord_abandon_snapshot
 
@@ -44,7 +44,8 @@
       // The database will surface requests from the snapshot
       // that would be created if the parent block commits.
       // Parent block must be closed.
-      DbResult dbcoord_open_snapshot(BlockID, BlockID) = 10;
+      DbResult dbcoord_create_snapshot(BlockID, BlockID) = 10;
+      DbResult dbcoord_open_snapshot(BlockID) = 11;
 
       // Commits the blockID to disk.  Should only be called for e.g. finalized
       // blocks. At minimum block must be closed before being committed.
