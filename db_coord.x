@@ -44,7 +44,7 @@
       // The database will surface requests from the snapshot
       // that would be created if the parent block commits.
       // Parent block must be closed.
-      DbResult dbcoord_create_snapshot(BlockID, BlockID) = 10;
+      DbResult dbcoord_create_snapshot(BlockID, BlockID, BlockExecutionMode) = 10;
       DbResult dbcoord_open_snapshot(BlockID) = 11;
 
       // Commits the blockID to disk.  Should only be called for e.g. finalized

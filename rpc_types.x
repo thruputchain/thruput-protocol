@@ -53,6 +53,12 @@ namespace hogd
     kStorageExclusiveLock = 0x00000001
   };
 
+  // The mode in which a block executes.
+  enum BlockExecutionMode {
+    kBlockExecutionModeValidation = 0,
+    kBlockExecutionModeProposal = 1,
+  };
+
   // XOR of elements in StorageItemRPCFlags
   typedef int StorageItemRPCFlagSet;
 
