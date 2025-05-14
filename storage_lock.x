@@ -24,7 +24,7 @@ namespace hogd
   };
 
   struct AssetBalanceLock {
-    int128_xdr asset_add_amount; // positive
+    int128_xdr asset_add_amount;      // positive
     int128_xdr asset_subtract_amount; // negative
   };
 
