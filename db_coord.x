@@ -18,6 +18,14 @@
     void;
   };
 
+  union DbCatchupResult switch (DbResult result)
+  {
+  case DbResultOK:
+    CatchupBlock catchup_block;
+  default:
+    void;
+  };
+
   program DbCoord
   {
     version DbCoord1
@@ -65,6 +73,8 @@
 
       // Call to abandon a block.
       DbResult dbcoord_abandon_snapshot(BlockID) = 40;
+
+      DbCatchupResult dbcoord_catchup(BlockHeight) = 50;
     }
     = 1;
   }
