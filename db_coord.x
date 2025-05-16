@@ -50,7 +50,7 @@
 
       // Returns information about the current highest committed block.
       // If there is no committed block, returns DbResultError.
-      DbTipResult dbcoord_get_tip() = 1;
+      DbTipResult dbcoord_get_tip(void) = 1;
 
       // Examples of valid call sequences to the db:
       //
