@@ -1,10 +1,15 @@
+// clang-format off
+%#include "types.hh"
+%#include "transaction.hh"
+
 namespace hogd {
+  // clang-format on
 
-// A "batch" contains a set of proposed transactions.
+  // A "batch" contains a set of proposed transactions.
 
-typedef SHA256Hash BatchHash;
+  typedef SHA256Hash BatchHash;
 
-struct BatchTransactions {
+  struct BatchTransactions {
   ProposedTransaction transactions<>;
 };
 

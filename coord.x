@@ -1,7 +1,11 @@
-namespace hogd {
+// clang-format off
+%#include "proposal.hh"
 
-// ServerAddress is an IP (or hostname) and port address, separated by a colon.
-typedef string ServerAddress<>;
+namespace hogd {
+  // clang-format on
+
+  // ServerAddress is an IP (or hostname) and port address, separated by a colon.
+  typedef string ServerAddress<>;
 
 // UPID is a globally unique process identifier (function of start time, place
 // and randomness)

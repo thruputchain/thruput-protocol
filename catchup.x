@@ -1,4 +1,10 @@
+// clang-format off
+%#include "discovery.hh"
+%#include "proposal.hh"
+%#include "types.hh"
+
 namespace hogd {
+  // clang-format on
 
 struct CatchupBlock {
   BlockHeight block_height;

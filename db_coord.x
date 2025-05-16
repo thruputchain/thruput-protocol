@@ -1,6 +1,7 @@
 // clang-format off
-%#include "rpc_types.hh"
+%#include "catchup.hh"
 %#include "proposal.hh"
+%#include "rpc_types.hh"
 
  namespace hogd {
   // clang-format on

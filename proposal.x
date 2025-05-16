@@ -1,5 +1,6 @@
 // clang-format off
 %#include "batch.hh"
+%#include "types.hh"
 
 namespace hogd {
   // clang-format on
