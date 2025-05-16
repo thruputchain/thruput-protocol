@@ -10,11 +10,11 @@ namespace hogd {
   typedef SHA256Hash BatchHash;
 
   struct BatchTransactions {
-  ProposedTransaction transactions<>;
-};
+    ProposedTransaction transactions<>;
+  };
 
-struct BatchMessage {
-  BatchTransactions batch_transactions;
-};
+  struct BatchMessage {
+    BatchTransactions batch_transactions;
+  };
 
 } // namespace hogd

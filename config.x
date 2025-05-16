@@ -1,6 +1,7 @@
 namespace hogd {
 
 typedef hyper Milliseconds;
+typedef hyper Seconds;
 
 // ValidatorConfig holds the network configuration of a validator.
 struct ValidatorConfig {
@@ -40,6 +41,10 @@ struct MempoolConfig {
   Milliseconds transaction_ttl_msec;
 };
 
+struct CatchupConfig {
+  Seconds catchup_block_ttl_sec;
+};
+
 struct Config {
   ValidatorConfig *validator_config;
   WalletConfig *wallet_config;
@@ -48,6 +53,7 @@ struct Config {
   BroadcastConfig *broadcast_config;
   SpectraConfig *spectra_config;
   MempoolConfig *mempool_config;
+  CatchupConfig *catchup_config;
 };
 
 } // namespace hogd
