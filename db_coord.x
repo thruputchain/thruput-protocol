@@ -27,12 +27,30 @@
     void;
   };
 
+  struct DbTip {
+    BlockHeight height;
+    BlockHash hash;
+    BlockID id;
+  }
+
+  union DbTipResult switch (DbResult result)
+  {
+  case DbResultOK:
+    DbTip db_tip;
+  default:
+    void;
+  };
+
   program DbCoord
   {
     version DbCoord1
     {
 
       void dbcoord_null(void) = 0;
+
+      // Returns information about the current highest committed block.
+      // If there is no committed block, returns DbResultError.
+      DbTipResult dbcoord_get_tip() = 1;
 
       // Examples of valid call sequences to the db:
       //
