@@ -31,7 +31,7 @@
     BlockHeight height;
     BlockHash hash;
     BlockID id;
-  }
+  };
 
   union DbTipResult switch (DbResult result)
   {
