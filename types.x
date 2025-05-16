@@ -65,6 +65,10 @@ typedef opaque StorageKey[32]; // #[rust(newtype)]
 const kMaxLogMessageLen = 1024;
 const kMaxReturnBufferLen = 1024;
 
+const kTotalHogSupply = 62'500'000'000;
+const kHogDivisibility = 10'000'000;
+// Each hog token is divisible into 10^7 units
+
 // in global storage:
 // [contract address + storage key] = 64 bytes
 // Contracts are free to set their own conventions for keys.
