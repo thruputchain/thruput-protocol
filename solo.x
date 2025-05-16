@@ -1,5 +1,10 @@
 namespace hogd {
 
+struct SoloConfig {
+  ValidatorPublicInfo leader;
+  ValidatorPublicInfo quorum<>;
+};
+
 typedef opaque SoloNodeID[32];
 
 typedef hyper SoloSlotIndex;

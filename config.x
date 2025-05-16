@@ -54,6 +54,7 @@ struct Config {
   SpectraConfig *spectra_config;
   MempoolConfig *mempool_config;
   CatchupConfig *catchup_config;
+  SoloConfig *solo_config;
 };
 
 } // namespace hogd
