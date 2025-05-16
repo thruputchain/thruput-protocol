@@ -142,7 +142,7 @@ syscalls:
   - name: "BytestringGetLen"
     inputs:
       - name: "key"
-        typename: "StorageKey"
+        typename: "StorageKeyContractData"
     outputs:
       - name: "length"
         typename: "RuntimeMemoryLength"
@@ -150,7 +150,7 @@ syscalls:
   - name: "BytestringGet"
     inputs:
       - name: "key"
-        typename: "StorageKey"
+        typename: "StorageKeyContractData"
     outputs:
       - name: "bytestring"
         span_argument: true
@@ -160,7 +160,7 @@ syscalls:
   - name: "BytestringSet"
     inputs:
       - name: "key"
-        typename: "StorageKey"
+        typename: "StorageKeyContractData"
       - name: "bytestring"
         span_argument: true
     outputs:
@@ -168,7 +168,7 @@ syscalls:
   - name: "NonnegativeIntGet"
     inputs:
       - name: "key"
-        typename: "StorageKey"
+        typename: "StorageKeyContractData"
     outputs:
       - name: "current_set"
         typename: "int128_t"
@@ -182,7 +182,7 @@ syscalls:
   - name: "NonnegativeIntSetAdd"
     inputs:
       - name: "key"
-        typename: "StorageKey"
+        typename: "StorageKeyContractData"
       - name: "set_value"
         typename: "int128_t"
         xdr_typename: "int128_xdr"
@@ -198,7 +198,7 @@ syscalls:
   - name: "DeleteObject"
     inputs:
       - name: "key"
-        typename: "StorageKey"
+        typename: "StorageKeyContractData"
     outputs:
     number: 18
   - name: "GetCurrentAddress"
@@ -210,7 +210,7 @@ syscalls:
   - name: "RetrocausalQueueInsert"
     inputs:
       - name: "key"
-        typename: "StorageKey"
+        typename: "StorageKeyContractData"
       - name: "queue_entry"
         span_argument: true
     outputs:
@@ -218,7 +218,7 @@ syscalls:
   - name: "RetrocausalQueueConsume"
     inputs:
       - name: "key"
-        typename: "StorageKey"
+        typename: "StorageKeyContractData"
       - name: "peek"
         typename: "bool"
         primitive_type: true

@@ -60,7 +60,19 @@ typedef opaque SHA256Hash[32]; // #[rust(newtype)]
 // 256 bit contract address
 typedef opaque ContractAddress[32]; // #[rust(newtype)]
 // arbitrary 32-byte key into contract storage
-typedef opaque StorageKey[32]; // #[rust(newtype)]
+// This is the key type that contracts directly manipulate
+typedef opaque StorageKeyContractData[32]; // #[rust(newtype)]
+
+enum StorageKeyType {
+  kStorageKeyTypeContractData = 0,
+  kStorageKeyTypeFreeNativeTokenBalance = 1,
+};
+
+union StorageKey switch (StorageKeyType type) {
+case kStorageKeyTypeContractData:
+  StorageKeyContractData contract_data_key;
+  // TODO(geoff): add other key types
+};
 
 const kMaxLogMessageLen = 1024;
 const kMaxReturnBufferLen = 1024;
