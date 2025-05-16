@@ -49,7 +49,8 @@ namespace hogd {
 
       void catchup_null(void) = 0;
 
-      SignedCatchupBlocksResult catchup_solicit(SignedCatchupBlocksRequest) = 10;
+      SignedCatchupBlocksResult catchup_solicit(SignedCatchupBlocksRequest) =
+          10;
     }
     = 1;
   }
