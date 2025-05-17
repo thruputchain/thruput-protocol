@@ -28,10 +28,15 @@ namespace hogd
     int128_xdr asset_subtract_amount; // negative
   };
 
+  struct NNIntBoundsLock {
+    int128_xdr add_amount; // nonnegative
+    int128_xdr subtract_amount; // nonpositive
+  };
+
   union TypeSpecificLock switch (StorageItemType item_type)
   {
   case kItemTypeNonnegativeInt:
-    int128_xdr nnint_subtracted_amount;
+    NNIntBoundsLock nnint_bounds_lock;
   case kItemTypeRetrocausalQueue:
     unsigned int consume_lock; // boolean
   case kItemTypeAssetBalance:
