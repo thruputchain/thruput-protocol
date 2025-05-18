@@ -10,7 +10,6 @@ namespace hogd
     kItemTypeBytestring = 0,
     kItemTypeNonnegativeInt = 1,
     kItemTypeRetrocausalQueue = 2,
-    kItemTypeAssetBalance = 3,
     kItemTypeDeleted = -1,
   };
 
@@ -26,8 +25,6 @@ namespace hogd
     int128_xdr nnint;
   case kItemTypeRetrocausalQueue:
     void;
-  case kItemTypeAssetBalance:
-    uint128_xdr asset_balance;
   };
 
   enum StorageDeltaType {
@@ -35,7 +32,6 @@ namespace hogd
     kDeltaTypeNonnegativeIntSetAdd = 1,
     kDeltaTypeDelete = 2,
     kDeltaTypeRetrocausalQueue = 3,
-    kDeltaTypeAssetTransfer = 4,
   };
 
   struct NonnegativeInt128SetAddArgs {
@@ -53,8 +49,6 @@ namespace hogd
     void;
   case kDeltaTypeRetrocausalQueue:
     RetrocausalQueueDelta retrocausal_queue;
-  case kDeltaTypeAssetTransfer:
-    int128_xdr transfer_amount;
   };
 
 } // namespace hogd

@@ -23,11 +23,6 @@ namespace hogd
     kPermanentExclusiveLock = 3,
   };
 
-  struct AssetBalanceLock {
-    int128_xdr asset_add_amount;      // positive
-    int128_xdr asset_subtract_amount; // negative
-  };
-
   struct NNIntBoundsLock {
     int128_xdr add_amount; // nonnegative
     int128_xdr subtract_amount; // nonpositive
@@ -39,8 +34,6 @@ namespace hogd
     NNIntBoundsLock nnint_bounds_lock;
   case kItemTypeRetrocausalQueue:
     unsigned int consume_lock; // boolean
-  case kItemTypeAssetBalance:
-    AssetBalanceLock asset_balance_lock;
   default:
     void;
   };
