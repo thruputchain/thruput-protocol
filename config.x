@@ -43,6 +43,7 @@ struct MempoolConfig {
 
 struct CatchupConfig {
   Seconds catchup_block_ttl_sec;
+  BlockHeight catchup_block_age;
 };
 
 struct Config {

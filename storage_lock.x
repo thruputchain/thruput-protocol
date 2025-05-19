@@ -24,7 +24,7 @@ namespace hogd
   };
 
   struct NNIntBoundsLock {
-    int128_xdr add_amount; // nonnegative
+    int128_xdr add_amount;      // nonnegative
     int128_xdr subtract_amount; // nonpositive
   };
 
