@@ -72,6 +72,8 @@ union StorageKey switch (StorageKeyType type)
 {
 case kStorageKeyTypeContractData:
   StorageKeyContractData contract_data_key;
+case kStorageKeyTypeFreeNativeTokenBalance:
+  void;
   // TODO(geoff): add other key types
 };
 
