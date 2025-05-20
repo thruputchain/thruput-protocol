@@ -46,6 +46,10 @@ struct CatchupConfig {
   BlockHeight catchup_block_age;
 };
 
+struct BatonConfig {
+  Milliseconds heartbeat_msec;
+};
+
 struct Config {
   ValidatorConfig *validator_config;
   WalletConfig *wallet_config;
@@ -56,6 +60,7 @@ struct Config {
   MempoolConfig *mempool_config;
   CatchupConfig *catchup_config;
   SoloConfig *solo_config;
+  BatonConfig *baton_config;
 };
 
 } // namespace hogd
