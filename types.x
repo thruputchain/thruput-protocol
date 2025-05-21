@@ -17,8 +17,9 @@ typedef hyper Timestamp;
 typedef unsigned int RuntimeMemoryOffset; // uint32_t
 typedef unsigned int RuntimeMemoryLength; // uint32_t
 
+// TODO(geoff): consider using a smaller type for GasAmount
 typedef unsigned hyper GasAmount; // uint64_t
-typedef unsigned int MethodID;    // uint32_t
+typedef unsigned hyper MethodID;  // uint64_t
 
 // ed25519 sig len is 512 bits
 typedef opaque Ed25519Signature[64]; // #[rust(newtype)]

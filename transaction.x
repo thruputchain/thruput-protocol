@@ -13,7 +13,7 @@ namespace hogd
 
   struct Invocation {
     ContractAddress invoked_address;
-    unsigned int method;
+    MethodID method;
     GasAmount gas_limit;
     Calldata calldata;
   };
