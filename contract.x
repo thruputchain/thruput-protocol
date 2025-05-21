@@ -43,7 +43,7 @@ namespace hogd {
 
   struct ContractInterfaceIDPreimage {
     Identifier name;
-    SemVer version;
+    SemVer vers;
   };
 
   struct ContractEntrypointID {
