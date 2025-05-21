@@ -31,4 +31,11 @@ namespace hogd {
     SHA256Hash contract_hash;
   };
 
+  // sha256(...)[0..4] is the method name exposed
+  // by the contract (in the sdk)
+  struct ContractMethodNamePreimage {
+    string trait_readable_name<>;
+    string method_readable_name<>;
+  };
+
 } // namespace hogd
