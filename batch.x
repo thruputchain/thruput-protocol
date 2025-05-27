@@ -17,4 +17,21 @@ namespace hogd {
     BatchTransactions batch_transactions;
   };
 
+  // A "bag" contains a set of signed transactions.
+
+  typedef SHA256Hash BagHash;
+
+  struct BagSet {
+    BagHash bag_hash;
+    opaque bag_bitmap<>;
+  };
+
+  struct BagTransactions {
+    SignedTransaction transactions<>;
+  };
+
+  struct BagMessage {
+    BagTransactions bag_transactions;
+  };
+
 } // namespace hogd

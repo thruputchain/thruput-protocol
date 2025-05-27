@@ -78,11 +78,11 @@ case kStorageKeyTypeFreeNativeTokenBalance:
   // TODO(geoff): add other key types
 };
 
-const kMaxLogMessageLen = 1024; // #[rust(const=u32)]
+const kMaxLogMessageLen = 1024;   // #[rust(const=u32)]
 const kMaxReturnBufferLen = 1024; // #[rust(const=u32)]
 
 const kTotalHogSupply = 62'500'000'000; // #[rust(const=u64)]
-const kHogDivisibility = 10'000'000; // #[rust(const=u32)]
+const kHogDivisibility = 10'000'000;    // #[rust(const=u32)]
 // Each hog token is divisible into 10^7 units
 
 // in global storage:
