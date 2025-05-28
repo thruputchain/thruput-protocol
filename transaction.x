@@ -21,7 +21,7 @@ namespace hogd
   enum InvokeFlag {
     kInvokeFlagNone = 0,
     kInvokeFlagTryInvoke = 0x00000001,
-    kInvokeFlagReadOnly  = 0x00000002,
+    kInvokeFlagReadOnly = 0x00000002,
   };
 
   typedef int InvokeFlagSet;
@@ -64,6 +64,12 @@ namespace hogd
   // TODO(petar): Should the signature capture the non-deterministic data?
   struct ProposedTransaction {
     SignedTransaction signed_tx;
+    NondeterministicProposalData nondeterministic_proposal_data;
+  };
+
+  // Nominations, included in SCP messages, include only the ND data.
+  // The transactions themselves are disseminated through the overlay.
+  struct NominatedTransaction {
     NondeterministicProposalData nondeterministic_proposal_data;
   };
 
