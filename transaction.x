@@ -21,6 +21,7 @@ namespace hogd
   enum InvokeFlag {
     kInvokeFlagNone = 0,
     kInvokeFlagTryInvoke = 0x00000001,
+    kInvokeFlagReadOnly  = 0x00000002,
   };
 
   typedef int InvokeFlagSet;
