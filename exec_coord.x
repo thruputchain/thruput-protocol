@@ -1,4 +1,8 @@
+// clang-format off
+%#include "rpc_types.hh"
+%#include "transaction.hh"
 namespace hogd {
+  // clang-format on
 
 enum ExecResult {
   ExecResultOK = 0,
