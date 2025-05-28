@@ -20,6 +20,14 @@ namespace hogd {
     BatchHash proposed_transaction_batches<>;
   };
 
+  struct Nomination {
+    BlockHeight block_height;
+    BlockHash block_hash;
+    BlockHash prev_block_hash;
+    SignedTransactionHash transaction_hashes<>;
+    NominatedTransaction transaction_nominations<>;
+  };
+
   struct PrevProposalSummary {
     BlockHash block_hash;
   };
