@@ -60,6 +60,10 @@ namespace hogd {
     // cc holds the identity of the coordinator that responded
     CoordinatorCard cc;
 
+    // exec_id is a unique 16-bit identifier assigned to the executor by the
+    // coordinator.
+    unsigned int exec_id;
+
     // shards describes a ready db cluster
     ShardCard shards<>;
   };
