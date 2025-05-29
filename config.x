@@ -40,7 +40,7 @@ struct MempoolConfig {
   Milliseconds proposed_batch_ttl_msec;
   Milliseconds transaction_ttl_msec;
   hyper submission_lot_size;
-  Millisecond submission_lot_wait;
+  Milliseconds submission_lot_wait;
 };
 
 struct CatchupConfig {
