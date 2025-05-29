@@ -2,14 +2,14 @@ namespace hogd {
 
 enum MultiplexMessageType {
   MultiplexMessageInvalid = 0,
-  MultiplexMessageBatch = 1,
+  MultiplexMessageSubmittedTxs = 1,
   MultiplexMessageSCP = 2,
 };
 
 union MultiplexMessage switch (MultiplexMessageType type)
 {
-case MultiplexMessageBatch:
-  BatchMessage batch;
+case MultiplexMessageSubmittedTxs:
+  SubmittedTransactions submitted;
 default:
   void;
 };

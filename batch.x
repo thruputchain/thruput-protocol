@@ -17,4 +17,8 @@ namespace hogd {
     BatchTransactions batch_transactions;
   };
 
+  struct SubmittedTransactions {
+    SignedTransaction transactions<>;
+  };
+
 } // namespace hogd
