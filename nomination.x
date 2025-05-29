@@ -11,15 +11,6 @@ namespace hogd {
 
   typedef SHA256Hash BlockHash;
 
-  // Proposal describes an individual block proposal.
-  // This message is used as an SCP application value.
-  struct Proposal {
-    BlockHeight block_height;
-    BlockHash block_hash;
-    BlockHash prev_block_hash;
-    BatchHash proposed_transaction_batches<>;
-  };
-
   struct Nomination {
     BlockHeight block_height;
     BlockHash block_hash;
@@ -28,7 +19,7 @@ namespace hogd {
     NominatedTransaction transaction_nominations<>;
   };
 
-  struct PrevProposalSummary {
+  struct PrevNominationSummary {
     BlockHash block_hash;
   };
 

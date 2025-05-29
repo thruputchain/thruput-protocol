@@ -7,8 +7,6 @@ namespace hogd {
 
   // A "batch" contains a set of proposed transactions.
 
-  typedef SHA256Hash BatchHash;
-
   struct SubmittedTransactions {
     SignedTransaction transactions<>;
   };
