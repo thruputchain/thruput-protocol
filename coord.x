@@ -1,5 +1,5 @@
 // clang-format off
-%#include "proposal.hh"
+%#include "nomination.hh"
 
 namespace hogd {
   // clang-format on
