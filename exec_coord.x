@@ -6,8 +6,21 @@ namespace hogd {
 
   enum ExecResult {
     ExecResultOK = 0,
-    ExecResultTxError = 1,     // tx cannot propose or validate
-    ExecResultSystemError = 2, // network connection broke
+    // Transaction execution (during proposal or validation) failed;
+    // the error is deterministic and can be replayed in validation.
+    // Transactions with this error code can be included in the block.
+    ExecResultTxDeterministicError = 1,
+    // Transaction execution (during proposal or validation) failed,
+    // due to nondeterminism during the post-execution 2-phase commit.
+    // Transactions with this error code should not be included in a proposal,
+    // and indicate a block validation failure.
+    ExecResultTxNonDeterministicError = 2,
+    // System error; network connection broke, etc.
+    // Executor can recover from this error to continue execution of other transactions.
+    ExecResultSystemError = 3,
+    // Critical failure in the executor, which cannot be recovered from.
+    // E.g. OOM or critical logic error.
+    ExecResultUnrecoverable = 4,
   };
 
   union ExecProposeResult switch (ExecResult result)
