@@ -15,12 +15,17 @@ namespace hogd {
     // Transactions with this error code should not be included in a proposal,
     // and indicate a block validation failure.
     ExecResultTxNonDeterministicError = 2,
+    // Validation on the transaction has failed because the attached validation data is bad.
+    // E.g. missing data or unused data.
+    // This error code is only returned during validation.
+    // This is determininistic, but signals a bad block from a malicious proposer.
+    ExecResultTxValidationFailure = 3,
     // System error; network connection broke, etc.
     // Executor can recover from this error to continue execution of other transactions.
-    ExecResultSystemError = 3,
+    ExecResultSystemError = 4,
     // Critical failure in the executor, which cannot be recovered from.
     // E.g. OOM or critical logic error.
-    ExecResultUnrecoverable = 4,
+    ExecResultUnrecoverable = 5,
   };
 
   union ExecProposeResult switch (ExecResult result)

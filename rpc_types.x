@@ -36,13 +36,10 @@ namespace hogd
     kRPCNoStorageItem = 6,
     // tx validation or proposal failed
     kRPCTransactionFailed = 7,
-    // Some error during validation, beyond just an error in the transaction,
-    // such as a nondeterministic RCQ consume not backed by a concurrent insert.
-    kRPCValidationFailure = 8,
     // Unimplemented RPC
-    kRPCUnimplemented = 9,
+    kRPCUnimplemented = 8,
     // No retrocausal queue block or entryfound
-    kRPCNoQueueEntry = 10,
+    kRPCNoQueueEntry = 9,
   };
 
   // Flags modifying one Executor->DB storage item RPC
