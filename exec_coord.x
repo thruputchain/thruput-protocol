@@ -26,6 +26,7 @@ namespace hogd {
   union ExecProposeResult switch (ExecResult result)
   {
   case ExecResultOK:
+  case ExecResultTxDeterministicError:
     NondeterministicProposalData proposal_data;
   default:
     void;
