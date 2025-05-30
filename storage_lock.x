@@ -34,6 +34,8 @@ namespace hogd
     NNIntBoundsLock nnint_bounds_lock;
   case kItemTypeRetrocausalQueue:
     unsigned int consume_lock; // boolean
+  case kItemTypeReplayCache:
+    ReplayNonce nonces<>;
   default:
     void;
   };
