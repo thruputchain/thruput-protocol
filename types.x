@@ -85,6 +85,8 @@ const kTotalHogSupply = 62'500'000'000; // #[rust(const=u64)]
 const kHogDivisibility = 10'000'000;    // #[rust(const=u32)]
 // Each hog token is divisible into 10^7 units
 
+typedef unsigned hyper ReplayNonce;
+
 // in global storage:
 // [contract address + storage key] = 64 bytes
 // Contracts are free to set their own conventions for keys.

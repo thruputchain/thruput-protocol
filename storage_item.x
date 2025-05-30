@@ -10,12 +10,17 @@ namespace hogd
     kItemTypeBytestring = 0,
     kItemTypeNonnegativeInt = 1,
     kItemTypeRetrocausalQueue = 2,
+    kItemTypeReplayCache = 3,
     kItemTypeDeleted = -1,
   };
 
   const kBytestringMaxLen = 1024;
 
   typedef opaque Bytestring<>;
+
+  struct ReplayCacheMetadata {
+    unsigned hyper minimum_threshold;
+  };
 
   union StorageItem switch (StorageItemType type)
   {
@@ -25,6 +30,8 @@ namespace hogd
     int128_xdr nnint;
   case kItemTypeRetrocausalQueue:
     void;
+  case kItemTypeReplayCache:
+    ReplayCacheMetadata replay_cache_metadata;
   };
 
   enum StorageDeltaType {
@@ -32,11 +39,17 @@ namespace hogd
     kDeltaTypeNonnegativeIntSetAdd = 1,
     kDeltaTypeDelete = 2,
     kDeltaTypeRetrocausalQueue = 3,
+    kDeltaTypeReplayCacheModify = 4,
   };
 
   struct NonnegativeInt128SetAddArgs {
     int128_xdr set_value;
     int128_xdr add_value;
+  };
+
+  struct ReplayCacheModifyArgs {
+    unsigned hyper minimum_threshold;
+    ReplayNonce nonces<>;
   };
 
   union StorageDelta switch (StorageDeltaType type)
@@ -49,6 +62,8 @@ namespace hogd
     void;
   case kDeltaTypeRetrocausalQueue:
     RetrocausalQueueDelta retrocausal_queue;
+  case kDeltaTypeReplayCacheModify:
+    ReplayCacheModifyArgs replay_cache_modify;
   };
 
 } // namespace hogd
