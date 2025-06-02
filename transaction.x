@@ -7,13 +7,15 @@
 namespace hogd
 {
   // clang-format on
+
+  // BCS encoding of the call arguments (as a BCS tuple)
   typedef opaque Calldata<>;
 
   typedef opaque ReturnBuffer<>;
 
   struct Invocation {
     ContractAddress invoked_address;
-    MethodID method;
+    ContractEntrypointID entrypoint;
     GasAmount gas_limit;
     Calldata calldata;
   };

@@ -29,7 +29,16 @@ default:
     void;
 };
 
-program ERC20 {
+// To construct a `ContractInterfaceIDPreimage` from an RPC program spec:
+//    name: the program identifier ("GroundhogERC20")
+//    vers: the version identifier, with "v" removed and underscores
+//      replaced with periods (so, "0.1.0")
+//
+// When constructing a `ContractEntrypointID` for a particular procedure,
+// put the 16-bit, big-endian encoding of the procedure constant in
+// the last two ("method id") bytes.
+
+program GroundhogERC20 {
     version v0_1_0 {
         // Initialize contract with address of the administrative
         // owner, who can mint and burn
@@ -83,7 +92,7 @@ program ERC20 {
             void
         ) = 6;
 
-   } = 10;
-} = 0x20010000;
+   } = 0;
+} = 0;
 
 } // namespace hogd

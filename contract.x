@@ -46,11 +46,9 @@ namespace hogd {
     SemVer vers;
   };
 
-  struct ContractEntrypointID {
-    // This field is computed as SHA256(ContractInterfaceIDPreimage)[0..6]
-    opaque contract_interface_id[6];
-    // The meaning of this field is defined by the contract-interface author
-    opaque contract_method_id[2];
-  };
+  // This type is computed as SHA256(ContractInterfaceIDPreimage)[0..6],
+  // concatenated with a two-byte "method id" defined by the author of
+  // the contract interface
+  typedef opaque ContractEntrypointID[8]; // #[rust(newtype)]
 
 } // namespace hogd
