@@ -38,6 +38,11 @@ namespace hogd {
     void;
   };
 
+  typedef SignedTransaction SignedTransactionBatch<>;
+  typedef ProposedTransaction ProposedTransactionBatch<>;
+  typedef ExecProposeResult ExecProposeBatchResult<>;
+  typedef ExecResult ExecValidateBatchResult<>;
+
   program ExecutorCoord
   {
     version ExecutorCoord1
@@ -50,6 +55,11 @@ namespace hogd {
           10;
       ExecResult executorcoord_validate_transaction(BlockID,
                                                     ProposedTransaction) = 20;
+
+      ExecProposeBatchResult executorcoord_propose_batch(
+          BlockID, SignedTransactionBatch) = 11;
+      ExecValidateBatchResult executorcoord_validate_batch(
+          BlockID, ProposedTransactionBatch) = 21;
 
       // Executor can be in one of three states: None, Proposing, Validating
       // open_xyz_block() methods set the executor state, or return an error
