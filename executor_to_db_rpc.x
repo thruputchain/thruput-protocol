@@ -26,14 +26,14 @@ namespace hogd
       //
       // Create a new subtransaction on top of the current (sub)transaction.
       // The root transaction, and any subtransactions, should finish
-      // by calling this method with any deltas created during the (sub) transaction.
+      // by calling this method with any deltas created during the (sub)
+      // transaction.
       RPCError try_push_new_subtransaction(BlockID, TransactionID,
                                            StorageDeltaBatch) = 0;
       // We don't need a try_reserve_deltas method; use
       // try_push_new_subtransaction instead.
       RPCError commit_transaction(BlockID, TransactionID) = 1;
       RPCError abort_transaction(BlockID, TransactionID) = 2;
-
 
       // Revert one or more subtransactions.
       RPCError pop_subtransactions(BlockID, TransactionID, unsigned int) = 3;
