@@ -21,21 +21,22 @@ namespace hogd
   {
     version DatabaseToExecutorInterfaceV1
     {
+      // Subtransactions do not need their own unique IDs; every write from a
+      // transaction must always be applied to the top-level subtransaction.
+      //
+      // Create a new subtransaction on top of the current (sub)transaction.
+      // The root transaction, and any subtransactions, should finish
+      // by calling this method with any deltas created during the (sub) transaction.
+      RPCError try_push_new_subtransaction(BlockID, TransactionID,
+                                           StorageDeltaBatch) = 0;
       // We don't need a try_reserve_deltas method; use
       // try_push_new_subtransaction instead.
       RPCError commit_transaction(BlockID, TransactionID) = 1;
       RPCError abort_transaction(BlockID, TransactionID) = 2;
 
-      // Subtransaction control methods.
-      // Subtransactions do not need their own unique IDs; every write from a
-      // transaction must always be applied to the top-level subtransaction.
-      //
-      // Create a new subtransaction on top of the current (sub)transaction.
-      RPCError try_push_new_subtransaction(BlockID, TransactionID,
-                                           StorageDeltaBatch) = 3;
 
       // Revert one or more subtransactions.
-      RPCError pop_subtransactions(BlockID, TransactionID, unsigned int) = 4;
+      RPCError pop_subtransactions(BlockID, TransactionID, unsigned int) = 3;
 
       // Load the snapshot value of a storage item at the supplied address,
       // if it exists.
