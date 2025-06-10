@@ -10,14 +10,19 @@ namespace hogd
 {
   // clang-format on
 
+  struct FlaggedStorageDelta {
+    StorageDelta delta;
+    StorageItemRPCFlagSet flags;
+  };
+
+  typedef FlaggedStorageDelta StorageDeltaBatch<>;
+
   program DatabaseToExecutorInterface
   {
     version DatabaseToExecutorInterfaceV1
     {
-      // Warning: the returned marginal storage cost may be nondeterministic.
-      ExpectedStorageCost try_reserve_delta(BlockID, TransactionID,
-                                            AddressAndKey, StorageDelta,
-                                            StorageItemRPCFlagSet) = 0;
+      // We don't need a try_reserve_deltas method; use
+      // try_push_new_subtransaction instead.
       RPCError commit_transaction(BlockID, TransactionID) = 1;
       RPCError abort_transaction(BlockID, TransactionID) = 2;
 
@@ -26,7 +31,8 @@ namespace hogd
       // transaction must always be applied to the top-level subtransaction.
       //
       // Create a new subtransaction on top of the current (sub)transaction.
-      RPCError push_new_subtransaction(BlockID, TransactionID) = 3;
+      RPCError try_push_new_subtransaction(BlockID, TransactionID,
+                                           StorageDeltaBatch) = 3;
 
       // Revert one or more subtransactions.
       RPCError pop_subtransactions(BlockID, TransactionID, unsigned int) = 4;
