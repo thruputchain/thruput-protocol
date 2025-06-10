@@ -11,7 +11,7 @@ namespace hogd
   // clang-format on
 
   struct FlaggedStorageDelta {
-    // TODO(geoff): Some of the addrkey field is repetitive; 
+    // TODO(geoff): Some of the addrkey field is repetitive;
     // possibly we can readjust this data structure, if raw bandwidth becomes
     // important.
     AddressAndKey addrkey;
