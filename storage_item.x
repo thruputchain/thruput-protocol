@@ -40,6 +40,7 @@ namespace hogd
     kDeltaTypeDelete = 2,
     kDeltaTypeRetrocausalQueue = 3,
     kDeltaTypeReplayCacheModify = 4,
+    kDeltaTypeNonnegativeIntAdd = 5,
   };
 
   struct NonnegativeInt128SetAddArgs {
@@ -58,6 +59,8 @@ namespace hogd
     Bytestring bytestring;
   case kDeltaTypeNonnegativeIntSetAdd:
     NonnegativeInt128SetAddArgs nnint;
+  case kDeltaTypeNonnegativeIntAdd:
+    int128_xdr nnint_add;
   case kDeltaTypeDelete:
     void;
   case kDeltaTypeRetrocausalQueue:
