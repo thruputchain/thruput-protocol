@@ -11,7 +11,6 @@ type_mappings:
     rust_uses_as_ptr: false
 syscalls:
   - name: "SHA256"
-    needs_context: false
     inputs:
       - name: "buffer"
         span_argument: true
