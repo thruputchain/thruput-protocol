@@ -118,7 +118,6 @@ syscalls:
         typename: "SHA256Hash"
     number: 11
   - name: "VerifySignature"
-    needs_context: false
     inputs:
       - name: "signature"
         typename: "Signature"
