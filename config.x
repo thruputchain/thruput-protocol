@@ -36,6 +36,12 @@ struct SpectraConfig {
   Milliseconds partial_ttl_msec;
 };
 
+struct DogwoodConfig {
+  DogwoodInt32 num_routes;
+  Milliseconds route_time_to_live_msec;
+  Milliseconds route_time_to_use_msec;
+};
+
 struct MempoolConfig {
   Milliseconds proposed_batch_ttl_msec;
   Milliseconds transaction_ttl_msec;
@@ -59,6 +65,7 @@ struct Config {
   RouterConfig *router_config;
   BroadcastConfig *broadcast_config;
   SpectraConfig *spectra_config;
+  DogwoodConfig *dogwood_config;
   MempoolConfig *mempool_config;
   CatchupConfig *catchup_config;
   SoloConfig *solo_config;
