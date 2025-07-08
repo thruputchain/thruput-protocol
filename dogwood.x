@@ -39,12 +39,16 @@ struct DogwoodChunk {
   opaque chunk<>;
 };
 
+struct DogwoodPackage {
+  DogwoodTransmission transmission;
+  DogwoodChunk chunk;
+};
+
 // messages
 
 struct DogwoodDelivery {
   DogwoodStream stream;
-  DogwoodTransmission transmission;
-  DogwoodChunk chunk;
+  DogwoodPackage pkg;
 };
 
 // signed messages
