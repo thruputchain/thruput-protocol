@@ -19,7 +19,11 @@ typedef DogwoodInt64 DogwoodStreamID;
 typedef DogwoodInt64 DogwoodTransmissionID;
 
 struct DogwoodStream {
+  ValidatorID source_id;
   DogwoodStreamID stream_id;
+};
+
+struct DogwoodRoute {
   DogwoodTreeHash *route_hash;
   DogwoodTreeNodes *route_nodes;
 };
@@ -48,6 +52,7 @@ struct DogwoodPackage {
 
 struct DogwoodDelivery {
   DogwoodStream stream;
+  DogwoodRoute route;
   DogwoodPackage pkg;
 };
 
