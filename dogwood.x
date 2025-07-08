@@ -15,10 +15,6 @@ typedef DogwoodTreeNode DogwoodTreeNodes<>;
 
 // protocol
 
-struct DogwoodRoute {
-  DogwoodTreeNodes trees<>;
-};
-
 struct DogwoodTransmission {
   DogwoodInt64 num_payload_bytes;
   DogwoodInt32 num_payload_sheaves;
@@ -32,17 +28,21 @@ struct DogwoodHeader {
   DogwoodInt32 chunk_index;
 };
 
-struct DogwoodDelivery {
-  DogwoodTreeHash route;
+struct DogwoodChunk {
   DogwoodTransmission transmission;
   DogwoodHeader header;
   opaque chunk<>;
 };
 
-struct DogwoodRouteEnvelope {
-  Signature signature;
-  DogwoodRoute route;
+// messages
+
+struct DogwoodDelivery {
+  DogwoodTreeHash *route_hash;
+  DogwoodTreeNodes *route_nodes;
+  DogwoodChunk chunk;
 };
+
+// signed messages
 
 struct DogwoodDeliveryEnvelope {
   Signature signature;
@@ -56,9 +56,7 @@ program Dogwood
 
     void dogwood_null(void) = 0;
 
-    void dogwood_route(DogwoodRouteEnvelope) = 10;
-
-    void dogwood_deliver(DogwoodDeliveryEnvelope) = 20;
+    void dogwood_deliver(DogwoodDeliveryEnvelope) = 10;
   }
   = 1;
 }
