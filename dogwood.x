@@ -15,7 +15,17 @@ typedef DogwoodTreeNode DogwoodTreeNodes<>;
 
 // protocol
 
+typedef DogwoodInt64 DogwoodStreamID;
+typedef DogwoodInt64 DogwoodTransmissionID;
+
+struct DogwoodStream {
+  DogwoodStreamID stream_id;
+  DogwoodTreeHash *route_hash;
+  DogwoodTreeNodes *route_nodes;
+};
+
 struct DogwoodTransmission {
+  DogwoodTransmissionID transmission_id;
   DogwoodInt64 num_payload_bytes;
   DogwoodInt32 num_payload_sheaves;
   DogwoodInt32 num_parity_sheaves;
@@ -23,22 +33,17 @@ struct DogwoodTransmission {
   DogwoodInt32 seed; // seed used to shuffle sheafs for cross-sheaf coding
 };
 
-struct DogwoodHeader {
+struct DogwoodChunk {
   DogwoodInt32 sheaf_index;
   DogwoodInt32 chunk_index;
-};
-
-struct DogwoodChunk {
-  DogwoodTransmission transmission;
-  DogwoodHeader header;
   opaque chunk<>;
 };
 
 // messages
 
 struct DogwoodDelivery {
-  DogwoodTreeHash *route_hash;
-  DogwoodTreeNodes *route_nodes;
+  DogwoodStream stream;
+  DogwoodTransmission transmission;
   DogwoodChunk chunk;
 };
 
