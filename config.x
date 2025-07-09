@@ -36,6 +36,13 @@ struct SpectraConfig {
   Milliseconds partial_ttl_msec;
 };
 
+struct TransmissionConfig {
+  int num_payload_sheaves;
+  int num_parity_sheaves;
+  int max_chunk_bytes;
+  Milliseconds partial_ttl_msec;
+};
+
 struct DogwoodConfig {
   DogwoodInt32 num_routes;
   Milliseconds route_time_to_live_msec;
@@ -65,6 +72,7 @@ struct Config {
   RouterConfig *router_config;
   BroadcastConfig *broadcast_config;
   SpectraConfig *spectra_config;
+  TransmissionConfig *transmission_config;
   DogwoodConfig *dogwood_config;
   MempoolConfig *mempool_config;
   CatchupConfig *catchup_config;
