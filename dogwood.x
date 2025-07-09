@@ -31,6 +31,7 @@ struct DogwoodRoute {
 struct DogwoodTransmission {
   DogwoodTransmissionID transmission_id;
   DogwoodInt64 num_payload_bytes;
+  DogwoodInt64 num_sheaf_bytes;
   DogwoodInt32 num_payload_sheaves;
   DogwoodInt32 num_parity_sheaves;
   DogwoodInt32 num_chunks_per_sheaf;
