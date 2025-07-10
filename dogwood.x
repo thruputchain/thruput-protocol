@@ -31,11 +31,10 @@ struct DogwoodRoute {
 struct DogwoodTransmission {
   DogwoodTransmissionID transmission_id;
   DogwoodInt64 num_payload_bytes;
-  DogwoodInt64 num_sheaf_bytes;
   DogwoodInt32 num_payload_sheaves;
   DogwoodInt32 num_parity_sheaves;
-  DogwoodInt32 num_chunks_per_sheaf;
-  DogwoodInt32 seed; // seed used to shuffle sheafs for cross-sheaf coding
+  DogwoodInt32 max_bytes_per_chunk;
+  DogwoodInt32 shuffle_seed; // used to shuffle sheafs for cross-sheaf coding
 };
 
 struct DogwoodChunk {
