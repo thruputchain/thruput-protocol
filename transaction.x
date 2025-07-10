@@ -8,7 +8,7 @@ namespace hogd
 {
   // clang-format on
 
-  // BCS encoding of the call arguments (as a BCS tuple)
+  // TXS encoding of the call arguments (as a tuple)
   typedef opaque Calldata<>;
 
   typedef opaque ReturnBuffer<>;
