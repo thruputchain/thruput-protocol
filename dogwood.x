@@ -28,8 +28,14 @@ struct DogwoodRoute {
   DogwoodTreeNodes *route_nodes;
 };
 
+enum DogwoodTransmissionType {
+  DogwoodTransmissionPayload = 0,
+  DogwoodTransmissionRoute = 1,
+};
+
 struct DogwoodTransmission {
   DogwoodTransmissionID transmission_id;
+  DogwoodTransmissionType type;
   DogwoodInt64 num_payload_bytes;
   DogwoodInt32 num_payload_sheaves;
   DogwoodInt32 num_parity_sheaves;
