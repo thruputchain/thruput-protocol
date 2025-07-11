@@ -73,11 +73,6 @@ struct DogwoodDeliveryEnvelope {
   DogwoodDelivery delivery;
 };
 
-struct DogwoodRoutingEnvelope {
-  Signature signature;
-  DogwoodRouting routing;
-};
-
 program Dogwood
 {
   version Dogwood1
