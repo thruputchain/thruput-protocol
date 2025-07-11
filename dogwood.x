@@ -62,11 +62,20 @@ struct DogwoodDelivery {
   DogwoodPackage pkg;
 };
 
+struct DogwoodRouting {
+  DogwoodTreeNodes routes<>;
+};
+
 // signed messages
 
 struct DogwoodDeliveryEnvelope {
   Signature signature;
   DogwoodDelivery delivery;
+};
+
+struct DogwoodRoutingEnvelope {
+  Signature signature;
+  DogwoodRouting routing;
 };
 
 program Dogwood
