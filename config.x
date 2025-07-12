@@ -44,9 +44,23 @@ struct TransmissionConfig {
 };
 
 struct DogwoodConfig {
-  DogwoodInt32 num_routes;
+  //
+  DogwoodInt32 route_count;
   Milliseconds route_time_to_live_msec;
   Milliseconds route_time_to_use_msec;
+  //
+  DogwoodInt32 endpoint_queue_length;
+  Milliseconds endpoint_idle_ttl_msec;
+  Milliseconds endpoint_redial_delay_msec;
+  //
+  DogwoodInt32 stream_receiver_queue_length;
+  DogwoodInt32 stream_receiver_worker_count;
+  //
+  DogwoodInt32 stream_sender_worker_count;
+  //
+  DogwoodInt32 transmission_receiver_worker_count;
+  //
+  DogwoodInt32 transmission_sender_worker_count;
 };
 
 struct MempoolConfig {
