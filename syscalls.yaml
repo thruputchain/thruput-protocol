@@ -134,6 +134,7 @@ syscalls:
         typename: "SHA256Hash"
     number: 11
   - name: "VerifySignature"
+    needs_context: false
     inputs:
       - name: "scheme"
         # This is a CryptographicScheme enum, but we pass it in as a uint32_t
