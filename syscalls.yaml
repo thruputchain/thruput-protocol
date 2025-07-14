@@ -119,14 +119,13 @@ syscalls:
     number: 11
   - name: "VerifySignature"
     inputs:
+      - name: "scheme"
+        typename: "CryptographicScheme"
+        primitive_type: true
       - name: "signature"
-        typename: "Signature"
-        custom_parsing: true
-        custom_args_required: 2
+        span_argument: true
       - name: "public_key"
-        typename: "PublicKey"
-        custom_parsing: true
-        custom_args_required: 2
+        span_argument: true
       - name: "message"
         span_argument: true
     outputs:  # No outputs: check the error code returned
