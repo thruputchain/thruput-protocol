@@ -61,6 +61,8 @@ struct DogwoodConfig {
   DogwoodInt32 transmission_receiver_worker_count;
   //
   DogwoodInt32 transmission_sender_worker_count;
+  //
+  TransmissionConfig *transmission_config;
 };
 
 struct MempoolConfig {
@@ -86,7 +88,6 @@ struct Config {
   RouterConfig *router_config;
   BroadcastConfig *broadcast_config;
   SpectraConfig *spectra_config;
-  TransmissionConfig *transmission_config;
   DogwoodConfig *dogwood_config;
   MempoolConfig *mempool_config;
   CatchupConfig *catchup_config;
