@@ -44,22 +44,23 @@ struct TransmissionConfig {
 };
 
 struct DogwoodConfig {
-  //
+  // navigator
   DogwoodInt32 route_count;
   Milliseconds route_time_to_live_msec;
   Milliseconds route_time_to_use_msec;
-  //
+  // endpoint caller
   DogwoodInt32 endpoint_queue_length;
+  DogwoodInt32 endpoint_max_pending;
   Milliseconds endpoint_idle_ttl_msec;
   Milliseconds endpoint_redial_delay_msec;
-  //
+  // stream receiver
   DogwoodInt32 stream_receiver_queue_length;
   DogwoodInt32 stream_receiver_worker_count;
-  //
+  // stream sender
   DogwoodInt32 stream_sender_worker_count;
-  //
+  // transmission receiver
   DogwoodInt32 transmission_receiver_worker_count;
-  //
+  // transmission sender
   DogwoodInt32 transmission_sender_worker_count;
   //
   TransmissionConfig *transmission_config;
