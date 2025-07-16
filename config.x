@@ -51,6 +51,7 @@ struct DogwoodConfig {
   // endpoint caller
   DogwoodInt32 endpoint_queue_length;
   DogwoodInt32 endpoint_max_pending;
+  DogwoodInt32 endpoint_num_clients;
   Milliseconds endpoint_idle_ttl_msec;
   Milliseconds endpoint_redial_delay_msec;
   // stream receiver
