@@ -56,12 +56,12 @@ struct DogwoodConfig {
   Milliseconds endpoint_redial_delay_msec;
   // stream receiver
   DogwoodInt32 stream_receiver_queue_length;
-  DogwoodInt32 stream_receiver_decode_worker_count;
-  DogwoodInt32 stream_receiver_stream_worker_count;
+  DogwoodInt32 stream_receiver_worker_count;
   // stream sender
   DogwoodInt32 stream_sender_worker_count;
   // transmission receiver
-  DogwoodInt32 transmission_receiver_worker_count;
+  DogwoodInt32 transmission_receiver_decode_worker_count;
+  DogwoodInt32 transmission_receiver_stream_worker_count;
   // transmission sender
   DogwoodInt32 transmission_sender_worker_count;
   //
