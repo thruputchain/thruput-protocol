@@ -40,7 +40,9 @@ struct TransmissionConfig {
   int num_payload_sheaves;
   int num_parity_sheaves;
   int max_chunk_bytes;
-  Milliseconds partial_ttl_msec;
+  //
+  Milliseconds partial_max_ttl_msec;
+  Milliseconds partial_idle_ttl_msec;
 };
 
 struct DogwoodConfig {
