@@ -22,24 +22,19 @@ namespace hogd
   // TODO(geoff): This probably should get moved to a different file?
   enum RPCError {
     kRPCNone = 0,
-    // Lookup on contract that does not exist in database
-    kRPCContractNotExist = 1,
-    // Lookup deployment of contract on address that has no deployed contract
-    kRPCNoContractDeployed = 2,
-    // Executor in bad state to validate or propose
-    kRPCBadExecutorState = 3,
+    // Lookup on an item in the database that does not exist.
+    // Used by any database lookup RPC, not just for one type.
+    kRPCNotFound = 1,
+    // Executor in bad state to validate or propose.
+    kRPCBadExecutorState = 2,
     // BlockID does not exist, or is not in correct state
-    kRPCBadBlockID = 4,
+    kRPCBadBlockID = 3,
     // bad storage modification
-    kRPCStorageWriteFailed = 5,
-    // Requesting an item that doesn't exist
-    kRPCNoStorageItem = 6,
+    kRPCStorageWriteFailed = 4,
     // tx validation or proposal failed
-    kRPCTransactionFailed = 7,
+    kRPCTransactionFailed = 5,
     // Unimplemented RPC
-    kRPCUnimplemented = 8,
-    // No retrocausal queue block or entryfound
-    kRPCNoQueueEntry = 9,
+    kRPCUnimplemented = 6,
   };
 
   // Flags modifying one Executor->DB storage item RPC
