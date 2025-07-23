@@ -1,4 +1,5 @@
 // clang-format off
+%#include "exec_coord.hh"
 %#include "rpc_types.hh"
 %#include "transaction.hh"
 namespace hogd {
