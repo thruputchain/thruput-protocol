@@ -64,8 +64,8 @@ namespace hogd {
 
       // schedulercoord_validate asks the scheduler to validate a nomination,
       // and if successful, return the block ID in the db of the validated
-      // block.
-      SchedulerValidationResult schedulercoord_validate(Nomination) = 40;
+      // block. DbTip is the block onto which the nomination is done.
+      SchedulerValidationResult schedulercoord_validate(DbTip, Nomination) = 40;
     }
     = 1;
   }
