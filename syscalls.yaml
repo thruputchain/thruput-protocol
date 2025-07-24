@@ -240,6 +240,22 @@ syscalls:
         typename: "RuntimeMemoryLength"
         primitive_type: true
     number: 21
+  - name: "GetTransactionStatistics"
+    needs_gas: true
+    # Note: Some or all of these statistics
+    # might be disabled during release builds
+    # and/or during production execution.
+    # This is allowed to return nondeterministic
+    # information during test configurations
+    # (and those stats will be disabled in prod)
+    inputs:
+      - name: "statistic"
+        typename: "TransactionStatistic"
+        primitive_type: true
+    outputs:
+      - name: "result"
+        typename: "uint64_t"
+    number: 22
 errors:
   - name: "None"
     number: 0

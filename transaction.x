@@ -75,4 +75,8 @@ namespace hogd
     NondeterministicProposalData nondeterministic_proposal_data;
   };
 
+  enum TransactionStatistic {
+    kTxStatGasRemaining = 0,
+  };
+
 } // namespace hogd
