@@ -241,12 +241,13 @@ syscalls:
         primitive_type: true
     number: 21
   - name: "GetTransactionStatistics"
-    // Note: Some or all of these statistics
-    // might be disabled during release builds
-    // and/or during production execution.
-    // This is allowed to return nondeterministic
-    // information during test configurations
-    // (and those stats will be disabled in prod)
+    needs_gas: true
+    # Note: Some or all of these statistics
+    # might be disabled during release builds
+    # and/or during production execution.
+    # This is allowed to return nondeterministic
+    # information during test configurations
+    # (and those stats will be disabled in prod)
     inputs:
       - name: "statistic"
         typename: "TransactionStatistic"

@@ -76,7 +76,7 @@ namespace hogd
   };
 
   enum TransactionStatistic {
-    kTxStatGasUsed = 0,
+    kTxStatGasRemaining = 0,
   };
 
 } // namespace hogd
