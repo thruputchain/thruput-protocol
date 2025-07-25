@@ -4,6 +4,7 @@ typedef opaque Bytes<>;
 
 struct DogwoodStandaloneConfig {
   ValidatorConfig validator_config;
+  RouterConfig router_config;
   DogwoodConfig dogwood_config;
 };
 
