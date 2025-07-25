@@ -25,6 +25,10 @@ type_mappings:
     rust_name: "u128"
     xdr_name: "uint128_xdr"
     rust_uses_as_ptr: false
+  - base_name: "bool"
+    rust_name: "bool"
+    xdr_name: "bool"
+    rust_uses_as_ptr: false
 syscalls:
   - name: "SHA256"
     inputs:
@@ -180,15 +184,16 @@ syscalls:
     inputs:
       - name: "key"
         typename: "StorageKeyContractData"
+      - name: "force_load_from_snapshot"
+        typename: "bool"
+        primitive_type: true
     outputs:
       - name: "current_set"
         typename: "int128_t"
-        xdr_typename: "int128_xdr"
-        rust_typename: "i128"
+      - name: "current_set_opt"
+        typename: "bool"
       - name: "current_add"
         typename: "int128_t"
-        xdr_typename: "int128_xdr"
-        rust_typename: "i128"
     number: 16
   - name: "NonnegativeIntSetAdd"
     inputs:
