@@ -7,7 +7,7 @@ struct DogwoodStandaloneConfig {
   DogwoodConfig dogwood_config;
 };
 
-struct Received {
+struct DogwoodReceived {
   ValidatorID from;
   opaque payload<>;
 };
@@ -21,7 +21,7 @@ program DogwoodAPI
 
     void dogwoodapi_send(Milliseconds, Bytes) = 10;
 
-    Received dogwoodapi_receive(Milliseconds) = 20;
+    DogwoodReceived dogwoodapi_receive(Milliseconds) = 20;
   }
   = 1;
 }
