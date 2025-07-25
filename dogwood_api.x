@@ -21,7 +21,7 @@ program DogwoodAPI
 
     void dogwoodapi_send(Milliseconds, Bytes) = 10;
 
-    void dogwoodapi_receive(Milliseconds) = 20;
+    Received dogwoodapi_receive(Milliseconds) = 20;
   }
   = 1;
 }
