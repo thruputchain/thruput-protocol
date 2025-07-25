@@ -201,13 +201,10 @@ syscalls:
         typename: "StorageKeyContractData"
       - name: "set_value"
         typename: "int128_t"
-        xdr_typename: "int128_xdr"
-        rust_typename: "i128"
         syscall_pass_by_value: true
+        optional: true
       - name: "add_value"
         typename: "int128_t"
-        xdr_typename: "int128_xdr"
-        rust_typename: "i128"
         syscall_pass_by_value: true
     outputs:
     number: 17
