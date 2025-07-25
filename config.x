@@ -36,15 +36,6 @@ struct SpectraConfig {
   Milliseconds partial_ttl_msec;
 };
 
-struct TransmissionConfig {
-  int num_payload_sheaves;
-  int num_parity_sheaves;
-  int max_chunk_bytes;
-  //
-  Milliseconds partial_max_ttl_msec;
-  Milliseconds partial_idle_ttl_msec;
-};
-
 struct DogwoodConfig {
   // navigator
   DogwoodInt32 route_count;
@@ -62,7 +53,8 @@ struct DogwoodConfig {
   DogwoodInt32 transmission_receiver_decode_worker_count;
   DogwoodInt32 transmission_sender_worker_count;
   //
-  TransmissionConfig *transmission_config;
+  Milliseconds transmission_partial_max_ttl_msec;
+  Milliseconds transmission_partial_idle_ttl_msec;
 };
 
 struct MempoolConfig {
