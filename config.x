@@ -40,7 +40,7 @@ struct DogwoodConfig {
   // navigator
   DogwoodInt32 route_count;
   Milliseconds route_time_to_live_msec;
-  Milliseconds route_time_to_use_msec;
+  Milliseconds route_max_latency_msec;
   // endpoint caller
   DogwoodInt32 endpoint_max_pending;
   DogwoodInt32 endpoint_num_clients;
