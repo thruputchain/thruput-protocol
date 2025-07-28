@@ -46,6 +46,7 @@ struct DogwoodConfig {
   DogwoodInt32 endpoint_num_clients;
   Milliseconds endpoint_idle_ttl_msec;
   Milliseconds endpoint_redial_delay_msec;
+  Milliseconds endpoint_timeout;
   // stream processing
   DogwoodInt32 stream_receiver_worker_count;
   DogwoodInt32 stream_sender_worker_count;
