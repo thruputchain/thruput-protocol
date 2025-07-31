@@ -49,7 +49,6 @@ struct DogwoodConfig {
 };
 
 struct MempoolConfig {
-  Milliseconds proposed_batch_ttl_msec;
   Milliseconds transaction_ttl_msec;
   hyper submission_lot_size;
   Milliseconds submission_lot_wait_msec;
@@ -62,6 +61,7 @@ struct CatchupConfig {
 
 struct BatonConfig {
   Milliseconds heartbeat_msec;
+  Milliseconds nomination_ttl_msec;
 };
 
 struct Config {
