@@ -25,17 +25,6 @@ struct RouterConfig {
   unsigned int tree_fan_out;
 };
 
-struct BroadcastConfig {
-  Milliseconds multicast_tree_ttl_msec; // milliseconds
-  unsigned hyper chunk_size;
-};
-
-struct SpectraConfig {
-  unsigned int num_payload_channels;
-  unsigned int num_parity_channels;
-  Milliseconds partial_ttl_msec;
-};
-
 struct DogwoodConfig {
   // navigator
   DogwoodInt32 route_count;
@@ -80,8 +69,6 @@ struct Config {
   WalletConfig *wallet_config;
   DiscoveryConfig *discovery_config;
   RouterConfig *router_config;
-  BroadcastConfig *broadcast_config;
-  SpectraConfig *spectra_config;
   DogwoodConfig *dogwood_config;
   MempoolConfig *mempool_config;
   CatchupConfig *catchup_config;
