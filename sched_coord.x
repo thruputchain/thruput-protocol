@@ -27,8 +27,9 @@ namespace hogd {
   enum SchedulerValidationOutcome {
     SchedulerValidationOK = 0,
     SchedulerValidationInvalid = 1,
-    SchedulerValidationDbFailed = 2,
-    SchedulerValidationMissingTxs = 3,
+    SchedulerValidationMissingTxs = 2,
+    SchedulerValidationDbFailed = 3,
+    SchedulerValidationExecutorFailed = 4,
   };
 
   union SchedulerValidationResult switch (SchedulerValidationOutcome outcome)
