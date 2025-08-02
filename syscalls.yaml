@@ -96,6 +96,9 @@ syscalls:
     inputs:
       - name: "buffer"
         span_argument: true
+      - name: "revert_frame"
+        typename: "bool"
+        primitive_type: true
     outputs:
     returns: false
     number: 6
