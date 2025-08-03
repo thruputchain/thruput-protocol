@@ -24,6 +24,7 @@ namespace hogd
     kInvokeFlagNone = 0,
     kInvokeFlagTryInvoke = 0x00000001,
     kInvokeFlagReadOnly = 0x00000002,
+    kInvokeFlagDelegateCall = 0x00000004,
   };
 
   typedef int InvokeFlagSet;
