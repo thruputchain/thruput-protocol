@@ -13,7 +13,12 @@ namespace hogd {
 // Additionally, XDR does not have support for generics,
 // so the full Result type cannot be defined here.
 
-typedef string ErrorMsgXDR<>;
+// ErrorMsg is a string in testing, but is compiled out to nothing
+// when a contract is built to a wasm.
+struct ErrorMsgXDR {
+  void;
+};
+
 // SysErr is a int32, which is derived from a SyscallErrorCode.
 typedef int SysErrXDR;
 
