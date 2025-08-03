@@ -15,9 +15,6 @@ namespace hogd {
 
 // ErrorMsg is a string in testing, but is compiled out to nothing
 // when a contract is built to a wasm.
-struct ErrorMsgXDR {
-  void;
-};
 
 // SysErr is a int32, which is derived from a SyscallErrorCode.
 typedef int SysErrXDR;
@@ -76,7 +73,7 @@ enum ContractErrorType {
 union ContractErrorXDR switch (ContractErrorType error_type)
 {
 case Custom:
-  ErrorMsgXDR error_msg;
+  void; // ErrorMsg
 case Syscall:
   SysErrXDR syscall_err;
 case Storage:
@@ -100,7 +97,7 @@ enum ErrorType {
 union ErrorXDR switch (ErrorType error_type)
 {
 case Caller:
-  ErrorMsgXDR caller_err;
+  void; // ErrorMsg
 case Contract:
   ContractErrorXDR contract_err;
 };
