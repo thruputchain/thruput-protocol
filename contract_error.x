@@ -32,9 +32,9 @@ typedef int SysErrXDR;
 //}
 
 enum StorageErrorType {
-  Syscall = 0,
-  Serialization = 1,
-  IndexOutOfBounds = 2,
+  kStorageErrorTypeSyscall = 0,
+  kStorageErrorTypeSerialization = 1,
+  kStorageErrorTypeIndexOutOfBounds = 2,
 };
 
 struct IndexOutOfBoundsXDR {
@@ -44,11 +44,11 @@ struct IndexOutOfBoundsXDR {
 
 union StorageErrXDR switch (StorageErrorType error_type)
 {
-case Syscall:
+case kStorageErrorTypeSyscall:
   SysErrXDR syscall_err;
-case Serialization:
+case kStorageErrorTypeSerialization:
   void;
-case IndexOutOfBounds:
+case kStorageErrorTypeIndexOutOfBounds:
   IndexOutOfBoundsXDR index_out_of_bounds_err;
 };
 
@@ -65,18 +65,18 @@ case IndexOutOfBounds:
 // }
 
 enum ContractErrorType {
-  Custom = 0,
-  Syscall = 1,
-  Storage = 2,
+  kContractErrorTypeCustom = 0,
+  kContractErrorTypeSyscall = 1,
+  kContractErrorTypeStorage = 2,
 };
 
 union ContractErrorXDR switch (ContractErrorType error_type)
 {
-case Custom:
+case kContractErrorTypeCustom:
   void; // ErrorMsg
-case Syscall:
+case kContractErrorTypeSyscall:
   SysErrXDR syscall_err;
-case Storage:
+case kContractErrorTypeStorage:
   StorageErrXDR storage_err;
 };
 
@@ -90,15 +90,15 @@ case Storage:
 //}
 
 enum ErrorType {
-  Caller = 0,
-  Contract = 1,
+  kErrorTypeCaller = 0,
+  kErrorTypeContract = 1,
 };
 
 union ErrorXDR switch (ErrorType error_type)
 {
-case Caller:
+case kErrorTypeCaller:
   void; // ErrorMsg
-case Contract:
+case kErrorTypeContract:
   ContractErrorXDR contract_err;
 };
 
@@ -109,9 +109,5 @@ case Contract:
 //    case true:
 //        ErrorXDR err;
 // };
-
-struct VoidXDR {
-  void;
-};
 
 } // namespace hogd
