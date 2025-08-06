@@ -1,5 +1,5 @@
 // clang-format off
-%#include "batch.hh"
+%#include "transaction.hh"
 %#include "types.hh"
 
 namespace hogd {

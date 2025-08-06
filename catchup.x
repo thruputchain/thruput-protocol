@@ -1,6 +1,7 @@
 // clang-format off
 %#include "discovery.hh"
 %#include "nomination.hh"
+%#include "transaction.hh"
 %#include "types.hh"
 
 namespace hogd {
