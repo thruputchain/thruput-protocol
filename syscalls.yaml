@@ -326,3 +326,6 @@ errors:
   - name: "DeterministicWasm"
     number: -1
     doc: "Deterministic error within called wasm (i.e. trap)"
+  - name: "FrameReverted"
+    number: -2
+    doc: "Child call frame manually reverted"
