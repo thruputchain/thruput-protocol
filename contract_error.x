@@ -68,6 +68,7 @@ enum ContractErrorType {
   kContractErrorTypeCustom = 0,
   kContractErrorTypeSyscall = 1,
   kContractErrorTypeStorage = 2,
+  kContractErrorTypeCall = 3,
 };
 
 union ContractErrorXDR switch (ContractErrorType error_type)
@@ -78,6 +79,8 @@ case kContractErrorTypeSyscall:
   SysErrXDR syscall_err;
 case kContractErrorTypeStorage:
   StorageErrXDR storage_err;
+case kContractErrorTypeCall:
+  void;
 };
 
 // Top level error returned from contract:
