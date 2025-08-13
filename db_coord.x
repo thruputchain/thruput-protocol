@@ -41,17 +41,15 @@
     void;
   };
 
-  enum HogAgeGroup {
-    kGroupToSchedule = 0,
-    kGroupAlreadyScheduled = 1,
-    kGroupReceived = 2
-  };
-  const kNumGroups = 3;
+  const kHogAgeGroupToSchedule = 0;
+  const kHogAgeGroupAlreadyScheduled = 1;
+  const kHogAgeGroupReceived = 2;
+  const kHogAgeNumGroups = 3;
 
   struct HogAge {
-    ContractAddress account_id;
-    int128_xdr num_hogs[kNumGroups];
-    BlockHeight average_ages[kNumGroups];
+    ContractAddress address;
+    int128_xdr num_hogs[kHogAgeNumGroups];
+    BlockHeight average_ages[kHogAgeNumGroups];
   };
 
   typedef HogAge HogAgeBatch<>;
