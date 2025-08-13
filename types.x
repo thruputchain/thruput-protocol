@@ -60,6 +60,7 @@ case 0:
 typedef opaque SHA256Hash[32]; // #[rust(newtype)]
 // 256 bit contract address
 typedef opaque ContractAddress[32]; // #[rust(newtype)]
+typedef ContractAddress ContractAddressBatch<>;
 // arbitrary 32-byte key into contract storage
 // This is the key type that contracts directly manipulate
 typedef opaque StorageKeyContractData[32]; // #[rust(newtype)]

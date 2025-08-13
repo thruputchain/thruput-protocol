@@ -117,6 +117,9 @@
       DbResult dbcoord_abandon_snapshot(BlockID) = 40;
 
       DbCatchupResult dbcoord_catchup(BlockHeight) = 50;
+
+      HogAgeResult dbcoord_get_hog_ages(ContractAddressBatch) = 60;
+      DbResult dbcoord_write_hog_ages(HogAgeBatch) = 70;
     }
     = 1;
   }
