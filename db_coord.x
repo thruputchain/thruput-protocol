@@ -41,6 +41,29 @@
     void;
   };
 
+  enum HogAgeGroup {
+    kGroupToSchedule = 0,
+    kGroupAlreadyScheduled = 1,
+    kGroupReceived = 2
+  };
+  const kNumGroups = 3;
+
+  struct HogAge {
+    ContractAddress account_id;
+    int128_xdr num_hogs[kNumGroups];
+    BlockHeight average_ages[kNumGroups];
+  };
+
+  typedef HogAge HogAgeBatch<>;
+
+  union HogAgeResult switch (DbResult result)
+  {
+  case DbResultOK:
+    HogAgeBatch hog_age_batch;
+  default:
+    void;
+  };
+
   program DbCoord
   {
     version DbCoord1
