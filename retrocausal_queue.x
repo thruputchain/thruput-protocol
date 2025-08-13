@@ -5,7 +5,7 @@ namespace hogd {
   // clang-format on
 
   const kQueueEntryMaxLen = 256;
-  typedef opaque QueueEntry<kQueueEntryMaxLen>;
+  typedef opaque QueueEntry<kQueueEntryMaxLen>; // #[rust(newtype)]
 
   // A block in a retrocausal queue, containing a list of entries and a block
   // number The entries are stored in lexicographically sorted order within the
