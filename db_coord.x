@@ -41,6 +41,27 @@
     void;
   };
 
+  const kHogAgeGroupToSchedule = 0;
+  const kHogAgeGroupAlreadyScheduled = 1;
+  const kHogAgeGroupReceived = 2;
+  const kHogAgeNumGroups = 3;
+
+  struct HogAge {
+    ContractAddress address;
+    int128_xdr num_hogs[kHogAgeNumGroups];
+    BlockHeight average_ages[kHogAgeNumGroups];
+  };
+
+  typedef HogAge HogAgeBatch<>;
+
+  union HogAgeResult switch (DbResult result)
+  {
+  case DbResultOK:
+    HogAgeBatch hog_age_batch;
+  default:
+    void;
+  };
+
   program DbCoord
   {
     version DbCoord1
@@ -94,6 +115,9 @@
       DbResult dbcoord_abandon_snapshot(BlockID) = 40;
 
       DbCatchupResult dbcoord_catchup(BlockHeight) = 50;
+
+      HogAgeResult dbcoord_get_hog_ages(ContractAddressBatch) = 60;
+      DbResult dbcoord_write_hog_ages(HogAgeBatch) = 70;
     }
     = 1;
   }

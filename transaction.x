@@ -29,13 +29,9 @@ namespace hogd
 
   typedef int InvokeFlagSet;
 
-  typedef opaque AccountID[64];
   typedef opaque OriginID[16];
 
   struct Transaction {
-    // The account that submitted the transaction.
-    AccountID account_id;
-
     OriginID origin_id;
     Timestamp created;
     Invocation invocation;
