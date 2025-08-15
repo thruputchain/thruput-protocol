@@ -231,7 +231,7 @@ syscalls:
       - name: "key"
         typename: "StorageKeyContractData"
       - name: "flags"
-        typename: "int32_t" # StorageItemRPCFlagSet
+        typename: "int32_t"  # StorageItemRPCFlagSet
         primitive_type: true
     outputs:
     number: 18

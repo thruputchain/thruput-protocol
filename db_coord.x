@@ -49,7 +49,7 @@ namespace hogd {
 
   struct HogAge {
     ContractAddress address;
-    int128_xdr num_hogs[kHogAgeNumGroups];
+    uint128_xdr num_hogs[kHogAgeNumGroups];
     BlockHeight average_ages[kHogAgeNumGroups];
   };
 
