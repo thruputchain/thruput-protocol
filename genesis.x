@@ -21,7 +21,13 @@ namespace hogd {
     InitialConfigurationList initial_config;
   };
 
+  // Governs contract addresses
   const kDeployContractPrecompileIndex = 0;
   const kPresetNativeTokenPrecompileIndex = 1;
+
+  // These define the native contract IDs within the Contract struct.
+  enum HogexecNativeContracts {
+    kNativeContractToken = 0,
+  };
 
 } // namespace hogd
