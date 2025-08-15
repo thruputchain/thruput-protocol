@@ -4,6 +4,7 @@
 %#include "contract.hh"
 %#include "transaction.hh"
 %#include "storage_item.hh"
+%#include "storage_delta_flags.hh"
 
 namespace hogd
 {
@@ -35,14 +36,6 @@ namespace hogd
     kRPCTransactionFailed = 5,
     // Unimplemented RPC
     kRPCUnimplemented = 6,
-  };
-
-  // Flags modifying one Executor->DB storage item RPC
-  enum StorageItemRPCFlags {
-    kStorageNone = 0,
-    // Should the modified item be exclusively locked, in addition to the
-    // modification performed.
-    kStorageExclusiveLock = 0x00000001
   };
 
   // The mode in which a block executes.

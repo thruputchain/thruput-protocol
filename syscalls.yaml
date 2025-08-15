@@ -230,6 +230,9 @@ syscalls:
     inputs:
       - name: "key"
         typename: "StorageKeyContractData"
+      - name: "flags"
+        typename: "StorageItemRPCFlagSet"
+        primitive_type: true
     outputs:
     number: 18
   - name: "GetCurrentAddress"
