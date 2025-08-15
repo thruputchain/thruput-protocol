@@ -119,11 +119,11 @@ namespace hogd {
 
       HogAgeResult dbcoord_get_hog_ages(ContractAddressBatch) = 60;
       DbResult dbcoord_write_hog_ages(HogAgeBatch) = 70;
-      
-      // Load genesis block data into storage
-      // This calculates storage keys and stores allocation amounts as bytestrings
-      DbResult dbcoord_load_genesis_block(GenesisBlock) = 80;
 
+      // Load genesis block data into storage
+      // This calculates storage keys and stores allocation amounts as
+      // bytestrings
+      DbResult dbcoord_load_genesis_block(GenesisBlock) = 80;
     }
     = 1;
   }
