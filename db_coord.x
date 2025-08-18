@@ -1,6 +1,5 @@
 // clang-format off
 %#include "catchup.hh"
-%#include "genesis.hh"
 %#include "nomination.hh"
 %#include "rpc_types.hh"
 
@@ -123,7 +122,7 @@ namespace hogd {
       // Load genesis block data into storage
       // This calculates storage keys and stores allocation amounts as
       // bytestrings
-      DbResult dbcoord_load_genesis_block(GenesisBlock) = 80;
+      // DbResult dbcoord_load_genesis_block(GenesisBlock) = 80;
     }
     = 1;
   }
