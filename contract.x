@@ -18,9 +18,9 @@ namespace hogd {
   case kWasmi:
     ContractBlob wasmi_contract;
   case kNative:
-    unsigned int native_contract_id;
+    int native_contract_id;
   case kMockTest:
-    unsigned int mock_contract_id;
+    int mock_contract_id;
   default:
     void;
   };
