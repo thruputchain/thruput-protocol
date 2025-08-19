@@ -1,5 +1,6 @@
 // clang-format off
 %#include "types.hh"
+%#include "transaction.hh"
 
 namespace hogd {
   // clang-format on
@@ -7,7 +8,8 @@ namespace hogd {
   struct PresetDeploymentConfig {
     SHA256Hash initial_nonce;
     SHA256Hash contract_hash;
-    opaque initialize_calldata<>;
+    ContractEntrypointID entrypoint;
+    opaque calldata<>;
   };
 
   struct InitialConfigurationEntry {
