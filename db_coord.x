@@ -1,6 +1,7 @@
 // clang-format off
 %#include "catchup.hh"
 %#include "nomination.hh"
+%#include "genesis.hh"
 %#include "rpc_types.hh"
 
 namespace hogd {
