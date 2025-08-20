@@ -5,15 +5,11 @@
 namespace hogd {
   // clang-format on
 
-  struct InitializationArgs {
-    ContractEntrypointID entrypoint;
-    Calldata calldata;
-  };
-
   struct PresetDeploymentConfig {
     SHA256Hash initial_nonce;
     SHA256Hash contract_hash;
-    InitializationArgs *initialization_args;
+    ContractEntrypointID entrypoint;
+    Calldata calldata;
   };
 
   struct InitialConfigurationEntry {
