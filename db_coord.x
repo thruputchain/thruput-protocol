@@ -63,7 +63,7 @@ namespace hogd {
     void;
   };
 
-  enum ShardResult {
+  enum DbShardResult {
     ShardOK = 0,
   };
 
@@ -130,7 +130,7 @@ namespace hogd {
       DbResult dbcoord_load_genesis_block(GenesisBlock) = 80;
 
       // shard_restore blocks until restoration completes.
-      ShardResult shard_restore(BlockHeight) = 10;
+      DbShardResult dbcoord_shard_restore(BlockHeight) = 90;
     }
     = 1;
   }
