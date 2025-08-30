@@ -63,6 +63,10 @@ namespace hogd {
     void;
   };
 
+  enum DbShardResult {
+    ShardOK = 0,
+  };
+
   program DbCoord
   {
     version DbCoord1
@@ -124,6 +128,9 @@ namespace hogd {
       // This calculates storage keys and stores allocation amounts as
       // bytestrings
       DbResult dbcoord_load_genesis_block(GenesisBlock) = 80;
+
+      // shard_restore blocks until restoration completes.
+      DbShardResult dbcoord_shard_restore(BlockHeight) = 90;
     }
     = 1;
   }
