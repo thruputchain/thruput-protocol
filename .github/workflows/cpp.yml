@@ -28,6 +28,6 @@ jobs:
       run: |
         go mod init temp_module
         go mod tidy
-        go build generated.go
+        go vet generated.go
     - name: lint yaml
       run: yamllint -s syscalls.yaml
