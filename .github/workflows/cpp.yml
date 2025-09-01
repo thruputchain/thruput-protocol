@@ -27,7 +27,7 @@ jobs:
     - name: check go build
       run: |
         go mod init temp_module
-        go get github.com/xdrpp/goxdr/xdr
+        go mod tidy
         go build generated.go
     - name: lint yaml
       run: yamllint -s syscalls.yaml
