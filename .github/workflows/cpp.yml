@@ -25,9 +25,11 @@ jobs:
     - name: check go generate
       run: $HOME/go/bin/goxdr -o generated.go *.x
     - name: check go build
+      # go vet has warnings on the goxdr/xdr package,
+      # so we set -composites=false to ignore those errors
       run: |
         go mod init temp_module
         go mod tidy
-        go vet generated.go
+        go vet -composites=false generated.go
     - name: lint yaml
       run: yamllint -s syscalls.yaml
