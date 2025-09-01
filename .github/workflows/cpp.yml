@@ -22,7 +22,11 @@ jobs:
       run: sudo apt-get install yamllint
     - name: install goxdr
       run: go install github.com/xdrpp/goxdr/cmd/goxdr@latest
-    - name: check go build
+    - name: check go generate
       run: $HOME/go/bin/goxdr -o generated.go *.x
+    - name: check go build
+      run: |
+        go mod init temp_module
+        go build generated.go
     - name: lint yaml
       run: yamllint -s syscalls.yaml

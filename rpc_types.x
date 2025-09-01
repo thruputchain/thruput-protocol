@@ -44,9 +44,6 @@ namespace hogd
     kBlockExecutionModeProposal = 1,
   };
 
-  // XOR of elements in StorageItemRPCFlags
-  typedef int StorageItemRPCFlagSet;
-
   typedef int128_xdr StorageCost;
 
   union ExpectedStorageCost switch (RPCError error)
