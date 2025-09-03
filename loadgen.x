@@ -23,16 +23,23 @@ namespace hogd {
   };
 
   typedef SignedTransaction InitializationBlock<>;
+  typedef unsigned hyper LoadgenContextID;
 
   struct LoadgenSuccessResult {
     GenesisBlock genesis_block;
     InitializationBlock initialization_txs<>;
+    SignedTransaction work_txs<>;
+    LoadgenContextID context_id;
+  };
+
+  struct LoadgenExtension {
     SignedTransaction work_txs<>;
   };
 
   enum LoadgenRPCError {
     kLoadgenRPCErrorOK = 0,
     kLoadgenRPCErrorInvalidConfig = 1,
+    kLoadgenRPCErrorInvalidContext = 2,
   };
 
   union LoadgenResult switch (LoadgenRPCError error)
@@ -43,11 +50,21 @@ namespace hogd {
     void;
   };
 
+  union LoadgenExtensionResult switch (LoadgenRPCError error)
+  {
+  case kLoadgenRPCErrorOK:
+    LoadgenExtension success;
+  default:
+    void;
+  };
+
   program LoadgenInterface
   {
     version LoadgenInterfaceV1
     {
       LoadgenResult generate_experiment(ExperimentConfig) = 0;
+      LoadgenExtensionResult extend_experiment(LoadgenContextID,
+                                               unsigned hyper) = 1;
     }
     = 1;
   }
