@@ -12,7 +12,6 @@ namespace hogd {
   };
 
   struct ERC20PaymentsConfig {
-    unsigned hyper num_txs;
     unsigned hyper num_accounts;
   };
 
@@ -28,7 +27,6 @@ namespace hogd {
   struct LoadgenSuccessResult {
     GenesisBlock genesis_block;
     InitializationBlock initialization_txs<>;
-    SignedTransaction work_txs<>;
     LoadgenContextID context_id;
   };
 
