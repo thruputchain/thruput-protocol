@@ -61,6 +61,9 @@ namespace hogd {
     version LoadgenInterfaceV1
     {
       LoadgenResult generate_experiment(ExperimentConfig) = 0;
+      // arguments:
+      // LoadgenContextID context_id (a handle returned by generate_experiment)
+      // unsigned hyper num_txs (the number of transactions to return)
       LoadgenExtensionResult extend_experiment(LoadgenContextID,
                                                unsigned hyper) = 1;
     }
