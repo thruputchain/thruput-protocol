@@ -105,5 +105,6 @@ struct LogEntry {
 // calculations.
 typedef hyper BlockHeight;
 typedef unsigned int Weight; // uint32_t
+typedef unsigned hyper BitMap;
 
 } // namespace hogd
