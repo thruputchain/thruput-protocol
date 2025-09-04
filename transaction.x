@@ -31,11 +31,33 @@ namespace hogd
 
   typedef opaque OriginID[16];
 
+  struct Uniquifier {
+    BlockHeight block_expiry_height;
+    unsigned hyper nonce;
+  };
+
   struct Transaction {
     OriginID origin_id;
-    Timestamp created;
     Invocation invocation;
+    Uniquifier uniquifier;
+    // New contracts to deploy.
     Contract contracts_to_deploy<>;
+  };
+
+  struct AuthSignaturePreimage {
+    Weight signature_weight;
+    opaque message<>;
+  };
+
+  struct DecoratedSignature {
+    unsigned int public_key_id; // uint32_t
+    Weight weight;
+    Signature signature;
+  };
+
+  struct AuxiliaryDecoratedSignatures {
+    ContractAddress address;
+    DecoratedSignature signatures<>;
   };
 
   typedef SHA256Hash SignedTransactionHash;
@@ -44,8 +66,9 @@ namespace hogd
   // (and all the other metadata)
   // for a later PR.
   struct SignedTransaction {
-    Signature signature;
     Transaction tx;
+    DecoratedSignature signatures<>;
+    AuxiliaryDecoratedSignatures aux_signatures<>;
   };
 
   // Nondeterministic data attached to a transaction by the proposer.

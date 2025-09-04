@@ -101,4 +101,9 @@ struct LogEntry {
   opaque message<kMaxLogMessageLen>;
 };
 
+// BlockHeight is the height of a block. It is signed to prevent overflows in
+// calculations.
+typedef hyper BlockHeight;
+typedef unsigned int Weight; // uint32_t
+
 } // namespace hogd
