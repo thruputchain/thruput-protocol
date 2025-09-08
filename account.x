@@ -6,6 +6,7 @@ namespace hogd
   // clang-format on
 
   struct PublicKeyConfig {
+    bool valid;
     PublicKey key; // union multiplexing over signature scheme (ed25519,...)
     Weight max_weight;
   };
@@ -19,6 +20,7 @@ namespace hogd
   const MAX_GAS_CONFIGS = 5;
 
   struct GasPermissionConfig {
+    bool valid;
     GasAmount limit;
     BitMap accepted_keys;
     Weight required_weight;
