@@ -51,7 +51,6 @@ namespace hogd
 
   struct DecoratedSignature {
     unsigned int public_key_id; // uint32_t
-    Weight weight;
     Signature signature;
   };
 
