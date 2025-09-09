@@ -29,8 +29,10 @@ namespace hogd
     Weight required_weight;
   };
 
+  typedef PublicKeyConfig* PublicKeyConfigOpt;
+
   struct AccountAuthData {
-    PublicKeyConfig* public_keys[MAX_SIGNERS];
+    PublicKeyConfigOpt public_keys[MAX_SIGNERS];
     GasPermissionConfig gas_permissions<MAX_GAS_CONFIGS>;
     NonceConfig nonce_config;
   };

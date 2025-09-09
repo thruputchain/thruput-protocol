@@ -1,7 +1,7 @@
 // clang-format off
 %#include "types.hh"
 %#include "retrocausal_queue.hh"
-$%include "account.hh"
+%#include "account.hh"
 
 namespace hogd
 {
