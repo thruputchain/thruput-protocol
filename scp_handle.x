@@ -12,10 +12,11 @@ namespace hogd {
 
       // hooks
 
-      void scp_handle_validate_ballot_value(SCPSlotIndex, SCPValue) = 10;
-      void scp_handle_validate_nomination_value(SCPSlotIndex, SCPValue) = 20;
-      SCPOptValue scp_handle_extract_valid_value(SCPSlotIndex, SCPValue) = 30;
-      SCPOptValue scp_handle_combine_candidates(SCPSlotIndex, SCPValues) = 40;
+      void scp_handle_emit_envelope(SCPEnvelope) = 10;
+      void scp_handle_validate_ballot_value(SCPSlotIndex, SCPValue) = 20;
+      void scp_handle_validate_nomination_value(SCPSlotIndex, SCPValue) = 30;
+      SCPOptValue scp_handle_extract_valid_value(SCPSlotIndex, SCPValue) = 40;
+      SCPOptValue scp_handle_combine_candidates(SCPSlotIndex, SCPValues) = 50;
 
       // notifications
 
