@@ -1,6 +1,7 @@
 // clang-format off
 %#include "types.hh"
 %#include "retrocausal_queue.hh"
+$%include "account.hh"
 
 namespace hogd
 {
@@ -11,6 +12,7 @@ namespace hogd
     kItemTypeNonnegativeInt = 1,
     kItemTypeRetrocausalQueue = 2,
     kItemTypeReplayCache = 3,
+    kItemTypeAuthData = 4,
     kItemTypeDeleted = -1,
   };
 

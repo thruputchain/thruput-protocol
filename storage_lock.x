@@ -28,6 +28,10 @@ namespace hogd
     int128_xdr subtract_amount; // nonpositive
   };
 
+  struct AuthDataLock {
+    unsigned int modified_key_ids<>;
+  };
+
   union TypeSpecificLock switch (StorageItemType item_type)
   {
   case kItemTypeNonnegativeInt:
@@ -36,6 +40,8 @@ namespace hogd
     unsigned int consume_lock; // boolean
   case kItemTypeReplayCache:
     ReplayNonce nonces<>;
+  case kItemTypeAuthData:
+    AuthDataLock auth_data_lock;
   default:
     void;
   };

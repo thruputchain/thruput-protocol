@@ -6,7 +6,6 @@ namespace hogd
   // clang-format on
 
   struct PublicKeyConfig {
-    bool valid;
     PublicKey key; // union multiplexing over signature scheme (ed25519,...)
     Weight max_weight;
   };
@@ -31,7 +30,7 @@ namespace hogd
   };
 
   struct AccountAuthData {
-    PublicKeyConfig public_keys[MAX_SIGNERS];
+    PublicKeyConfig* public_keys[MAX_SIGNERS];
     GasPermissionConfig gas_permissions<MAX_GAS_CONFIGS>;
     NonceConfig nonce_config;
   };
