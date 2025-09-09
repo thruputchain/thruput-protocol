@@ -11,7 +11,7 @@ namespace hogd {
       void scp_control_null(void) = 0;
 
       // arguments: slot index, value to nominate, previous value
-      void scp_control_nominate(SCPSlotIndex, SCPValue, SCPValue) = 10;
+      bool scp_control_nominate(SCPSlotIndex, SCPValue, SCPValue) = 10;
       void scp_control_stop_nomination(SCPSlotIndex) = 20;
 
       void scp_control_update_local_quorum_set(SCPQuorumSet) = 100;
