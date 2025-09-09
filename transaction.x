@@ -37,7 +37,6 @@ namespace hogd
   };
 
   struct Transaction {
-    OriginID origin_id;
     Invocation invocation;
     Uniquifier uniquifier;
     // New contracts to deploy.
@@ -66,6 +65,7 @@ namespace hogd
   // for a later PR.
   struct SignedTransaction {
     Transaction tx;
+    Weight signature_weight;
     DecoratedSignature signatures<>;
     AuxiliaryDecoratedSignatures aux_signatures<>;
   };
