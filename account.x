@@ -20,7 +20,6 @@ namespace hogd
   const MAX_GAS_CONFIGS = 5;
 
   struct GasPermissionConfig {
-    bool valid;
     GasAmount limit;
     BitMap accepted_keys;
     Weight required_weight;
@@ -32,7 +31,7 @@ namespace hogd
   };
 
   struct AccountAuthData {
-    PublicKeyConfig public_keys<MAX_SIGNERS>;
+    PublicKeyConfig public_keys[MAX_SIGNERS];
     GasPermissionConfig gas_permissions<MAX_GAS_CONFIGS>;
     NonceConfig nonce_config;
   };
