@@ -29,7 +29,7 @@ namespace hogd
     Weight required_weight;
   };
 
-  typedef PublicKeyConfig* PublicKeyConfigOpt;
+  typedef PublicKeyConfig *PublicKeyConfigOpt;
 
   struct AccountAuthData {
     PublicKeyConfigOpt public_keys[MAX_SIGNERS];
