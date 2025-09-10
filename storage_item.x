@@ -34,6 +34,8 @@ namespace hogd
     void;
   case kItemTypeReplayCache:
     ReplayCacheMetadata replay_cache_metadata;
+  case kItemTypeAuthData:
+    AccountAuthData auth_data;
   };
 
   enum StorageDeltaType {
