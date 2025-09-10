@@ -45,12 +45,16 @@ namespace hogd
     kDeltaTypeRetrocausalQueue = 3,
     kDeltaTypeReplayCacheModify = 4,
     kDeltaTypeNonnegativeIntAdd = 5,
-    kDeltaTypeAuthDataChangeSigner = 6,
+    kDeltaTypeAuthDataChange = 6,
   };
 
-  struct AuthDataChangeSignerArgs {
+  struct AuthDataChangeSigner {
     unsigned int public_key_id;
-    PublicKey *public_key;
+    PublicKeyConfigOpt public_key;
+  };
+
+  struct AuthDataChangeArgs {
+    AuthDataChangeSigner auth_data_change_signers<>;
   };
 
   struct NonnegativeInt128SetAddArgs {
@@ -77,8 +81,8 @@ namespace hogd
     RetrocausalQueueDelta retrocausal_queue;
   case kDeltaTypeReplayCacheModify:
     ReplayCacheModifyArgs replay_cache_modify;
-  case kDeltaTypeAuthDataChangeSigner:
-    AuthDataChangeSignerArgs auth_data_change_signer;
+  case kDeltaTypeAuthDataChange:
+    AuthDataChangeArgs auth_data_change;
   };
 
 } // namespace hogd
