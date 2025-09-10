@@ -4,6 +4,12 @@
 namespace hogd {
   // clang-format on
 
+  enum SCPValidationLevel {
+    SCP_INVALID = 0,
+    SCP_MAYBE_VALID = 1,
+    SCP_FULLY_VALID = 2,
+  };
+
   program SCP_Handle
   {
     version SCP_Handle1
@@ -13,8 +19,10 @@ namespace hogd {
       // hooks
 
       void scp_handle_emit_envelope(SCPEnvelope) = 10;
-      void scp_handle_validate_ballot_value(SCPSlotIndex, SCPValue) = 20;
-      void scp_handle_validate_nomination_value(SCPSlotIndex, SCPValue) = 30;
+      SCPValidationLevel scp_handle_validate_ballot_value(SCPSlotIndex,
+                                                          SCPValue) = 20;
+      SCPValidationLevel scp_handle_validate_nomination_value(SCPSlotIndex,
+                                                              SCPValue) = 30;
       SCPOptValue scp_handle_extract_valid_value(SCPSlotIndex, SCPValue) = 40;
       SCPOptValue scp_handle_combine_candidates(SCPSlotIndex, SCPValues) = 50;
 
