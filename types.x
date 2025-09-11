@@ -68,6 +68,7 @@ typedef opaque StorageKeyContractData[32]; // #[rust(newtype)]
 enum StorageKeyType {
   kStorageKeyTypeContractData = 0,
   kStorageKeyTypeFreeNativeTokenBalance = 1,
+  kStorageKeyTypeAccountAuthData = 2,
 };
 
 union StorageKey switch (StorageKeyType key_type)
@@ -75,6 +76,8 @@ union StorageKey switch (StorageKeyType key_type)
 case kStorageKeyTypeContractData:
   StorageKeyContractData contract_data_key;
 case kStorageKeyTypeFreeNativeTokenBalance:
+  void;
+case kStorageKeyTypeAccountAuthData:
   void;
   // TODO(geoff): add other key types
 };

@@ -6,18 +6,22 @@ type_mappings:
     rust_name: "u32"
     xdr_name: "unsigned int"
     rust_uses_as_ptr: false
+    primitive_type: true
   - base_name: "int32_t"
     rust_name: "i32"
     xdr_name: "int"
     rust_uses_as_ptr: false
+    primitive_type: true
   - base_name: "uint64_t"
     rust_name: "u64"
     xdr_name: "unsigned hyper"
     rust_uses_as_ptr: false
+    primitive_type: true
   - base_name: "int64_t"
     rust_name: "i64"
     xdr_name: "hyper"
     rust_uses_as_ptr: false
+    primitive_type: true
   - base_name: "int128_t"
     rust_name: "i128"
     xdr_name: "int128_xdr"
@@ -156,7 +160,7 @@ syscalls:
     needs_context: false
     inputs:
       - name: "scheme"
-        # This is a CryptographicScheme enum, but we pass it in as a uint32_t
+        # This is a CryptographicScheme enum, but we pass it in as an int32_t
         # to make sure the generated rust code does not assume that the enum
         # does not get extended with more signature schemes
         typename: "int32_t"
@@ -281,3 +285,21 @@ syscalls:
       - name: "result"
         typename: "uint64_t"
     number: 22
+  - name: "ChangePublicKeyRegistration"
+    inputs:
+      - name: "key_index"
+        typename: "uint32_t"
+      - name: "key_scheme"
+        # This is a CryptographicScheme enum, but we pass it in as an int32_t
+        # to make sure the generated rust code does not assume that the enum
+        # does not get extended with more signature schemes
+        typename: "int32_t"
+        optional: true
+      - name: "key_bytes"
+        span_argument: true
+      - name: "key_weight"
+        typename: "uint32_t"
+        optional: true
+    outputs:
+    number: 23
+      
