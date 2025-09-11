@@ -6,7 +6,7 @@
 namespace hogd {
   // clang-format on
 
-  enum DbSchedresult {
+  enum DbSchedResult {
     DbSchedResultOK = 0,
     DbSchedResultError = 1,
   };
