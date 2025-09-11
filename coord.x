@@ -36,16 +36,16 @@ namespace hogd {
   // ShardCard uniquely describes a database shard instance and its initial
   // state.
   struct ShardCard {
+
     Protocol protocol;
+
     UPID upid;
 
     BlockHeight block_height;
+
     unsigned int shard_count;
 
-    // This is the db address that the coordinator should connect to.
-    ServerAddress address_for_coord;
-    // This is the db address that the executor should connect to.
-    ServerAddress address_for_exec;
+    ServerAddress address;
 
     // TODO: KeyPrefixes describes the key prefixes handled by this shard
     // KeyPrefixes key_prefixes;
