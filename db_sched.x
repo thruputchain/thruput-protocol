@@ -34,11 +34,12 @@ namespace hogd {
     void;
   };
 
-  union DbAccountAuthDataBatchResult switch (DbSchedResult result) {
-    case DbSchedResultOK:
-      AccountAuthData account_auth_data_batch<>;
-    default:
-      void;
+  union DbAccountAuthDataBatchResult switch (DbSchedResult result)
+  {
+  case DbSchedResultOK:
+    AccountAuthData account_auth_data_batch<>;
+  default:
+    void;
   };
 
   program DbSched
@@ -46,12 +47,14 @@ namespace hogd {
     version DbSched1
     {
       void dbsched_null(void) = 0;
-      
-      DbAccountAuthDataBatchResult dbsched_get_account_auth_data(BlockID, ContractAddressBatch) = 10;
+
+      DbAccountAuthDataBatchResult dbsched_get_account_auth_data(
+          BlockID, ContractAddressBatch) = 10;
 
       HogAgeResult dbsched_get_hog_ages(ContractAddressBatch) = 20;
       DbSchedResult dbsched_write_hog_ages(HogAgeBatch) = 30;
-    } = 1;
+    }
+    = 1;
   }
   = 0x88887ee7;
 
