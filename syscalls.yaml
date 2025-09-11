@@ -285,21 +285,3 @@ syscalls:
       - name: "result"
         typename: "uint64_t"
     number: 22
-  - name: "ChangePublicKeyRegistration"
-    inputs:
-      - name: "key_index"
-        typename: "uint32_t"
-      - name: "key_scheme"
-        # This is a CryptographicScheme enum, but we pass it in as an int32_t
-        # to make sure the generated rust code does not assume that the enum
-        # does not get extended with more signature schemes
-        typename: "int32_t"
-        optional: true
-      - name: "key_bytes"
-        span_argument: true
-      - name: "key_weight"
-        typename: "uint32_t"
-        optional: true
-    outputs:
-    number: 23
-      
