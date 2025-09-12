@@ -39,7 +39,7 @@ namespace hogd {
           350;
 
       // utils
-      SCPOptQuorumSet get_quorum_set(SCPHash) = 1000;
+      SCPOptQuorumSet scp_handle_get_quorum_set(SCPHash) = 1000;
     }
     = 1;
   }
