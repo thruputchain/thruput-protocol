@@ -46,6 +46,8 @@ namespace hogd {
     ServerAddress address_for_coord;
     // This is the db address that the executor should connect to.
     ServerAddress address_for_exec;
+    // This is the db address that the scheduler should connect to.
+    ServerAddress address_for_sched;
 
     // TODO: KeyPrefixes describes the key prefixes handled by this shard
     // KeyPrefixes key_prefixes;
