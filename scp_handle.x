@@ -37,6 +37,9 @@ namespace hogd {
       void scp_handle_accepted_commit(SCPSlotIndex, SCPBallot) = 340;
       void scp_handle_ballot_did_hear_from_quorum(SCPSlotIndex, SCPBallot) =
           350;
+
+      // utils
+      SCPOptQuorumSet get_quorum_set(SCPHash) = 1000;
     }
     = 1;
   }

@@ -90,4 +90,6 @@ namespace hogd {
     SCPQuorumSet inner_sets<>;
   };
 
+  typedef SCPQuorumSet *SCPOptQuorumSet;
+
 } // namespace hogd
