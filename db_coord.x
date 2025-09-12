@@ -99,7 +99,6 @@ namespace hogd {
       // Parent block must be closed.
       DbResult dbcoord_create_snapshot(BlockID, BlockID, BlockExecutionMode) =
           10;
-      DbResult dbcoord_open_snapshot(BlockID) = 11;
 
       // Commits the blockID to disk.  Should only be called for e.g. finalized
       // blocks. At minimum block must be closed before being committed.
