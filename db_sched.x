@@ -11,17 +11,15 @@ namespace hogd {
     DbSchedResultError = 1,
   };
 
-  enum HogAgeBucket {
-    HogAgeBucketToSchedule = 0,
-    HogAgeBucketAlreadyScheduled = 1,
-    HogAgeBucketReceived = 2,
-  };
-  const kHogAgeBucketNumGroups = 3;
+  const kHogAgeGroupToSchedule = 0;
+  const kHogAgeGroupAlreadyScheduled = 1;
+  const kHogAgeGroupReceived = 2;
+  const kHogAgeNumGroups = 3;
 
   struct HogAge {
     ContractAddress address;
-    uint128_xdr num_hogs[kHogAgeBucketNumGroups];
-    BlockHeight average_ages[kHogAgeBucketNumGroups];
+    uint128_xdr num_hogs[kHogAgeNumGroups];
+    BlockHeight average_ages[kHogAgeNumGroups];
   };
 
   typedef HogAge HogAgeBatch<>;
