@@ -17,7 +17,7 @@ jobs:
           ssh-private-key: |
             ${{ secrets.PROTOCOL_TO_HOGD_ACCESS_KEY }}
             ${{ secrets.PROTOCOL_TO_PROTOCOL_RS_ACCESS_KEY }}
-            ${{ secrets.PROTOCOL_TO_SELF_ACCESS_KEY}}
+            ${{ secrets.PROTOCOL_TO_SELF_ACCESS_KEY }}
       - name: Checkout repository
         uses: actions/checkout@v4
       - name: get x23
