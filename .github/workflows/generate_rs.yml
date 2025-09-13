@@ -1,0 +1,32 @@
+name: C++ CI
+
+on:
+  workflow_dispatch:  
+
+jobs:
+  build:
+    runs-on: self-hosted
+
+    steps:
+      - name: Clean up .gitconfig
+        run: |
+          echo "Cleaning up .gitconfig"
+          rm -f /home/hogci/.gitconfig
+      - uses: webfactory/ssh-agent@v0.9.1
+        with:
+          ssh-private-key: |
+            ${{ secrets.PROTOCOL_TO_HOGD_ACCESS_KEY }}
+            ${{ secrets.PROTOCOL_TO_PROTOCOL_RS_ACCESS_KEY }}
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: get x23
+        run: |
+          git clone git@github.com:groundhogchain/hogd.git
+          cd hogd
+          git submodule init external/benchmark
+          git submodule update external/benchmark
+          git submodule init external/googletest
+          git submodule update external/googletest
+          cd x23
+          cmake -B build -DBENCHMARK_ENABLE_TESTING=OFF .
+          make -C build x23c
