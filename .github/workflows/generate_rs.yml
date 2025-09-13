@@ -30,3 +30,20 @@ jobs:
           cd x23
           cmake -B build -DBENCHMARK_ENABLE_TESTING=OFF .
           make -C build x23c
+      - name: clone protocol-rs
+        run: |
+          git clone git@github.com:groundhogchain/protocol-rs.git
+          cd protocol-rs
+          XDRC=../hogd/x23/build/x23c ./scripts/generate.sh
+          git status --porcelain
+
+          git config user.name "protocol-rs-workflow"
+          git config user.email "protocol-rs-workflow@groundhogchain.com"
+
+          git add .
+          git commit -m "Update protocol-rs from CI"
+
+          git log -p
+
+
+
