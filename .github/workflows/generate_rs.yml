@@ -17,6 +17,7 @@ jobs:
           ssh-private-key: |
             ${{ secrets.PROTOCOL_TO_HOGD_ACCESS_KEY }}
             ${{ secrets.PROTOCOL_TO_PROTOCOL_RS_ACCESS_KEY }}
+            ${{ secrets.PROTOCOL_TO_SELF_ACCESS_KEY}}
       - name: Checkout repository
         uses: actions/checkout@v4
       - name: get x23
@@ -32,6 +33,7 @@ jobs:
           make -C build x23c
       - name: clone protocol-rs
         run: |
+          PROTOCOL_COMMIT=$(git rev-parse HEAD)
           git clone git@github.com:groundhogchain/protocol-rs.git
           cd protocol-rs
           XDRC=../hogd/x23/build/x23c ./scripts/generate.sh
@@ -40,8 +42,9 @@ jobs:
           git config user.name "protocol-rs-workflow"
           git config user.email "protocol-rs-workflow@groundhogchain.com"
 
+          
           git add .
-          git commit -m "Update protocol-rs from CI"
+          git commit -m "Update protocol-rs from CI $PROTOCOL_COMMIT"
 
           git log -p
 
