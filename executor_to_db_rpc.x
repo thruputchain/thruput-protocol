@@ -25,6 +25,9 @@ namespace hogd
     ContractAddress contract_address;
     SHA256Hash contract_hash;
     // Can be left empty if the contract already exists on the ledger.
+    // TODO(geoff): In a non-root try_push_new_subtransaction, this could be replaced 
+    // for new contracts by a minimal amount of data required to compute the storage cost 
+    // (i.e. the length of the contract).
     Contract* contract;
   };
 
