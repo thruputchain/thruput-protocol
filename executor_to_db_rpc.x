@@ -25,10 +25,10 @@ namespace hogd
     ContractAddress contract_address;
     SHA256Hash contract_hash;
     // Can be left empty if the contract already exists on the ledger.
-    // TODO(geoff): In a non-root try_push_new_subtransaction, this could be replaced 
-    // for new contracts by a minimal amount of data required to compute the storage cost 
-    // (i.e. the length of the contract).
-    Contract* contract;
+    // TODO(geoff): In a non-root try_push_new_subtransaction, this could be
+    // replaced for new contracts by a minimal amount of data required to
+    // compute the storage cost (i.e. the length of the contract).
+    Contract *contract;
   };
 
   typedef ContractDeployDelta ContractDeployDeltaBatch<>;
@@ -45,7 +45,8 @@ namespace hogd
       // by calling this method with any deltas created during the (sub)
       // transaction.
       RPCError try_push_new_subtransaction(BlockID, TransactionID,
-                                           StorageDeltaBatch, ContractDeployDeltaBatch) = 0;
+                                           StorageDeltaBatch,
+                                           ContractDeployDeltaBatch) = 0;
       // We don't need a try_reserve_deltas method; use
       // try_push_new_subtransaction instead.
       RPCError commit_transaction(BlockID, TransactionID) = 1;
