@@ -21,6 +21,15 @@ namespace hogd
 
   typedef FlaggedStorageDelta StorageDeltaBatch<>;
 
+  struct ContractDeployDelta {
+    ContractAddress contract_address;
+    SHA256Hash contract_hash;
+    // Can be left empty if the contract already exists on the ledger.
+    Contract* contract;
+  };
+
+  typedef ContractDeployDelta ContractDeployDeltaBatch<>;
+
   program DatabaseToExecutorInterface
   {
     version DatabaseToExecutorInterfaceV1
@@ -33,7 +42,7 @@ namespace hogd
       // by calling this method with any deltas created during the (sub)
       // transaction.
       RPCError try_push_new_subtransaction(BlockID, TransactionID,
-                                           StorageDeltaBatch) = 0;
+                                           StorageDeltaBatch, ContractDeployDeltaBatch) = 0;
       // We don't need a try_reserve_deltas method; use
       // try_push_new_subtransaction instead.
       RPCError commit_transaction(BlockID, TransactionID) = 1;
@@ -62,18 +71,6 @@ namespace hogd
                                                                 AddressAndKey,
                                                                 unsigned int) =
           102;
-
-      // Create a new contract.
-      // Arguments:
-      //   New Contract
-      RPCError commit_contract_create(BlockID, Contract) = 200;
-
-      // Create a new deployment.
-      // Arguments:
-      //   ContractAddress
-      //   SHA256Hash of contract to be deployed
-      RPCError commit_contract_deploy(BlockID, ContractAddress, SHA256Hash) =
-          201;
 
       // TODO(geoff) consider whether we want to combine these or not.
       // Tradeoff is messages vs maybe sending redundant contracts.
