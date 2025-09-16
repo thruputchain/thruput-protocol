@@ -72,7 +72,7 @@ struct Config {
   DogwoodConfig *dogwood_config;
   MempoolConfig *mempool_config;
   CatchupConfig *catchup_config;
-  SoloConfig *solo_config;
+  SCPConfig *scp_config;
   BatonConfig *baton_config;
 };
 
