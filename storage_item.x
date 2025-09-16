@@ -13,6 +13,7 @@ namespace hogd
     kItemTypeRetrocausalQueue = 2,
     kItemTypeReplayCache = 3,
     kItemTypeAuthData = 4,
+    kItemTypeAddressMetadata = 5,
     kItemTypeDeleted = -1,
   };
 
@@ -36,6 +37,8 @@ namespace hogd
     ReplayCacheMetadata replay_cache_metadata;
   case kItemTypeAuthData:
     AccountAuthData auth_data;
+  case kItemTypeAddressMetadata:
+    AddressMetadata address_meta;
   };
 
   enum StorageDeltaType {
@@ -46,7 +49,7 @@ namespace hogd
     kDeltaTypeReplayCacheModify = 4,
     kDeltaTypeNonnegativeIntAdd = 5,
     kDeltaTypeAuthDataChange = 6,
-    kDeltaTypeAddSponsoredDeployment = 7,
+    kDeltaTypeAdjustSponsoredDeployment = 7,
     kDeltaTypeDeployContract = 8,
   };
 
@@ -88,10 +91,10 @@ namespace hogd
 
   // These types are not constructed in the executor,
   // but used internally within MockDB
-  case kDeltaTypeAdjustSponsoredDeployments:
+  case kDeltaTypeAdjustSponsoredDeployment:
     // Change the number of times the current address
     // is held responsible for deploying the given contract.
-    // This can only be applied to a StorageKeyType of 
+    // This can only be applied to a StorageKeyType of
     // kStorageKeyTypeContractDeploymentMetadata
     // (which includes the address and the contract hash in the key)
     int deploy_count_change;

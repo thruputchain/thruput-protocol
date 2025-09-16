@@ -37,24 +37,28 @@ namespace hogd
     NonceConfig nonce_config;
   };
 
-  // Each address maintains a map of [sha256(contract)] -> [ContractDeploymentRecord]
+  // Each address maintains a map of [sha256(contract)] ->
+  // [ContractDeploymentRecord]
   struct ContractDeploymentRecord {
-    // This is the number of times that the current address has deployed the contract 
-    // AND where the current address is actively responsible for the reference to the contract
-    // for those child addresses.
+    // This is the number of times that the current address has deployed the
+    // contract AND where the current address is actively responsible for the
+    // reference to the contract for those child addresses.
     //
-    // This number increases by 1 when a contract is deployed, and decreases by 1
-    // when a child address locks storage to support its own reference to the contract.
+    // This number increases by 1 when a contract is deployed, and decreases by
+    // 1 when a child address locks storage to support its own reference to the
+    // contract.
     unsigned int refcount;
   };
 
   struct SelfDeploymentMetadata {
-    union switch (bool self_sponsored) {
-      case true:
-        void;
-      case false:
-        ContractAddress sponsor_address;
-    } sponsor;
+    union switch (bool self_sponsored)
+    {
+    case true:
+      unsigned int contract_length;
+    case false:
+      ContractAddress sponsor_address;
+    }
+    sponsor;
   };
 
   // Each address maintains a single AddressMetadata object.
