@@ -14,6 +14,7 @@ namespace hogd
     kItemTypeReplayCache = 3,
     kItemTypeAuthData = 4,
     kItemTypeAddressMetadata = 5,
+    kItemTypeDeploymentSponsorshipRecord = 6,
     kItemTypeDeleted = -1,
   };
 
@@ -23,6 +24,11 @@ namespace hogd
 
   struct ReplayCacheMetadata {
     unsigned hyper minimum_threshold;
+  };
+
+  struct DeploymentSponsorRecord {
+    unsigned int contract_size;
+    unsigned int deploy_count;
   };
 
   union StorageItem switch (StorageItemType type)
@@ -39,6 +45,8 @@ namespace hogd
     AccountAuthData auth_data;
   case kItemTypeAddressMetadata:
     AddressMetadata address_meta;
+  case kItemTypeDeploymentSponsorshipRecord:
+    DeploymentSponsorRecord deploy_record;
   };
 
   enum StorageDeltaType {
