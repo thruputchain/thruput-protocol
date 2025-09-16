@@ -19,15 +19,9 @@ struct ValidatorPrivateInfo {
   ValidatorSecretKey secret_key;
 };
 
-struct QuorumSet {
-  unsigned int threshold;
-  ValidatorID validators<>;
-  QuorumSet inner_sets<>;
-};
-
 struct QuorumSetSnapshot {
   TimePoint timestamp;
-  QuorumSet quorum_set;
+  SCPQuorumSet quorum_set;
 };
 
 struct SignedQuorumSetSnapshot {
