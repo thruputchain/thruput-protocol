@@ -65,10 +65,14 @@ typedef ContractAddress ContractAddressBatch<>;
 // This is the key type that contracts directly manipulate
 typedef opaque StorageKeyContractData[32]; // #[rust(newtype)]
 
+
+// Any type of key that can belong to an address
 enum StorageKeyType {
   kStorageKeyTypeContractData = 0,
   kStorageKeyTypeFreeNativeTokenBalance = 1,
-  kStorageKeyTypeAccountAuthData = 2,
+  kStorageKeyTypeAccountAuthMetadata = 2,
+  kStorageKeyTypeAddressMetadata = 3,
+  kStorageKeyTypeContractDeploymentMetadata = 4,
 };
 
 union StorageKey switch (StorageKeyType key_type)
@@ -77,9 +81,12 @@ case kStorageKeyTypeContractData:
   StorageKeyContractData contract_data_key;
 case kStorageKeyTypeFreeNativeTokenBalance:
   void;
-case kStorageKeyTypeAccountAuthData:
+case kStorageKeyTypeAccountAuthMetadata:
   void;
-  // TODO(geoff): add other key types
+case kStorageKeyTypeAddressMetadata:
+  void; 
+case kStorageKeyTypeContractDeploymentMetadata:
+  SHA256Hash contract_hash;
 };
 
 const kMaxLogMessageLen = 1024;   // #[rust(const=u32)]

@@ -46,6 +46,8 @@ namespace hogd
     kDeltaTypeReplayCacheModify = 4,
     kDeltaTypeNonnegativeIntAdd = 5,
     kDeltaTypeAuthDataChange = 6,
+    kDeltaTypeAddSponsoredDeployment = 7,
+    kDeltaTypeDeployContract = 8,
   };
 
   struct AuthDataChangeSigner {
@@ -83,6 +85,20 @@ namespace hogd
     ReplayCacheModifyArgs replay_cache_modify;
   case kDeltaTypeAuthDataChange:
     AuthDataChangeArgs auth_data_change;
+
+  // These types are not constructed in the executor,
+  // but used internally within MockDB
+  case kDeltaTypeAdjustSponsoredDeployments:
+    // Change the number of times the current address
+    // is held responsible for deploying the given contract.
+    // This can only be applied to a StorageKeyType of 
+    // kStorageKeyTypeContractDeploymentMetadata
+    // (which includes the address and the contract hash in the key)
+    int deploy_count_change;
+  case kDeltaTypeDeployContract:
+    // Applying this delta does not also update the sponsor's records;
+    // that must tbe done with a kDeltaTypeAdjustSponsoredDeployments delta
+    bool is_self_sponsored;
   };
 
 } // namespace hogd

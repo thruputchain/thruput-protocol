@@ -29,6 +29,7 @@ namespace hogd
     // replaced for new contracts by a minimal amount of data required to
     // compute the storage cost (i.e. the length of the contract).
     Contract *contract;
+    bool deployed_is_sponsor;
   };
 
   typedef ContractDeployDelta ContractDeployDeltaBatch<>;
