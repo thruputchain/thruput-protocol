@@ -69,6 +69,7 @@ enum StorageKeyType {
   kStorageKeyTypeContractData = 0,
   kStorageKeyTypeFreeNativeTokenBalance = 1,
   kStorageKeyTypeAccountAuthData = 2,
+  kStorageKeyTypeAddressMetadata = 3,
 };
 
 union StorageKey switch (StorageKeyType key_type)
@@ -78,6 +79,8 @@ case kStorageKeyTypeContractData:
 case kStorageKeyTypeFreeNativeTokenBalance:
   void;
 case kStorageKeyTypeAccountAuthData:
+  void;
+case kStorageKeyTypeAddressMetadata:
   void;
   // TODO(geoff): add other key types
 };
