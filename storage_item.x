@@ -13,6 +13,7 @@ namespace hogd
     kItemTypeRetrocausalQueue = 2,
     kItemTypeReplayCache = 3,
     kItemTypeAuthData = 4,
+    kItemTypeDeployedContractHash = 5,
     kItemTypeDeleted = -1,
   };
 
@@ -36,6 +37,8 @@ namespace hogd
     ReplayCacheMetadata replay_cache_metadata;
   case kItemTypeAuthData:
     AccountAuthData auth_data;
+  case kItemTypeDeployedContractHash:
+    DeployedContractHash deployed_contract_hash;
   };
 
   enum StorageDeltaType {
@@ -46,6 +49,7 @@ namespace hogd
     kDeltaTypeReplayCacheModify = 4,
     kDeltaTypeNonnegativeIntAdd = 5,
     kDeltaTypeAuthDataChange = 6,
+    kDeltaTypeDeployContract = 7,
   };
 
   struct AuthDataChangeSigner {
@@ -83,6 +87,8 @@ namespace hogd
     ReplayCacheModifyArgs replay_cache_modify;
   case kDeltaTypeAuthDataChange:
     AuthDataChangeArgs auth_data_change;
+  case kDeltaTypeDeployContract:
+    DeployedContractHash deployed_contract_hash;
   };
 
 } // namespace hogd
