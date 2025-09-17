@@ -39,8 +39,9 @@ namespace hogd
 
   struct DeployedContractHash {
     SHA256Hash hash;
-    // This field is technically redundant, but allows us to compute (and update) 
-    // storage costs without (re)loading the entire contract from storage
+    // This field is technically redundant, but allows us to compute (and
+    // update) storage costs without (re)loading the entire contract from
+    // storage
     unsigned int contract_size;
   };
 
