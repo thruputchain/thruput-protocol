@@ -41,8 +41,8 @@ namespace hogd
     SHA256Hash hash;
     // This field is technically redundant, but allows us to compute (and update) 
     // storage costs without (re)loading the entire contract from storage
-    uint32_t contract_size;
-  }
+    unsigned int contract_size;
+  };
 
   struct AddressMetadata {
     DeployedContractHash deployed_contract;
