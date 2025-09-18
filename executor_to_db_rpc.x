@@ -21,6 +21,8 @@ namespace hogd
 
   typedef FlaggedStorageDelta StorageDeltaBatch<>;
 
+  typedef Contract NewContractBatch<>;
+
   program DatabaseToExecutorInterface
   {
     version DatabaseToExecutorInterfaceV1
@@ -36,7 +38,7 @@ namespace hogd
                                            StorageDeltaBatch) = 0;
       // We don't need a try_reserve_deltas method; use
       // try_push_new_subtransaction instead.
-      RPCError commit_transaction(BlockID, TransactionID) = 1;
+      RPCError commit_transaction(BlockID, TransactionID, NewContractBatch) = 1;
       RPCError abort_transaction(BlockID, TransactionID) = 2;
 
       // Revert one or more subtransactions.
@@ -62,11 +64,6 @@ namespace hogd
                                                                 AddressAndKey,
                                                                 unsigned int) =
           102;
-
-      // Create a new contract.
-      // Arguments:
-      //   New Contract
-      RPCError commit_contract_create(BlockID, Contract) = 200;
 
       // TODO(geoff) consider whether we want to combine these or not.
       // Tradeoff is messages vs maybe sending redundant contracts.
