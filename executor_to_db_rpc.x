@@ -68,13 +68,6 @@ namespace hogd
       //   New Contract
       RPCError commit_contract_create(BlockID, Contract) = 200;
 
-      // Create a new deployment.
-      // Arguments:
-      //   ContractAddress
-      //   SHA256Hash of contract to be deployed
-      RPCError commit_contract_deploy(BlockID, ContractAddress, SHA256Hash) =
-          201;
-
       // TODO(geoff) consider whether we want to combine these or not.
       // Tradeoff is messages vs maybe sending redundant contracts.
       // Perhaps the sender could cache whether it expects the client to have

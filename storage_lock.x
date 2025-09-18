@@ -12,6 +12,8 @@ namespace hogd
     Bytestring bytestring;
   case kItemTypeNonnegativeInt:
     int128_xdr nnint_set;
+  case kItemTypeDeployedContractHash:
+    DeployedContractHash deployed_contract_hash;
   default:
     void;
   };
