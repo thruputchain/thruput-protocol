@@ -36,6 +36,8 @@ namespace hogd
     kRPCTransactionFailed = 5,
     // Unimplemented RPC
     kRPCUnimplemented = 6,
+    // Unrecoverable error in the server (i.e. OOM, DB corruption)
+    kRPCUnrecoverable = 7,
   };
 
   // The mode in which a block executes.
