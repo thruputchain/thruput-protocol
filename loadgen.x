@@ -8,7 +8,7 @@ namespace hogd {
 // clang-format on
 
 enum ExperimentType {
-  kExperimentTypeERC20Payments = 0,
+  kExperimentTypeERC20Payments = 0
 };
 
 struct ERC20PaymentsConfig {
@@ -37,7 +37,7 @@ struct LoadgenExtension {
 enum LoadgenRPCError {
   kLoadgenRPCErrorOK = 0,
   kLoadgenRPCErrorInvalidConfig = 1,
-  kLoadgenRPCErrorInvalidContext = 2,
+  kLoadgenRPCErrorInvalidContext = 2
 };
 
 union LoadgenResult switch (LoadgenRPCError error)

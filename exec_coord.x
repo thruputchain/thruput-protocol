@@ -26,7 +26,7 @@ enum ExecResult {
   ExecResultSystemError = 4,
   // Critical failure in the executor, which cannot be recovered from.
   // E.g. OOM or critical logic error.
-  ExecResultUnrecoverable = 5,
+  ExecResultUnrecoverable = 5
 };
 
 union ExecProposeResult switch (ExecResult result)

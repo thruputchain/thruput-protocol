@@ -43,7 +43,7 @@ enum InvokeErrorCode {
   // block being discarded),
   // but this is not the result of a totally unrecoverable error. This is to be
   // expected during normal system operation.
-  kInvokeAbortTransaction = 5,
+  kInvokeAbortTransaction = 5
 };
 
 // HostFunctionErrorCode categorizes errors returned from system calls. The
@@ -100,7 +100,7 @@ enum HostFnErrorCode {
   //
   // Result: the WebAssembly runtime immediately returns an
   // InvokeErrorCode::kAbortTransaction
-  kHostAbortTransaction = 6,
+  kHostAbortTransaction = 6
 };
 
 } // namespace hogd

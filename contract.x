@@ -5,12 +5,14 @@
 namespace hogd {
 // clang-format on
 
-typedef opaque ContractBlob<>;
+struct ContractBlob {
+  opaque wasm<>;
+};
 
 enum ContractType {
   kWasmi = 0,
   kNative = 1,
-  kMockTest = 2,
+  kMockTest = 2
 };
 
 union Contract switch (ContractType contract_type)

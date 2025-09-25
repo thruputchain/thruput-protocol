@@ -8,7 +8,7 @@ namespace hogd {
 
 enum DbSchedResult {
   DbSchedResultOK = 0,
-  DbSchedResultError = 1,
+  DbSchedResultError = 1
 };
 
 const kHogAgeGroupToSchedule = 0;

@@ -37,13 +37,13 @@ enum RPCError {
   // Unimplemented RPC
   kRPCUnimplemented = 6,
   // Unrecoverable error in the server (i.e. OOM, DB corruption)
-  kRPCUnrecoverable = 7,
+  kRPCUnrecoverable = 7
 };
 
 // The mode in which a block executes.
 enum BlockExecutionMode {
   kBlockExecutionModeValidation = 0,
-  kBlockExecutionModeProposal = 1,
+  kBlockExecutionModeProposal = 1
 };
 
 typedef int128_xdr StorageCost;

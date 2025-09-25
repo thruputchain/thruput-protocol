@@ -34,7 +34,7 @@ typedef int SysErrXDR;
 enum StorageErrorType {
   kStorageErrorTypeSyscall = 0,
   kStorageErrorTypeSerialization = 1,
-  kStorageErrorTypeIndexOutOfBounds = 2,
+  kStorageErrorTypeIndexOutOfBounds = 2
 };
 
 struct IndexOutOfBoundsXDR {
@@ -67,7 +67,7 @@ case kStorageErrorTypeIndexOutOfBounds:
 enum ContractErrorType {
   kContractErrorTypeCustom = 0,
   kContractErrorTypeSyscall = 1,
-  kContractErrorTypeStorage = 2,
+  kContractErrorTypeStorage = 2
 };
 
 union ContractErrorXDR switch (ContractErrorType error_type)
@@ -91,7 +91,7 @@ case kContractErrorTypeStorage:
 
 enum ErrorType {
   kErrorTypeCaller = 0,
-  kErrorTypeContract = 1,
+  kErrorTypeContract = 1
 };
 
 union ErrorXDR switch (ErrorType error_type)

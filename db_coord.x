@@ -9,7 +9,7 @@ namespace hogd {
 
 enum DbResult {
   DbResultOK = 0,
-  DbResultError = 1,
+  DbResultError = 1
 };
 
 union DbBlockResult switch (DbResult result)
@@ -43,7 +43,7 @@ default:
 };
 
 enum DbShardResult {
-  ShardOK = 0,
+  ShardOK = 0
 };
 
 program DbCoord

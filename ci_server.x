@@ -16,7 +16,7 @@ enum CIServerErrorCode {
   kCIServerErrorCodeOK = 0,
   kCIServerErrorCodeAlreadyRunning = 1,
   kCIServerErrorCodeInternal = 2,
-  kCIServerErrorCodeVersionMismatch = 3,
+  kCIServerErrorCodeVersionMismatch = 3
 };
 
 program CIServer
