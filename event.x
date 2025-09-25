@@ -1,10 +1,11 @@
 // clang-format off
 %#include "types.hh"
 %#include "rpc_types.hh"
+%#include "sc_val.hh"
 
 namespace hogd {
 
-typedef opaque Topic<32>;
+typedef SCVal Topic;
 
 // The structure of an event that is placed into our merkle-patricia trie
 struct Event {
