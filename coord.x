@@ -2,91 +2,91 @@
 %#include "nomination.hh"
 
 namespace hogd {
-  // clang-format on
+// clang-format on
 
-  // ServerAddress is an IP (or hostname) and port address, separated by a
-  // colon.
-  typedef string ServerAddress<>;
+// ServerAddress is an IP (or hostname) and port address, separated by a
+// colon.
+typedef string ServerAddress<>;
 
-  // UPID is a globally unique process identifier (function of start time, place
-  // and randomness)
-  typedef opaque UPID[8];
+// UPID is a globally unique process identifier (function of start time, place
+// and randomness)
+typedef opaque UPID[8];
 
-  // Protocol describes a specific protocol and version.
-  typedef string Protocol<>;
+// Protocol describes a specific protocol and version.
+typedef string Protocol<>;
 
-  // CoordinatorCard uniquely describes a coordinator instance.
-  struct CoordinatorCard {
+// CoordinatorCard uniquely describes a coordinator instance.
+struct CoordinatorCard {
 
-    Protocol protocol;
+  Protocol protocol;
 
-    UPID upid;
-  };
+  UPID upid;
+};
 
-  // ExecCard uniquely describes an executor instance.
-  struct ExecCard {
+// ExecCard uniquely describes an executor instance.
+struct ExecCard {
 
-    Protocol protocol;
+  Protocol protocol;
 
-    UPID upid;
+  UPID upid;
 
-    ServerAddress address;
-  };
+  ServerAddress address;
+};
 
-  // ShardCard uniquely describes a database shard instance and its initial
-  // state.
-  struct ShardCard {
-    Protocol protocol;
-    UPID upid;
+// ShardCard uniquely describes a database shard instance and its initial
+// state.
+struct ShardCard {
+  Protocol protocol;
+  UPID upid;
 
-    BlockHeight block_height;
-    unsigned int shard_count;
+  BlockHeight block_height;
+  unsigned int shard_count;
 
-    // This is the db address that the coordinator should connect to.
-    ServerAddress address_for_coord;
-    // This is the db address that the executor should connect to.
-    ServerAddress address_for_exec;
-    // This is the db address that the scheduler should connect to.
-    ServerAddress address_for_sched;
+  // This is the db address that the coordinator should connect to.
+  ServerAddress address_for_coord;
+  // This is the db address that the executor should connect to.
+  ServerAddress address_for_exec;
+  // This is the db address that the scheduler should connect to.
+  ServerAddress address_for_sched;
 
-    // TODO: KeyPrefixes describes the key prefixes handled by this shard
-    // KeyPrefixes key_prefixes;
-  };
+  // TODO: KeyPrefixes describes the key prefixes handled by this shard
+  // KeyPrefixes key_prefixes;
+};
 
-  struct IntroShardResult {
-    // cc holds the identity of the coordinator that responded
-    CoordinatorCard cc;
-  };
+struct IntroShardResult {
+  // cc holds the identity of the coordinator that responded
+  CoordinatorCard cc;
+};
 
-  struct IntroExecResult {
-    // cc holds the identity of the coordinator that responded
-    CoordinatorCard cc;
+struct IntroExecResult {
+  // cc holds the identity of the coordinator that responded
+  CoordinatorCard cc;
 
-    // exec_id is a unique 16-bit identifier assigned to the executor by the
-    // coordinator.
-    unsigned int exec_id;
+  // exec_id is a unique 16-bit identifier assigned to the executor by the
+  // coordinator.
+  unsigned int exec_id;
 
-    // shards describes a ready db cluster
-    ShardCard shards<>;
-  };
+  // shards describes a ready db cluster
+  ShardCard shards<>;
+};
 
-  program Coordinator
+program Coordinator
+{
+  version Coordinator1
   {
-    version Coordinator1
-    {
 
-      void coordinator_null(void) = 0;
+    void coordinator_null(void) = 0;
 
-      // coordinator_intro_shard is called by db shards to introduce themselves
-      // to the coordinator.
-      IntroShardResult coordinator_intro_shard(ShardCard) = 1;
+    // coordinator_intro_shard is called by db shards to introduce themselves
+    // to the coordinator.
+    IntroShardResult coordinator_intro_shard(ShardCard) = 1;
 
-      // coordinator_intro_exec is called by executors to introduce themselves
-      // to the coordinator. It blocks until the db is ready to use.
-      IntroExecResult coordinator_intro_exec(ExecCard) = 2;
-    }
-    = 1;
+    // coordinator_intro_exec is called by executors to introduce themselves
+    // to the coordinator. It blocks until the db is ready to use.
+    IntroExecResult coordinator_intro_exec(ExecCard) = 2;
   }
-  = 0x3eef0101;
+  = 1;
+}
+= 0x3eef0101;
 
 } // namespace hogd

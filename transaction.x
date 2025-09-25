@@ -6,100 +6,100 @@
 
 namespace hogd
 {
-  // clang-format on
+// clang-format on
 
-  // TXS encoding of the call arguments (as a tuple)
-  typedef opaque Calldata<>;
+// TXS encoding of the call arguments (as a tuple)
+typedef opaque Calldata<>;
 
-  typedef opaque ReturnBuffer<>;
+typedef opaque ReturnBuffer<>;
 
-  struct Invocation {
-    ContractAddress invoked_address;
-    ContractEntrypointID entrypoint;
-    GasAmount gas_limit;
-    Calldata calldata;
-  };
+struct Invocation {
+  ContractAddress invoked_address;
+  ContractEntrypointID entrypoint;
+  GasAmount gas_limit;
+  Calldata calldata;
+};
 
-  enum InvokeFlag {
-    kInvokeFlagNone = 0,
-    kInvokeFlagTryInvoke = 0x00000001,
-    kInvokeFlagReadOnly = 0x00000002,
-    kInvokeFlagDelegateCall = 0x00000004,
-  };
+enum InvokeFlag {
+  kInvokeFlagNone = 0,
+  kInvokeFlagTryInvoke = 0x00000001,
+  kInvokeFlagReadOnly = 0x00000002,
+  kInvokeFlagDelegateCall = 0x00000004,
+};
 
-  typedef int InvokeFlagSet;
+typedef int InvokeFlagSet;
 
-  typedef opaque OriginID[16];
+typedef opaque OriginID[16];
 
-  struct Uniquifier {
-    BlockHeight block_expiry_height;
-    unsigned hyper nonce;
-  };
+struct Uniquifier {
+  BlockHeight block_expiry_height;
+  unsigned hyper nonce;
+};
 
-  struct Transaction {
-    Invocation invocation;
-    Uniquifier uniquifier;
-    // New contracts to deploy.
-    Contract contracts_to_deploy<>;
-  };
+struct Transaction {
+  Invocation invocation;
+  Uniquifier uniquifier;
+  // New contracts to deploy.
+  Contract contracts_to_deploy<>;
+};
 
-  struct AuthSignaturePreimage {
-    Weight signature_weight;
-    opaque message<>;
-  };
+struct AuthSignaturePreimage {
+  Weight signature_weight;
+  opaque message<>;
+};
 
-  struct DecoratedSignature {
-    unsigned int public_key_id; // uint32_t
-    Signature signature;
-  };
+struct DecoratedSignature {
+  unsigned int public_key_id; // uint32_t
+  Signature signature;
+};
 
-  struct AuxiliaryDecoratedSignatures {
-    ContractAddress address;
-    DecoratedSignature signatures<>;
-  };
+struct AuxiliaryDecoratedSignatures {
+  ContractAddress address;
+  DecoratedSignature signatures<>;
+};
 
-  typedef SHA256Hash SignedTransactionHash;
+typedef SHA256Hash SignedTransactionHash;
 
-  // Deliberately leaving this SignedTransaction object
-  // (and all the other metadata)
-  // for a later PR.
-  struct SignedTransaction {
-    Transaction tx;
-    Weight signature_weight;
-    DecoratedSignature signatures<>;
-    AuxiliaryDecoratedSignatures aux_signatures<>;
-  };
+// Deliberately leaving this SignedTransaction object
+// (and all the other metadata)
+// for a later PR.
+struct SignedTransaction {
+  Transaction tx;
+  Weight signature_weight;
+  DecoratedSignature signatures<>;
+  AuxiliaryDecoratedSignatures aux_signatures<>;
+};
 
-  // Nondeterministic data attached to a transaction by the proposer.
-  struct NondeterministicProposalData {
-    // string of nondeterministic bits generated during the course
-    // of the transaction.
-    opaque nondeterministic_bits<>;
-    // the length of the nondeterministic_bits string, in bits
-    // (nondeterminstic_bits.size() returns the rounded-up length in bytes)
-    unsigned int nondeterministic_bit_count;
-    // sequence of queue entries observed by the proposer
-    QueueEntry observed_queue_entry_sequence<>;
-  };
+// Nondeterministic data attached to a transaction by the proposer.
+struct NondeterministicProposalData {
+  // string of nondeterministic bits generated during the course
+  // of the transaction.
+  opaque nondeterministic_bits<>;
+  // the length of the nondeterministic_bits string, in bits
+  // (nondeterminstic_bits.size() returns the rounded-up length in bytes)
+  unsigned int nondeterministic_bit_count;
+  // sequence of queue entries observed by the proposer
+  QueueEntry observed_queue_entry_sequence<>;
+};
 
-  // A signed transaction, with the nondeterministic data from the proposer
-  // attached to it.
-  // TODO(petar): Who is the signer? The originator of the transaction or the
-  // validator proposing it?
-  // TODO(petar): Should the signature capture the non-deterministic data?
-  struct ProposedTransaction {
-    SignedTransaction signed_tx;
-    NondeterministicProposalData nondeterministic_proposal_data;
-  };
+// A signed transaction, with the nondeterministic data from the proposer
+// attached to it.
+// TODO(petar): Who is the signer? The originator of the transaction or the
+// validator proposing it?
+// TODO(petar): Should the signature capture the non-deterministic data?
+struct ProposedTransaction {
+  SignedTransaction signed_tx;
+  NondeterministicProposalData nondeterministic_proposal_data;
+};
 
-  // Nominations, included in SCP messages, include only the ND data.
-  // The transactions themselves are disseminated through the overlay.
-  struct NominatedTransaction {
-    NondeterministicProposalData nondeterministic_proposal_data;
-  };
+// Nominations, included in SCP messages, include only the ND data.
+// The transactions themselves are disseminated through the overlay.
+struct NominatedTransaction {
+  NondeterministicProposalData nondeterministic_proposal_data;
+};
 
-  enum TransactionStatistic {
-    kTxStatGasRemaining = 0,
-  };
+enum TransactionStatistic {
+  kTxStatGasRemaining = 0,
+};
 
 } // namespace hogd
