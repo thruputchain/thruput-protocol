@@ -5,7 +5,7 @@
 namespace hogd
 {
 
-typedef opaque Hash[32];
+typedef opaque SHA256Hash[32];
 typedef opaque uint256[32];
 
 typedef unsigned int uint32;
@@ -16,5 +16,7 @@ typedef hyper int64;
 
 typedef uint64 TimePoint;
 typedef uint64 Duration;
+
+typedef SHA256Hash ContractID;
 
 }
