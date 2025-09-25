@@ -162,7 +162,7 @@ case SCV_U64:
 case SCV_I64:
     int64 i64;
 case SCV_TIMEPOINT:
-    TimePoint timepoint;
+    Timestamp timepoint;
 case SCV_DURATION:
     Duration duration;
 
