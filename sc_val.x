@@ -8,24 +8,24 @@
 //// under the Apache License, Version 2.0. See the COPYING file at the root
 //// of this distribution or at http://www.apache.org/licenses/LICENSE-2.0
 
-%#include "sc_types.hh"
-namespace hogd
+% #include "sc_types.hh" namespace hogd
 {
 
-// We fix a maximum of 128 value types in the system for two reasons: we want to
-// keep the codes relatively small (<= 8 bits) when bit-packing values into a
-// u64 at the environment interface level, so that we keep many bits for
-// payloads (small strings, small numeric values, object handles); and then we
-// actually want to go one step further and ensure (for code-size) that our
-// codes fit in a single ULEB128-code byte, which means we can only use 7 bits.
-//
-// We also reserve several type codes from this space because we want to _reuse_
-// the SCValType codes at the environment interface level (or at least not
-// exceed its number-space) but there are more types at that level, assigned to
-// optimizations/special case representations of values abstract at this level.
+  // We fix a maximum of 128 value types in the system for two reasons: we want
+  // to keep the codes relatively small (<= 8 bits) when bit-packing values into
+  // a u64 at the environment interface level, so that we keep many bits for
+  // payloads (small strings, small numeric values, object handles); and then we
+  // actually want to go one step further and ensure (for code-size) that our
+  // codes fit in a single ULEB128-code byte, which means we can only use 7
+  // bits.
+  //
+  // We also reserve several type codes from this space because we want to
+  // _reuse_ the SCValType codes at the environment interface level (or at least
+  // not exceed its number-space) but there are more types at that level,
+  // assigned to optimizations/special case representations of values abstract
+  // at this level.
 
-enum SCValType
-{
+  enum SCValType {
     SCV_BOOL = 0,
     SCV_VOID = 1,
     // SCV_ERROR = 2,
@@ -77,130 +77,128 @@ enum SCValType
     // // instance and an address' nonce, respectively.
     // SCV_LEDGER_KEY_CONTRACT_INSTANCE = 20,
     // SCV_LEDGER_KEY_NONCE = 21
-};
+  };
 
-struct UInt128Parts {
+  struct UInt128Parts {
     uint64 hi;
     uint64 lo;
-};
+  };
 
-// A signed int128 has a high sign bit and 127 value bits. We break it into a
-// signed high int64 (that carries the sign bit and the high 63 value bits) and
-// a low unsigned uint64 that carries the low 64 bits. This will sort in
-// generated code in the same order the underlying int128 sorts.
-struct Int128Parts {
+  // A signed int128 has a high sign bit and 127 value bits. We break it into a
+  // signed high int64 (that carries the sign bit and the high 63 value bits)
+  // and a low unsigned uint64 that carries the low 64 bits. This will sort in
+  // generated code in the same order the underlying int128 sorts.
+  struct Int128Parts {
     int64 hi;
     uint64 lo;
-};
+  };
 
-struct UInt256Parts {
+  struct UInt256Parts {
     uint64 hi_hi;
     uint64 hi_lo;
     uint64 lo_hi;
     uint64 lo_lo;
-};
+  };
 
-// A signed int256 has a high sign bit and 255 value bits. We break it into a
-// signed high int64 (that carries the sign bit and the high 63 value bits) and
-// three low unsigned `uint64`s that carry the lower bits. This will sort in
-// generated code in the same order the underlying int256 sorts.
-struct Int256Parts {
+  // A signed int256 has a high sign bit and 255 value bits. We break it into a
+  // signed high int64 (that carries the sign bit and the high 63 value bits)
+  // and three low unsigned `uint64`s that carry the lower bits. This will sort
+  // in generated code in the same order the underlying int256 sorts.
+  struct Int256Parts {
     int64 hi_hi;
     uint64 hi_lo;
     uint64 lo_hi;
     uint64 lo_lo;
-};
+  };
 
-enum SCAddressType
-{
+  enum SCAddressType {
     // SC_ADDRESS_TYPE_ACCOUNT = 0,
     SC_ADDRESS_TYPE_CONTRACT = 1,
     // SC_ADDRESS_TYPE_MUXED_ACCOUNT = 2,
     // SC_ADDRESS_TYPE_CLAIMABLE_BALANCE = 3,
     // SC_ADDRESS_TYPE_LIQUIDITY_POOL = 4
-};
+  };
 
-union SCAddress switch (SCAddressType type)
-{
-// case SC_ADDRESS_TYPE_ACCOUNT:
-//     AccountID accountId;
-case SC_ADDRESS_TYPE_CONTRACT:
+  union SCAddress switch (SCAddressType type)
+  {
+  // case SC_ADDRESS_TYPE_ACCOUNT:
+  //     AccountID accountId;
+  case SC_ADDRESS_TYPE_CONTRACT:
     ContractID contractId;
-// case SC_ADDRESS_TYPE_MUXED_ACCOUNT:
-//     MuxedEd25519Account muxedAccount;
-// case SC_ADDRESS_TYPE_CLAIMABLE_BALANCE:
-//     ClaimableBalanceID claimableBalanceId;
-// case SC_ADDRESS_TYPE_LIQUIDITY_POOL:
-//     PoolID liquidityPoolId;
-};
+    // case SC_ADDRESS_TYPE_MUXED_ACCOUNT:
+    //     MuxedEd25519Account muxedAccount;
+    // case SC_ADDRESS_TYPE_CLAIMABLE_BALANCE:
+    //     ClaimableBalanceID claimableBalanceId;
+    // case SC_ADDRESS_TYPE_LIQUIDITY_POOL:
+    //     PoolID liquidityPoolId;
+  };
 
-%struct SCVal;
+  % struct SCVal;
 
-const SCSYMBOL_LIMIT = 32;
+  const SCSYMBOL_LIMIT = 32;
 
-typedef opaque SCBytes<>;
-typedef string SCString<>;
-typedef string SCSymbol<SCSYMBOL_LIMIT>;
+  typedef opaque SCBytes<>;
+  typedef string SCString<>;
+  typedef string SCSymbol<SCSYMBOL_LIMIT>;
 
-union SCVal switch (SCValType type)
-{
+  union SCVal switch (SCValType type)
+  {
 
-case SCV_BOOL:
+  case SCV_BOOL:
     bool b;
-case SCV_VOID:
+  case SCV_VOID:
     void;
-// case SCV_ERROR:
-//     SCError error;
+    // case SCV_ERROR:
+    //     SCError error;
 
-case SCV_U32:
+  case SCV_U32:
     uint32 u32;
-case SCV_I32:
+  case SCV_I32:
     int32 i32;
 
-case SCV_U64:
+  case SCV_U64:
     uint64 u64;
-case SCV_I64:
+  case SCV_I64:
     int64 i64;
-case SCV_TIMEPOINT:
+  case SCV_TIMEPOINT:
     Timestamp timepoint;
-case SCV_DURATION:
+  case SCV_DURATION:
     Duration duration;
 
-case SCV_U128:
+  case SCV_U128:
     UInt128Parts u128;
-case SCV_I128:
+  case SCV_I128:
     Int128Parts i128;
 
-case SCV_U256:
+  case SCV_U256:
     UInt256Parts u256;
-case SCV_I256:
+  case SCV_I256:
     Int256Parts i256;
 
-case SCV_BYTES:
+  case SCV_BYTES:
     SCBytes bytes;
-case SCV_STRING:
+  case SCV_STRING:
     SCString str;
-case SCV_SYMBOL:
+  case SCV_SYMBOL:
     SCSymbol sym;
 
-// // Vec and Map are recursive so need to live
-// // behind an option, due to xdrpp limitations.
-// case SCV_VEC:
-//     SCVec *vec;
-// case SCV_MAP:
-//     SCMap *map;
+    // // Vec and Map are recursive so need to live
+    // // behind an option, due to xdrpp limitations.
+    // case SCV_VEC:
+    //     SCVec *vec;
+    // case SCV_MAP:
+    //     SCMap *map;
 
-case SCV_ADDRESS:
+  case SCV_ADDRESS:
     SCAddress address;
 
-// // Special SCVals reserved for system-constructed contract-data
-// // ledger keys, not generally usable elsewhere.
-// case SCV_CONTRACT_INSTANCE:
-//     SCContractInstance instance;
-// case SCV_LEDGER_KEY_CONTRACT_INSTANCE:
-//     void;
-// case SCV_LEDGER_KEY_NONCE:
-//     SCNonceKey nonce_key;
-// };
-
-}
+    // // Special SCVals reserved for system-constructed contract-data
+    // // ledger keys, not generally usable elsewhere.
+    // case SCV_CONTRACT_INSTANCE:
+    //     SCContractInstance instance;
+    // case SCV_LEDGER_KEY_CONTRACT_INSTANCE:
+    //     void;
+    // case SCV_LEDGER_KEY_NONCE:
+    //     SCNonceKey nonce_key;
+    // };
+  }
