@@ -19,6 +19,15 @@ enum CIServerErrorCode {
   kCIServerErrorCodeVersionMismatch = 3
 };
 
+union CIProcStatus switch (CIServerErrorCode error_code) {
+  case kCIServerErrorCodeOK:
+    int exit_code;
+  default:
+    // kCIServerErrorCodeAlreadyRunning indicates the process is still running
+    // all other errors indicate CI failures
+    void;
+};
+
 program CIServer
 {
   version CIServer1
@@ -26,6 +35,8 @@ program CIServer
     CIServerErrorCode ciserver_start(HogdGitHash, ServerConfig) = 0;
     void ciserver_stop(HogdGitHash) = 1;
     void ciserver_shutdown(HogdGitHash) = 2;
+    // returns the status of the most recent process
+    CIProcStatus ciserver_query_proc_status(HogdGitHash) = 3;
   }
   = 1;
 }
