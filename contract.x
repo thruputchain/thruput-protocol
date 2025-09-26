@@ -54,3 +54,5 @@ struct ContractInterfaceIDPreimage {
 typedef opaque ContractEntrypointID[8]; // #[rust(newtype)]
 
 } // namespace hogd
+
+%#include "contract_format.h"
