@@ -17,7 +17,7 @@ jobs:
     - name: clang version check
       run: clang --version
     - name: check format
-      run: ./scripts/format.sh -c
+      run: ./scripts/xdrformat -c
     - name: install yamllint
       run: sudo apt-get install yamllint
     - name: install goxdr
