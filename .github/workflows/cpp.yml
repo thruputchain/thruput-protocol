@@ -16,6 +16,8 @@ jobs:
       run: gcc --version
     - name: clang version check
       run: clang --version
+    - name: install emacs
+      run: sudo apt-get install emacs
     - name: check format
       run: ./scripts/xdrformat -c
     - name: install yamllint

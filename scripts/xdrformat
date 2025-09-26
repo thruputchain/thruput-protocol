@@ -6,8 +6,6 @@ SCRIPT_PATH="$(readlink -f -- "$0")"
 DIR="$(dirname -- "$SCRIPT_PATH")"
 CHECK="OFF"
 
-set -ex
-
 usage() {
   echo "Usage: $0 [--check] [--help]"
   echo "  --check   Check formatting instead of applying changes"
