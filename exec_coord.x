@@ -15,18 +15,21 @@ enum ExecResult {
   // Transactions with this error code should not be included in a proposal,
   // and indicate a block validation failure.
   ExecResultTxNonDeterministicError = 2,
+  // One or more [GasClaim]s in the transaction were not validated with a
+  // corresponding [sponsor_gas()] system call in a contract.
+  ExecResultFailedGasSponsorship = 3,
   // Validation on the transaction has failed because the attached validation
   // data is bad. E.g. missing data or unused data. This error code is only
   // returned during validation. This is determininistic, but signals a bad
   // block from a malicious proposer.
-  ExecResultTxValidationFailure = 3,
+  ExecResultTxValidationFailure = 4,
   // System error; network connection broke, etc.
   // Executor can recover from this error to continue execution of other
   // transactions.
-  ExecResultSystemError = 4,
+  ExecResultSystemError = 5,
   // Critical failure in the executor, which cannot be recovered from.
   // E.g. OOM or critical logic error.
-  ExecResultUnrecoverable = 5
+  ExecResultUnrecoverable = 6
 };
 
 union ExecProposeResult switch (ExecResult result)
