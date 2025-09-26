@@ -10,7 +10,6 @@ program CoordScheduler
 {
   version CoordScheduler1
   {
-
     void coordscheduler_null(void) = 0;
 
     // The scheduler calls coordscheduler_notify_vetted to indicate that the
