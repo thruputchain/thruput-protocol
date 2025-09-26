@@ -20,12 +20,12 @@ enum CIServerErrorCode {
 };
 
 union CIProcStatus switch (CIServerErrorCode error_code) {
-  case kCIServerErrorCodeOK:
-    int exit_code;
-  default:
-    // kCIServerErrorCodeAlreadyRunning indicates the process is still running
-    // all other errors indicate CI failures
-    void;
+case kCIServerErrorCodeOK:
+  int exit_code;
+default:
+  // kCIServerErrorCodeAlreadyRunning indicates the process is still running
+  // all other errors indicate CI failures
+  void;
 };
 
 program CIServer
