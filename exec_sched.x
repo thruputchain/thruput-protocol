@@ -46,9 +46,9 @@ typedef ProposedTransaction ProposedTransactionBatch<>;
 typedef ExecProposeResult ExecProposeBatchResult<>;
 typedef ExecResult ExecValidateBatchResult<>;
 
-program ExecutorCoord
+program ExecutorSched
 {
-  version ExecutorCoord1
+  version ExecutorSched1
   {
 
     void executorcoord_null(void) = 0;
@@ -73,7 +73,7 @@ program ExecutorCoord
     ExecResult executorcoord_open_validation_block(BlockID) = 40;
     void executorcoord_finish_block(BlockID) = 50;
 
-    // Coord should call this to shutdown the executor.
+    // Scheduler should call this to shutdown the executor.
     // Shutdown will not occur until all pending transactions complete.
     // No new transactions or blocks can be opened after shutdown.
     void executorcoord_shutdown(void) = 60;
