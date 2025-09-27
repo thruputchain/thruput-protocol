@@ -1,5 +1,5 @@
 // clang-format off
-%#include "db_coord.hh"
+%#include "db_sched.hh"
 %#include "exec_sched.hh"
 %#include "rpc_types.hh"
 %#include "transaction.hh"
