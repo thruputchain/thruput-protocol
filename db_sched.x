@@ -92,7 +92,7 @@ program DbSched
 
     // Returns information about the current highest committed block.
     // If there is no committed block, returns DbSchedResultError.
-        DbTipResult dbsched_get_tip(void) = 4;
+    DbTipResult dbsched_get_tip(void) = 4;
 
     // Examples of valid call sequences to the db:
     //
