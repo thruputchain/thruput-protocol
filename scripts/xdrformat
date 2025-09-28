@@ -1,0 +1,35 @@
+#!/bin/bash
+set -euo pipefail
+
+# Resolve the directory this script lives in (handles symlinks).
+SCRIPT_PATH="$(readlink -f -- "$0")"
+DIR="$(dirname -- "$SCRIPT_PATH")"
+CHECK="OFF"
+
+usage() {
+  echo "Usage: $0 [--check] [--help]"
+  echo "  --check   Check formatting instead of applying changes"
+  echo "  --help    Show this help message"
+  exit 2
+}
+
+for arg in "$@"; do
+  shift
+  case "${arg}" in
+  '--help' | '-h') usage ;;
+  '--check' | '-c') CHECK="ON" ;;
+  *) usage ;;
+  esac
+done
+
+x_files=($(git ls-files "*.x"))
+
+# If there are any .x files, run Emacs in batch mode with reindent.el.
+if (( ${#x_files[@]} > 0 )); then
+    echo "${x_files[@]}"
+    emacs -Q --batch -l "$DIR/reindent" -- "${x_files[@]}"
+fi
+
+if [[ "$CHECK" == "ON" ]]; then
+    git diff --quiet
+fi
