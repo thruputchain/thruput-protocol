@@ -69,6 +69,15 @@ program SchedulerCoord
     // and if successful, return the block ID in the db of the validated
     // block. DbTip is the block onto which the nomination is done.
     SchedulerValidationResult schedulercoord_validate(DbTip, Nomination) = 40;
+
+    // Returns information about the current highest committed block.
+    // If there is no committed block, returns DbSchedResultError.
+    DbTipResult schedcoord_get_tip(void) = 50;
+
+    // Load genesis block data into storage.
+    // This calculates storage keys and stores allocation amounts as
+    // bytestrings.
+    DbSchedResult schedcoord_load_genesis_block(GenesisBlock) = 60;
   }
   = 1;
 }

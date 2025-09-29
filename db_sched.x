@@ -52,14 +52,6 @@ default:
   void;
 };
 
-union DbCatchupResult switch (DbSchedResult result)
-{
-case DbSchedResultOK:
-  CatchupBlock catchup_block;
-default:
-  void;
-};
-
 struct DbTip {
   BlockHeight height;
   BlockHash hash;
@@ -134,15 +126,10 @@ program DbSched
     // Call to abandon a block.
     DbSchedResult dbsched_abandon_snapshot(BlockID) = 8;
 
-    DbCatchupResult dbsched_catchup(BlockHeight) = 9;
-
     // Load genesis block data into storage
     // This calculates storage keys and stores allocation amounts as
     // bytestrings
     DbSchedResult dbsched_load_genesis_block(GenesisBlock) = 10;
-
-    // shard_restore blocks until restoration completes.
-    DbShardResult dbsched_shard_restore(BlockHeight) = 11;
   }
   = 1;
 }
