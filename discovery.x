@@ -1,5 +1,4 @@
 // clang-format off
-%#include "coord.hh"
 %#include "types.hh"
 
 namespace hogd {

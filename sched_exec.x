@@ -1,5 +1,6 @@
 // clang-format off
 %#include "rpc_types.hh"
+%#include "sched_db.hh"
 %#include "types.hh"
 namespace hogd {
 // clang-format on
