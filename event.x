@@ -5,6 +5,8 @@
 
 namespace hogd {
 
+% using stellar::SCVal;
+
 typedef SCVal Topic;
 
 // The structure of an event that is placed into our merkle-patricia trie

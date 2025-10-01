@@ -6,7 +6,10 @@
 //// under the Apache License, Version 2.0. See the COPYING file at the root
 //// of this distribution or at http://www.apache.org/licenses/LICENSE-2.0
 
-namespace hogd {
+%#include "sc_val.hh"
+%#include "sc_types.hh"
+
+namespace stellar {
 
 enum ContractEventType { SYSTEM = 0, CONTRACT = 1, DIAGNOSTIC = 2 };
 
@@ -27,4 +30,4 @@ struct ContractEvent {
   body;
 };
 
-} // namespace hogd
+} // namespace stellar
