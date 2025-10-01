@@ -302,25 +302,3 @@ syscalls:
         optional: true
     outputs:
     number: 23
-#  - name: "LogEvent"
-#    inputs:
-#      # Syscall fails if any of the topicN values fail to parse 
-#      # into the corresponding SCValType.
-#      #
-#      # Note that this representation requires num_topics * 3 + 2 syscall arguments.
-#      - name: "topic0"
-#        typename: "int32_t" # SCValType
-#      - name: "topic0_data"
-#        span_argument: true
-#      - name: "topic1"
-#        typename: "int32_t" # SCValType
-#      - name: "topic1_data"
-#        span_argument: true
-#      - name: "topic2"
-#        typename: "int32_t" # SCValType
-#      - name: "topic2_data"
-#        span_argument: true
-#      - name: "data"
-#        span_argument: true
-#    outputs:
-#    number: 24
