@@ -12,6 +12,12 @@ struct MissingTransactions {
   BlockHash block_hash;
 };
 
+struct MissingTransactionsEnvelope {
+  ValidatorID signer;
+  Signature signature;
+  MissingTransactions missing_transactions;
+};
+
 struct RepairedTransactions {
   SignedTransaction transactions<>;
 };
@@ -23,7 +29,7 @@ program Repair
 
     void repair_null(void) = 0;
 
-    RepairedTransactions repair_missing_txs(MissingTransactions) =
+    RepairedTransactions repair_missing_txs(MissingTransactionsEnvelope) =
     10;
   }
   = 1;
