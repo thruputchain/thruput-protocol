@@ -26,7 +26,7 @@ program SchedExec
   {
     // [schedexec_intro_exec] is called by an executor to introduce itself to
     // the system.
-    void schedexec_intro_exec(ExecCard) = 1;
+    IntroExecResult schedexec_intro_exec(ExecCard) = 1;
   }
   = 1;
 }
