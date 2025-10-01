@@ -1,6 +1,7 @@
 // clang-format off
 %#include "types.hh"
 %#include "transaction.hh"
+%#include "storage_cost.hh"
 
 namespace hogd {
 // clang-format on
@@ -21,6 +22,7 @@ typedef InitialConfigurationEntry InitialConfigurationList<>;
 
 struct GenesisBlock {
   InitialConfigurationList initial_config;
+  StorageCostModelXdr storage_cost_model;
 };
 
 // These translated into the contract addresses that are initialized
