@@ -14,7 +14,7 @@ struct ExecCard {
 
 struct IntroExecResult {
   // A unique 16-bit identifier assigned to the executor by the system.
-  unsigned int exec_id;
+  unsigned hyper exec_id;
 
   // The database shards.
   ShardCard shards<>;

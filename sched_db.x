@@ -9,10 +9,7 @@ namespace hogd {
 struct ShardCard {
   Protocol protocol;
   UPID upid;
-
   BlockHeight block_height;
-  unsigned int shard_count;
-
   // This is the db address that the coordinator should connect to.
   ServerAddress address_for_coord;
   // This is the db address that the executor should connect to.
