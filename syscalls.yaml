@@ -308,11 +308,11 @@ syscalls:
     number: 23
   - name: "LogEvent"
     inputs:
+      - name: topic0
+        typename: "SHA256Hash"
       - name: topic1
         typename: "SHA256Hash"
       - name: topic2
-        typename: "SHA256Hash"
-      - name: topic3
         typename: "SHA256Hash"
       - name: "data"
         span_argument: true
