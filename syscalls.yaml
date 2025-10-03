@@ -70,8 +70,9 @@ syscalls:
     number: 3
   - name: "ConsoleLog"
     needs_context: false
-    # Logging is for debugging only; on release builds, this is a no-op.  On debug builds,
-    # this logs to console.
+    # Logging is for debugging only.
+    # On release builds, this is a no-op.
+    # On debug builds, this logs to console.
     read_only: true
     inputs:
       - name: "buffer"
