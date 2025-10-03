@@ -5,6 +5,11 @@
 
 namespace hogd {
 
+struct EventData {
+  SHA256Hash topics<3>;
+  opaque event<>;
+};
+
 // The structure of an event that is placed into our merkle-patricia trie
 // For contracts that structure their data appropriately (specify the topic types, no more than 3 topics), 
 // this can be converted into a stellar::ContractEvent.
@@ -13,14 +18,12 @@ struct Event {
   unsigned int sequence_number; // uniquifies the event
   ContractAddress contract_address;
 
-  // the event data
-  SHA256Hash topics<3>;
-  opaque event<>;
+  EventData data;
 };
 
 struct TxEmittedEvent {
   ContractAddress contract_address;
-  opaque event<>;
+  opaque serialized_event<>;  // serialized EventData
 };
 
 struct TxEventLog {

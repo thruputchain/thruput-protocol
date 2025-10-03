@@ -311,10 +311,13 @@ syscalls:
     inputs:
       - name: topic0
         typename: "SHA256Hash"
+        optional: true
       - name: topic1
         typename: "SHA256Hash"
+        optional: true
       - name: topic2
         typename: "SHA256Hash"
+        optional: true
       - name: "data"
         span_argument: true
     outputs:
