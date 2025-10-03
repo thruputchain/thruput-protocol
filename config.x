@@ -73,6 +73,7 @@ struct Config {
   CatchupConfig *catchup_config;
   SCPConfig *scp_config;
   BatonConfig *baton_config;
+  RepairConfig *repair_config;
 };
 
 } // namespace hogd
