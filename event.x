@@ -5,18 +5,16 @@
 
 namespace hogd {
 
-% using stellar::SCVal;
-
-typedef SCVal Topic;
-
 // The structure of an event that is placed into our merkle-patricia trie
+// For contracts that structure their data appropriately (specify the topic types, no more than 3 topics), 
+// this can be converted into a stellar::ContractEvent.
 struct Event {
   SHA256Hash proposed_tx_hash; // sha256(ProposedTransaction)
-  unsigned int sequence_number;
+  unsigned int sequence_number; // uniquifies the event
   ContractAddress contract_address;
-  Topic topics<3>;
 
-  // leaf of the trie
+  // the event data
+  SHA256Hash topics<3>;
   opaque event<>;
 };
 
