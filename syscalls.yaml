@@ -68,7 +68,11 @@ syscalls:
         typename: "RuntimeMemoryLength"
         primitive_type: true
     number: 3
-  - name: "Log"
+  - name: "ConsoleLog"
+    needs_context: false
+    # Logging is for debugging only; on release builds, this is a no-op.  On debug builds,
+    # this logs to console.
+    read_only: true
     inputs:
       - name: "buffer"
         span_argument: true
@@ -302,3 +306,15 @@ syscalls:
         optional: true
     outputs:
     number: 23
+  - name: "LogEvent"
+    inputs:
+      - name: topic0
+        typename: "SHA256Hash"
+      - name: topic1
+        typename: "SHA256Hash"
+      - name: topic2
+        typename: "SHA256Hash"
+      - name: "data"
+        span_argument: true
+    outputs:
+    number: 24
