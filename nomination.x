@@ -8,6 +8,7 @@ namespace hogd {
 typedef SHA256Hash BlockHash;
 
 struct Nomination {
+  ValidatorID proposer;
   BlockHeight block_height;
   BlockHash block_hash;
   BlockHash prev_block_hash;
