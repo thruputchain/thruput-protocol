@@ -5,58 +5,30 @@
 
 namespace hogd {
 
-% using stellar::SCVal;
-
-typedef SCVal Topic;
+struct EventData {
+  SHA256Hash topics<3>;
+  opaque event<>;
+};
 
 // The structure of an event that is placed into our merkle-patricia trie
+// For contracts that structure their data appropriately (specify the topic types, no more than 3 topics), 
+// this can be converted into a stellar::ContractEvent.
 struct Event {
   SHA256Hash proposed_tx_hash; // sha256(ProposedTransaction)
-  unsigned int sequence_number;
+  unsigned int sequence_number; // uniquifies the event
   ContractAddress contract_address;
-  Topic topics<3>;
 
-  // leaf of the trie
-  opaque event<>;
+  EventData data;
 };
 
 struct TxEmittedEvent {
   ContractAddress contract_address;
-  opaque event<>;
+  opaque serialized_event<>;  // serialized EventData
 };
 
 struct TxEventLog {
   SHA256Hash proposed_tx_hash; // sha256(ProposedTransaction)
   TxEmittedEvent events<>;
 };
-
-program ExecutorEvent
-{
-  version ExecutorEvent1
-  {
-    void executorevent_null(void) = 0;
-
-    // Error returned if the coordinator has not already opened the block
-    RPCError executorevent_open_block(BlockID) = 10;
-    RPCError executorevent_close_block(BlockID) = 20;
-
-    RPCError executorevent_emit_event(BlockID, TxEventLog) = 30;
-  }
-  = 1;
-}
-= 0x8aa81224;
-
-program CoordEvent
-{
-  version CoordEvent1
-  {
-    void coordevent_null(void) = 0;
-
-    void coordevent_open_block(BlockID) = 10;
-    SHA256Hash coordevent_close_block(BlockID) = 20;
-  }
-  = 1;
-}
-= 0x8aa81225;
 
 } // namespace hogd

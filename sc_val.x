@@ -9,6 +9,7 @@
 //// of this distribution or at http://www.apache.org/licenses/LICENSE-2.0
 
 % #include "sc_types.hh" 
+
 namespace stellar
 {
 
@@ -162,7 +163,7 @@ case SCV_U64:
 case SCV_I64:
   int64 i64;
 case SCV_TIMEPOINT:
-  Timestamp timepoint;
+  TimePoint timepoint;
 case SCV_DURATION:
   Duration duration;
 

@@ -20,7 +20,7 @@ struct CatchupSpan {
 };
 
 struct CatchupBlocksRequest {
-  Timestamp timestamp;
+  TimePoint timestamp;
   CatchupSpan spans<>;
 };
 
@@ -31,7 +31,7 @@ struct SignedCatchupBlocksRequest {
 };
 
 struct CatchupBlocksResult {
-  Timestamp timestamp;
+  TimePoint timestamp;
   CatchupBlock blocks<>;
 };
 

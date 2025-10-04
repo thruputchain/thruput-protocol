@@ -26,7 +26,7 @@ struct QuorumSet {
 };
 
 struct QuorumSetSnapshot {
-  Timestamp timestamp;
+  TimePoint timestamp;
   QuorumSet quorum_set;
 };
 
@@ -37,7 +37,7 @@ struct SignedQuorumSetSnapshot {
 };
 
 struct ValidatorInfoSnapshot {
-  Timestamp timestamp;
+  TimePoint timestamp;
   ValidatorPublicInfo validator;
 };
 

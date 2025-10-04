@@ -12,7 +12,7 @@ struct int128_xdr {
 
 // uint64_t, Unix time as nanoseconds elapsed since
 // January 1, 1970 UTC
-typedef unsigned hyper Timestamp;
+typedef unsigned hyper TimePoint;
 
 typedef unsigned int RuntimeMemoryOffset; // uint32_t
 typedef unsigned int RuntimeMemoryLength; // uint32_t
