@@ -13,10 +13,19 @@ typedef opaque Calldata<>;
 
 typedef opaque ReturnBuffer<>;
 
+// A claim about sponsored gas units for a transaction.
+struct GasClaim {
+  // The contract being sponsored.
+  ContractAddress sponsored_contract;
+  // The number of gas units being sponsored.
+  GasAmount amount;
+};
+
 struct Invocation {
   ContractAddress invoked_address;
   ContractEntrypointID entrypoint;
   GasAmount gas_limit;
+  GasClaim gas_claims<>;
   Calldata calldata;
 };
 
