@@ -129,7 +129,7 @@ program DbSched
     // Load genesis block data into storage
     // This calculates storage keys and stores allocation amounts as
     // bytestrings
-    DbSchedResult dbsched_load_genesis_block(GenesisBlock) = 10;
+    DbSchedResult dbsched_load_genesis_block(GenesisBlock) = 9;
   }
   = 1;
 }
