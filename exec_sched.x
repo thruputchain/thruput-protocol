@@ -51,17 +51,17 @@ program ExecutorSched
   version ExecutorSched1
   {
 
-    void executorcoord_null(void) = 0;
+    void executorsched_null(void) = 0;
 
-    ExecProposeResult executorcoord_propose_transaction(BlockID,
+    ExecProposeResult executorsched_propose_transaction(BlockID,
 							SignedTransaction) =
     10;
-    ExecResult executorcoord_validate_transaction(BlockID,
+    ExecResult executorsched_validate_transaction(BlockID,
 						  ProposedTransaction) = 20;
 
-    ExecProposeBatchResult executorcoord_propose_batch(
+    ExecProposeBatchResult executorsched_propose_batch(
       BlockID, SignedTransactionBatch) = 11;
-    ExecValidateBatchResult executorcoord_validate_batch(
+    ExecValidateBatchResult executorsched_validate_batch(
       BlockID, ProposedTransactionBatch) = 21;
 
     // Executor can be in one of three states: None, Proposing, Validating
@@ -69,14 +69,14 @@ program ExecutorSched
     // if executor has already opened a block.
     // finish_block() blocks until all running executor threads are finished,
     // and stops the executor from accepting new transactions.
-    ExecResult executorcoord_open_proposal_block(BlockID) = 30;
-    ExecResult executorcoord_open_validation_block(BlockID) = 40;
-    void executorcoord_finish_block(BlockID) = 50;
+    ExecResult executorsched_open_proposal_block(BlockID) = 30;
+    ExecResult executorsched_open_validation_block(BlockID) = 40;
+    void executorsched_finish_block(BlockID) = 50;
 
     // Scheduler should call this to shutdown the executor.
     // Shutdown will not occur until all pending transactions complete.
     // No new transactions or blocks can be opened after shutdown.
-    void executorcoord_shutdown(void) = 60;
+    void executorsched_shutdown(void) = 60;
   }
   = 1;
 }
