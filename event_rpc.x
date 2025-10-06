@@ -24,14 +24,14 @@ default:
   void;
 };
 
-program CoordEvent
+program SchedEvent
 {
-  version CoordEvent1
+  version SchedEvent1
   {
-    void coordevent_null(void) = 0;
+    void schedevent_null(void) = 0;
 
-    void coordevent_open_block(BlockID) = 10;
-    EventBlockResult coordevent_close_block(BlockID) = 20;
+    void schedevent_open_block(BlockID) = 10;
+    EventBlockResult schedevent_close_block(BlockID) = 20;
   } = 1;
 } = 0x8aa81225;
 

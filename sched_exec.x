@@ -1,6 +1,7 @@
 // clang-format off
 %#include "rpc_types.hh"
 %#include "sched_db.hh"
+%#include "sched_event.hh"
 %#include "types.hh"
 namespace hogd {
 // clang-format on
@@ -17,6 +18,8 @@ struct IntroExecResult {
   unsigned hyper exec_id;
   // The database shards.
   ShardCard shards<>;
+  // The event server
+  EventCard event;
 };
 
 program SchedExec
