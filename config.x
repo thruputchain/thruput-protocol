@@ -60,7 +60,6 @@ struct CatchupConfig {
 
 struct BatonConfig {
   Milliseconds heartbeat_msec;
-  Milliseconds nomination_ttl_msec;
 };
 
 struct Config {
