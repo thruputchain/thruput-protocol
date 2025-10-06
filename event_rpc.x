@@ -32,6 +32,7 @@ program EventSched
 
     void eventsched_open_block(BlockID) = 10;
     EventBlockResult eventsched_close_block(BlockID) = 20;
+    void eventsched_abandon_block(BlockID) = 30;
   } = 1;
 } = 0x8aa81226;
 
