@@ -6,6 +6,11 @@
 namespace hogd {
 // clang-format on
 
+enum CoordinatorRegistrationOutcome {
+  CoordinatorRegistrationOK = 0,
+  CoordinatorRegistrationInvalidProtocol = 1,
+};
+
 struct CoordCard {
   Protocol protocol;
   ServerAddress address;
@@ -53,7 +58,7 @@ program SchedulerCoord
   {
     void schedulercoord_null(void) = 0;
 
-    void coordscheduler_intro_sched(CoordCard) = 1;
+    CoordinatorRegistrationOutcome schedulercoord_intro_coord(CoordCard) = 1;
 
     // Coordinator calls schedulercoord_submit_unvetted to submit new/unvetted
     // transactions coming from the wallet. Asynchronously, the scheduler will
