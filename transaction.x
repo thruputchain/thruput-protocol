@@ -3,6 +3,7 @@
 %#include "types.hh"
 %#include "contract.hh"
 %#include "retrocausal_queue.hh"
+%#include "auth_claim.hh"
 
 namespace hogd
 {
@@ -25,7 +26,6 @@ struct Invocation {
   ContractAddress invoked_address;
   ContractEntrypointID entrypoint;
   GasAmount gas_limit;
-  GasClaim gas_claims<>;
   Calldata calldata;
 };
 
@@ -50,6 +50,8 @@ struct Transaction {
   Uniquifier uniquifier;
   // New contracts to deploy.
   Contract contracts_to_deploy<>;
+  AuthClaim auth_claims;
+  GasClaim gas_claims<>;
 };
 
 struct AuthSignaturePreimage {
@@ -69,12 +71,9 @@ struct AuxiliaryDecoratedSignatures {
 
 typedef SHA256Hash SignedTransactionHash;
 
-// Deliberately leaving this SignedTransaction object
-// (and all the other metadata)
-// for a later PR.
 struct SignedTransaction {
   Transaction tx;
-  Weight signature_weight;
+  // These signatures get matched against the auth claims in the transaction.
   DecoratedSignature signatures<>;
   AuxiliaryDecoratedSignatures aux_signatures<>;
 };
