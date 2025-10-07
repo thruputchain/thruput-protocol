@@ -50,7 +50,7 @@ struct Transaction {
   Uniquifier uniquifier;
   // New contracts to deploy.
   Contract contracts_to_deploy<>;
-  AuthClaim auth_claims;
+  AuthClaimData auth_claims;
   GasClaim gas_claims<>;
 };
 
