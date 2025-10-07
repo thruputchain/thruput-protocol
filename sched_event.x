@@ -10,7 +10,8 @@ namespace hogd {
 struct EventCard {
   Protocol protocol;
   UPID upid;
-  ServerAddress address;
+  ServerAddress address_for_exec;
+  ServerAddress address_for_sched;
 };
 
 program SchedEvent
