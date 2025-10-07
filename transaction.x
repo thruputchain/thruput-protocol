@@ -54,28 +54,20 @@ struct Transaction {
   GasClaim gas_claims<>;
 };
 
-struct AuthSignaturePreimage {
-  Weight signature_weight;
-  opaque message<>;
-};
-
 struct DecoratedSignature {
   unsigned int public_key_id; // uint32_t
   Signature signature;
 };
 
-struct AuxiliaryDecoratedSignatures {
-  ContractAddress address;
-  DecoratedSignature signatures<>;
-};
-
 typedef SHA256Hash SignedTransactionHash;
+
+typedef DecoratedSignature DecoratedSignatureList<>;
 
 struct SignedTransaction {
   Transaction tx;
   // These signatures get matched against the auth claims in the transaction.
-  DecoratedSignature signatures<>;
-  AuxiliaryDecoratedSignatures aux_signatures<>;
+  // These signatures are over corresponding AuthClaimPreimage objects.
+  DecoratedSignatureList signatures<>;
 };
 
 // Nondeterministic data attached to a transaction by the proposer.
