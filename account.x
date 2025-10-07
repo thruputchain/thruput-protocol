@@ -1,9 +1,7 @@
-// clang-format off
 % #include "types.hh"
 
 namespace hogd
 {
-// clang-format on
 
 struct PublicKeyConfig {
   PublicKey key; // union multiplexing over signature scheme (ed25519,...)
