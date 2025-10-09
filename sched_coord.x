@@ -77,9 +77,13 @@ program SchedulerCoord
     // block. DbTip is the block onto which the nomination is done.
     SchedulerValidationResult schedulercoord_validate(DbTip, Nomination) = 4;
 
+    // Commit the block with block ID. This block must have been previously
+    // nominated or validated by the mempool.
+    void schedulercoord_commit_block(BlockID) = 5;
+
     // Returns information about the current highest committed block.
     // If there is no committed block, returns DbSchedResultError.
-    DbTipResult schedcoord_get_tip(void) = 5;
+    DbTipResult schedcoord_get_tip(void) = 6;
   }
   = 1;
 }
