@@ -16,6 +16,16 @@ struct ShardCard {
   ServerAddress address_for_sched;
 };
 
+struct Delta {
+  ContractAddress address;
+  int128_t hog_delta;
+};
+
+struct HogsTransferred {
+  BlockHeight block;
+  Delta deltas<>;
+};
+
 program SchedDb
 {
   version SchedDb1
@@ -23,6 +33,8 @@ program SchedDb
     // [scheddb_intro_shard] is called by a db shard to introduce itself to the
     // system.
     void scheddb_intro_shard(ShardCard) = 1;
+
+    void scheddb_hogs_transferred(HogsTransferred) = 2;
   }
   = 1;
 }
