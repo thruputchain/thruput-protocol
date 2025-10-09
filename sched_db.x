@@ -18,7 +18,7 @@ struct ShardCard {
 
 struct Delta {
   ContractAddress address;
-  int128_t hog_delta;
+  int128_xdr hog_delta;
 };
 
 struct HogsTransferred {
