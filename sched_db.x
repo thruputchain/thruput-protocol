@@ -10,8 +10,6 @@ struct ShardCard {
   Protocol protocol;
   UPID upid;
   BlockHeight block_height;
-  // This is the db address that the coordinator should connect to.
-  ServerAddress address_for_coord;
   // This is the db address that the executor should connect to.
   ServerAddress address_for_exec;
   // This is the db address that the scheduler should connect to.
