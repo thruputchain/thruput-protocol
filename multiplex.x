@@ -10,6 +10,8 @@ union MultiplexMessage switch (MultiplexMessageType type)
 {
 case MultiplexMessageSubmittedTxs:
   SubmittedTransactions submitted;
+case MultiplexMessageSCP:
+  SCPEnvelope envelope;
 default:
   void;
 };

@@ -18,10 +18,12 @@ struct ShardCard {
 
 struct Delta {
   ContractAddress address;
-  int128_t hog_delta;
+  int128_xdr hog_delta;
 };
 
 struct HogsTransferred {
+  // The height of the block in which these transfers occurred. The scheduler
+  // uses this height to update average hog ages.
   BlockHeight block;
   Delta deltas<>;
 };
