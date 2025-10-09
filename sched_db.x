@@ -22,6 +22,8 @@ struct Delta {
 };
 
 struct HogsTransferred {
+  // The height of the block in which these transfers occurred. The scheduler
+  // uses this height to update average hog ages.
   BlockHeight block;
   Delta deltas<>;
 };
