@@ -1,4 +1,5 @@
 // clang-format off
+%#include "scp.hh"
 %#include "types.hh"
 
 namespace hogd {
