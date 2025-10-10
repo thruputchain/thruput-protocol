@@ -6,7 +6,6 @@ typedef hyper Seconds;
 // ValidatorConfig holds the network configuration of a validator.
 struct ValidatorConfig {
   ValidatorPrivateInfo private_info;
-  QuorumSet quorum_set;
   ValidatorPublicInfo known_validators<>;
 };
 
@@ -61,7 +60,6 @@ struct CatchupConfig {
 
 struct BatonConfig {
   Milliseconds heartbeat_msec;
-  Milliseconds nomination_ttl_msec;
 };
 
 struct Config {
@@ -72,8 +70,9 @@ struct Config {
   DogwoodConfig *dogwood_config;
   MempoolConfig *mempool_config;
   CatchupConfig *catchup_config;
-  SoloConfig *solo_config;
+  SCPConfig *scp_config;
   BatonConfig *baton_config;
+  RepairConfig *repair_config;
 };
 
 } // namespace hogd
