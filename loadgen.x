@@ -64,8 +64,10 @@ program LoadgenInterface
     // arguments:
     // LoadgenContextID context_id (a handle returned by generate_experiment)
     // unsigned hyper num_txs (the number of transactions to return)
+    // BlockHeight expiry_height (the height at which the transactions will expire)
     LoadgenExtensionResult extend_experiment(LoadgenContextID,
-					     unsigned hyper) = 1;
+					     unsigned hyper,
+					     BlockHeight) = 1;
   }
   = 1;
 }

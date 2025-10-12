@@ -10,12 +10,22 @@ struct ShardCard {
   Protocol protocol;
   UPID upid;
   BlockHeight block_height;
-  // This is the db address that the coordinator should connect to.
-  ServerAddress address_for_coord;
   // This is the db address that the executor should connect to.
   ServerAddress address_for_exec;
   // This is the db address that the scheduler should connect to.
   ServerAddress address_for_sched;
+};
+
+struct Delta {
+  ContractAddress address;
+  int128_xdr hog_delta;
+};
+
+struct HogsTransferred {
+  // The height of the block in which these transfers occurred. The scheduler
+  // uses this height to update average hog ages.
+  BlockHeight block;
+  Delta deltas<>;
 };
 
 program SchedDb
@@ -25,6 +35,8 @@ program SchedDb
     // [scheddb_intro_shard] is called by a db shard to introduce itself to the
     // system.
     void scheddb_intro_shard(ShardCard) = 1;
+
+    void scheddb_hogs_transferred(HogsTransferred) = 2;
   }
   = 1;
 }
