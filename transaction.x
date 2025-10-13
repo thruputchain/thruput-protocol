@@ -93,9 +93,6 @@ struct NondeterministicProposalData {
 
 // A signed transaction, with the nondeterministic data from the proposer
 // attached to it.
-// TODO(petar): Who is the signer? The originator of the transaction or the
-// validator proposing it?
-// TODO(petar): Should the signature capture the non-deterministic data?
 struct ProposedTransaction {
   SignedTransaction signed_tx;
   NondeterministicProposalData nondeterministic_proposal_data;
