@@ -12,21 +12,15 @@ enum StorageItemType {
   kItemTypeBytestring = 0,
   kItemTypeNonnegativeInt = 1,
   kItemTypeRetrocausalQueue = 2,
-  kItemTypeReplayCache = 3,
+  kItemTypeReplayCacheData = 3,
   kItemTypeAuthData = 4,
   kItemTypeDeployedContractHash = 5,
-  // TODO(stutsman) use ReplayCache above instead once storage_item stuff is updated.
-  kItemTypeReplayCacheData = 6,
   kItemTypeDeleted = -1,
 };
 
 const kBytestringMaxLen = 1024;
 
 typedef opaque Bytestring<>;
-
-struct ReplayCacheMetadata {
-  unsigned hyper minimum_threshold;
-};
 
 // TODO(stutsman) use name ReplayCache instead and update storage_item instead?
 struct ReplayCacheData {
@@ -41,8 +35,6 @@ case kItemTypeNonnegativeInt:
   int128_xdr nnint;
 case kItemTypeRetrocausalQueue:
   void;
-case kItemTypeReplayCache:
-  ReplayCacheMetadata replay_cache_metadata;
 case kItemTypeReplayCacheData:
   ReplayCacheData replay_cache_data;
 case kItemTypeAuthData:
@@ -56,7 +48,6 @@ enum StorageDeltaType {
   kDeltaTypeNonnegativeIntSetAdd = 1,
   kDeltaTypeDelete = 2,
   kDeltaTypeRetrocausalQueue = 3,
-  kDeltaTypeReplayCacheModify = 4,
   kDeltaTypeNonnegativeIntAdd = 5,
   kDeltaTypeAuthDataChange = 6,
   kDeltaTypeDeployContract = 7,
@@ -77,12 +68,6 @@ struct NonnegativeInt128SetAddArgs {
   int128_xdr add_value;
 };
 
-// TODO(stutsman) remove once db_interface is unified with new hogdb changes?
-struct ReplayCacheModifyArgs {
-  unsigned hyper minimum_threshold;
-  ReplayNonce nonces<>;
-};
-
 struct ConsumeUniquifierArgs {
   Uniquifier uniquifier;
 };
@@ -99,8 +84,6 @@ case kDeltaTypeDelete:
   void;
 case kDeltaTypeRetrocausalQueue:
   RetrocausalQueueDelta retrocausal_queue;
-case kDeltaTypeReplayCacheModify:
-  ReplayCacheModifyArgs replay_cache_modify;
 case kDeltaTypeAuthDataChange:
   AuthDataChangeArgs auth_data_change;
 case kDeltaTypeDeployContract:
