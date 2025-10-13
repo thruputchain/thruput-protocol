@@ -60,6 +60,7 @@ struct CatchupConfig {
 
 struct BatonConfig {
   Milliseconds heartbeat_msec;
+  int max_catchup_height;
 };
 
 struct Config {
