@@ -3,6 +3,7 @@
 %#include "types.hh"
 %#include "contract.hh"
 %#include "retrocausal_queue.hh"
+%#include "auth_claim.hh"
 
 namespace hogd
 {
@@ -25,7 +26,6 @@ struct Invocation {
   ContractAddress invoked_address;
   ContractEntrypointID entrypoint;
   GasAmount gas_limit;
-  GasClaim gas_claims<>;
   Calldata calldata;
 };
 
@@ -50,11 +50,8 @@ struct Transaction {
   Uniquifier uniquifier;
   // New contracts to deploy.
   Contract contracts_to_deploy<>;
-};
-
-struct AuthSignaturePreimage {
-  Weight signature_weight;
-  opaque message<>;
+  AuthClaimData auth_claims;
+  GasClaim gas_claims<>;
 };
 
 struct DecoratedSignature {
@@ -62,21 +59,15 @@ struct DecoratedSignature {
   Signature signature;
 };
 
-struct AuxiliaryDecoratedSignatures {
-  ContractAddress address;
-  DecoratedSignature signatures<>;
-};
-
 typedef SHA256Hash SignedTransactionHash;
 
-// Deliberately leaving this SignedTransaction object
-// (and all the other metadata)
-// for a later PR.
+typedef DecoratedSignature DecoratedSignatureList<>;
+
 struct SignedTransaction {
   Transaction tx;
-  Weight signature_weight;
-  DecoratedSignature signatures<>;
-  AuxiliaryDecoratedSignatures aux_signatures<>;
+  // These signatures get matched against the auth claims in the transaction.
+  // These signatures are over corresponding AuthClaimPreimage objects.
+  DecoratedSignatureList signatures<>;
 };
 
 // Nondeterministic data attached to a transaction by the proposer.
@@ -93,9 +84,6 @@ struct NondeterministicProposalData {
 
 // A signed transaction, with the nondeterministic data from the proposer
 // attached to it.
-// TODO(petar): Who is the signer? The originator of the transaction or the
-// validator proposing it?
-// TODO(petar): Should the signature capture the non-deterministic data?
 struct ProposedTransaction {
   SignedTransaction signed_tx;
   NondeterministicProposalData nondeterministic_proposal_data;
