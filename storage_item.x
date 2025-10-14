@@ -27,6 +27,8 @@ struct ReplayCacheData {
   Uniquifier uniquifiers<>;
 };
 
+// This represents the contents of storage item that are sent over the wire
+// to the executor.  We do not send the entire contents of the database over to the executor.
 union StorageItem switch (StorageItemType type)
 {
 case kItemTypeBytestring:
@@ -36,7 +38,7 @@ case kItemTypeNonnegativeInt:
 case kItemTypeRetrocausalQueue:
   void;
 case kItemTypeReplayCacheData:
-  ReplayCacheData replay_cache_data;
+  void;
 case kItemTypeAuthData:
   AccountAuthData auth_data;
 case kItemTypeDeployedContractHash:
