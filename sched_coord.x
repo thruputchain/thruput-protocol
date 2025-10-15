@@ -89,6 +89,8 @@ program SchedulerCoord
     // TODO(jhumphri): Remove this once we integrate the coordinator into the
     // loadgen experiment.
     DbSchedResult schedcoord_load_genesis_block(GenesisBlock) = 8;
+
+    OptSignedTransactionBatch schedcoord_lookup_transactions(SignedTransactionHashBatch) = 100;
   }
   = 1;
 }
