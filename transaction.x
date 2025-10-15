@@ -72,6 +72,10 @@ struct SignedTransaction {
   DecoratedSignatureList signatures<>;
 };
 
+typedef SignedTransaction *OptSignedTransaction;
+typedef OptSignedTransaction OptSignedTransactionBatch<>;
+typedef SignedTransactionHash SignedTransactionHashBatch<>;
+
 // Nondeterministic data attached to a transaction by the proposer.
 struct NondeterministicProposalData {
   // string of nondeterministic bits generated during the course
