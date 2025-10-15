@@ -53,6 +53,8 @@ program ExecutorSched
 
     void executorsched_null(void) = 0;
 
+    ExecResult executorsched_ready(void) = 1;
+
     ExecProposeResult executorsched_propose_transaction(BlockID,
 							SignedTransaction) =
     10;
