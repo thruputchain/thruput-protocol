@@ -67,23 +67,28 @@ program SchedulerCoord
     // coordinator when transactions have become vetted and can be broadcast
     // to the network.
     void schedulercoord_submit_unvetted(SignedTransactionBatch) = 2;
+    void schedulercoord_submit_vetted(ValidatorID, SignedTransactionBatch) = 3;
 
     // schedulercoord_nominate asks the scheduler to prepare a nomination (a
     // block proposal) on top of the given db block.
-    SchedulerNominationResult schedulercoord_nominate(DbTip) = 3;
+    SchedulerNominationResult schedulercoord_nominate(DbTip) = 4;
 
     // schedulercoord_validate asks the scheduler to validate a nomination,
     // and if successful, return the block ID in the db of the validated
     // block. DbTip is the block onto which the nomination is done.
-    SchedulerValidationResult schedulercoord_validate(DbTip, Nomination) = 4;
+    SchedulerValidationResult schedulercoord_validate(DbTip, Nomination) = 5;
 
     // Commit the block with block ID. This block must have been previously
     // nominated or validated by the mempool.
-    void schedulercoord_commit_block(BlockID) = 5;
+    void schedulercoord_commit_block(BlockID) = 6;
 
     // Returns information about the current highest committed block.
     // If there is no committed block, returns DbSchedResultError.
-    DbTipResult schedcoord_get_tip(void) = 6;
+    DbTipResult schedcoord_get_tip(void) = 7;
+
+    // TODO(jhumphri): Remove this once we integrate the coordinator into the
+    // loadgen experiment.
+    DbSchedResult schedcoord_load_genesis_block(GenesisBlock) = 8;
   }
   = 1;
 }
