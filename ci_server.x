@@ -28,15 +28,24 @@ default:
   void;
 };
 
+union CIWorkDirStatus switch (CIServerErrorCode error_code) {
+case kCIServerErrorCodeOK:
+  string work_dir<>;
+default:
+  void;
+};
+
 program CIServer
 {
   version CIServer1
   {
     CIServerErrorCode ciserver_start(HogdGitHash, ServerConfig) = 0;
-    void ciserver_stop(HogdGitHash) = 1;
-    void ciserver_shutdown(HogdGitHash) = 2;
+    CIServerErrorCode ciserver_stop(HogdGitHash) = 1;
+    CIServerErrorCode ciserver_shutdown(HogdGitHash) = 2;
     // returns the status of the most recent process
     CIProcStatus ciserver_query_proc_status(HogdGitHash) = 3;
+    CIWorkDirStatus ciserver_query_work_dir(HogdGitHash) = 4;
+    CIServerErrorCode ciserver_clear_work_dir(HogdGitHash) = 5;
   }
   = 1;
 }
