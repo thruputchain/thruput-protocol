@@ -2,6 +2,7 @@
 %#include "types.hh"
 %#include "retrocausal_queue.hh"
 %#include "account.hh"
+%#include "transaction.hh"
 
 namespace hogd
 {
@@ -11,7 +12,7 @@ enum StorageItemType {
   kItemTypeBytestring = 0,
   kItemTypeNonnegativeInt = 1,
   kItemTypeRetrocausalQueue = 2,
-  kItemTypeReplayCache = 3,
+  kItemTypeReplayCacheData = 3,
   kItemTypeAuthData = 4,
   kItemTypeDeployedContractHash = 5,
   kItemTypeDeleted = -1,
@@ -21,10 +22,13 @@ const kBytestringMaxLen = 1024;
 
 typedef opaque Bytestring<>;
 
-struct ReplayCacheMetadata {
-  unsigned hyper minimum_threshold;
+// TODO(stutsman) use name ReplayCache instead and update storage_item instead?
+struct ReplayCacheData {
+  Uniquifier uniquifiers<>;
 };
 
+// This represents the contents of storage item that are sent over the wire
+// to the executor.  We do not send the entire contents of the database over to the executor.
 union StorageItem switch (StorageItemType type)
 {
 case kItemTypeBytestring:
@@ -33,8 +37,8 @@ case kItemTypeNonnegativeInt:
   int128_xdr nnint;
 case kItemTypeRetrocausalQueue:
   void;
-case kItemTypeReplayCache:
-  ReplayCacheMetadata replay_cache_metadata;
+case kItemTypeReplayCacheData:
+  void;
 case kItemTypeAuthData:
   AccountAuthData auth_data;
 case kItemTypeDeployedContractHash:
@@ -46,10 +50,10 @@ enum StorageDeltaType {
   kDeltaTypeNonnegativeIntSetAdd = 1,
   kDeltaTypeDelete = 2,
   kDeltaTypeRetrocausalQueue = 3,
-  kDeltaTypeReplayCacheModify = 4,
   kDeltaTypeNonnegativeIntAdd = 5,
   kDeltaTypeAuthDataChange = 6,
   kDeltaTypeDeployContract = 7,
+  kDeltaTypeConsumeUniquifier = 8,
 };
 
 struct AuthDataChangeSigner {
@@ -66,9 +70,8 @@ struct NonnegativeInt128SetAddArgs {
   int128_xdr add_value;
 };
 
-struct ReplayCacheModifyArgs {
-  unsigned hyper minimum_threshold;
-  ReplayNonce nonces<>;
+struct ConsumeUniquifierArgs {
+  Uniquifier uniquifier;
 };
 
 union StorageDelta switch (StorageDeltaType type)
@@ -83,12 +86,12 @@ case kDeltaTypeDelete:
   void;
 case kDeltaTypeRetrocausalQueue:
   RetrocausalQueueDelta retrocausal_queue;
-case kDeltaTypeReplayCacheModify:
-  ReplayCacheModifyArgs replay_cache_modify;
 case kDeltaTypeAuthDataChange:
   AuthDataChangeArgs auth_data_change;
 case kDeltaTypeDeployContract:
   DeployedContractHash deployed_contract_hash;
+case kDeltaTypeConsumeUniquifier:
+  ConsumeUniquifierArgs consume_uniquifier_args;
 };
 
 } // namespace hogd

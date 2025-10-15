@@ -8,10 +8,12 @@ namespace hogd {
 // clang-format on
 
 struct CatchupBlock {
+  ValidatorPublicInfo proposer;
   BlockHeight block_height;
   BlockHash block_hash;
   BlockHash prev_block_hash;
-  ProposedTransaction proposed_transactions<>;
+  SignedTransaction signed_transactions<>;
+  NominatedTransaction nominated_transactions<>;
 };
 
 struct CatchupSpan {
