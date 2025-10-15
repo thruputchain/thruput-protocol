@@ -318,7 +318,7 @@ syscalls:
         span_argument: true
     outputs:
     number: 24
-  - name: "GetAuthClaimCount" 
+  - name: "GetAuthClaimCount"
     read_only: true
     inputs:
     outputs:
