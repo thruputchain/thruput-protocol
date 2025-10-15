@@ -4,35 +4,31 @@ syscall_input_count: 7
 type_mappings:
   - base_name: "uint32_t"  # The cpp name, which is used in this spec
     rust_name: "u32"
-    xdr_name: "unsigned int"
     rust_uses_as_ptr: false
     primitive_type: true
   - base_name: "int32_t"
     rust_name: "i32"
-    xdr_name: "int"
     rust_uses_as_ptr: false
     primitive_type: true
   - base_name: "uint64_t"
     rust_name: "u64"
-    xdr_name: "unsigned hyper"
     rust_uses_as_ptr: false
     primitive_type: true
   - base_name: "int64_t"
     rust_name: "i64"
-    xdr_name: "hyper"
     rust_uses_as_ptr: false
     primitive_type: true
   - base_name: "int128_t"
     rust_name: "i128"
-    xdr_name: "int128_xdr"
     rust_uses_as_ptr: false
   - base_name: "uint128_t"
     rust_name: "u128"
-    xdr_name: "uint128_xdr"
     rust_uses_as_ptr: false
   - base_name: "bool"
     rust_name: "bool"
-    xdr_name: "bool"
+    rust_uses_as_ptr: false
+  - base_name: "generated::AuthClaim"
+    rust_name: "AuthClaim"
     rust_uses_as_ptr: false
 syscalls:
   - name: "SHA256"
@@ -322,3 +318,19 @@ syscalls:
         span_argument: true
     outputs:
     number: 24
+  - name: "GetAuthClaimCount" 
+    read_only: true
+    inputs:
+    outputs:
+      - name: "count"
+        typename: "uint32_t"
+    number: 25
+  - name: "GetAuthClaim"
+    read_only: true
+    inputs:
+      - name: "index"
+        typename: "uint32_t"
+    outputs:
+      - name: "auth_claim"
+        typename: "generated::AuthClaim"
+    number: 26
