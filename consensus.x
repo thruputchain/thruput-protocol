@@ -14,4 +14,6 @@ struct ConsensusValue {
   Upgrade upgrades<6>;
 };
 
+typedef SHA256Hash ConsensusValueHash;
+
 } // namespace hogd
