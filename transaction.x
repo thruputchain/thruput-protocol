@@ -61,7 +61,9 @@ struct DecoratedSignature {
 
 typedef SHA256Hash SignedTransactionHash;
 
-typedef DecoratedSignature DecoratedSignatureList<>;
+struct DecoratedSignatureList {
+    DecoratedSignature list<>;
+};
 
 struct SignedTransaction {
   Transaction tx;
