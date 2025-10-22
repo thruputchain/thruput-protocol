@@ -62,7 +62,7 @@ struct DecoratedSignature {
 typedef SHA256Hash SignedTransactionHash;
 
 struct DecoratedSignatureList {
-    DecoratedSignature list<>;
+  DecoratedSignature list<>;
 };
 
 struct SignedTransaction {
