@@ -12,6 +12,7 @@ struct ConsensusValue {
   TimePoint timestamp;
   Nomination nomination;
   Upgrade upgrades<6>;
+  ConsensusValueHash prev_cv_hash;
 };
 
 typedef SHA256Hash ConsensusValueHash;
