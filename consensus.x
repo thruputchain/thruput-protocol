@@ -15,6 +15,8 @@ struct ConsensusValue {
   ConsensusValueHash prev_cv_hash;
 };
 
+typedef ConsensusValue *OptConsensusValue;
+
 typedef SHA256Hash ConsensusValueHash;
 
 struct ConsensusValueCue {

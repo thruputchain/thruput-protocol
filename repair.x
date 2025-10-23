@@ -1,4 +1,5 @@
 // clang-format off
+%#include "consensus.hh"
 %#include "discovery.hh"
 %#include "nomination.hh"
 %#include "transaction.hh"
@@ -38,6 +39,8 @@ program Repair
 
     RepairedTransactions repair_missing_txs(MissingTransactionsEnvelope) =
     10;
+
+    OptConsensusValue repair_missing_cv(ConsensusValueHash) = 20;
   }
   = 1;
 }
