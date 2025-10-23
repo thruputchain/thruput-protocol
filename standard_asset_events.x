@@ -12,4 +12,10 @@ struct TransferEvent {
   int128_xdr amount;
 };
 
+struct ApprovalEvent {
+  ContractAddress owner_address;
+  ContractAddress spender_address;
+  int128_xdr amount;
+};
+
 } // namespace hogd
