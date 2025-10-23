@@ -17,4 +17,9 @@ struct ConsensusValue {
 
 typedef SHA256Hash ConsensusValueHash;
 
+struct ConsensusValueCue {
+  ValidatorPublicInfo repair_fallback;
+  ConsensusValueHash cv_hash;
+};
+
 } // namespace hogd
