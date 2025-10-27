@@ -20,7 +20,7 @@ typedef ConsensusValue *OptConsensusValue;
 typedef SHA256Hash ConsensusValueHash;
 
 struct ConsensusValueCue {
-  ValidatorPublicInfo repair_fallback;
+  ValidatorPublicInfo proposer;
   ConsensusValueHash cv_hash;
 };
 
