@@ -22,6 +22,7 @@ typedef SHA256Hash ConsensusValueHash;
 struct ConsensusValueCue {
   ValidatorPublicInfo proposer;
   ConsensusValueHash cv_hash;
+  BlockHash block_hash;
 };
 
 } // namespace hogd
