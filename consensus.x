@@ -23,6 +23,7 @@ struct ConsensusValueCue {
   ValidatorPublicInfo proposer;
   ConsensusValueHash cv_hash;
   BlockHash block_hash;
+  BlockHash prev_block_hash;
 };
 
 } // namespace hogd
