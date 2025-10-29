@@ -15,5 +15,6 @@ const kExecutorMempoolServerPort = 8090;
 const kEventExecutorServerPort = 8091;
 const kEventMempoolServerPort = 8092;
 
+const kCIControlServerPort = 11111;
 
 } // namespace hogd
