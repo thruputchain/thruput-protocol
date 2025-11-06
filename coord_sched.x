@@ -6,7 +6,7 @@
 namespace hogd {
 // clang-format on
 
-struct SchedulerNomination{
+struct SchedulerNomination {
   BlockID block_id;
   Nomination nomination;
 };
