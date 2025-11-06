@@ -21,19 +21,6 @@ enum SchedulerNominationOutcome {
   SchedulerNominationError = 1,
 };
 
-struct SchedulerNomination {
-  BlockID block_id;
-  Nomination nomination;
-};
-
-union SchedulerNominationResult switch (SchedulerNominationOutcome outcome)
-{
-case SchedulerNominationOK:
-  SchedulerNomination scheduler_nomination;
-default:
-  void;
-};
-
 enum SchedulerValidationOutcome {
   SchedulerValidationOK = 0,
   SchedulerValidationInvalid = 1,
@@ -71,7 +58,7 @@ program SchedulerCoord
 
     // schedulercoord_nominate asks the scheduler to prepare a nomination (a
     // block proposal) on top of the given db block.
-    SchedulerNominationResult schedulercoord_nominate(DbTip) = 4;
+    SchedulerNominationOutcome schedulercoord_nominate(DbTip) = 4;
 
     // schedulercoord_validate asks the scheduler to validate a nomination,
     // and if successful, return the block ID in the db of the validated

@@ -1,9 +1,21 @@
 // clang-format off
 %#include "exec_sched.hh"
 %#include "rpc_types.hh"
+%#include "nomination.hh"
 %#include "transaction.hh"
 namespace hogd {
 // clang-format on
+
+struct SchedulerNomination{
+  BlockID block_id;
+  Nomination nomination;
+};
+
+struct SchedulerNominationChunk {
+  unsigned int chunk_idx;
+  unsigned int total_chunks;
+  SchedulerNomination chunk;
+};
 
 // API exposed from the Coordinator for the Scheduler
 program CoordScheduler
@@ -16,6 +28,8 @@ program CoordScheduler
     // given transactions are vetted, meaning the coordinator can broadcast
     // them to the network.
     void coordscheduler_notify_vetted(SignedTransactionBatch) = 1;
+
+    void coordscheduler_finish_nomination(SchedulerNominationChunk) = 2;
   }
   = 1;
 }
