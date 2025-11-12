@@ -5,7 +5,7 @@ namespace hogd {
 typedef string LockObject<>;
 typedef LockObject LockObjects<>;
 
-typedef string LockHandle<>;
+typedef string LockLease<>;
 
 // Lock service for the hog cluster
 program HogLock
@@ -15,11 +15,11 @@ program HogLock
 
     void hoglock_null(void) = 0;
 
-    LockHandle hoglock_lock(LockObjects) = 1;
+    LockLease hoglock_lock(LockObjects) = 1;
 
-    void hoglock_refresh(LockHandle) = 2;
+    void hoglock_renew(LockLease) = 2;
 
-    bool hoglock_check(LockHandle) = 3;
+    bool hoglock_check(LockLease) = 3;
 
   }
   = 1;
