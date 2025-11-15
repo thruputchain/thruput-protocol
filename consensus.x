@@ -8,6 +8,8 @@ namespace hogd {
 
 typedef opaque Upgrade<128>;
 
+typedef SHA256Hash ConsensusValueHash;
+
 struct ConsensusValue {
   TimePoint timestamp;
   Nomination nomination;
@@ -17,7 +19,6 @@ struct ConsensusValue {
 
 typedef ConsensusValue *OptConsensusValue;
 
-typedef SHA256Hash ConsensusValueHash;
 
 struct ConsensusValueCue {
   ValidatorPublicInfo proposer;
