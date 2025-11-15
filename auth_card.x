@@ -3,9 +3,9 @@
 namespace hogd {
 
 struct AuthCard {
-    Protocol protocol;
-    UPID upid;
-    ServerAddress address;
+  Protocol protocol;
+  UPID upid;
+  ServerAddress address;
 };
 
 } // namespace hogd
