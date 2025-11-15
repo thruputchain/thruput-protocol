@@ -72,6 +72,7 @@ struct SignedTransaction {
   DecoratedSignatureList signatures<>;
 };
 
+typedef SignedTransaction SignedTransactionBatch<>;
 typedef SignedTransaction *OptSignedTransaction;
 typedef OptSignedTransaction OptSignedTransactionBatch<>;
 typedef SignedTransactionHash SignedTransactionHashBatch<>;

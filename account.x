@@ -33,6 +33,9 @@ struct AccountAuthData {
   PublicKeyConfigOpt public_keys[MAX_SIGNERS];
   GasPermissionConfig gas_permissions<MAX_GAS_CONFIGS>;
   NonceConfig nonce_config;
+  // TODO(geoff): this can be removed once hogdb has a way to track this directly
+  // on each db item.
+  BlockHeight last_written_height;
 };
 
 struct DeployedContractHash {

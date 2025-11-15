@@ -41,7 +41,6 @@ default:
   void;
 };
 
-typedef SignedTransaction SignedTransactionBatch<>;
 typedef ProposedTransaction ProposedTransactionBatch<>;
 typedef ExecProposeResult ExecProposeBatchResult<>;
 typedef ExecResult ExecValidateBatchResult<>;

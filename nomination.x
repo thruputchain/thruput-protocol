@@ -1,4 +1,5 @@
 // clang-format off
+%#include "discovery.hh"
 %#include "transaction.hh"
 %#include "types.hh"
 
