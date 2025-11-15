@@ -9,7 +9,7 @@ namespace hogd {
 enum AuthResult {
   kAuthSuccess = 0,
   kAuthBatchFailed = 1,
-  kAuthBadBlockID = 2,
+  kAuthStaleBlockHeight = 2,
 };
 
 typedef AuthResult AuthResultBatch<>;
@@ -23,24 +23,27 @@ program AuthMempool {
     // 
     // If this is called concurrently with a call to authmempool_verify*,
     // then those calls may return verification results based on the block id supplied to those calls,
-    // or may return kAuthBadBlockID.
-    void authmempool_notify_commit(BlockID) = 0;
+    // or may return kAuthStaleBlockHeight.
+    //
+    // Note that all of the operations on the AuthMempool server take BlockHeight, not BlockID.
+    // The auth service deals only in _committed_ blocks.  
+    void authmempool_notify_commit(BlockHeight) = 0;
 
     // Verify a transaction's auth data.
-    // The BlockID is the block ID of the parent block -- i.e. the block
-    // that produced the snapshot auth data against which 
+    // The BlockHeight is the height of the most recently committed block,
+    // i.e. the block height of the block that produced the snapshot auth data against which 
     // the transaction is to be verified.
-    AuthResult authmempool_verify_transaction(BlockID, SignedTransaction) = 1;
+    AuthResult authmempool_verify_transaction(BlockHeight, SignedTransaction) = 1;
     // Verify a list of transactions.  This version returns a result for each transaction,
     // and is equivalent to calling authmempool_verify_transaction for each transaction in the list.
-    AuthResultBatch authmempool_verify_transactions(BlockID, SignedTransactionBatch) = 2;
+    AuthResultBatch authmempool_verify_transactions(BlockHeight, SignedTransactionBatch) = 2;
 
     // Verify a batch of transactions.  This version returns a single result for the batch,
     // i.e. are all correct or is there at least one invalid transaction?
     // This version should be called when validating a nomination, in which if even one
     // transaction is invalid then the whole block can be rejected.
     // This version can use batch verification to speed up the verification.
-    AuthResult authmempool_verify_batch(BlockID, SignedTransactionBatch) = 3;
+    AuthResult authmempool_verify_batch(BlockHeight, SignedTransactionBatch) = 3;
   }
   = 1;
 }
@@ -55,7 +58,7 @@ typedef KeyChange KeyChangeBatch<>;
 program AuthDB {
   version AuthDB1 {
     // Forward updated key changes to the auth server 
-    void authdb_forward_key_changes(BlockID, KeyChangeBatch) = 1;
+    void authdb_forward_key_changes(BlockHeight, KeyChangeBatch) = 1;
   }
   = 1;
 }
@@ -64,7 +67,8 @@ program AuthDB {
 enum DBAuthError {
   kDBAuthSuccess = 0,
   kDBAuthNotFound = 1,
-  kDBAuthBadBlockID = 2,
+  kDBAuthStaleBlockHeight = 2,
+  kDBAuthInternal = 3,
 };
 
 union DBAuthResult switch (DBAuthError error) {
@@ -79,9 +83,11 @@ typedef DBAuthResult DBAuthResultBatch<>;
 program DBAuth {
   version DBAuth1 {
     // Get the auth data for a single address.
-    DBAuthResult authdb_get_auth_data(BlockID, ContractAddress) = 0;
+    // If some block concurrently commits which modifies the auth data,
+    // then this call can return kDBAuthStaleBlockHeight.
+    DBAuthResult authdb_get_auth_data(BlockHeight, ContractAddress) = 0;
     // Get the auth data for a batch of addresses.
-    DBAuthResultBatch authdb_get_auth_data_batch(BlockID, ContractAddressBatch) = 1;
+    DBAuthResultBatch authdb_get_auth_data_batch(BlockHeight, ContractAddressBatch) = 1;
 
     // Introduce an auth server to a db shard,
     // and subscribe to updates to auth data
