@@ -33,14 +33,14 @@ program AuthMempool {
     AuthResult authmempool_verify_transaction(BlockID, SignedTransaction) = 1;
     // Verify a list of transactions.  This version returns a result for each transaction,
     // and is equivalent to calling authmempool_verify_transaction for each transaction in the list.
-    AuthResultBatch authmempool_verify_transactions(BlockID, SignedTransactionList) = 2;
+    AuthResultBatch authmempool_verify_transactions(BlockID, SignedTransactionBatch) = 2;
 
     // Verify a batch of transactions.  This version returns a single result for the batch,
     // i.e. are all correct or is there at least one invalid transaction?
     // This version should be called when validating a nomination, in which if even one
     // transaction is invalid then the whole block can be rejected.
     // This version can use batch verification to speed up the verification.
-    AuthResult authmempool_verify_batch(BlockID, SignedTransactionList) = 3;
+    AuthResult authmempool_verify_batch(BlockID, SignedTransactionBatch) = 3;
   }
   = 1;
 }
