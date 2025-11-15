@@ -76,6 +76,9 @@ program SchedulerCoord
     // TODO(jhumphri): Remove this once we integrate the coordinator into the
     // loadgen experiment.
     DbSchedResult schedcoord_load_genesis_block(GenesisBlock) = 8;
+
+    // Returns transactions from the mempool that have not yet been committed in a block.
+    OptSignedTransactionBatch schedcoord_lookup_transactions(SignedTransactionHashBatch) = 100;
   }
   = 1;
 }

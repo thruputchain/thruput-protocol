@@ -72,6 +72,10 @@ struct SignedTransaction {
   DecoratedSignatureList signatures<>;
 };
 
+typedef SignedTransaction *OptSignedTransaction;
+typedef OptSignedTransaction OptSignedTransactionBatch<>;
+typedef SignedTransactionHash SignedTransactionHashBatch<>;
+
 // Nondeterministic data attached to a transaction by the proposer.
 struct NondeterministicProposalData {
   // string of nondeterministic bits generated during the course
@@ -93,6 +97,7 @@ struct ProposedTransaction {
 
 // Nominations, included in SCP messages, include only the ND data.
 // The transactions themselves are disseminated through the overlay.
+// XXX(petar): rename to TransactionProposalData
 struct NominatedTransaction {
   NondeterministicProposalData nondeterministic_proposal_data;
 };

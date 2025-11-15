@@ -6,13 +6,15 @@
 namespace hogd {
 // clang-format on
 
+// XXX(petar): BlockHash should be renamed to MerkleHash
 typedef SHA256Hash BlockHash;
 
+// XXX(petar): Nomination should be renamed to Proposal
 struct Nomination {
   ValidatorPublicInfo proposer;
   BlockHeight block_height;
-  BlockHash block_hash;
-  BlockHash prev_block_hash;
+  BlockHash block_hash; //XXX: rename to merkle_hash
+  BlockHash prev_block_hash; //XXX: rename to prev_merkle_hash
   SignedTransactionHash transaction_hashes<>;
   NominatedTransaction transaction_nominations<>;
 };

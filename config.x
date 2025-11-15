@@ -60,7 +60,14 @@ struct CatchupConfig {
 
 struct BatonConfig {
   Milliseconds heartbeat_msec;
+  Milliseconds patience_msec;
   int max_catchup_height;
+};
+
+struct StorageConfig {
+  Milliseconds reclaim_interval_msec;
+  int max_catchup_blocks;
+  int max_scp_slots;
 };
 
 struct Config {
@@ -74,6 +81,7 @@ struct Config {
   SCPConfig *scp_config;
   BatonConfig *baton_config;
   RepairConfig *repair_config;
+  StorageConfig *storage_config;
 };
 
 } // namespace hogd

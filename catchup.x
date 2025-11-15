@@ -1,6 +1,7 @@
 // clang-format off
 %#include "discovery.hh"
 %#include "nomination.hh"
+%#include "consensus.hh"
 %#include "transaction.hh"
 %#include "types.hh"
 
@@ -8,12 +9,8 @@ namespace hogd {
 // clang-format on
 
 struct CatchupBlock {
-  ValidatorPublicInfo proposer;
-  BlockHeight block_height;
-  BlockHash block_hash;
-  BlockHash prev_block_hash;
+  ConsensusValue consensus_value;
   SignedTransaction signed_transactions<>;
-  NominatedTransaction nominated_transactions<>;
 };
 
 struct CatchupSpan {

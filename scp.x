@@ -82,6 +82,8 @@ struct SCPEnvelope {
   Signature signature;
 };
 
+typedef SCPEnvelope SCPEnvelopes<>;
+
 // supports things like: A,B,C,(D,E,F),(G,H,(I,J,K,L))
 // only allows 2 levels of nesting
 struct SCPQuorumSet {
