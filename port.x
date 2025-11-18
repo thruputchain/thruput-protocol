@@ -4,6 +4,7 @@ namespace hogd {
 
 const kDbExecutorServerPort = 8080;
 const kDbMempoolServerPort = 8081;
+const kDbAuthServerPort = 8082;
 
 const kMempoolCoordinatorServerPort = 8070;
 const kMempoolExecutorServerPort = 8071;
