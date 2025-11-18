@@ -16,24 +16,13 @@ typedef AuthResult AuthResultBatch<>;
 
 program AuthMempool {
   version AuthMempool1 {
-    // Notify the mempool auth server that a block has been committed.
-    //
-    // When this is called, the auth server waits start verifying transactions for the new block
-    // until it receives a batch of key changes from each shard of the db.
-    // 
-    // If this is called concurrently with a call to authmempool_verify*,
-    // then those calls may return verification results based on the block id supplied to those calls,
-    // or may return kAuthStaleBlockHeight.
-    //
-    // Note that all of the operations on the AuthMempool server take BlockHeight, not BlockID.
-    // The auth service deals only in _committed_ blocks.  
-    void authmempool_notify_commit(BlockHeight) = 0;
 
     // Verify a transaction's auth data.
     // The BlockHeight is the height of the most recently committed block,
     // i.e. the block height of the block that produced the snapshot auth data against which 
     // the transaction is to be verified.
     AuthResult authmempool_verify_transaction(BlockHeight, SignedTransaction) = 1;
+
     // Verify a list of transactions.  This version returns a result for each transaction,
     // and is equivalent to calling authmempool_verify_transaction for each transaction in the list.
     AuthResultBatch authmempool_verify_transactions(BlockHeight, SignedTransactionBatch) = 2;
