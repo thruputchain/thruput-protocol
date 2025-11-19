@@ -6,13 +6,20 @@
 namespace hogd {
 
 
-enum AuthResult {
+enum AuthErrorCode {
   kAuthSuccess = 0,
   kAuthBatchFailed = 1,
+  // The query is for a block height that is not the most recent committed block height.
+  // This can happen if a query is made for an old block height,
+  // or if (concurrent with the query) a block commits and updates to the auth data begin to stream in.
+  // The verification can be retried in either case.
+  // TODO(geoff): We could switch this around, to retry at the higher block height.
   kAuthStaleBlockHeight = 2,
+  // Either an internal auth error or forwarded from an internal DB error
+  kAuthInternal = 3,
 };
 
-typedef AuthResult AuthResultBatch<>;
+typedef AuthErrorCode AuthErrorCodeBatch<>;
 
 program AuthMempool {
   version AuthMempool1 {
@@ -21,18 +28,18 @@ program AuthMempool {
     // The BlockHeight is the height of the most recently committed block,
     // i.e. the block height of the block that produced the snapshot auth data against which 
     // the transaction is to be verified.
-    AuthResult authmempool_verify_transaction(BlockHeight, SignedTransaction) = 1;
+    AuthErrorCode authmempool_verify_transaction(BlockHeight, SignedTransaction) = 1;
 
     // Verify a list of transactions.  This version returns a result for each transaction,
     // and is equivalent to calling authmempool_verify_transaction for each transaction in the list.
-    AuthResultBatch authmempool_verify_transactions(BlockHeight, SignedTransactionBatch) = 2;
+    AuthErrorCodeBatch authmempool_verify_transactions(BlockHeight, SignedTransactionBatch) = 2;
 
     // Verify a batch of transactions.  This version returns a single result for the batch,
     // i.e. are all correct or is there at least one invalid transaction?
     // This version should be called when validating a nomination, in which if even one
     // transaction is invalid then the whole block can be rejected.
     // This version can use batch verification to speed up the verification.
-    AuthResult authmempool_verify_batch(BlockHeight, SignedTransactionBatch) = 3;
+    AuthErrorCode authmempool_verify_batch(BlockHeight, SignedTransactionBatch) = 3;
   }
   = 1;
 }
