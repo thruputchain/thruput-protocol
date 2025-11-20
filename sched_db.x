@@ -14,6 +14,8 @@ struct ShardCard {
   ServerAddress address_for_exec;
   // This is the db address that the scheduler should connect to.
   ServerAddress address_for_sched;
+  // This is the db address that the auth server should connect to.
+  ServerAddress address_for_auth;
 };
 
 struct Delta {
