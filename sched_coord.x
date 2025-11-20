@@ -39,6 +39,11 @@ default:
   void;
 };
 
+enum SchedulerCommitOutcome {
+  SchedulerValidationOK = 0,
+  SchedulerValidationBlockNotFound = 1
+};
+
 // API exposed from the Scheduler for the Coordinator
 program SchedulerCoord
 {
@@ -67,7 +72,7 @@ program SchedulerCoord
 
     // Commit the block with block ID. This block must have been previously
     // nominated or validated by the mempool.
-    void schedulercoord_commit_block(BlockID) = 6;
+    SchedulerCommitOutcome schedulercoord_commit_block(BlockID) = 6;
 
     // Returns information about the current highest committed block.
     // If there is no committed block, returns DbSchedResultError.
