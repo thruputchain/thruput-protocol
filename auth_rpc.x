@@ -47,7 +47,7 @@ program AuthMempool {
 
 struct KeyChange {
   ContractAddress address;
-  AccountAuthData auth_data;
+  AccountAuthData *auth_data;
 };
 typedef KeyChange KeyChangeBatch<>;
 
