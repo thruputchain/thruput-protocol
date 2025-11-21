@@ -21,6 +21,14 @@ enum SchedulerNominationOutcome {
   SchedulerNominationError = 1,
 };
 
+union SchedulerNominationResult switch (SchedulerNominationOutcome outcome)
+{
+case SchedulerNominationOK:
+  BlockID block_id;
+default:
+  void;
+};
+
 enum SchedulerValidationOutcome {
   SchedulerValidationOK = 0,
   SchedulerValidationInvalid = 1,
@@ -37,6 +45,11 @@ case SchedulerValidationMissingTxs:
   SignedTransactionHash missing_tx_hashes<>;
 default:
   void;
+};
+
+enum SchedulerCommitOutcome {
+  SchedulerCommitOK = 0,
+  SchedulerCommitBlockNotFound = 1
 };
 
 // API exposed from the Scheduler for the Coordinator
@@ -58,7 +71,7 @@ program SchedulerCoord
 
     // schedulercoord_nominate asks the scheduler to prepare a nomination (a
     // block proposal) on top of the given db block.
-    SchedulerNominationOutcome schedulercoord_nominate(DbTip) = 4;
+    SchedulerNominationResult schedulercoord_nominate(DbTip) = 4;
 
     // schedulercoord_validate asks the scheduler to validate a nomination,
     // and if successful, return the block ID in the db of the validated
@@ -67,7 +80,7 @@ program SchedulerCoord
 
     // Commit the block with block ID. This block must have been previously
     // nominated or validated by the mempool.
-    void schedulercoord_commit_block(BlockID) = 6;
+    SchedulerCommitOutcome schedulercoord_commit_block(BlockID) = 6;
 
     // Returns information about the current highest committed block.
     // If there is no committed block, returns DbSchedResultError.
