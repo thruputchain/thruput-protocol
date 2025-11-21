@@ -306,13 +306,13 @@ syscalls:
   - name: "LogEvent"
     inputs:
       - name: topic0
-        typename: "SHA256Hash"
+        type_expr: "[u8; 32]"
         optional: true
       - name: topic1
-        typename: "SHA256Hash"
+        type_expr: "[u8; 32]"
         optional: true
       - name: topic2
-        typename: "SHA256Hash"
+        type_expr: "[u8; 32]"
         optional: true
       - name: "data"
         span_argument: true
