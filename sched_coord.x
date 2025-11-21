@@ -24,7 +24,7 @@ enum SchedulerNominationOutcome {
 union SchedulerNominationResult switch (SchedulerNominationOutcome outcome)
 {
 case SchedulerNominationOK:
-  SHA256Hash block_hash;
+  BlockID block_id;
 default:
   void;
 };
@@ -48,8 +48,8 @@ default:
 };
 
 enum SchedulerCommitOutcome {
-  SchedulerValidationOK = 0,
-  SchedulerValidationBlockNotFound = 1
+  SchedulerCommitOK = 0,
+  SchedulerCommitBlockNotFound = 1
 };
 
 // API exposed from the Scheduler for the Coordinator
