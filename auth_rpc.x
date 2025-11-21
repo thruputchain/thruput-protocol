@@ -87,7 +87,7 @@ program DBAuth {
 
     // Introduce an auth server to a db shard,
     // and subscribe to updates to auth data
-    void dbauth_intro(AuthCard) = 2;
+    bool dbauth_intro(AuthCard) = 2;
   }
   = 1;
 }
