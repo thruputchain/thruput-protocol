@@ -16,10 +16,11 @@ program HogLock
     void hoglock_null(void) = 0;
 
     LockLease hoglock_lock(LockObjects) = 1;
-
     void hoglock_renew(LockLease) = 2;
-
     bool hoglock_check(LockLease) = 3;
+
+    void hoglock_signal(string<>, string<>) = 4;
+    void hoglock_wait(string<>, string<>) = 5;
 
   }
   = 1;
