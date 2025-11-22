@@ -23,7 +23,7 @@ program HogLock
     bool hoglock_check(LockLease) = 3;
 
     void hoglock_signal(HogNamespaces) = 4;
-    void hoglock_wait(HogNamespace) = 5;
+    void hoglock_wait(HogNamespaces) = 5;
 
   }
   = 1;
