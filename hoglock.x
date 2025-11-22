@@ -8,6 +8,7 @@ typedef LockObject LockObjects<>;
 typedef string LockLease<>;
 
 typedef string HogNamespace<>;
+typedef HogNamespace HogNamespaces<>;
 
 // Lock service for the hog cluster
 program HogLock
@@ -21,7 +22,7 @@ program HogLock
     void hoglock_renew(LockLease) = 2;
     bool hoglock_check(LockLease) = 3;
 
-    void hoglock_signal(HogNamespace) = 4;
+    void hoglock_signal(HogNamespaces) = 4;
     void hoglock_wait(HogNamespace) = 5;
 
   }
