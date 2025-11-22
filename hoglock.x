@@ -2,10 +2,10 @@
 namespace hogd {
 // clang-format on
 
-typedef string LockObject<>;
-typedef LockObject LockObjects<>;
+typedef string HogXID<>;
 
-typedef string LockLease<>;
+typedef string HogHost<>;
+typedef HogHost HogHosts<>;
 
 typedef string HogNamespace<>;
 typedef HogNamespace HogNamespaces<>;
@@ -18,12 +18,12 @@ program HogLock
 
     void hoglock_null(void) = 0;
 
-    LockLease hoglock_lock(LockObjects) = 1;
-    void hoglock_renew(LockLease) = 2;
-    bool hoglock_check(LockLease) = 3;
+    void hoglock_lock(HogXID, HogHosts) = 1;
+    void hoglock_renew(HogXID) = 2;
+    bool hoglock_check(HogXID) = 3;
 
-    void hoglock_signal(HogNamespaces) = 4;
-    void hoglock_wait(HogNamespaces) = 5;
+    void hoglock_signal(HogXID, HogNamespaces) = 4;
+    void hoglock_wait(HogXID, HogNamespaces) = 5;
 
   }
   = 1;
