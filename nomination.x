@@ -6,9 +6,6 @@
 namespace hogd {
 // clang-format on
 
-// XXX(petar): BlockHash should be renamed to MerkleHash
-typedef SHA256Hash BlockHash;
-
 // XXX(petar): Nomination should be renamed to Proposal
 struct Nomination {
   ValidatorPublicInfo proposer;

@@ -116,6 +116,18 @@ typedef hyper BlockHeight;
 typedef unsigned int Weight; // uint32_t
 typedef unsigned hyper BitMap;
 
+// XXX(petar): BlockHash should be renamed to MerkleHash
+typedef SHA256Hash BlockHash;
+
+// An internal unique ID describing a block.
+typedef unsigned hyper BlockID;
+
+struct DbTip {
+  BlockHeight height;
+  BlockHash hash;
+  BlockID id;
+};
+
 // ServerAddress is an IP (or hostname) and port address, separated by a
 // colon.
 typedef string ServerAddress<>;
