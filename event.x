@@ -11,6 +11,8 @@ namespace hogd {
 const kMaxEventLength = 1024;
 const kMaxTopics = 3;
 
+typedef opaque Topic[32]; // #[rust(newtype)]
+
 struct TxEmittedEvent {
   ContractAddress contract_address;
   unsigned int num_topics; // <= kMaxTopics
