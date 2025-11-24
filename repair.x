@@ -41,7 +41,7 @@ program Repair
     RepairedTransactions repair_missing_txs(MissingTransactionsEnvelope) =
     10;
 
-    OptConsensusValue repair_missing_cv(ConsensusValueHash) = 20;
+    OptConsensusValue repair_missing_cv(ConsensusValueHash, BlockHeight) = 20;
 
     SCPEnvelopes repair_missing_scp_envelopes(SCPSlotIndex) = 30;
   }
