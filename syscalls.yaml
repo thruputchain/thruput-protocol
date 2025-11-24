@@ -306,13 +306,13 @@ syscalls:
   - name: "LogEvent"
     inputs:
       - name: topic0
-        type_expr: "[u8; 32]"
+        typename: "[u8; 32]"
         optional: true
       - name: topic1
-        type_expr: "[u8; 32]"
+        typename: "[u8; 32]"
         optional: true
       - name: topic2
-        type_expr: "[u8; 32]"
+        typename: "[u8; 32]"
         optional: true
       - name: "data"
         span_argument: true
