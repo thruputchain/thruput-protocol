@@ -59,7 +59,6 @@ struct CatchupConfig {
 };
 
 struct BatonConfig {
-  Milliseconds max_skew_msec;
   Milliseconds heartbeat_msec;
   Milliseconds patience_msec;
   int max_catchup_height;
