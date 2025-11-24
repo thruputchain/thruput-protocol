@@ -24,6 +24,7 @@ struct ConsensusValueCue {
   ValidatorPublicInfo proposer;
   ConsensusValueHash cv_hash;
   ConsensusValueHash prev_cv_hash;
+  BlockHeight block_height;
   BlockHash block_hash;
   BlockHash prev_block_hash;
 };
