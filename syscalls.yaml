@@ -30,6 +30,9 @@ type_mappings:
   - base_name: "generated::AuthClaim"
     rust_name: "AuthClaim"
     rust_uses_as_ptr: false
+  - base_name: "Topic"
+    rust_name: "[u8; 32]"
+    rust_uses_as_ptr: false
 syscalls:
   - name: "SHA256"
     read_only: true
@@ -306,13 +309,13 @@ syscalls:
   - name: "LogEvent"
     inputs:
       - name: topic0
-        typename: "[u8; 32]"
+        typename: "Topic"
         optional: true
       - name: topic1
-        typename: "[u8; 32]"
+        typename: "Topic"
         optional: true
       - name: topic2
-        typename: "[u8; 32]"
+        typename: "Topic"
         optional: true
       - name: "data"
         span_argument: true
