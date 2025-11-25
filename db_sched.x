@@ -52,20 +52,6 @@ default:
   void;
 };
 
-struct DbTip {
-  BlockHeight height;
-  BlockHash hash;
-  BlockID id;
-};
-
-union DbTipResult switch (DbSchedResult result)
-{
-case DbSchedResultOK:
-  DbTip db_tip;
-default:
-  void;
-};
-
 enum DbShardResult {
   ShardOK = 0
 };
@@ -81,10 +67,6 @@ program DbSched
 
     HogAgeResult dbsched_get_hog_ages(ContractAddressBatch) = 2;
     DbSchedResult dbsched_write_hog_ages(HogAgeBatch) = 3;
-
-    // Returns information about the current highest committed block.
-    // If there is no committed block, returns DbSchedResultError.
-    DbTipResult dbsched_get_tip(void) = 4;
 
     // Examples of valid call sequences to the db:
     //

@@ -10,8 +10,6 @@ namespace hogd
 {
 // clang-format on
 
-// An internal unique ID describing a block.
-typedef unsigned hyper BlockID;
 // Internal unique ID describing a transaction.
 // Can be reused across blocks but cannot be reused within one block.
 typedef unsigned hyper TransactionID;

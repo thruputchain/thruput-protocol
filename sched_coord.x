@@ -84,7 +84,7 @@ program SchedulerCoord
 
     // Returns information about the current highest committed block.
     // If there is no committed block, returns DbSchedResultError.
-    DbTipResult schedcoord_get_tip(void) = 7;
+    DbTip schedcoord_get_tip(void) = 7;
 
     // TODO(jhumphri): Remove this once we integrate the coordinator into the
     // loadgen experiment.
