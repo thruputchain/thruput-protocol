@@ -49,7 +49,8 @@ default:
 
 enum SchedulerCommitOutcome {
   SchedulerCommitOK = 0,
-  SchedulerCommitBlockNotFound = 1
+  SchedulerCommitBlockNotFound = 1,
+  SchedulerCommitRace = 2
 };
 
 // API exposed from the Scheduler for the Coordinator
