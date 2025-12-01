@@ -12,7 +12,7 @@ typedef HogNamespace HogNamespaces<>;
 
 struct HogAsk {
   HogHosts fixed;
-  HogHosts variable;
+  hyper variable;
 };
 
 // Lock service for the hog cluster
