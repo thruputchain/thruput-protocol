@@ -10,6 +10,11 @@ typedef HogHost HogHosts<>;
 typedef string HogNamespace<>;
 typedef HogNamespace HogNamespaces<>;
 
+struct HogAsk {
+  HogHosts fixed;
+  HogHosts variable;
+};
+
 // Lock service for the hog cluster
 program HogLock
 {
@@ -18,7 +23,7 @@ program HogLock
 
     void hoglock_null(void) = 0;
 
-    void hoglock_lock(HogXID, HogHosts) = 1;
+    HogHosts hoglock_lock(HogXID, HogAsk) = 1;
     void hoglock_renew(HogXID) = 2;
     bool hoglock_check(HogXID) = 3;
 
