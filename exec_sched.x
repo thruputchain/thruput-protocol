@@ -72,7 +72,7 @@ program ExecutorSched
     // and stops the executor from accepting new transactions.
     ExecResult executorsched_open_proposal_block(BlockID) = 30;
     ExecResult executorsched_open_validation_block(BlockID) = 40;
-    void executorsched_finish_block(BlockID) = 50;
+    ExecResult executorsched_finish_block(BlockID) = 50;
 
     // Scheduler should call this to shutdown the executor.
     // Shutdown will not occur until all pending transactions complete.

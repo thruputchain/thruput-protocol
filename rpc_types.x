@@ -24,8 +24,6 @@ enum RPCError {
   // Lookup on an item in the database that does not exist.
   // Used by any database lookup RPC, not just for one type.
   kRPCNotFound = 1,
-  // Executor in bad state to validate or propose.
-  kRPCBadExecutorState = 2,
   // BlockID does not exist, or is not in correct state
   kRPCBadBlockID = 3,
   // bad storage modification
