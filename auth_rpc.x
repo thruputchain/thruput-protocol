@@ -23,15 +23,11 @@ typedef AuthErrorCode AuthErrorCodeBatch<>;
 
 program AuthMempool {
   version AuthMempool1 {
-
-    // Verify a transaction's auth data.
+    
+    // Verify a list of transactions.  This version returns a result for each transaction.
     // The BlockHeight is the height of the most recently committed block,
     // i.e. the block height of the block that produced the snapshot auth data against which 
-    // the transaction is to be verified.
-    AuthErrorCode authmempool_verify_transaction(BlockHeight, SignedTransaction) = 1;
-
-    // Verify a list of transactions.  This version returns a result for each transaction,
-    // and is equivalent to calling authmempool_verify_transaction for each transaction in the list.
+    // the transactions are to be verified.
     AuthErrorCodeBatch authmempool_verify_transactions(BlockHeight, SignedTransactionBatch) = 2;
 
     // Verify a batch of transactions.  This version returns a single result for the batch,
