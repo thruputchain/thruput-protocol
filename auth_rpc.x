@@ -8,7 +8,7 @@ namespace hogd {
 
 enum AuthErrorCode {
   kAuthSuccess = 0,
-  kAuthBatchFailed = 1,
+  kAuthFailed = 1,
   // The query is for a block height that is not the most recent committed block height.
   // This can happen if a query is made for an old block height,
   // or if (concurrent with the query) a block commits and updates to the auth data begin to stream in.
@@ -23,7 +23,7 @@ typedef AuthErrorCode AuthErrorCodeBatch<>;
 
 program AuthMempool {
   version AuthMempool1 {
-    
+
     // Verify a list of transactions.  This version returns a result for each transaction.
     // The BlockHeight is the height of the most recently committed block,
     // i.e. the block height of the block that produced the snapshot auth data against which 
