@@ -5,6 +5,7 @@
 %#include "transaction.hh"
 %#include "storage_item.hh"
 %#include "storage_delta_flags.hh"
+%#include "account.hh"
 
 namespace hogd
 {
@@ -64,7 +65,7 @@ default:
 union ExpectedDeployment switch (RPCError error)
 {
 case kRPCNone:
-  SHA256Hash deployed_hash;
+  DeployedContractHash deployed_hash;
 default:
   void;
 };
