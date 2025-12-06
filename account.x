@@ -1,4 +1,5 @@
 % #include "types.hh"
+% #include "contract.hh"
 
 namespace hogd
 {
@@ -45,6 +46,11 @@ struct DeployedContractHash {
   // update) storage costs without (re)loading the entire contract from
   // storage
   unsigned int contract_size;
+  // This field is used as an annotation hint in the executor, to determine which 
+  // type of runtime to instantiate.
+  // Again, is redundant with the stored contract, but allows us to avoid loading the
+  // whole contract from storage.
+  ContractType contract_type;
 };
 
 struct AddressMetadata {
