@@ -20,7 +20,7 @@ struct InitialConfigurationEntry {
 
 typedef InitialConfigurationEntry InitialConfigurationList<>;
 
-struct GenesisBlock {
+struct GenesisConfiguration {
   InitialConfigurationList initial_config;
   StorageCostModelXdr storage_cost_model;
 };

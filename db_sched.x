@@ -108,10 +108,10 @@ program DbSched
     // Call to abandon a block.
     DbSchedResult dbsched_abandon_snapshot(BlockID) = 8;
 
-    // Load genesis block data into storage
+    // Load genesis configuration data into storage
     // This calculates storage keys and stores allocation amounts as
     // bytestrings
-    DbSchedResult dbsched_load_genesis_block(GenesisBlock) = 9;
+    DbSchedResult dbsched_load_genesis_configuration(GenesisConfiguration) = 9;
   }
   = 1;
 }
