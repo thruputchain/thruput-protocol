@@ -103,4 +103,25 @@ enum HostFnErrorCode {
   kHostAbortTransaction = 6
 };
 
+// General-purpose system error codes returned from within various executor operations.
+// These can be mapped into either InvokeErrorCode or HostFnErrorCode, depending on the context in which the
+// error occurs.
+enum SystemErrorCode {
+  // Unrecoverable error (e.g. out of memory, or critical logic error).
+  // Only recourse is to abort entire transaction and possibly crash binary.
+  // Signals serious error, which we should investigate.
+  // This converts to InvokeErrorCode::kInvokeUnrecoverable or HostFnErrorCode::kHostUnrecoverable.
+  kSystemUnrecoverable = 1,
+  // Nondeterministic error that occurs during normal course of operation.
+  // E.g. a transaction is being executed concurrently with the whole block
+  // getting cancelled.
+  // Only recourse is to abort the entire transaction.
+  // This converts to InvokeErrorCode::kInvokeAbortTransaction or HostFnErrorCode::kHostAbortTransaction.
+  kSystemAbortTransaction = 2,
+  // Failure during validation of a transaction.  Signals that the whole
+  // block must be aborted.
+  // This converts to InvokeErrorCode::kInvokeValidationFailure or HostFnErrorCode::kHostValidationFailure.
+  kSystemValidationFailure = 3,
+};
+
 } // namespace hogd
