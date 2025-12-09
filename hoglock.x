@@ -15,6 +15,12 @@ struct HogAsk {
   hyper variable;
 };
 
+struct HogHeld {
+  HogXID id;
+  HogHosts hosts;
+};
+typedef HogHeld HogHelds<>;
+
 // Lock service for the hog cluster
 program HogLock
 {
@@ -29,6 +35,8 @@ program HogLock
 
     void hoglock_signal(HogXID, HogNamespaces) = 4;
     void hoglock_wait(HogXID, HogNamespaces) = 5;
+
+    HogHelds hoglock_list(void) = 6;
 
   }
   = 1;
