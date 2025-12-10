@@ -22,9 +22,25 @@ const kBytestringMaxLen = 1024;
 
 typedef opaque Bytestring<>;
 
-// TODO(stutsman) use name ReplayCache instead and update storage_item instead?
+// Information about the number of nonces stored at each height of a
+// ReplayCache. Tracked in the ReplayCacheMetadata so nonce GC can
+// determine the change cost after some heights are deleted without
+// having to load the nonces at that height.
+struct ReplayCacheHeightCount {
+  BlockHeight height;
+  unsigned int nonce_count;
+};
+
+struct ReplayCacheMetadata {
+  // Total count of all nonces in this ReplayCache across all heights.
+  hyper size;
+  // Sorted list of heights with active nonces and count at each.
+  ReplayCacheHeightCount heights<>;
+};
+
 struct ReplayCacheData {
-  Uniquifier uniquifiers<>;
+  // Sorted list of nonces for a particular height of a ReplayCache.
+  hyper nonces<>;
 };
 
 // This represents the contents of storage item that are sent over the wire
