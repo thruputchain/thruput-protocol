@@ -19,7 +19,7 @@ struct HogHeld {
   HogHost host;
   HogXID xid;
   hyper demand;
-  hyper acquired;
+  hyper *acquired;
 };
 typedef HogHeld HogHelds<>;
 
