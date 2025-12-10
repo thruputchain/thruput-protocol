@@ -16,8 +16,10 @@ struct HogAsk {
 };
 
 struct HogHeld {
-  HogXID id;
-  HogHosts hosts;
+  HogHost host;
+  HogXID xid;
+  hyper demand;
+  hyper age_msec;
 };
 typedef HogHeld HogHelds<>;
 
