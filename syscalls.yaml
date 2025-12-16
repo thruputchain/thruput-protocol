@@ -337,3 +337,16 @@ syscalls:
       - name: "auth_claim"
         typename: "generated::AuthClaim"
     number: 26
+  - name: "SHA256Update"
+    number: 27
+    inputs:
+      - name: "buffer"
+        span_argument: true
+      - name: "reset"
+        typename: "bool"
+        primitive_type: true
+  - name: "SHA256Finalize"
+    number: 28
+    outputs:
+      - name: "output"
+        span_argument: true
