@@ -340,6 +340,8 @@ syscalls:
   - name: "SHA256Update"
     number: 27
     inputs:
+      - name: "index"
+        typename: "uint32_t"
       - name: "buffer"
         span_argument: true
       - name: "reset"
@@ -347,6 +349,9 @@ syscalls:
         primitive_type: true
   - name: "SHA256Finalize"
     number: 28
+    inputs:
+      - name: "index"
+        typename: "uint32_t"
     outputs:
       - name: "output"
         span_argument: true

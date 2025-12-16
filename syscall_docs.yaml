@@ -6,21 +6,18 @@ general_info: >
 syscall_descriptions:
   - name: "SHA256Update"
     descr: >
-      Append the data in `buffer` to the digest input.  If `reset` is true,
-      first reset the digest state to its initial condition.
+      Append the data in `buffer` to the input for the digest state at the
+      given index.  If `reset` is true, first reset the digest state to its
+      initial condition.
 
-      Calling this function with `reset = true` and buffer `B` yields the same
-      system state as calling it once with `reset = true` and an empty buffer,
-      and then again with `reset = false` and buffer `B`.
-
-      Calling `SHA256` (the one-shot interface) leaves the incremental digest
-      state in an undefined condition; `SHA256Update` with `reset = true` must
-      be called before further calls to `SHA256Update` with `reset = false` or
-      to `SHA256Finalize`, or else undefined behavior will occur.
+      For a given index, calling this function with `reset = true` and buffer
+      `B` yields the same system state as calling it once with `reset = true`
+      and an empty buffer, and then again with `reset = false` and buffer `B`.
 
   - name: "SHA256Finalize"
     descr: >
-      Output the final SHA256 digest.
+      Output the final SHA256 digest for the given index.
 
-      After this function returns, calling `SHA256Finalize` again or
-      `SHA256Update` with `reset = false` yields undefined behavior.
+      After calling this function for a particular index, calling
+      `SHA256Finalize` again or `SHA256Update` with `reset = false` yields
+      undefined behavior.
