@@ -354,4 +354,4 @@ syscalls:
         typename: "uint32_t"
     outputs:
       - name: "output"
-        span_argument: true
+        typename: "SHA256Hash"
