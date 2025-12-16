@@ -1,0 +1,23 @@
+---
+general_info: >
+  In the system call descriptions, "undefined behavior" means anything can
+  happen, including an abort of the contract invocation.
+
+syscall_descriptions:
+  - name: "SHA256Update"
+    descr: >
+      Append the data in `buffer` to the input for the digest state at the
+      given index.  If `reset` is true, first reset the digest state to its
+      initial condition.
+
+      For a given index, calling this function with `reset = true` and buffer
+      `B` yields the same system state as calling it once with `reset = true`
+      and an empty buffer, and then again with `reset = false` and buffer `B`.
+
+  - name: "SHA256Finalize"
+    descr: >
+      Output the final SHA256 digest for the given index.
+
+      After calling this function for a particular index, calling
+      `SHA256Finalize` again or `SHA256Update` with `reset = false` yields
+      undefined behavior.
