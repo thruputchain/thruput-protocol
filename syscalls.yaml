@@ -342,6 +342,7 @@ syscalls:
     inputs:
       - name: "index"
         typename: "uint32_t"
+        primitive_type: true
       - name: "buffer"
         span_argument: true
       - name: "reset"
@@ -352,6 +353,7 @@ syscalls:
     inputs:
       - name: "index"
         typename: "uint32_t"
+        primitive_type: true
     outputs:
       - name: "output"
         typename: "SHA256Hash"
