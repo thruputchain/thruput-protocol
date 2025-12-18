@@ -55,13 +55,15 @@ program HogLock
     void hoglock_null(void) = 0;
 
     HogLockResult hoglock_lock(HogXID, HogAsk) = 1;
-    void hoglock_renew(HogXID) = 2;
-    bool hoglock_check(HogXID) = 3;
+    HogResult hoglock_unlock(HogXID, HogHost) = 2;
 
-    HogResult hoglock_signal(HogXID, HogNamespaces) = 4;
-    HogResult hoglock_wait(HogXID, HogNamespaces) = 5;
+    void hoglock_renew(HogXID) = 3;
+    bool hoglock_check(HogXID) = 4;
 
-    HogHelds hoglock_list(void) = 6;
+    HogResult hoglock_signal(HogXID, HogNamespaces) = 5;
+    HogResult hoglock_wait(HogXID, HogNamespaces) = 6;
+
+    HogHelds hoglock_list(void) = 7;
 
   }
   = 1;
