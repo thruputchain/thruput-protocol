@@ -24,6 +24,17 @@ struct GasPermissionConfig {
   Weight required_weight;
 };
 
+// If an address is initialized as a new address (via the hash of a public key).,
+// we will interpret the missing auth data following these sensible defaults.
+// we additionally interpret that initial key as key 0 with weight 1.
+// TODO(geoff) and TODO(dobog): The initialization workflow (when upgrading an address from just a pk to a full contract)
+// should explicitly set the auth data with these defaults (maybe optionally something else),
+// so that the default is NOT to accidentally lock the address.
+
+const kDefaultNewAddressRequiredWeight = 1;
+const kDefaultNewAddressAcceptedKeys = 0xFFFFFFFF;
+const kDefaultNewAddressKeyID = 0;
+
 struct NonceConfig {
   BitMap accepted_keys;
   Weight required_weight;
