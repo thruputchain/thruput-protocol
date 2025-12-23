@@ -13,10 +13,10 @@ struct PublicKeyConfig {
 // the bitmap.
 // This constant is intended to match the MAX_SIGNERS constant in the Stellar protocol,
 // which is 20.  We add 1 to account for the primary key on a Stellar account.
-const MAX_SIGNERS = 21;
+const MAX_SIGNERS = 21; // #[rust(const=u32)]
 // Could be 1; Slightly useful to have multiple for sponsored gas,
 // i.e. separating sponsor ops vs contract owner management
-const MAX_GAS_CONFIGS = 5;
+const MAX_GAS_CONFIGS = 5; // #[rust(const=u32)]
 
 struct GasPermissionConfig {
   GasAmount limit;
@@ -40,7 +40,7 @@ struct NonceConfig {
   Weight required_weight;
 };
 
-typedef PublicKeyConfig *PublicKeyConfigOpt;
+typedef PublicKeyConfig *PublicKeyConfigOpt;  // #[rust(newtype)]
 
 struct AccountAuthData {
   PublicKeyConfigOpt public_keys[MAX_SIGNERS];
