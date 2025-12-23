@@ -77,8 +77,14 @@ struct AuthDataChangeSigner {
   PublicKeyConfigOpt public_key;
 };
 
+struct GasConfigChange {
+  GasPermissionConfig new_gas_permission_configs<kMaxGasConfigs>;
+};
+
 struct AuthDataChangeArgs {
   AuthDataChangeSigner auth_data_change_signers<>;
+  NonceConfig* new_nonce_config;
+  GasConfigChange* new_gas_config_change;
 };
 
 struct NonnegativeInt128SetAddArgs {
