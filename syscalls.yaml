@@ -31,6 +31,12 @@ type_mappings:
   - base_name: "generated::AuthClaim"
     rust_name: "AuthClaim"
     rust_uses_as_ptr: false
+  - base_name: "generated::NonceConfig"
+    rust_name: "NonceConfig"
+    rust_uses_as_ptr: false
+  - base_name: "generated::GasPermissionConfig"
+    rust_name: "GasPermissionConfig"
+    rust_uses_as_ptr: false
   - base_name: "Topic"
     rust_name: "[u8; 32]"
     rust_uses_as_ptr: false
@@ -358,3 +364,28 @@ syscalls:
     outputs:
       - name: "output"
         typename: "SHA256Hash"
+  - name: "WriteAddressNonceConfig"
+    inputs:
+      - name: "nonce_config"
+        typename: "NonceConfig"
+    outputs:
+    number: 29
+  - name: "WriteAddressGasPermissionConfigs"
+    inputs:
+      - name: "permission_0"
+        typename: "GasPermissionConfig"
+        optional: true
+      - name: "permission_1"
+        typename: "GasPermissionConfig"
+        optional: true
+      - name: "permission_2"
+        typename: "GasPermissionConfig"
+        optional: true
+      - name: "permission_3"
+        typename: "GasPermissionConfig"
+        optional: true
+      - name: "permission_4"
+        typename: "GasPermissionConfig"
+        optional: true
+    outputs:
+    number: 30
