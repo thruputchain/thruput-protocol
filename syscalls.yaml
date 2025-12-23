@@ -27,6 +27,7 @@ type_mappings:
   - base_name: "bool"
     rust_name: "bool"
     rust_uses_as_ptr: false
+    primitive_type: true
   - base_name: "generated::AuthClaim"
     rust_name: "AuthClaim"
     rust_uses_as_ptr: false
