@@ -8,45 +8,45 @@ enum HogxOutcome {
 };
 
 union HogxHostConfigureResult switch (HogxOutcome outcome) {
-  case HOGX_OK:
-    void;
-  case HOGX_ERROR:
-    string error<>;
+case HOGX_OK:
+  void;
+case HOGX_ERROR:
+  string error<>;
 };
 
 union HogxHostQueryResult switch (HogxOutcome outcome) {
-  case HOGX_OK:
-    HostState host_state;
-  case HOGX_ERROR:
-    string error<>;
+case HOGX_OK:
+  HostState host_state;
+case HOGX_ERROR:
+  string error<>;
 };
 
 union HogxServiceStartResult switch (HogxOutcome outcome) {
-  case HOGX_OK:
-    ServiceState service_state;
-  case HOGX_ERROR:
-    string error<>;
+case HOGX_OK:
+  ServiceState service_state;
+case HOGX_ERROR:
+  string error<>;
 };
 
 union HogxServiceStopResult switch (HogxOutcome outcome) {
-  case HOGX_OK:
-    ServiceState service_state;
-  case HOGX_ERROR:
-    string error<>;
+case HOGX_OK:
+  ServiceState service_state;
+case HOGX_ERROR:
+  string error<>;
 };
 
 union HogxServiceQueryResult switch (HogxOutcome outcome) {
-  case HOGX_OK:
-    ServiceState service_state;
-  case HOGX_ERROR:
-    string error<>;
+case HOGX_OK:
+  ServiceState service_state;
+case HOGX_ERROR:
+  string error<>;
 };
 
 union HogxServiceListResult switch (HogxOutcome outcome) {
-  case HOGX_OK:
-    ServiceState service_state<>;
-  case HOGX_ERROR:
-    string error<>;
+case HOGX_OK:
+  ServiceState service_state<>;
+case HOGX_ERROR:
+  string error<>;
 };
 
 program HogxAgent
