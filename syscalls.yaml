@@ -389,4 +389,3 @@ syscalls:
         optional: true
     outputs:
     number: 30
-
