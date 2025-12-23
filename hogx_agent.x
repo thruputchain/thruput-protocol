@@ -21,30 +21,30 @@ case HOGX_ERROR:
   string error<>;
 };
 
-union HogxServiceStartResult switch (HogxOutcome outcome) {
+union HogxUnitStartResult switch (HogxOutcome outcome) {
 case HOGX_OK:
-  ServiceState service_state;
+  UnitState unit_state;
 case HOGX_ERROR:
   string error<>;
 };
 
-union HogxServiceStopResult switch (HogxOutcome outcome) {
+union HogxUnitStopResult switch (HogxOutcome outcome) {
 case HOGX_OK:
-  ServiceState service_state;
+  UnitState unit_state;
 case HOGX_ERROR:
   string error<>;
 };
 
-union HogxServiceQueryResult switch (HogxOutcome outcome) {
+union HogxUnitQueryResult switch (HogxOutcome outcome) {
 case HOGX_OK:
-  ServiceState service_state;
+  UnitState unit_state;
 case HOGX_ERROR:
   string error<>;
 };
 
-union HogxServiceListResult switch (HogxOutcome outcome) {
+union HogxUnitListResult switch (HogxOutcome outcome) {
 case HOGX_OK:
-  ServiceState service_state<>;
+  UnitState unit_state<>;
 case HOGX_ERROR:
   string error<>;
 };
@@ -59,10 +59,10 @@ program HogxAgent
     HogxHostConfigureResult hogxagent_host_configure(HostConfig) = 100;
     HogxHostQueryResult hogxagent_host_query(void) = 110;
 
-    HogxServiceStartResult hogxagent_service_start(ServiceDef) = 200;
-    HogxServiceStopResult hogxagent_service_stop(ServiceID) = 210;
-    HogxServiceQueryResult hogxagent_service_query(ServiceID) = 220;
-    HogxServiceListResult hogxagent_service_list(void) = 230;
+    HogxUnitStartResult hogxagent_unit_start(UnitDef) = 200;
+    HogxUnitStopResult hogxagent_unit_stop(UnitID) = 210;
+    HogxUnitQueryResult hogxagent_unit_query(UnitID) = 220;
+    HogxUnitListResult hogxagent_unit_list(void) = 230;
 
   }
   = 1;
