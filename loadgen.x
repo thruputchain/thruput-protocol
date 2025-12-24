@@ -8,7 +8,8 @@ namespace hogd {
 // clang-format on
 
 enum ExperimentType {
-  kExperimentTypeERC20Payments = 0
+  kExperimentTypeERC20Payments = 0,
+  kExperimentTypeERC20BasicAuthPayments = 1,
 };
 
 struct ERC20PaymentsConfig {
@@ -18,6 +19,7 @@ struct ERC20PaymentsConfig {
 union ExperimentConfig switch (ExperimentType experiment_type)
 {
 case kExperimentTypeERC20Payments:
+case kExperimentTypeERC20BasicAuthPayments:
   ERC20PaymentsConfig erc20_payments;
 };
 
