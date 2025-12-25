@@ -16,6 +16,11 @@ struct Nomination {
   NominatedTransaction transaction_nominations<>;
 };
 
+struct NominationTxsOnly {
+  SignedTransactionHash transaction_hashes<>;
+  NominatedTransaction transaction_nominations<>;
+};
+
 struct PrevNominationSummary {
   BlockHash block_hash;
 };
