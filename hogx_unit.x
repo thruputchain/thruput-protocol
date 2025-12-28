@@ -14,7 +14,7 @@ struct UnitBuild {
 
 struct UnitAgreement {
   StringMap meta<>;  // can use env variables
-  AddressMap endpoint<>;  // can use env variables; e.g. {"public-metrics": 178.10.0.3:2222}
+  SocketAddressMap endpoint<>;  // can use env variables; e.g. {"public-metrics": 178.10.0.3:2222}
 };
 
 struct Command {

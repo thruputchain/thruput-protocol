@@ -18,9 +18,9 @@ struct PortMap {
   int port;
 };
 
-struct AddressMap {
+struct SocketAddressMap {
   string key<>;
-  int address;
+  string address<>; // ip4 or ip6 + port
 };
 
 } // namespace hogx
