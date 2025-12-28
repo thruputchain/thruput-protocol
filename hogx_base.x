@@ -8,19 +8,16 @@ typedef string Path<>;
 typedef string Tag<>;
 typedef string Flag<>;
 
-struct StringMap {
+struct KeyString {
   string key<>;
   string value<>;
 };
+typedef KeyString StringMap<>;
 
-struct PortMap {
-  string key<>;
-  int port;
-};
-
-struct SocketAddressMap {
+struct KeySocketAddress {
   string key<>;
   string address<>; // ip4 or ip6 + port
 };
+typedef KeySocketAddress SocketAddressMap;
 
 } // namespace hogx

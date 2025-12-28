@@ -13,14 +13,14 @@ struct UnitBuild {
 };
 
 struct UnitAgreement {
-  StringMap meta<>;  // can use env variables
-  SocketAddressMap endpoint<>;  // can use env variables; e.g. {"public-metrics": 178.10.0.3:2222}
+  StringMap meta;  // can use env variables
+  SocketAddressMap endpoint;  // can use env variables; e.g. {"public-metrics": 178.10.0.3:2222}
 };
 
 struct Command {
   Path binary;  // can use env variables
   Flag flag<>;  // can use env variables
-  StringMap env<>; // can use env variables
+  StringMap env; // can use env variables
 };
 
 struct UnitDef {
