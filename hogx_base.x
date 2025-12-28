@@ -18,6 +18,6 @@ struct KeySocketAddress {
   string key<>;
   string address<>; // ip4 or ip6 + port
 };
-typedef KeySocketAddress SocketAddressMap;
+typedef KeySocketAddress SocketAddressMap<>;
 
 } // namespace hogx
