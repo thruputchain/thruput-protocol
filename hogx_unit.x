@@ -17,7 +17,7 @@ struct UnitAgreement {
   SocketAddressMap endpoint;  // can use env variables; e.g. {"public-metrics": 178.10.0.3:2222}
 };
 
-struct Command {
+struct UnitCommand {
   Path binary;  // can use env variables
   Flag flag<>;  // can use env variables
   StringMap env; // can use env variables
@@ -27,21 +27,24 @@ struct UnitDef {
   UnitID id;
   UnitBuild build;
   UnitAgreement agreement;
-  Command cmd;
+  UnitCommand command;
 };
 
-struct ProcessState {
-  hyper pid;
-  hyper age;
+struct UnitConfig {
+  Path binary_file;
+  Path app_dir;
+  Path stdout_file;
+  Path stderr_file;
+  Path tmp_dir;
+  Flag flag<>;
+  StringMap env;
 };
 
 struct UnitState {
-  UnitDef unit_def;
+  UnitDef def;
+  UnitConfig config;
   Timestamp started;
-  Timestamp *stopped;
-  ProcessState process_state<>;  // unit and its child processes
-  Path stdout;
-  Path stderr;
+  unsigned int *pid;
 };
 
 } // namespace hogx
