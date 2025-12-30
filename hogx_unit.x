@@ -2,47 +2,64 @@
 namespace hogx {
 // clang-format on
 
+// input
+
 struct UnitID {
-  string system_id<>;  // sets HOGX_SYSTEM_ID; identifies a set of unit instances comprising a system deployment
+  string system_id<>;  // sets HOGX_UNIT_SYSTEM_ID; identifies a set of unit instances comprising a system deployment
   string unit_type<>;  // sets HOGX_UNIT_TYPE; e.g. `coordinator`, `mempool`, `exec`, `db`, `event`
   string unit_shard<>;  // sets HOGX_UNIT_SHARD
 };
 
 struct UnitBuild {
-  string pkg<>;  // sets HOGX_PKG
+  string pkg<>;  // sets HOGX_UNIT_PKG
 };
 
 struct UnitAgreement {
-  StringMap meta;  // can use env variables
-  SocketAddressMap endpoint;  // can use env variables; e.g. {"public-metrics": 178.10.0.3:2222}
+  StringMap meta;  // can use link variables
+  SocketAddressMap endpoint;  // can use link variables
 };
 
 struct UnitCommand {
-  Path binary;  // can use env variables
-  Flag flag<>;  // can use env variables
-  StringMap env; // can use env variables
+  Path binary;  // can use link variables
+  Flag flag<>;  // can use link variables
+  StringMap env;  // can use link variables
 };
 
 struct UnitDef {
   UnitID id;
   UnitBuild build;
-  UnitAgreement agreement;
-  UnitCommand command;
+  UnitAgreement agreement;  // can use link variables
+  UnitCommand command;  // can use link variables
 };
 
-struct UnitConfig {
+// output: linked definitions
+
+struct UnitAgreementLinked {
+  StringMap meta;
+  SocketAddressMap endpoint;
+};
+
+struct UnitCommandLinked {
   Path binary_file;
-  Path app_dir;
-  Path stdout_file;
-  Path stderr_file;
-  Path tmp_dir;
+  Path app_dir;  // holds persistent application data; does not depend on system_id
+  Path var_dir;  // holds log files and core dumps; mounted as /var; depends on system_id
+  Path tmp_dir;  // mounted as /tmp; depends on system_id
+  Path stdout_file;  // resides in var_dir
+  Path stderr_file;  // resides in var_dir
   Flag flag<>;
   StringMap env;
 };
 
+struct UnitDefLinked {
+  UnitID id;
+  UnitBuild build;
+  UnitAgreementLinked agreement;
+  UnitCommandLinked command;
+};
+
 struct UnitState {
   UnitDef def;
-  UnitConfig config;
+  UnitDefLinked def_linked;
   Timestamp started;
   unsigned int *pid;
 };
