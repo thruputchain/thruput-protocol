@@ -16,7 +16,7 @@ struct UnitBuild {
 
 struct UnitAgreement {
   StringMap meta;  // can use link variables
-  SocketAddressMap endpoint;  // can use link variables
+  StringMap endpoint;  // can use link variables
 };
 
 struct UnitCommand {
