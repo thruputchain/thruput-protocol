@@ -7,19 +7,19 @@ namespace hogd {
 
 // XXX: speed of decoding index?
 
-struct ParallelSignedTransactions {
-	int index<>;
-	opaque xdr<>;
+struct ParallelSignedTransactionBatch {
+  int index<>;
+  opaque xdr<>;
 };
 
-struct ParallelSignedTransactionHashes {
-	int index<>;
-	opaque xdr<>;
+struct ParallelSignedTransactionHashBatch {
+  int index<>;
+  opaque xdr<>;
 };
 
-struct ParallelNondeterministicProposalDatas {
-	int index<>;
-	opaque xdr<>;
+struct ParallelNondeterministicProposalDataBatch {
+  int index<>;
+  opaque xdr<>;
 };
 
 } // namespace hogd
