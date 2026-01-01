@@ -5,20 +5,18 @@
 namespace hogd {
 // clang-format on
 
-// XXX: speed of decoding index?
-
 struct ParallelSignedTransactionBatch {
-  int index<>;
+  opaque index<>;
   opaque xdr<>;
 };
 
 struct ParallelSignedTransactionHashBatch {
-  int index<>;
+  opaque index<>;
   opaque xdr<>;
 };
 
 struct ParallelNondeterministicProposalDataBatch {
-  int index<>;
+  opaque index<>;
   opaque xdr<>;
 };
 
