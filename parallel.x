@@ -6,17 +6,17 @@ namespace hogd {
 // clang-format on
 
 struct ParallelSignedTransactionBatch {
-  opaque index<>;
+  unsigned int index<>;
   opaque xdr<>;
 };
 
 struct ParallelSignedTransactionHashBatch {
-  opaque index<>;
+  unsigned int index<>;
   opaque xdr<>;
 };
 
 struct ParallelNondeterministicProposalDataBatch {
-  opaque index<>;
+  unsigned int index<>;
   opaque xdr<>;
 };
 
