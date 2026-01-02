@@ -68,7 +68,7 @@ program SchedulerCoord
     // coordinator when transactions have become vetted and can be broadcast
     // to the network.
     void schedulercoord_submit_unvetted(SignedTransactionBatch) = 2;
-    void schedulercoord_submit_vetted(ValidatorID, SignedTransactionBatch) = 3;
+    void schedulercoord_submit_vetted(ValidatorID, ParallelSignedTransactionBatch) = 3;
 
     // schedulercoord_nominate asks the scheduler to prepare a nomination (a
     // block proposal) on top of the given db block.
