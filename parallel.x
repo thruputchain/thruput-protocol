@@ -5,19 +5,14 @@
 namespace hogd {
 // clang-format on
 
-struct ParallelSignedTransactionBatch {
-  unsigned int index<>;
+struct ParallelBatch {
+  unsigned int segment_tokens<>;
+  unsigned int segment_bytes<>;
   opaque xdr<>;
 };
 
-struct ParallelSignedTransactionHashBatch {
-  unsigned int index<>;
-  opaque xdr<>;
-};
-
-struct ParallelNondeterministicProposalDataBatch {
-  unsigned int index<>;
-  opaque xdr<>;
-};
+typedef ParallelBatch ParallelSignedTransactionBatch;
+typedef ParallelBatch ParallelSignedTransactionHashBatch;
+typedef ParallelBatch ParallelNondeterministicProposalDataBatch;
 
 } // namespace hogd
