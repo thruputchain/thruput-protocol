@@ -96,13 +96,6 @@ struct ProposedTransaction {
   NondeterministicProposalData nondeterministic_proposal_data;
 };
 
-// Nominations, included in SCP messages, include only the ND data.
-// The transactions themselves are disseminated through the overlay.
-// XXX(petar): rename to TransactionProposalData
-struct NominatedTransaction {
-  NondeterministicProposalData nondeterministic_proposal_data;
-};
-
 enum TransactionStatistic {
   kTxStatGasRemaining = 0,
 };
