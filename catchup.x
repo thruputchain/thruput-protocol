@@ -11,7 +11,7 @@ namespace hogd {
 
 struct CatchupBlock {
   ConsensusValue consensus_value;
-  ParallelSignedTransactionHashBatch signed_transactions<>;
+  ParallelSignedTransactionBatch signed_transactions<>;
 };
 
 struct CatchupSpan {
