@@ -1,5 +1,6 @@
 // clang-format off
 %#include "discovery.hh"
+%#include "parallel.hh"
 %#include "transaction.hh"
 %#include "types.hh"
 

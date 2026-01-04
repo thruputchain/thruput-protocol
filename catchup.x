@@ -2,6 +2,7 @@
 %#include "discovery.hh"
 %#include "nomination.hh"
 %#include "consensus.hh"
+%#include "parallel.hh"
 %#include "transaction.hh"
 %#include "types.hh"
 
@@ -10,7 +11,7 @@ namespace hogd {
 
 struct CatchupBlock {
   ConsensusValue consensus_value;
-  SignedTransaction signed_transactions<>;
+  ParallelSignedTransactionHashBatch signed_transactions<>;
 };
 
 struct CatchupSpan {
