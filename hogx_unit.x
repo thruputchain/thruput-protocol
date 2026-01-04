@@ -57,11 +57,23 @@ struct UnitDefLinked {
   UnitCommandLinked command;
 };
 
+enum ProcessStatus {
+  PROCESS_RUNNING = 1,
+  PROCESS_EXITED = 2,
+};
+
+union ProcessState switch (ProcessStatus status) {
+case PROCESS_RUNNING:
+  unsigned int pid;
+case PROCESS_EXITED:
+  int exit;
+};
+
 struct UnitState {
   UnitDef def;
   UnitDefLinked def_linked;
   Timestamp started;
-  unsigned int *pid;
+  ProcessState process_state;
 };
 
 } // namespace hogx
