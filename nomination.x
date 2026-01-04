@@ -12,8 +12,8 @@ struct Nomination {
   BlockHeight block_height;
   BlockHash block_hash; //XXX: rename to merkle_hash
   BlockHash prev_block_hash; //XXX: rename to prev_merkle_hash
-  ParallelSignedTransactionHashBatch transactions_hash<>;
-  ParallelNondeterministicProposalDataBatch transactions_nondeterministic_data<>;
+  ParallelSignedTransactionHashBatch transactions_hash;
+  ParallelNondeterministicProposalDataBatch transactions_nondeterministic_data;
 };
 
 struct PrevNominationSummary {
