@@ -102,4 +102,12 @@ default:
   void;
 };
 
+union ExpectedDBTip switch (RPCError error)
+{
+case kRPCNone:
+  DbTip db_tip;
+default:
+  void;
+};
+
 } // namespace hogd

@@ -71,6 +71,9 @@ program DatabaseToExecutorInterface
     // the contract, and optionally send accordingly.
     ExpectedContract get_contract(BlockID, SHA256Hash) = 202;
     ExpectedDeployment get_deployment(BlockID, ContractAddress) = 203;
+
+    // Get the db tip for the current block.
+    ExpectedDBTip get_db_tip(BlockID) = 300;
   }
   = 1;
 }

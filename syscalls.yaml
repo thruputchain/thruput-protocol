@@ -44,6 +44,10 @@ type_mappings:
     rust_name: "StorageItemRPCFlagSet"
     rust_uses_as_ptr: false
     primitive_type: true
+  - base_name: "BlockHeight"
+    rust_name: "BlockHeight"
+    rust_uses_as_ptr: false
+    primitive_type: true
 syscalls:
   - name: "SHA256"
     read_only: true
@@ -396,3 +400,10 @@ syscalls:
         optional: true
     outputs:
     number: 30
+  - name: "GetBlockHeight"
+    read_only: true
+    inputs:
+    outputs:
+      - name: "result"
+        typename: "BlockHeight"
+    number: 31
