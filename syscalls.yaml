@@ -40,6 +40,10 @@ type_mappings:
   - base_name: "Topic"
     rust_name: "[u8; 32]"
     rust_uses_as_ptr: false
+  - base_name: "StorageItemRPCFlagSet"
+    rust_name: "StorageItemRPCFlagSet"
+    rust_uses_as_ptr: false
+    primitive_type: true
 syscalls:
   - name: "SHA256"
     read_only: true
@@ -210,6 +214,8 @@ syscalls:
         typename: "StorageKeyContractData"
       - name: "bytestring"
         span_argument: true
+      - name: "flags"
+        typename: "StorageItemRPCFlagSet"
     outputs:
     number: 15
   - name: "NonnegativeIntGet"
@@ -239,6 +245,8 @@ syscalls:
       - name: "add_value"
         typename: "int128_t"
         syscall_pass_by_value: true
+      - name: "flags"
+        typename: "StorageItemRPCFlagSet"
     outputs:
     number: 17
   - name: "DeleteObject"
@@ -246,8 +254,7 @@ syscalls:
       - name: "key"
         typename: "StorageKeyContractData"
       - name: "flags"
-        typename: "int32_t"  # StorageItemRPCFlagSet
-        primitive_type: true
+        typename: "StorageItemRPCFlagSet"
     outputs:
     number: 18
   - name: "GetCurrentAddress"
