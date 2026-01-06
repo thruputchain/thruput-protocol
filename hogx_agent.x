@@ -23,14 +23,14 @@ case HOGX_ERROR:
 
 union HogxUnitStartResult switch (HogxOutcome outcome) {
 case HOGX_OK:
-  UnitState unit_state;
+  void;
 case HOGX_ERROR:
   string error<>;
 };
 
 union HogxUnitStopResult switch (HogxOutcome outcome) {
 case HOGX_OK:
-  UnitState unit_state;
+  void;
 case HOGX_ERROR:
   string error<>;
 };
