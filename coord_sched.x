@@ -11,12 +11,6 @@ struct SchedulerNomination {
   Nomination nomination;
 };
 
-struct SchedulerNominationChunk {
-  unsigned int chunk_idx;
-  unsigned int total_chunks;
-  SchedulerNomination chunk;
-};
-
 // API exposed from the Coordinator for the Scheduler
 program CoordScheduler
 {
