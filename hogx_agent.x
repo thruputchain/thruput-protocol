@@ -49,6 +49,13 @@ case HOGX_ERROR:
   string error<>;
 };
 
+union HogxUnitClearResult switch (HogxOutcome outcome) {
+case HOGX_OK:
+  void;
+case HOGX_ERROR:
+  string error<>;
+};
+
 program HogxAgent
 {
   version HogxAgent1
@@ -63,6 +70,7 @@ program HogxAgent
     HogxUnitStopResult hogxagent_unit_stop(UnitID) = 210;
     HogxUnitQueryResult hogxagent_unit_query(UnitID) = 220;
     HogxUnitListResult hogxagent_unit_list(void) = 230;
+    HogxUnitClearResult hogxagent_unit_clear(SystemID) = 240;
 
   }
   = 1;
