@@ -72,7 +72,7 @@ program SchedulerCoord
     // call the coordinator's coordscheduler_notify_vetted to notify the
     // coordinator when transactions have become vetted and can be broadcast
     // to the network.
-    void schedulercoord_submit_unvetted(SignedTransactionBatch) = 2;
+    void schedulercoord_submit_unvetted(ParallelSignedTransactionBatch) = 2;
     void schedulercoord_submit_vetted(ValidatorID, ParallelSignedTransactionBatch) = 3;
 
     // schedulercoord_nominate asks the scheduler to prepare a nomination (a
