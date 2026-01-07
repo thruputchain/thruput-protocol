@@ -9,7 +9,7 @@ typedef string UnitType<>; // `coordinator`, `mempool`, `exec`, `db`, `event`
 
 struct UnitID {
   SystemID system_id;  // sets HOGX_UNIT_SYSTEM_ID; identifies a set of unit instances comprising a system deployment
-  UnitType unit_type<>;  // sets HOGX_UNIT_TYPE
+  UnitType unit_type;  // sets HOGX_UNIT_TYPE
   string unit_shard<>;  // sets HOGX_UNIT_SHARD
 };
 
