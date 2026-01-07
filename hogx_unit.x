@@ -70,6 +70,7 @@ case PROCESS_EXITED:
 };
 
 struct UnitState {
+  Timestamp time;
   UnitDef def;
   UnitDefLinked def_linked;
   Timestamp started;
