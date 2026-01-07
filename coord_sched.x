@@ -28,8 +28,6 @@ program CoordScheduler
     // given transactions are vetted, meaning the coordinator can broadcast
     // them to the network.
     void coordscheduler_notify_vetted(SignedTransactionBatch) = 1;
-
-    void coordscheduler_finish_nomination(SchedulerNominationChunk) = 2;
   }
   = 1;
 }

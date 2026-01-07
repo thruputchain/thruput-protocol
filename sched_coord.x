@@ -21,10 +21,15 @@ enum SchedulerNominationOutcome {
   SchedulerNominationError = 1,
 };
 
+struct SchedulerNominatedBlock {
+  BlockID block_id;
+  Nomination nomination;
+};
+
 union SchedulerNominationResult switch (SchedulerNominationOutcome outcome)
 {
 case SchedulerNominationOK:
-  BlockID block_id;
+  SchedulerNominatedBlock nominated_block;
 default:
   void;
 };
