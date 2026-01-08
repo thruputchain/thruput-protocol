@@ -9,6 +9,7 @@ union ExecProposeResult switch (ExecResult result)
 {
 case ExecResultOK:
 case ExecResultTxDeterministicError:
+case ExecResultTxRootFrameReverted:
   NondeterministicProposalData proposal_data;
 default:
   void;
