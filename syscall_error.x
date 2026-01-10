@@ -27,24 +27,17 @@ enum SyscallErrorCode {
   // there have been no subcalls within this call frame.
   kSyscallErrorCodeNoReturnBufferAvailable = 6,
 
-  // Insufficient gas in call frame to supply requested gas limit for child
-  // invocation
-  kSyscallErrorCodeInsufficientGasForInvocation = 7,
-
   // Invalid input to a syscall, such as subtracting below 0 on an nnint64
-  kSyscallErrorCodeInvalidSyscallInput = 8,
+  // or a bytestring that is too long
+  kSyscallErrorCodeInvalidSyscallInput = 7,
 
   // Accessing a storage key that does not exist in the current view
-  kSyscallErrorCodeStorageKeyNotExist = 9,
+  kSyscallErrorCodeStorageKeyNotExist = 8,
 
   // No entry in the retrocausal queue to consume
-  kSyscallErrorCodeNoRetrocausalQueueEntry = 10,
+  kSyscallErrorCodeNoRetrocausalQueueEntry = 9,
 
-  // Failed to parse calldata
-  kSyscallErrorCodeCalldataParseError = 100,
-
-  // Failed to parse returned data
-  kSyscallErrorCodeReturnParseError = 101,
+  // ===== Error codes that signal the called frame reverted =====
 
   // Deterministic error within called wasm (i.e. trap)
   kSyscallErrorCodeDeterministicWasm = -1,
