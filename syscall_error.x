@@ -16,9 +16,6 @@ enum SyscallErrorCode {
   // Cannot call get_msg_sender on root invocation
   kSyscallErrorCodeIsRootTransaction = 3,
 
-  // Failed to find contract
-  kSyscallErrorCodeContractLookupFailed = 4,
-
   // Attempt made to deploy a contract twice (same nonce and contract hash, from
   // same address)
   kSyscallErrorCodeContractAlreadyDeployed = 5,

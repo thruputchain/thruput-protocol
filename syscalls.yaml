@@ -178,7 +178,7 @@ syscalls:
       all of the remaining gas in the current call frame.
       Any unused gas will be returned to the caller.
     errors:
-      - code: kSyscallErrorCodeContractLookupFailed
+      - code: kSyscallErrorCodeInvalidSyscallInput
         description: >
           The invocation failed because the contract was not found.
       - code: kSyscallErrorCodeDeterministicWasm
@@ -276,12 +276,14 @@ syscalls:
       a computed address. The contract must be provided in the
       transaction's contracts_to_deploy field.
     errors:
-      - code: kSyscallErrorCodeContractLookupFailed
+      - code: kSyscallErrorCodeInvalidSyscallInput
         description: >
-          The requested contract was not available for deployment.
-          Note that to deploy a contract, that contract must either
-          already exist on chain or must be provided in the
-          transaction's contracts_to_deploy field.
+          The requested contract was not available for deployment, or the contract
+          is a special precompiled (native) contract that cannot be deployed 
+          (i.e. the native token contract).
+          
+          To deploy a contract, that contract must either already exist on chain
+          or must be provided in the transaction's contracts_to_deploy field.
       - code: kSyscallErrorCodeContractAlreadyDeployed
         description: >
           A contract with the same nonce and contract hash has already
