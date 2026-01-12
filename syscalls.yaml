@@ -278,10 +278,10 @@ syscalls:
     errors:
       - code: kSyscallErrorCodeInvalidSyscallInput
         description: >
-          The requested contract was not available for deployment, or the contract
-          is a special precompiled (native) contract that cannot be deployed 
-          (i.e. the native token contract).
-          
+          The requested contract was not available for deployment, or the
+          contract is a special precompiled (native) contract that cannot be
+          deployed (i.e. the native token contract).
+
           To deploy a contract, that contract must either already exist on chain
           or must be provided in the transaction's contracts_to_deploy field.
       - code: kSyscallErrorCodeContractAlreadyDeployed
