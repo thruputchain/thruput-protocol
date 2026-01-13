@@ -4,9 +4,12 @@ namespace hogx {
 
 // input
 
+typedef string SystemID<>;
+typedef string UnitType<>; // `coordinator`, `mempool`, `exec`, `db`, `event`
+
 struct UnitID {
-  string system_id<>;  // sets HOGX_UNIT_SYSTEM_ID; identifies a set of unit instances comprising a system deployment
-  string unit_type<>;  // sets HOGX_UNIT_TYPE; e.g. `coordinator`, `mempool`, `exec`, `db`, `event`
+  SystemID system_id;  // sets HOGX_UNIT_SYSTEM_ID; identifies a set of unit instances comprising a system deployment
+  UnitType unit_type;  // sets HOGX_UNIT_TYPE
   string unit_shard<>;  // sets HOGX_UNIT_SHARD
 };
 
@@ -70,6 +73,7 @@ case PROCESS_EXITED:
 };
 
 struct UnitState {
+  Timestamp time;
   UnitDef def;
   UnitDefLinked def_linked;
   Timestamp started;

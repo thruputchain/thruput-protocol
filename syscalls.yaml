@@ -1,6 +1,21 @@
 ---
-# Syscalls MUST be defined in increasing numerical order (by the 'number' field)
+# The number of u64 arguments to a syscall.
+# Syscalls that need fewer than this many arguments pad the argument list
+# with arbitrary values (in the SDK, this defaults to 0, although that
+# condition is not enforced.)
+# The actual imported syscall function has 8 arguments. The first argument
+# is the syscall number.
 syscall_input_count: 7
+# A set of mappings for common types between the SDK (rust) and the syscall
+# implementation (cpp).
+# All types passed in or out of a syscall must be trivially copyable and
+# FFI-safe.
+# Syscall arguments are either spans of bytes, (aliases of) integral types,
+# or repr(C) types.
+# primitive_type: true means that the type can be passed as a single u64
+# argument to the syscall.
+# rust_uses_as_ptr: true means that the type is by calling .as_ptr() on
+# the type in the sdk.
 type_mappings:
   - base_name: "uint32_t"  # The cpp name, which is used in this spec
     rust_name: "u32"
@@ -48,6 +63,15 @@ type_mappings:
     rust_name: "BlockHeight"
     rust_uses_as_ptr: false
     primitive_type: true
+# Syscalls MUST be defined in increasing numerical order (by the 'number'
+# field)
+#
+# All contracts can return a SyscallErrorCode::kSyscallErrorCodeFault if
+# any of the pointers passed to them are out of wasm memory bounds.
+#
+# Any attempt at making a syscall can return a
+# SyscallErrorCode::kSyscallErrorCodeNoSyscall if the syscall number is
+# not supported.
 syscalls:
   - name: "SHA256"
     read_only: true
@@ -58,6 +82,9 @@ syscalls:
       - name: "hash"
         typename: "SHA256Hash"
     number: 0
+    description: >
+      Returns the SHA256 hash of the input buffer.
+    errors:
   - name: "GetMsgSender"
     read_only: true
     inputs:
@@ -65,6 +92,14 @@ syscalls:
       - name: "sender"
         typename: "ContractAddress"
     number: 1
+    description: >
+      Returns the contract address of the contract that invoked the
+      current call frame.
+    errors:
+      - code: kSyscallErrorCodeIsRootTransaction
+        description: >
+          The syscall was called from a root transaction.
+          There is no caller address in this case.
   - name: "GetCalldataLen"
     read_only: true
     inputs:
@@ -72,6 +107,10 @@ syscalls:
       - name: "len"
         typename: "RuntimeMemoryLength"
     number: 2
+    description: >
+      Returns the length of the calldata supplied to the invocation
+      associated with the current call frame.
+    errors:
   - name: "GetCalldata"
     read_only: true
     inputs:
@@ -82,6 +121,10 @@ syscalls:
         typename: "RuntimeMemoryLength"
         primitive_type: true
     number: 3
+    description: >
+      Returns the calldata supplied to the invocation associated with
+      the current call frame.
+    errors:
   - name: "ConsoleLog"
     needs_context: false
     # Logging is for debugging only.
@@ -93,6 +136,15 @@ syscalls:
         span_argument: true
     outputs:
     number: 4
+    description: >
+      Logs the input buffer to the console.
+      This is a no-op on release builds or when deployed on-chain.
+
+      This will not cause an error if a contract inadvertently includes
+      this syscall in a production contract deployment (if, for example,
+      a contract built in debug mode is uploaded), but there is no
+      reason to do so.
+    errors:
   - name: "Invoke"
     read_only: true
     needs_gas: true
@@ -115,6 +167,28 @@ syscalls:
         typename: "RuntimeMemoryLength"
         primitive_type: true
     number: 5
+    description: >
+      Invokes the specified method of the contract at the specified
+      address, with the supplied parameters. Creates a new callframe,
+      which terminates upon conclusion of the Invoke() syscall.
+
+      The call frame will be limited to the minimum of gas_limit units
+      of gas and the remaining gas in the current call frame.
+      The SDK sets the default gas limit as UINT64_MAX, meaning i.e.
+      all of the remaining gas in the current call frame.
+      Any unused gas will be returned to the caller.
+    errors:
+      - code: kSyscallErrorCodeInvalidSyscallInput
+        description: >
+          The invocation failed because the contract was not found.
+      - code: kSyscallErrorCodeDeterministicWasm
+        description: >
+          The invoked contract terminated with an unspecified internal
+          error (e.g. divide by zero). This error will be returned if
+          the invoked contract runs out of gas.
+      - code: kSyscallErrorCodeFrameReverted
+        description: >
+          The invoked contract manually reverted itself.
   - name: "Return"
     read_only: true
     inputs:
@@ -126,6 +200,17 @@ syscalls:
     outputs:
     returns: false
     number: 6
+    description: >
+      Returns data from the current call frame and optionally marks
+      the frame for revert. The return buffer will be available to
+      the caller via GetReturnedBuffer. Immediately terminates
+      execution of the current wasm invocation.
+
+      If the supplied buffer is too large, the syscall does not return
+      an error, but instead reverts the entire invocation with a
+      deterministic error (equivalent to a wasm `unreachable`
+      instruction).
+    errors:
   - name: "GetReturnedBuffer"
     read_only: true
     inputs:
@@ -136,6 +221,14 @@ syscalls:
         typename: "RuntimeMemoryLength"
         primitive_type: true
     number: 7
+    description: >
+      Returns the return buffer from the most recent successful
+      subcall invocation.
+    errors:
+      - code: kSyscallErrorCodeNoReturnBufferAvailable
+        description: >
+          No return buffer is available. Either the most recent subcall
+          failed, or there have been no subcalls within this call frame.
   - name: "Exit"
     read_only: true
     needs_context: false
@@ -143,6 +236,12 @@ syscalls:
     outputs:
     returns: false
     number: 8
+    description: >
+      Terminates execution of the current call frame immediately.
+      The current call frame reverts, returning a deterministic error
+      to the caller (with no return buffer available).
+      Equivalent to the `unreachable` instruction in wasm.
+    errors:
   - name: "GetDeployAddress"
     read_only: true
     inputs:
@@ -157,6 +256,11 @@ syscalls:
       - name: "to_be_deployed"
         typename: "ContractAddress"
     number: 9
+    description: >
+      Computes the address that would be deployed for a contract with
+      the given deployer address, nonce, and contract hash. This is a
+      pure computation and does not actually deploy the contract.
+    errors:
   - name: "DeployContract"
     inputs:
       - name: "nonce"
@@ -167,6 +271,24 @@ syscalls:
       - name: "deployed_address"
         typename: "ContractAddress"
     number: 10
+    description: >
+      Deploys a contract with the specified nonce and contract hash to
+      a computed address. The contract must be provided in the
+      transaction's contracts_to_deploy field.
+    errors:
+      - code: kSyscallErrorCodeInvalidSyscallInput
+        description: >
+          The requested contract was not available for deployment, or the
+          contract is a special precompiled (native) contract that cannot be
+          deployed (i.e. the native token contract).
+
+          To deploy a contract, that contract must either already exist on chain
+          or must be provided in the transaction's contracts_to_deploy field.
+      - code: kSyscallErrorCodeContractAlreadyDeployed
+        description: >
+          A contract with the same nonce and contract hash has already
+          been deployed at the computed address, either in a previous
+          transaction or earlier in this transaction.
   - name: "GetSourceTransactionHash"
     read_only: true
     inputs:
@@ -174,14 +296,18 @@ syscalls:
       - name: "source_tx_hash"
         typename: "SHA256Hash"
     number: 11
+    description: >
+      Returns the hash of the transaction that initiated the current
+      execution.
+    errors:
   - name: "VerifySignature"
     read_only: true
     needs_context: false
     inputs:
       - name: "scheme"
-        # This is a CryptographicScheme enum, but we pass it in as an int32_t
-        # to make sure the generated rust code does not assume that the enum
-        # does not get extended with more signature schemes
+        # This is a CryptographicScheme enum, but we pass it in as an
+        # int32_t to make sure the generated rust code does not assume
+        # that the enum does not get extended with more signature schemes
         typename: "int32_t"
         primitive_type: true
       - name: "signature"
@@ -192,6 +318,16 @@ syscalls:
         span_argument: true
     outputs:  # No outputs: check the error code returned
     number: 12
+    description: >
+      Verifies a cryptographic signature against a public key and
+      message. Returns kSyscallErrorCodeNone if verification succeeds,
+      otherwise returns an error.
+    errors:
+      - code: kSyscallErrorCodeInvalidSyscallInput
+        description: >
+          The signature verification failed, or the input parameters
+          are invalid (e.g., incorrect key/signature size for the
+          specified scheme, or unsupported scheme).
   - name: "BytestringGetLen"
     read_only: true
     inputs:
@@ -201,6 +337,17 @@ syscalls:
       - name: "length"
         typename: "RuntimeMemoryLength"
     number: 13
+    description: >
+      Returns the length of the bytestring stored at the specified key.
+    errors:
+      - code: kSyscallErrorCodeStorageKeyNotExist
+        description: >
+          The storage key does not exist in the current transaction's
+          view.
+      - code: kSyscallErrorCodeInvalidSyscallInput
+        description: >
+          The storage key exists but contains a different type
+          (e.g., NNInt instead of bytestring).
   - name: "BytestringGet"
     read_only: true
     inputs:
@@ -212,6 +359,16 @@ syscalls:
       - name: "written_len"
         typename: "RuntimeMemoryLength"
     number: 14
+    description: >
+      Retrieves the bytestring stored at the specified key.
+    errors:
+      - code: kSyscallErrorCodeStorageKeyNotExist
+        description: >
+          The storage key does not exist or has been deleted.
+      - code: kSyscallErrorCodeInvalidSyscallInput
+        description: >
+          The storage key exists but contains a different type
+          (e.g., NNInt instead of bytestring).
   - name: "BytestringSet"
     inputs:
       - name: "key"
@@ -222,6 +379,15 @@ syscalls:
         typename: "StorageItemRPCFlagSet"
     outputs:
     number: 15
+    description: >
+      Sets the bytestring value at the specified storage key.
+      Note that this will overwrite any existing value at that key,
+      *even if* that value has a different type.
+    errors:
+      - code: kSyscallErrorCodeInvalidSyscallInput
+        description: >
+          The bytestring is too long, or the input storage flags are
+          invalid.
   - name: "NonnegativeIntGet"
     read_only: true
     inputs:
@@ -238,6 +404,33 @@ syscalls:
       - name: "current_add"
         typename: "int128_t"
     number: 16
+    description: >
+      Retrieves the nonnegative integer value at the specified storage
+      key.
+
+      If force_load_from_snapshot is true, then the current_set
+      returned will never be nullopt. If the snapshot value is not an
+      NNInt, or the previous write on that key was not an NNInt, then
+      we return a kInvalidSyscallInput error. If the snapshot value
+      does not exist, or has been deleted by the prior write, then we
+      return a kStorageKeyNotExist error.
+
+      If force_load_from_snapshot is false, then we ignore everything
+      about the prior state of the item unless the prior write on that
+      key is an NNInt write (in which case we return the parameters of
+      that write). If the prior write is not an NNInt, or was a
+      deletion, then we return (nullopt, 0).
+    errors:
+      - code: kSyscallErrorCodeStorageKeyNotExist
+        description: >
+          The storage key does not exist or has been deleted.
+          Only returned if force_load_from_snapshot is true.
+      - code: kSyscallErrorCodeInvalidSyscallInput
+        description: >
+          The storage key exists but contains a different type
+          (e.g., bytestring instead of NNInt).
+          Only returned if force_load_from_snapshot is true.
+
   - name: "NonnegativeIntSetAdd"
     inputs:
       - name: "key"
@@ -253,6 +446,17 @@ syscalls:
         typename: "StorageItemRPCFlagSet"
     outputs:
     number: 17
+    description: >
+      Sets or modifies a nonnegative integer at the specified storage
+      key. The set_value (if provided) sets the base value, and
+      add_value is added as a delta. The final value must remain
+      nonnegative. Will overwrite any value of that key, *even if*
+      that value has a different type.
+    errors:
+      - code: kSyscallErrorCodeInvalidSyscallInput
+        description: >
+          The operation would always result in a negative value
+          (i.e. set_add(1, -2)), or the storage flags are invalid.
   - name: "DeleteObject"
     inputs:
       - name: "key"
@@ -261,6 +465,13 @@ syscalls:
         typename: "StorageItemRPCFlagSet"
     outputs:
     number: 18
+    description: >
+      Deletes the object at the specified storage key.
+    errors:
+      - code: kSyscallErrorCodeInvalidSyscallInput
+        description: >
+          The storage flags are invalid or incompatible with the
+          current storage state.
   - name: "GetCurrentAddress"
     read_only: true
     inputs:
@@ -268,6 +479,9 @@ syscalls:
       - name: "address"
         typename: "ContractAddress"
     number: 19
+    description: >
+      Returns the contract address of the current call frame.
+    errors:
   - name: "RetrocausalQueueInsert"
     inputs:
       - name: "key"
@@ -276,6 +490,15 @@ syscalls:
         span_argument: true
     outputs:
     number: 20
+    description: >
+      Inserts an entry into the retrocausal queue at the specified
+      storage key.
+    errors:
+      - code: kSyscallErrorCodeInvalidSyscallInput
+        description: >
+          The storage key exists but contains a different type that
+          cannot be converted to a retrocausal queue. This error will
+          also be returned if the queue entry is too large.
   - name: "RetrocausalQueueConsume"
     inputs:
       - name: "key"
@@ -290,6 +513,17 @@ syscalls:
         typename: "RuntimeMemoryLength"
         primitive_type: true
     number: 21
+    description: >
+      Consumes (or peeks at) the next entry from the retrocausal queue
+      at the specified storage key. If peek is true, the entry is not
+      removed from the queue.
+    errors:
+      - code: kSyscallErrorCodeNoRetrocausalQueueEntry
+        description: >
+          The retrocausal queue is empty and has no entries to consume.
+      - code: kSyscallErrorCodeInvalidSyscallInput
+        description: >
+          The storage key exists but contains a different type.
   - name: "GetTransactionStatistics"
     read_only: true
     needs_gas: true
@@ -307,14 +541,24 @@ syscalls:
       - name: "result"
         typename: "uint64_t"
     number: 22
+    description: >
+      Returns a transaction statistic value. Note that statistics may
+      be disabled in release builds or production execution, and may
+      return nondeterministic values in test configurations.
+      Nondeterministic stats will be disabled in production settings.
+    errors:
+      - code: kSyscallErrorCodeInvalidSyscallInput
+        description: >
+          The requested statistic does not exist or is not available
+          in this configuration.
   - name: "ChangePublicKeyRegistration"
     inputs:
       - name: "key_index"
         typename: "uint32_t"
       - name: "key_scheme"
-        # This is a CryptographicScheme enum, but we pass it in as an int32_t
-        # to make sure the generated rust code does not assume that the enum
-        # does not get extended with more signature schemes
+        # This is a CryptographicScheme enum, but we pass it in as an
+        # int32_t to make sure the generated rust code does not assume
+        # that the enum does not get extended with more signature schemes
         typename: "int32_t"
         optional: true
       - name: "key_bytes"
@@ -324,6 +568,16 @@ syscalls:
         optional: true
     outputs:
     number: 23
+    description: >
+      Changes the public key registration for the current contract
+      address at the specified key index. If key_scheme is None, the
+      key is removed. Otherwise, the key is set with the provided
+      scheme, bytes, and weight.
+    errors:
+      - code: kSyscallErrorCodeInvalidSyscallInput
+        description: >
+          The public key registration is invalid, or the input key
+          index is out of bounds.
   - name: "LogEvent"
     inputs:
       - name: topic0
@@ -339,6 +593,14 @@ syscalls:
         span_argument: true
     outputs:
     number: 24
+    description: >
+      Logs an event with up to 3 topics and optional data. Events are
+      emitted to the event log and can be queried by external systems.
+    errors:
+      - code: kSyscallErrorCodeInvalidSyscallInput
+        description: >
+          The event data exceeds the maximum allowed length, or topics
+          are not supplied in a continuous sequence.
   - name: "GetAuthClaimCount"
     read_only: true
     inputs:
@@ -346,6 +608,10 @@ syscalls:
       - name: "count"
         typename: "uint32_t"
     number: 25
+    description: >
+      Returns the number of authentication claims associated with the
+      current transaction.
+    errors:
   - name: "GetAuthClaim"
     read_only: true
     inputs:
@@ -355,8 +621,16 @@ syscalls:
       - name: "auth_claim"
         typename: "generated::AuthClaim"
     number: 26
+    description: >
+      Returns the authentication claim at the specified index.
+    errors:
+      - code: kSyscallErrorCodeInvalidSyscallInput
+        description: >
+          The (0-indexed) input index is out of bounds (i.e. >= the
+          number of authentication claims).
   - name: "SHA256Update"
     number: 27
+    read_only: true
     inputs:
       - name: "index"
         typename: "uint32_t"
@@ -366,8 +640,21 @@ syscalls:
       - name: "reset"
         typename: "bool"
         primitive_type: true
+    description: >
+      Updates the SHA256 hash computation at the specified index with
+      the provided buffer. If reset is true, the hash input is reset
+      before updating. The buffer must exist if reset is false.
+    errors:
+      - code: kSyscallErrorCodeInvalidSyscallInput
+        description: >
+          This error will be returned if any of the following
+          conditions are met:
+          - The queried hash buffer does not exist and reset is false.
+          - The buffer becomes too large.
+          - There are too many active hash buffers.
   - name: "SHA256Finalize"
     number: 28
+    read_only: true
     inputs:
       - name: "index"
         typename: "uint32_t"
@@ -375,12 +662,25 @@ syscalls:
     outputs:
       - name: "output"
         typename: "SHA256Hash"
+    description: >
+      Finalizes the SHA256 hash computation at the specified index and
+      returns the hash. Removes the hash buffer after finalization.
+    errors:
+      - code: kSyscallErrorCodeInvalidSyscallInput
+        description: >
+          Returns an error if the queried hash buffer does not exist.
+          For example, if finalize is called twice on the same buffer
+          without an intervening reset, then the second call will
+          return this error.
   - name: "WriteAddressNonceConfig"
     inputs:
       - name: "nonce_config"
         typename: "generated::NonceConfig"
     outputs:
     number: 29
+    description: >
+      Writes the nonce configuration for the current contract address.
+    errors:
   - name: "WriteAddressGasPermissionConfigs"
     inputs:
       - name: "permission_0"
@@ -400,6 +700,16 @@ syscalls:
         optional: true
     outputs:
     number: 30
+    description: >
+      Writes the gas permission configurations for the current contract
+      address. Up to 5 permission configurations can be set.
+    errors:
+      - code: kSyscallErrorCodeInvalidSyscallInput
+        description: >
+          The gas permission configurations are invalid, or if
+          permissions are not supplied in an initial segment of the
+          submitted arguments (i.e. if permission_1 is supplied, then
+          permission_0 must also be supplied).
   - name: "GetBlockHeight"
     read_only: true
     inputs:
@@ -407,3 +717,6 @@ syscalls:
       - name: "result"
         typename: "BlockHeight"
     number: 31
+    description: >
+      Returns the current block height.
+    errors:
