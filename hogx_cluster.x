@@ -19,8 +19,7 @@ struct HostDef {
 
 // LayoutUnit maps a unit_type:unit_shard to a cluster host.
 struct LayoutUnit {
-  UnitType unit_type;
-  string unit_shard<>;
+  UnitRole unit_role;
   string host_id<>;
 };
 

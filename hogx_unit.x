@@ -5,12 +5,23 @@ namespace hogx {
 // input
 
 typedef string SystemID<>;
-typedef string UnitType<>; // `coordinator`, `mempool`, `exec`, `db`, `event`
+
+enum UnitType {
+  UNIT_COORDINATOR = 1,
+  UNIT_MEMPOOL = 2,
+  UNIT_EXEC = 3,
+  UNIT_DB = 4,
+  UNIT_EVENT = 5,
+};
+
+struct UnitRole {
+  UnitType unit_type;  // sets HOGX_UNIT_TYPE
+  string unit_shard<>;  // sets HOGX_UNIT_SHARD
+};
 
 struct UnitID {
   SystemID system_id;  // sets HOGX_UNIT_SYSTEM_ID; identifies a set of unit instances comprising a system deployment
-  UnitType unit_type;  // sets HOGX_UNIT_TYPE
-  string unit_shard<>;  // sets HOGX_UNIT_SHARD
+  UnitRole unit_role;
 };
 
 struct UnitBuild {
@@ -26,6 +37,7 @@ struct UnitCommand {
   Path binary;  // can use link variables
   Flag flag<>;  // can use link variables
   StringMap env;  // can use link variables
+  Files files;  // config files land in var_dir; can use link variables
 };
 
 struct UnitDef {
@@ -45,12 +57,13 @@ struct UnitAgreementLinked {
 struct UnitCommandLinked {
   Path binary_file;
   Path app_dir;  // holds persistent application data; does not depend on system_id
-  Path var_dir;  // holds log files and core dumps; mounted as /var; depends on system_id
+  Path var_dir;  // holds configs, logs and core dumps; mounted as /var; depends on system_id
   Path tmp_dir;  // mounted as /tmp; depends on system_id
   Path stdout_file;  // resides in var_dir
   Path stderr_file;  // resides in var_dir
   Flag flag<>;
   StringMap env;
+  Files files;  // config files placed in var_dir
 };
 
 struct UnitDefLinked {
