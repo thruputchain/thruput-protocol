@@ -1,15 +1,18 @@
 #!/usr/bin/env python3
 """
-Generate syscalls.md from syscalls.yaml with validation.
+Generate syscalls documentation from syscalls.yaml with validation.
 
-This script loads the syscalls.yaml file and generates a complete markdown
-documentation file similar to syscalls.md, validating that all required
-fields (especially descriptions) are present.
+This script loads the syscalls.yaml file and generates:
+1. A markdown documentation file (syscalls_generated.md)
+2. A JSON file with Rust doc comments (syscalls_docs.json) for inclusion in Rust code
+
+It validates that all required fields (especially descriptions) are present.
 """
 
 import yaml
 import sys
 import re
+import json
 from pathlib import Path
 from typing import Dict, List, Any, Optional
 
@@ -207,6 +210,21 @@ def format_description(description: str) -> List[str]:
     return result_lines
 
 
+def format_rust_doc_comment(text: str, indent: str = "") -> List[str]:
+    """Format text as Rust doc comment lines (/// format)."""
+    if not text:
+        return []
+    
+    lines = format_description(text)
+    result = []
+    for line in lines:
+        if line:
+            result.append(f"{indent}/// {line}")
+        else:
+            result.append(f"{indent}///")
+    return result
+
+
 def format_errors(syscall: Dict[str, Any]) -> List[str]:
     """Format error information for a syscall. Returns list of lines."""
     errors = syscall.get('errors')
@@ -328,11 +346,56 @@ overwritten. We do not change any of the remaining elements of the bytespan.
     return validation_issues
 
 
+def generate_rust_docs_json(yaml_data: Dict[str, Any], output_path: Path) -> Dict[str, Dict[str, Any]]:
+    """Generate JSON file with Rust documentation for each syscall."""
+    syscalls = yaml_data.get('syscalls', [])
+    syscalls_sorted = sorted(syscalls, key=lambda s: s.get('number', -1))
+    
+    docs = {}
+    
+    for syscall in syscalls_sorted:
+        name = syscall.get('name', '')
+        if not name:
+            continue
+        
+        description = syscall.get('description', '').strip()
+        errors = syscall.get('errors', [])
+        if errors is None:
+            errors = []
+        elif not isinstance(errors, list):
+            errors = []
+        
+        # Format description lines
+        desc_lines = format_description(description) if description else []
+        
+        # Format error information
+        error_docs = []
+        for error in errors:
+            code = error.get('code', '')
+            error_desc = error.get('description', '').strip()
+            if code:
+                error_docs.append({
+                    'code': code,
+                    'description': format_description(error_desc) if error_desc else []
+                })
+        
+        docs[name] = {
+            'description': desc_lines,
+            'errors': error_docs
+        }
+    
+    # Write JSON file
+    output_path.write_text(json.dumps(docs, indent=2))
+    
+    return docs
+
+
 def main():
     """Main entry point."""
     script_dir = Path(__file__).parent
     yaml_path = script_dir / 'syscalls.yaml'
-    output_path = script_dir / 'syscalls_generated.md'
+    markdown_output_path = script_dir / 'syscalls_generated.md'
+    json_output_path = script_dir / 'syscalls_docs.json'
     
     if not yaml_path.exists():
         print(f"Error: {yaml_path} not found", file=sys.stderr)
@@ -347,18 +410,23 @@ def main():
         sys.exit(1)
     
     # Generate markdown
-    validation_issues = generate_markdown(yaml_data, output_path)
+    validation_issues = generate_markdown(yaml_data, markdown_output_path)
+    
+    # Generate Rust docs JSON
+    generate_rust_docs_json(yaml_data, json_output_path)
     
     # Report validation issues
     if validation_issues:
         print("Validation issues found:", file=sys.stderr)
         for issue in validation_issues:
             print(f"  - {issue}", file=sys.stderr)
-        print(f"\nGenerated documentation written to {output_path}", file=sys.stderr)
+        print(f"\nGenerated documentation written to {markdown_output_path}", file=sys.stderr)
+        print(f"Generated JSON docs written to {json_output_path}", file=sys.stderr)
         print(f"Found {len(validation_issues)} validation issue(s)", file=sys.stderr)
         sys.exit(1)
     else:
-        print(f"Successfully generated documentation: {output_path}")
+        print(f"Successfully generated markdown documentation: {markdown_output_path}")
+        print(f"Successfully generated JSON documentation: {json_output_path}")
         print("No validation issues found.")
 
 
