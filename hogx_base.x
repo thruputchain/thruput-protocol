@@ -20,4 +20,10 @@ struct KeySocketAddress {
 };
 typedef KeySocketAddress SocketAddressMap<>;
 
+struct File {
+  Path path;
+  string content<>;
+};
+typedef File Files<>;
+
 } // namespace hogx

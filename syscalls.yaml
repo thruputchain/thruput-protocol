@@ -288,7 +288,12 @@ syscalls:
         description: >
           A contract with the same nonce and contract hash has already
           been deployed at the computed address, either in a previous
-          transaction or earlier in this transaction.
+          block or earlier in this transaction.  
+
+          A contract can be deployed multiple times concurrently in the same block.
+          If a contract must be initialized only once, then that contract's
+          should run some initialization process and that initialization should
+          acquire a semaphore.
   - name: "GetSourceTransactionHash"
     read_only: true
     inputs:
