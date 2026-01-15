@@ -7,11 +7,6 @@
 namespace hogd {
 // clang-format on
 
-struct SchedulerNomination {
-  BlockID block_id;
-  Nomination nomination;
-};
-
 // API exposed from the Coordinator for the Scheduler
 program CoordScheduler
 {
