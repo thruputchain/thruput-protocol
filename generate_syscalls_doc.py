@@ -392,11 +392,23 @@ def generate_rust_docs_json(yaml_data: Dict[str, Any], output_path: Path) -> Dic
 
 def main():
     """Main entry point."""
+    import argparse
+
+    parser = argparse.ArgumentParser(description='Generate syscalls documentation from syscalls.yaml')
+    parser.add_argument('--json-output', '-j', type=str,
+                        help='Output path for syscalls_docs.json (default: protocol/syscalls_docs.json)')
+    args = parser.parse_args()
+
     script_dir = Path(__file__).parent
     yaml_path = script_dir / 'syscalls.yaml'
     markdown_output_path = script_dir / 'syscalls_generated.md'
-    json_output_path = script_dir / 'syscalls_docs.json'
-    
+
+    # Use provided json output path or default to script_dir
+    if args.json_output:
+        json_output_path = Path(args.json_output)
+    else:
+        json_output_path = script_dir / 'syscalls_docs.json'
+
     if not yaml_path.exists():
         print(f"Error: {yaml_path} not found", file=sys.stderr)
         sys.exit(1)
