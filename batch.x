@@ -8,7 +8,7 @@ namespace hogd {
 // A "batch" contains a set of proposed transactions.
 
 struct SubmittedTransactions {
-  SignedTransaction transactions<>;
+  ParallelSignedTransactionBatch transactions;
 };
 
 } // namespace hogd

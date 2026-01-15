@@ -21,10 +21,15 @@ enum SchedulerNominationOutcome {
   SchedulerNominationError = 1,
 };
 
+struct SchedulerNominatedBlock {
+  BlockID block_id;
+  Nomination nomination;
+};
+
 union SchedulerNominationResult switch (SchedulerNominationOutcome outcome)
 {
 case SchedulerNominationOK:
-  BlockID block_id;
+  SchedulerNominatedBlock nominated_block;
 default:
   void;
 };
@@ -67,8 +72,8 @@ program SchedulerCoord
     // call the coordinator's coordscheduler_notify_vetted to notify the
     // coordinator when transactions have become vetted and can be broadcast
     // to the network.
-    void schedulercoord_submit_unvetted(SignedTransactionBatch) = 2;
-    void schedulercoord_submit_vetted(ValidatorID, SignedTransactionBatch) = 3;
+    void schedulercoord_submit_unvetted(ParallelSignedTransactionBatch) = 2;
+    void schedulercoord_submit_vetted(ValidatorID, ParallelSignedTransactionBatch) = 3;
 
     // schedulercoord_nominate asks the scheduler to prepare a nomination (a
     // block proposal) on top of the given db block.
