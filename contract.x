@@ -191,6 +191,43 @@ struct ContractInterfaceIDPreimage {
 /// ```
 typedef opaque ContractEntrypointID[8]; // #[rust(newtype)]
 
+//------------------------------------------------------------------------------
+// Deployed Contract Metadata
+//------------------------------------------------------------------------------
+
+/// Hash and metadata for a contract deployed at an address.
+///
+/// This allows the system to locate and instantiate the contract code
+/// without loading the full contract from storage.
+///
+/// Stored at `kStorageKeyTypeAddressMetadata` for each contract address.
+struct DeployedContractHash {
+  /// SHA-256 hash of the deployed contract code.
+  SHA256Hash hash;
+
+  /// Size of the contract in bytes.
+  ///
+  /// This field is technically redundant, but allows computing and updating
+  /// storage costs without reloading the entire contract from storage.
+  unsigned int contract_size;
+
+  /// The type of contract (e.g., Wasm, native, etc.).
+  ///
+  /// Used as an annotation hint in the executor to determine which type of
+  /// runtime to instantiate. Redundant with the stored contract, but allows
+  /// avoiding loading the whole contract from storage.
+  ContractType contract_type;
+};
+
+/// Metadata associated with an address.
+///
+/// Currently only stores information about the deployed contract, if any.
+/// This is the type stored at storage key `kStorageKeyTypeAddressMetadata`.
+struct AddressMetadata {
+  /// Information about the contract deployed at this address.
+  DeployedContractHash deployed_contract;
+};
+
 } // namespace hogd
 
 %#include "contract_format.h"
