@@ -23,18 +23,21 @@ namespace hogd {
 //------------------------------------------------------------------------------
 
 /// Represents the weight of a signature key in multi-signature schemes.
+///
 /// Weights are accumulated from signing keys and compared against a required
 /// threshold to determine if an auth claim is satisfied.
 typedef unsigned int Weight; // uint32_t
 
 /// A bitmap representing a set of key IDs.
+///
 /// Each bit position corresponds to a key ID (bit 0 = key 0, bit 1 = key 1, etc.).
 /// Used to specify which keys are acceptable for satisfying an auth claim.
 typedef unsigned hyper BitMap;
 
 /// Identifier for a public key within an address's key set.
+///
 /// Valid range is 0-31 (must fit in one byte for CXS encoding).
-/// This is why kMaxSigners is constrained to be <= 31.
+/// This is why `kMaxSigners` is constrained to be <= 31.
 typedef unsigned int KeyID;
 
 //------------------------------------------------------------------------------
@@ -42,16 +45,19 @@ typedef unsigned int KeyID;
 //------------------------------------------------------------------------------
 
 /// Maximum number of signers that can be configured on an address.
-/// This matches Stellar's MAX_SIGNERS (20) plus 1 for the primary key.
-/// Must be <= 31 to fit in the BitMap representation.
+///
+/// This matches Stellar's `MAX_SIGNERS` (20) plus 1 for the primary key.
+/// Must be <= 31 to fit in the `BitMap` representation.
 const kMaxSigners = 21; // #[rust(const=u32)]
 
 /// Maximum number of gas permission configurations per address.
+///
 /// Multiple configs allow separation of concerns (e.g., sponsored gas vs
 /// contract owner management operations).
 const kMaxGasConfigs = 5; // #[rust(const=u32)]
 
 /// Maximum number of auth claims allowed in a single transaction.
+///
 /// This limits the verification complexity of a transaction.
 const kMaxAuthClaims = 10;
 
@@ -66,20 +72,24 @@ const kMaxAuthClaims = 10;
 /// 2. Whether they require a single signature or weighted multi-sig
 enum AuthClaimType {
   /// Requires a signature from a specific key on the invoked contract address.
+  ///
   /// This is the simplest and most common authorization pattern.
   kInvokedAddressSignature = 0,
 
   /// Requires a weighted threshold of signatures from the invoked contract.
+  ///
   /// The bitmap specifies which keys are acceptable, and signatures are
-  /// accumulated until the required_weight threshold is met.
+  /// accumulated until the `required_weight` threshold is met.
   kInvokedAddressSignedWeight = 1,
 
   /// Requires a signature from a specific key on a different contract address.
+  ///
   /// Used for cross-contract authorization (e.g., a contract authorizing
   /// operations on behalf of another contract).
   kOtherAddressSignature = 2,
 
   /// Requires a weighted threshold of signatures from a different contract.
+  ///
   /// Combines cross-contract auth with multi-signature requirements.
   kOtherAddressSignedWeight = 3,
 };
@@ -88,7 +98,7 @@ enum AuthClaimType {
 /// a transaction.
 ///
 /// Each transaction includes one or more auth claims. During verification,
-/// the signatures in the SignedTransaction are matched against these claims
+/// the signatures in the `SignedTransaction` are matched against these claims
 /// to determine if the transaction is properly authorized.
 ///
 /// The four variants support different authorization patterns:
@@ -103,7 +113,7 @@ case kInvokedAddressSignature:
 
 case kInvokedAddressSignedWeight:
   struct {
-    /// Bitmap of acceptable keys (bit i = 1 means key i can contribute).
+    /// Bitmap of acceptable keys (bit `i` = 1 means key `i` can contribute).
     BitMap accepted_keys;
     /// Total weight required from the accepted keys' signatures.
     Weight required_weight;
@@ -129,8 +139,9 @@ case kOtherAddressSignedWeight:
 };
 
 /// A list of auth claims for a transaction.
+///
 /// Each transaction must include at least one auth claim to be valid.
-/// The list is bounded by kMaxAuthClaims to limit verification complexity.
+/// The list is bounded by `kMaxAuthClaims` to limit verification complexity.
 typedef AuthClaim AuthClaimData<kMaxAuthClaims>;
 
 } // namespace hogd
