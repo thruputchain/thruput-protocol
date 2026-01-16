@@ -1,10 +1,8 @@
-// clang-format off
+%#include "network.hh"
 %#include "rpc_types.hh"
 %#include "types.hh"
 
 namespace hogd {
-
-// clang-format on
 
 // Uniquely describes an event server instance.
 struct EventCard {

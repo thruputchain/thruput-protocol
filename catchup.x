@@ -1,4 +1,3 @@
-// clang-format off
 %#include "discovery.hh"
 %#include "nomination.hh"
 %#include "consensus.hh"
@@ -7,7 +6,6 @@
 %#include "types.hh"
 
 namespace hogd {
-// clang-format on
 
 struct CatchupBlock {
   ConsensusValue consensus_value;

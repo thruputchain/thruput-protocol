@@ -1,8 +1,8 @@
-// clang-format off
+%#include "network.hh"
 %#include "rpc_types.hh"
 %#include "types.hh"
+
 namespace hogd {
-// clang-format on
 
 // ShardCard uniquely describes a database shard instance and its initial
 // state.

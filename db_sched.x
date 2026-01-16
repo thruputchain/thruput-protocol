@@ -3,6 +3,7 @@
 %#include "rpc_types.hh"
 %#include "types.hh"
 %#include "catchup.hh"
+%#include "network.hh"
 %#include "nomination.hh"
 %#include "genesis.hh"
 %#include "rpc_types.hh"

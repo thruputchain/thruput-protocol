@@ -1,9 +1,8 @@
-// clang-format off
+%#include "network.hh"
 %#include "scp.hh"
 %#include "types.hh"
 
 namespace hogd {
-// clang-format on
 
 typedef opaque ValidatorID[32];
 
