@@ -89,10 +89,10 @@ case kMockTest:
 /// # Example
 ///
 /// ```text
-/// Contract A address:  0x1234... (example value)
+/// Contract A address:  0x1234...
 /// Contract B hash:     0xabcd...
 /// Deployment nonce:    0x5678...
-/// Result: Contract B address is deterministic for these parameters
+/// Result: SHA256(0x1234... || 0x5678... || 0xabcd...) = Contract B address
 /// ```
 struct ContractDeploymentHashPreimage {
   /// The address of the contract performing the deployment.
@@ -182,7 +182,7 @@ struct ContractInterfaceIDPreimage {
 ///
 /// # Example
 ///
-/// For `"ERC20"` v1.0.0 interface (example values):
+/// For `"ERC20"` v1.0.0 interface:
 ///
 /// ```text
 /// SHA256("ERC20" || "1.0.0")[0..6] = 0xabcdef012345 (6-byte prefix)
