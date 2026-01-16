@@ -82,6 +82,9 @@ case kMockTest:
 /// ContractAddress = SHA256(ContractDeploymentHashPreimage)
 /// ```
 ///
+/// Under XDR encoding, this struct serializes as the concatenation of its
+/// fields: `deployer_address || nonce || contract_hash`.
+///
 /// This is Groundhog's analogue of Ethereum's `CREATE2` opcode, allowing
 /// deterministic address derivation. The deployer controls the nonce to
 /// create addresses at will.
