@@ -199,8 +199,6 @@ typedef opaque ContractEntrypointID[8]; // #[rust(newtype)]
 ///
 /// This allows the system to locate and instantiate the contract code
 /// without loading the full contract from storage.
-///
-/// Stored at `kStorageKeyTypeAddressMetadata` for each contract address.
 struct DeployedContractHash {
   /// SHA-256 hash of the deployed contract code.
   SHA256Hash hash;
