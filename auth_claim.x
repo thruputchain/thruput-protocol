@@ -9,13 +9,24 @@ namespace hogd {
 // Each transaction includes a set of AuthClaims that specify which signatures
 // are required to authorize the transaction's execution.
 //
+// Workflow:
+// 1. AuthClaims are attached to a Transaction
+// 2. Signatures are added to create a SignedTransaction
+// 3. Groundhog verifies that signatures match the auth claims (before execution)
+// 4. During execution, contracts can read the auth claims but NOT the signatures
+//
+// This design ensures transaction behavior depends only on the auth claims
+// (which are included in what gets signed), not on the signature bytes themselves.
+// This makes transactions signature-scheme agnostic and prevents signature
+// reordering or re-randomization from changing transaction behavior.
+//
 // The authentication model supports:
 // - Single-signature authorization (one specific key must sign)
 // - Multi-signature authorization (weighted threshold of keys must sign)
 // - Cross-contract authorization (signatures from other contract addresses)
 //
-// Auth claims are verified against AddressAuthData stored at each contract
-// address, which defines the available keys and their weights.
+// Auth claims reference AddressAuthData stored at each contract address,
+// which defines the available keys and their weights.
 //==============================================================================
 
 //------------------------------------------------------------------------------
