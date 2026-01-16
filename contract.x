@@ -20,6 +20,7 @@ namespace hogd {
 //------------------------------------------------------------------------------
 
 /// An opaque blob of WebAssembly code.
+///
 /// This is the raw WASM binary that will be executed by the Wasmi runtime.
 struct ContractBlob {
   opaque wasm<>;
@@ -28,15 +29,18 @@ struct ContractBlob {
 /// The execution environment for a contract.
 enum ContractType {
   /// WebAssembly contract executed in the Wasmi runtime.
+  ///
   /// This is the standard contract type for user-deployed contracts.
   kWasmi = 0,
 
   /// Precompiled native contract implemented directly in Rust.
+  ///
   /// Used for system contracts like the native HogToken.
   /// More efficient than WASM but cannot be deployed by users.
   kNative = 1,
 
   /// Mock contract for local testing.
+  ///
   /// Never deployed on-chain; exists only in the test harness.
   kMockTest = 2
 };
@@ -44,19 +48,20 @@ enum ContractType {
 /// A contract that can be deployed to an address and invoked.
 ///
 /// Contracts are the fundamental unit of code execution in Groundhog.
-/// Once deployed to a ContractAddress, they can be invoked by transactions
+/// Once deployed to a `ContractAddress`, they can be invoked by transactions
 /// to execute their methods (entrypoints).
 ///
 /// The three contract types serve different purposes:
-/// - kWasmi: User-deployed contracts (most common)
-/// - kNative: System contracts with privileged access
-/// - kMockTest: Test contracts for local development
+/// - `kWasmi`: User-deployed contracts (most common)
+/// - `kNative`: System contracts with privileged access
+/// - `kMockTest`: Test contracts for local development
 union Contract switch (ContractType contract_type)
 {
 case kWasmi:
   ContractBlob wasmi_contract;
 case kNative:
   /// Identifier for which native contract this is.
+  ///
   /// Native contracts are hard-coded in the runtime.
   int native_contract_id;
 case kMockTest:
@@ -72,26 +77,33 @@ case kMockTest:
 ///
 /// When a contract deploys another contract, the new contract's address is
 /// deterministically computed as:
-///   ContractAddress = SHA256(ContractDeploymentHashPreimage)
 ///
-/// This is Groundhog's analogue of Ethereum's CREATE2 opcode, allowing
+/// ```text
+/// ContractAddress = SHA256(ContractDeploymentHashPreimage)
+/// ```
+///
+/// This is Groundhog's analogue of Ethereum's `CREATE2` opcode, allowing
 /// deterministic address derivation. The deployer controls the nonce to
 /// create addresses at will.
 ///
-/// Example: If contract A at address 0x1234... deploys contract B with
-/// hash 0xabcd... using nonce 0x5678..., then contract B will always be
+/// # Example
+///
+/// If contract A at address `0x1234...` deploys contract B with
+/// hash `0xabcd...` using nonce `0x5678...`, then contract B will always be
 /// deployed to the same address, even across different chains or deployments.
 struct ContractDeploymentHashPreimage {
   /// The address of the contract performing the deployment.
   ContractAddress deployer_address;
 
   /// Arbitrary 32-byte value chosen by the deployer.
+  ///
   /// Allows creating multiple instances of the same contract code
   /// at different addresses.
   SHA256Hash nonce;
 
   /// SHA-256 hash of the contract code being deployed.
-  /// For WASM contracts, this is SHA256(wasm_blob).
+  ///
+  /// For WASM contracts, this is `SHA256(wasm_blob)`.
   /// For native contracts, this is a predefined hash.
   SHA256Hash contract_hash;
 };
@@ -103,22 +115,31 @@ struct ContractDeploymentHashPreimage {
 /// Valid identifier string following RFC 4506.
 ///
 /// Must be a letter followed by an optional sequence of letters, digits,
-/// or underscores. Cannot be an XDR keyword (e.g., "struct", "union", "enum").
+/// or underscores. Cannot be an XDR keyword (e.g., `"struct"`, `"union"`, `"enum"`).
 ///
-/// Examples: "transfer", "approve", "get_balance"
+/// # Examples
+///
+/// - `"transfer"`
+/// - `"approve"`
+/// - `"get_balance"`
 typedef string Identifier<>;
 
 /// Semantic version string following semver.org specification.
 ///
-/// Format: MAJOR.MINOR.PATCH[-PRERELEASE][+BUILD]
+/// Format: `MAJOR.MINOR.PATCH[-PRERELEASE][+BUILD]`
 ///
-/// Examples: "0.1.3", "1.0.0", "2.1.4-alpha", "1.0.0-alpha+001"
+/// # Examples
+///
+/// - `"0.1.3"`
+/// - `"1.0.0"`
+/// - `"2.1.4-alpha"`
+/// - `"1.0.0-alpha+001"`
 typedef string SemVer<>;
 
 /// Hash preimage for deriving contract interface identifiers.
 ///
 /// Contract interfaces define a set of methods (entrypoints) with a name
-/// and version. The first 6 bytes of SHA256(ContractInterfaceIDPreimage)
+/// and version. The first 6 bytes of `SHA256(ContractInterfaceIDPreimage)`
 /// serve as a namespace prefix for all methods in that interface.
 ///
 /// This allows:
@@ -126,14 +147,18 @@ typedef string SemVer<>;
 /// - Collision resistance (different interfaces, same method names)
 /// - Stable method IDs across implementations
 ///
-/// Example: An interface "ERC20" version "1.0.0" will have a unique 6-byte
-/// prefix, and all methods (transfer, approve, etc.) will share that prefix.
+/// # Example
+///
+/// An interface `"ERC20"` version `"1.0.0"` will have a unique 6-byte
+/// prefix, and all methods (`transfer`, `approve`, etc.) will share that prefix.
 struct ContractInterfaceIDPreimage {
   /// Name of the contract interface.
-  /// Should be descriptive and unique (e.g., "ERC20", "Governance", "Oracle").
+  ///
+  /// Should be descriptive and unique (e.g., `"ERC20"`, `"Governance"`, `"Oracle"`).
   Identifier name;
 
   /// Semantic version of the interface.
+  ///
   /// Allows evolving interfaces while maintaining compatibility.
   SemVer vers;
 };
@@ -142,19 +167,28 @@ struct ContractInterfaceIDPreimage {
 ///
 /// Entrypoint IDs uniquely identify which method to invoke on a contract.
 /// They are computed as:
-///   Bytes 0-5: SHA256(ContractInterfaceIDPreimage)[0..6]
-///   Bytes 6-7: Method-specific ID chosen by interface author
+///
+/// ```text
+/// Bytes 0-5: SHA256(ContractInterfaceIDPreimage)[0..6]
+/// Bytes 6-7: Method-specific ID chosen by interface author
+/// ```
 ///
 /// This two-level scheme provides:
 /// 1. Interface-level namespace (6 bytes) - prevents collisions between interfaces
 /// 2. Method-level identifier (2 bytes) - identifies specific method within interface
 ///
-/// Example: For "ERC20" v1.0.0 interface:
-///   - SHA256("ERC20" || "1.0.0")[0..6] = 0xabcdef012345
-///   - transfer method ID = 0x0001
-///   - Full entrypoint = 0xabcdef0123450001
-///   - approve method ID = 0x0002
-///   - Full entrypoint = 0xabcdef0123450002
+/// # Example
+///
+/// For `"ERC20"` v1.0.0 interface:
+///
+/// ```text
+/// SHA256("ERC20" || "1.0.0")[0..6] = 0xabcdef012345
+/// transfer method ID = 0x0001
+/// Full entrypoint    = 0xabcdef0123450001
+///
+/// approve method ID  = 0x0002
+/// Full entrypoint    = 0xabcdef0123450002
+/// ```
 typedef opaque ContractEntrypointID[8]; // #[rust(newtype)]
 
 } // namespace hogd
