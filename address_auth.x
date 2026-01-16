@@ -9,14 +9,21 @@ namespace hogd
 // Address Authorization Data
 //
 // This module defines the authorization configuration stored at each address.
+// This configuration data tells Groundhog whether or not a given transaction
+// can begin execution in a given block.
+//
 // In Groundhog, every address can originate transactions and can be configured
 // with multiple signing keys, weighted multi-signature requirements, and
 // gas sponsorship permissions.
 //
-// Unlike Ethereum's model which distinguishes between externally-owned
-// addresses (EOAs) and contract addresses, Groundhog treats every address
-// uniformly: all addresses are contracts and can have sophisticated
-// authorization logic.
+// TODO(geoff): give an example of what that might look like here.
+//
+// Unlike the common blockchain model (as in, for example, Ethereum), in which
+// there is an explicit demarcation between so-called "externally owned addresses" (EOAs)
+// that can initiate transactions but have no associated code, and "contract addresses",
+// which hold invocable code but cannot initiate transactions,
+// Groundhog treats every address uniformly: all addresses can both hold a contract
+// and initiate a transaction. 
 //==============================================================================
 
 //------------------------------------------------------------------------------
