@@ -43,7 +43,7 @@ program AuthMempool {
 
 struct KeyChange {
   ContractAddress address;
-  AccountAuthData *auth_data;
+  AddressAuthData *auth_data;
 };
 typedef KeyChange KeyChangeBatch<>;
 
@@ -65,7 +65,7 @@ enum DBAuthError {
 
 union DBAuthResult switch (DBAuthError error) {
 case kDBAuthSuccess:
-  AccountAuthData auth_data;
+  AddressAuthData auth_data;
 default:
   void;
 };

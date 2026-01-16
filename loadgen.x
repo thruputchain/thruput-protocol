@@ -13,7 +13,7 @@ enum ExperimentType {
 };
 
 struct ERC20PaymentsConfig {
-  unsigned hyper num_accounts;
+  unsigned hyper num_addresses;
 };
 
 union ExperimentConfig switch (ExperimentType experiment_type)

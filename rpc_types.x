@@ -5,7 +5,7 @@
 %#include "transaction.hh"
 %#include "storage_item.hh"
 %#include "storage_delta_flags.hh"
-%#include "account.hh"
+%#include "address_auth.hh"
 
 namespace hogd
 {

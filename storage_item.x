@@ -1,7 +1,7 @@
 // clang-format off
 %#include "types.hh"
 %#include "retrocausal_queue.hh"
-%#include "account.hh"
+%#include "address_auth.hh"
 %#include "transaction.hh"
 
 namespace hogd
@@ -56,7 +56,7 @@ case kItemTypeRetrocausalQueue:
 case kItemTypeReplayCacheData:
   void;
 case kItemTypeAuthData:
-  AccountAuthData auth_data;
+  AddressAuthData auth_data;
 case kItemTypeDeployedContractHash:
   DeployedContractHash deployed_contract_hash;
 };
