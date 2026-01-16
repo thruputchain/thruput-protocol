@@ -88,9 +88,12 @@ case kMockTest:
 ///
 /// # Example
 ///
-/// If contract A at address `0x1234...` deploys contract B with
-/// hash `0xabcd...` using nonce `0x5678...`, then contract B will always be
-/// deployed to the same address for any deployment with these same parameters.
+/// ```text
+/// Contract A address:  0x1234... (example value)
+/// Contract B hash:     0xabcd...
+/// Deployment nonce:    0x5678...
+/// Result: Contract B address is deterministic for these parameters
+/// ```
 struct ContractDeploymentHashPreimage {
   /// The address of the contract performing the deployment.
   ContractAddress deployer_address;
@@ -179,10 +182,11 @@ struct ContractInterfaceIDPreimage {
 ///
 /// # Example
 ///
-/// For `"ERC20"` v1.0.0 interface:
+/// For `"ERC20"` v1.0.0 interface (example values):
 ///
 /// ```text
-/// SHA256("ERC20" || "1.0.0")[0..6] = 0xabcdef012345
+/// SHA256("ERC20" || "1.0.0")[0..6] = 0xabcdef012345 (6-byte prefix)
+///
 /// transfer method ID = 0x0001
 /// Full entrypoint    = 0xabcdef0123450001
 ///
