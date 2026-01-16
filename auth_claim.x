@@ -14,7 +14,7 @@ namespace hogd {
 // - Multi-signature authorization (weighted threshold of keys must sign)
 // - Cross-contract authorization (signatures from other contract addresses)
 //
-// Auth claims are verified against AccountAuthData stored at each contract
+// Auth claims are verified against AddressAuthData stored at each contract
 // address, which defines the available keys and their weights.
 //==============================================================================
 
@@ -32,7 +32,7 @@ typedef unsigned int Weight; // uint32_t
 /// Used to specify which keys are acceptable for satisfying an auth claim.
 typedef unsigned hyper BitMap;
 
-/// Identifier for a public key within an account's key set.
+/// Identifier for a public key within an address's key set.
 /// Valid range is 0-31 (must fit in one byte for CXS encoding).
 /// This is why kMaxSigners is constrained to be <= 31.
 typedef unsigned int KeyID;
@@ -41,12 +41,12 @@ typedef unsigned int KeyID;
 // Constants
 //------------------------------------------------------------------------------
 
-/// Maximum number of signers that can be configured on an account.
+/// Maximum number of signers that can be configured on an address.
 /// This matches Stellar's MAX_SIGNERS (20) plus 1 for the primary key.
 /// Must be <= 31 to fit in the BitMap representation.
 const kMaxSigners = 21; // #[rust(const=u32)]
 
-/// Maximum number of gas permission configurations per account.
+/// Maximum number of gas permission configurations per address.
 /// Multiple configs allow separation of concerns (e.g., sponsored gas vs
 /// contract owner management operations).
 const kMaxGasConfigs = 5; // #[rust(const=u32)]

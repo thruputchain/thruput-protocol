@@ -1,5 +1,5 @@
 // clang-format off
-%#include "account.hh"
+%#include "address_auth.hh"
 %#include "rpc_types.hh"
 %#include "types.hh"
 %#include "catchup.hh"
@@ -37,10 +37,10 @@ default:
   void;
 };
 
-union DbAccountAuthDataBatchResult switch (DbSchedResult result)
+union DbAddressAuthDataBatchResult switch (DbSchedResult result)
 {
 case DbSchedResultOK:
-  AccountAuthData account_auth_data_batch<>;
+  AddressAuthData address_auth_data_batch<>;
 default:
   void;
 };
@@ -63,7 +63,7 @@ program DbSched
   {
     void dbsched_null(void) = 0;
 
-    DbAccountAuthDataBatchResult dbsched_get_account_auth_data(
+    DbAddressAuthDataBatchResult dbsched_get_address_auth_data(
       BlockID, ContractAddressBatch) = 1;
 
     HogAgeResult dbsched_get_hog_ages(ContractAddressBatch) = 2;

@@ -92,7 +92,7 @@ typedef opaque ContractAddress[32]; // #[rust(newtype)]
 enum StorageKeyType {
   kStorageKeyTypeContractData = 0,
   kStorageKeyTypeFreeNativeTokenBalance = 1,
-  kStorageKeyTypeAccountAuthData = 2,
+  kStorageKeyTypeAddressAuthData = 2,
   kStorageKeyTypeAddressMetadata = 3,
   kStorageKeyTypeReplayCache = 4,
 };
@@ -108,7 +108,7 @@ case kStorageKeyTypeContractData:
   StorageKeyContractData contract_data_key;
 case kStorageKeyTypeFreeNativeTokenBalance:
   void;
-case kStorageKeyTypeAccountAuthData:
+case kStorageKeyTypeAddressAuthData:
   void;
 case kStorageKeyTypeAddressMetadata:
   void;
