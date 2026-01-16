@@ -116,7 +116,7 @@ enum StorageKeyType {
 
   /// Replay cache for nonce tracking.
   ///
-  /// Stores a set of active [`Uniquifier1] objects
+  /// Stores a set of active [`Uniquifier`] objects
   /// to prevent transaction replay attacks.
   kStorageKeyTypeReplayCache = 4,
 };
