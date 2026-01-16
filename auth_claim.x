@@ -10,7 +10,7 @@ namespace hogd {
 // are required to authorize the transaction's execution.
 //
 // Workflow:
-// 1. AuthClaims are attached to a Transaction
+// 1. A user constructs a Transaction, which includes some number of AuthClaims.
 // 2. Signatures are added to create a SignedTransaction
 // 3. Groundhog verifies that signatures match the auth claims (before execution)
 // 4. During execution, contracts can read the auth claims but NOT the signatures
