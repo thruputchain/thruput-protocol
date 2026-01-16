@@ -183,6 +183,9 @@ struct ContractInterfaceIDPreimage {
 /// 1. Interface-level namespace (6 bytes) - prevents collisions between interfaces
 /// 2. Method-level identifier (2 bytes) - identifies specific method within interface
 ///
+/// By default, the SDK lexicographically sorts method names and allocates the
+/// last 2 bytes based on that order (first method gets 0x0000, second gets 0x0001, etc.).
+///
 /// # Example
 ///
 /// For `"ERC20"` v1.0.0 interface:
@@ -190,11 +193,9 @@ struct ContractInterfaceIDPreimage {
 /// ```text
 /// SHA256("ERC20" || "1.0.0")[0..6] = 0xabcdef012345 (6-byte prefix)
 ///
-/// transfer method ID = 0x0001
-/// Full entrypoint    = 0xabcdef0123450001
-///
-/// approve method ID  = 0x0002
-/// Full entrypoint    = 0xabcdef0123450002
+/// Methods sorted lexicographically:
+/// approve  -> method ID = 0x0000 -> Full entrypoint = 0xabcdef0123450000
+/// transfer -> method ID = 0x0001 -> Full entrypoint = 0xabcdef0123450001
 /// ```
 typedef opaque ContractEntrypointID[8]; // #[rust(newtype)]
 
