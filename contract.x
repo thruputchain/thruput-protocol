@@ -90,7 +90,7 @@ case kMockTest:
 ///
 /// If contract A at address `0x1234...` deploys contract B with
 /// hash `0xabcd...` using nonce `0x5678...`, then contract B will always be
-/// deployed to the same address, even across different chains or deployments.
+/// deployed to the same address for any deployment with these same parameters.
 struct ContractDeploymentHashPreimage {
   /// The address of the contract performing the deployment.
   ContractAddress deployer_address;
@@ -205,15 +205,15 @@ struct DeployedContractHash {
 
   /// Size of the contract in bytes.
   ///
-  /// This field is technically redundant, but allows computing and updating
-  /// storage costs without reloading the entire contract from storage.
+  /// Optimization: allows computing and updating storage costs without
+  /// loading the full contract from storage.
   unsigned int contract_size;
 
   /// The type of contract (e.g., Wasm, native, etc.).
   ///
-  /// Used as an annotation hint in the executor to determine which type of
-  /// runtime to instantiate. Redundant with the stored contract, but allows
-  /// avoiding loading the whole contract from storage.
+  /// Optimization: allows the executor to determine which runtime to
+  /// instantiate without a database lookup. When the contract module is
+  /// already cached, this avoids loading the contract bytecode entirely.
   ContractType contract_type;
 };
 

@@ -32,7 +32,7 @@ typedef unsigned int Weight; // uint32_t
 ///
 /// Each bit position corresponds to a key ID (bit 0 = key 0, bit 1 = key 1, etc.).
 /// Used to specify which keys are acceptable for satisfying an auth claim.
-typedef unsigned hyper BitMap;
+typedef unsigned int BitMap;
 
 /// Identifier for a public key within an address's key set.
 ///
