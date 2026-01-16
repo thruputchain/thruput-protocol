@@ -151,9 +151,8 @@ syscalls:
     inputs:
       - name: "address"
         typename: "ContractAddress"
-      - name: "method"
-        typename: "MethodID"
-        primitive_type: true
+      - name: "entrypoint_id"
+        typename: "uint64_t"
       - name: "gas_limit"
         typename: "GasAmount"
         primitive_type: true
@@ -177,6 +176,16 @@ syscalls:
       The SDK sets the default gas limit as UINT64_MAX, meaning i.e.
       all of the remaining gas in the current call frame.
       Any unused gas will be returned to the caller.
+
+      Note that the entrypoint_id is passed as a u64,
+      but that u64 is derived from a ContractEntrypointID ([u8, 8]),
+      as the little-endian interpretation of the entrypoint id.
+      This is a minor optimization that lets the entrypoint id be passed
+      to the syscall directly as one of the u64 arguments, instead of
+      as an offset into linear memory.
+      (and, if the compiler is able to find this optimization,
+      the entrypoint id can in principle be passed as a wasm stack argument,
+      without an i64.store into linear memory).
     errors:
       - code: kSyscallErrorCodeInvalidSyscallInput
         description: >

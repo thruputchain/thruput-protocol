@@ -4,6 +4,18 @@
 namespace hogd
 {
 
+typedef unsigned int Weight; // uint32_t
+typedef unsigned hyper BitMap;
+
+// If we use the bitmap approach, should be less than the width of
+// the bitmap.
+// This constant is intended to match the MAX_SIGNERS constant in the Stellar protocol,
+// which is 20.  We add 1 to account for the primary key on a Stellar account.
+const kMaxSigners = 21; // #[rust(const=u32)]
+// Could be 1; Slightly useful to have multiple for sponsored gas,
+// i.e. separating sponsor ops vs contract owner management
+const kMaxGasConfigs = 5; // #[rust(const=u32)]
+
 struct PublicKeyConfig {
   PublicKey key; // union multiplexing over signature scheme (ed25519,...)
   Weight max_weight;

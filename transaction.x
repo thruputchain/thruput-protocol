@@ -12,7 +12,8 @@ namespace hogd
 // TXS encoding of the call arguments (as a tuple)
 typedef opaque Calldata<>;
 
-typedef opaque ReturnBuffer<>;
+const kMaxReturnBufferLen = 1024; // #[rust(const=u32)]
+typedef opaque ReturnBuffer<kMaxReturnBufferLen>;
 
 // A claim about sponsored gas units for a transaction.
 struct GasClaim {

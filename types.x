@@ -1,70 +1,94 @@
 namespace hogd {
 
+/// Encodes a 128-bit unsigned integer as two 64-bit unsigned integers.
+/// Under the standard XDR encoding, this type serializes as a big-endian u128.
 struct uint128_xdr {
   unsigned hyper highbits;
   unsigned hyper lowbits;
 };
 
+/// Encodes a 128-bit signed integer as two 64-bit signed integers.
+/// Under the standard XDR encoding, this type serializes as a big-endian i128.
 struct int128_xdr {
   hyper highbits;
   unsigned hyper lowbits;
 };
 
-// uint64_t, Unix time as nanoseconds elapsed since
-// January 1, 1970 UTC
+/// uint64_t, Unix time as nanoseconds elapsed since
+/// January 1, 1970 UTC
 typedef unsigned hyper TimePoint;
 
-typedef unsigned int RuntimeMemoryOffset; // uint32_t
+/// Typedef representing a length of memory in bytes, within
+/// a wasm runtime.  This is primarily used as an argument to syscalls,
+/// and should not be directly used by most contracts.
 typedef unsigned int RuntimeMemoryLength; // uint32_t
 
 // TODO(geoff): consider using a smaller type for GasAmount
+/// Represents a quantity of gas.  Alias of u64.
 typedef unsigned hyper GasAmount; // uint64_t
-typedef unsigned hyper MethodID;  // uint64_t
 
-// ed25519 sig len is 512 bits
+/// Represents a 512-bit Ed25519 signature.
 typedef opaque Ed25519Signature[64]; // #[rust(newtype)]
-// ed25519 key len is 256 bits
+/// Represents a 256-bit Ed25519 public key.
 typedef opaque Ed25519PublicKey[32]; // #[rust(newtype)]
-// ed25519 secret key len is 64 bytes
+/// Represents a 64-byte Ed25519 secret key.
 typedef opaque Ed25519SecretKey[64]; // #[rust(newtype)]
 
+/// Represents the cryptographic scheme used for a signature or public key.
 enum CryptographicScheme {
   Ed25519 = 0,
 };
 
+
+/// Union of a Signature type over the various cryptographic schemes.
 union Signature switch (CryptographicScheme scheme)
 {
 case Ed25519:
   Ed25519Signature ed25519;
 };
 
+/// Union of a PublicKey type over the various cryptographic schemes.
 union PublicKey switch (CryptographicScheme scheme)
 {
 case Ed25519:
   Ed25519PublicKey ed25519;
 };
 
+/// Union of a SecretKey type over the various cryptographic schemes.
 union SecretKey switch (CryptographicScheme scheme)
 {
 case Ed25519:
   Ed25519SecretKey ed25519;
 };
 
+/// An ExtensionPoint is a struct that can be embedded as the first
+/// element of other XDR structs in order to allow future upgradeability
+/// without breaking serialization of pre-existing objects.
+/// This serializes as a 32-bit integer.  In its current state,
+/// the only valid byte value is 0, but a struct that embeds this can
+/// later replace itself with a union (with the prior struct as variant 0)
+/// without breaking backwards compatibility.
 union ExtensionPoint switch (int v)
 {
 case 0:
   void;
 };
 
-// 256 bit hash
+/// Represents a 256-bit SHA-256 hash.
 typedef opaque SHA256Hash[32]; // #[rust(newtype)]
-// 256 bit contract address
-typedef opaque ContractAddress[32]; // #[rust(newtype)]
-typedef ContractAddress ContractAddressBatch<>;
-// arbitrary 32-byte key into contract storage
-// This is the key type that contracts directly manipulate
-typedef opaque StorageKeyContractData[32]; // #[rust(newtype)]
 
+/// Represents a 256-bit contract address.
+/// In the groundhog storage model, each contract is deployed at a 
+/// 32-byte unique `ContractAddress`.
+typedef opaque ContractAddress[32]; // #[rust(newtype)]
+
+/// Each ContractAddress owns a namespace of storage keys.
+/// Most of the keyspace is made up of ContractData keys, which are indexed
+/// by 32-byte (arbitrary) identifiers (the [`StorageKeyContractData`](struct.StorageKeyContractData.html) type).
+/// The other variants here have special purposes, and cannot be freely accessed
+/// by contracts.
+/// Contracts are free to set their own conventions for indexing data within 
+/// the StorageKeyContractData subspace..
 enum StorageKeyType {
   kStorageKeyTypeContractData = 0,
   kStorageKeyTypeFreeNativeTokenBalance = 1,
@@ -73,6 +97,11 @@ enum StorageKeyType {
   kStorageKeyTypeReplayCache = 4,
 };
 
+/// Represents an arbitrary 32-byte key into contract storage.
+/// This is the key type that contracts directly manipulate
+typedef opaque StorageKeyContractData[32]; // #[rust(newtype)]
+
+/// Union of a StorageKey type over the various storage key types.
 union StorageKey switch (StorageKeyType key_type)
 {
 case kStorageKeyTypeContractData:
@@ -88,64 +117,21 @@ case kStorageKeyTypeReplayCache:
   // TODO(geoff): add other key types
 };
 
-const kMaxLogMessageLen = 1024;   // #[rust(const=u32)]
-const kMaxReturnBufferLen = 1024; // #[rust(const=u32)]
 
 const kTotalHogSupply = 62'500'000'000; // #[rust(const=u64)]
 const kHogDivisibility = 10'000'000;    // #[rust(const=u32)]
 // Each hog token is divisible into 10^7 units
 
-typedef unsigned hyper ReplayNonce;
-
-// in global storage:
-// [contract address + storage key] = 64 bytes
-// Contracts are free to set their own conventions for keys.
+/// In the global storage, every item is indexed by a unique [contract address + storage key] pair.
 struct AddressAndKey {
   ContractAddress address;
   StorageKey key;
 };
 
-struct LogEntry {
-  ContractAddress source_address;
-  opaque message<kMaxLogMessageLen>;
-};
-
-// BlockHeight is the height of a block. It is signed to prevent overflows in
-// calculations.
+/// BlockHeight is the height of a block, measured as the number of blocks since the genesis of the chain.
+/// The first block of transactions is at height 1.
+/// It is signed to prevent overflows in
+/// calculations.
 typedef hyper BlockHeight;
-typedef unsigned int Weight; // uint32_t
-typedef unsigned hyper BitMap;
-
-// XXX(petar): BlockHash should be renamed to MerkleHash
-typedef SHA256Hash BlockHash;
-
-// An internal unique ID describing a block.
-typedef unsigned hyper BlockID;
-
-struct DbTip {
-  BlockHeight height;
-  BlockHash hash;
-  BlockID id;
-};
-
-// ServerAddress is an IP (or hostname) and port address, separated by a
-// colon.
-typedef string ServerAddress<>;
-
-// UPID is a globally unique process identifier (function of start time, place
-// and randomness)
-typedef opaque UPID[8];
-
-// Protocol describes a specific protocol and version.
-typedef string Protocol<>;
-
-// If we use the bitmap approach, should be less than the width of
-// the bitmap.
-// This constant is intended to match the MAX_SIGNERS constant in the Stellar protocol,
-// which is 20.  We add 1 to account for the primary key on a Stellar account.
-const kMaxSigners = 21; // #[rust(const=u32)]
-// Could be 1; Slightly useful to have multiple for sponsored gas,
-// i.e. separating sponsor ops vs contract owner management
-const kMaxGasConfigs = 5; // #[rust(const=u32)]
 
 } // namespace hogd

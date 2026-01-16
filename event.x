@@ -8,7 +8,7 @@ namespace hogd {
 // The event format puts the first N * 32 bytes of the data
 // as the topics.
 
-const kMaxEventLength = 1024;
+const kMaxEventLength = 1024; // #[rust(const=u32)]
 const kMaxTopics = 3;
 
 typedef opaque Topic[32]; // #[rust(newtype)]
