@@ -104,19 +104,20 @@ enum StorageKeyType {
 
   /// Address authorization data.
   ///
-  /// Stores `AddressAuthData` - the authorization configuration including
+  /// Stores [`AddressAuthData`] - the authorization configuration including
   /// public keys, weights, gas permissions, and nonce rules.
   kStorageKeyTypeAddressAuthData = 2,
 
   /// Address metadata.
   ///
-  /// Stores `AddressMetadata` - metadata about the contract deployed at
+  /// Stores [`AddressMetadata`] - metadata about the contract deployed at
   /// this address (hash, size, type).
   kStorageKeyTypeAddressMetadata = 3,
 
   /// Replay cache for nonce tracking.
   ///
-  /// Stores nonce values to prevent transaction replay attacks.
+  /// Stores a set of active [`Uniquifier1] objects
+  /// to prevent transaction replay attacks.
   kStorageKeyTypeReplayCache = 4,
 };
 
