@@ -144,6 +144,11 @@ typedef string SemVer<>;
 
 /// Hash preimage for deriving contract interface identifiers.
 ///
+/// Contract entrypoints can be arbitrary 8 byte identifiers (the [`ContractEntryPointID`] type).
+///  By default, the SDK
+/// for Groundhog contracts follows the following scheme for allocating those 
+/// identifiers, although this scheme is not a strict requirement.
+///
 /// Contract interfaces define a set of methods (entrypoints) with a name
 /// and version. The first 6 bytes of `SHA256(ContractInterfaceIDPreimage)`
 /// serve as a namespace prefix for all methods in that interface.
@@ -172,7 +177,7 @@ struct ContractInterfaceIDPreimage {
 /// 8-byte identifier for a contract method (entrypoint).
 ///
 /// Entrypoint IDs uniquely identify which method to invoke on a contract.
-/// They are computed as:
+/// By default, the SDK computes these as follows.
 ///
 /// ```text
 /// Bytes 0-5: SHA256(ContractInterfaceIDPreimage)[0..6]
