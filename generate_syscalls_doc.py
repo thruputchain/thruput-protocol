@@ -149,65 +149,31 @@ def _break_at_commas(text: str) -> List[str]:
 
 
 def format_description(description: str) -> List[str]:
-    """Format description text, breaking long lines at sentence boundaries."""
+    """Format description text, preserving line breaks within paragraphs.
+    
+    With YAML literal scalar (|), newlines are preserved. This function
+    groups text by paragraphs (separated by double newlines) and preserves
+    single newlines within each paragraph. The Rust code will split on \n
+    to preserve these breaks in the generated documentation.
+    """
     if not description:
         return []
     
-    # Split by double newlines first to preserve paragraphs
+    # Split by double newlines to separate paragraphs
     paragraphs = description.split('\n\n')
-    result_lines = []
+    result = []
     
-    for para_idx, para in enumerate(paragraphs):
+    for para in paragraphs:
         para = para.strip()
         if not para:
             continue
         
-        # Split by single newlines (which might be preserved in some cases)
-        para_lines = para.split('\n')
-        for line in para_lines:
-            line = line.strip()
-            if not line:
-                if result_lines and result_lines[-1] != '':
-                    result_lines.append('')
-                continue
-            
-            # If line is very long, try to break at natural boundaries
-            if len(line) > 100:
-                # Try to break at sentence boundaries first (periods)
-                sentence_matches = list(re.finditer(r'\.\s+(?=[A-Z])', line))
-                if sentence_matches:
-                    last_pos = 0
-                    for match in sentence_matches:
-                        sentence_end = match.end() - 1  # Position of period
-                        sentence = line[last_pos:sentence_end + 1].strip()
-                        if sentence:
-                            # If sentence is still long, break at commas
-                            if len(sentence) > 100:
-                                result_lines.extend(_break_at_commas(sentence))
-                            else:
-                                result_lines.append(sentence)
-                        last_pos = match.end()
-                    # Add remaining text
-                    remaining = line[last_pos:].strip()
-                    if remaining:
-                        if len(remaining) > 100:
-                            result_lines.extend(_break_at_commas(remaining))
-                        else:
-                            result_lines.append(remaining)
-                else:
-                    # No sentence boundaries, try breaking at commas
-                    if len(line) > 100:
-                        result_lines.extend(_break_at_commas(line))
-                    else:
-                        result_lines.append(line)
-            else:
-                result_lines.append(line)
-        
-        # Add paragraph break if not last paragraph
-        if para_idx < len(paragraphs) - 1 and result_lines and result_lines[-1] != '':
-            result_lines.append('')
+        # Preserve the paragraph with its internal newlines intact
+        # The Rust code expects strings that may contain \n characters
+        # and will split on them to preserve line breaks
+        result.append(para)
     
-    return result_lines
+    return result
 
 
 def format_rust_doc_comment(text: str, indent: str = "") -> List[str]:

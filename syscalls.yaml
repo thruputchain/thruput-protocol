@@ -166,15 +166,15 @@ syscalls:
         typename: "RuntimeMemoryLength"
         primitive_type: true
     number: 5
-    description: >
+    description: |
       Invokes the specified method of the contract at the specified
-      address, with the supplied parameters. Creates a new callframe,
-      which terminates upon conclusion of the Invoke() syscall.
+      address, with the supplied parameters. Creates a new invocation
+      frame, which terminates upon conclusion of the Invoke() syscall.
 
-      The call frame will be limited to the minimum of gas_limit units
-      of gas and the remaining gas in the current call frame.
+      The frame will be limited to the minimum of gas_limit units
+      of gas and the remaining gas in the current frame.
       The SDK sets the default gas limit as UINT64_MAX, meaning i.e.
-      all of the remaining gas in the current call frame.
+      all of the remaining gas in the current frame.
       Any unused gas will be returned to the caller.
 
       Note that the entrypoint_id is passed as a u64,
