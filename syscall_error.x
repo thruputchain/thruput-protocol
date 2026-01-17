@@ -5,6 +5,9 @@ namespace hogd {
 
 // triple slash comments are added to the generated rust docs
 
+/// Error codes returned by system calls.
+/// Each syscall can return a specific subset of these error codes.
+/// Check the syscalls.yaml documentation for which errors each syscall can return.
 enum SyscallErrorCode {
   /// No error
   kSyscallErrorCodeNone = 0,

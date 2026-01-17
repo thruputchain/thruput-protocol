@@ -608,13 +608,19 @@ syscalls:
     outputs:
     number: 24
     description: >
-      Logs an event with up to 3 topics and optional data. Events are
-      emitted to the event log and can be queried by external systems.
+      Logs an event with up to 3 topics and additional data. Constructs a
+      TxEmittedEvent where the serialized_event field contains the topics
+      prepended to the data: topic0 || topic1 || topic2 || data. The num_topics
+      field indicates how many leading 32-byte chunks are topics, enabling
+      downstream indexers to efficiently filter events. Events are stored
+      in the transaction's event log and accumulated into a per-block
+      merkle-patricia trie.
     errors:
       - code: kSyscallErrorCodeInvalidSyscallInput
         description: >
-          The event data exceeds the maximum allowed length, or topics
-          are not supplied in a continuous sequence.
+          The event data exceeds the maximum allowed length (kMaxEventLength),
+          or topics are not supplied in a continuous sequence (e.g., topic0
+          and topic2 provided without topic1).
   - name: "GetAuthClaimCount"
     read_only: true
     inputs:
