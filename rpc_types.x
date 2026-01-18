@@ -4,7 +4,6 @@
 %#include "contract.hh"
 %#include "transaction.hh"
 %#include "storage_item.hh"
-%#include "storage_delta_flags.hh"
 %#include "address_auth.hh"
 
 namespace hogd

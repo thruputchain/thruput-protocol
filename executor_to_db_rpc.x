@@ -16,7 +16,7 @@ struct FlaggedStorageDelta {
   // important.
   AddressAndKey addrkey;
   StorageDelta delta;
-  StorageItemRPCFlagSet flags;
+  StorageDeltaFlagSet flags;
 };
 
 typedef FlaggedStorageDelta StorageDeltaBatch<>;

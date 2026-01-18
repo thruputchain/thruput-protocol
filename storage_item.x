@@ -14,6 +14,10 @@ enum StorageItemType {
   kItemTypeReplayCacheData = 3,
   kItemTypeAuthData = 4,
   kItemTypeDeployedContractHash = 5,
+
+  // #[doc(hidden)]
+  // This will be removed when we get rid of the old db interface.
+  kItemTypeDeleted = -1,
 };
 
 const kBytestringMaxLen = 1024;
