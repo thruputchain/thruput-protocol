@@ -39,10 +39,6 @@ program SchedDb
     void scheddb_intro_shard(ShardCard) = 1;
 
     void scheddb_hogs_transferred(HogsTransferred) = 2;
-
-    // Notify the scheduler of which addresses have changed their auth data,
-    // so that the scheduler can invalidate cached auth checks.
-    void scheddb_changed_addresses(BlockHeight, ContractAddressBatch) = 3;
   }
   = 1;
 }
