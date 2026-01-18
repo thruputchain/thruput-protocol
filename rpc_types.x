@@ -93,7 +93,7 @@ default:
 union ExpectedStorageItem switch (RPCError error)
 {
 case kRPCNone:
-  StorageItem item;
+  WireStorageItem item;
 default:
   void;
 };

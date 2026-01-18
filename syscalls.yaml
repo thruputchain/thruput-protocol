@@ -55,8 +55,8 @@ type_mappings:
   - base_name: "Topic"
     rust_name: "[u8; 32]"
     rust_uses_as_ptr: false
-  - base_name: "StorageItemRPCFlagSet"
-    rust_name: "StorageItemRPCFlagSet"
+  - base_name: "StorageDeltaFlagSet"
+    rust_name: "StorageDeltaFlagSet"
     rust_uses_as_ptr: false
     primitive_type: true
   - base_name: "BlockHeight"
@@ -390,7 +390,7 @@ syscalls:
       - name: "bytestring"
         span_argument: true
       - name: "flags"
-        typename: "StorageItemRPCFlagSet"
+        typename: "StorageDeltaFlagSet"
     outputs:
     number: 15
     description: >
@@ -457,7 +457,7 @@ syscalls:
         typename: "int128_t"
         syscall_pass_by_value: true
       - name: "flags"
-        typename: "StorageItemRPCFlagSet"
+        typename: "StorageDeltaFlagSet"
     outputs:
     number: 17
     description: >
@@ -476,7 +476,7 @@ syscalls:
       - name: "key"
         typename: "StorageKeyContractData"
       - name: "flags"
-        typename: "StorageItemRPCFlagSet"
+        typename: "StorageDeltaFlagSet"
     outputs:
     number: 18
     description: >
