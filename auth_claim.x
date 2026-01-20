@@ -103,6 +103,11 @@ enum AuthClaimType {
   ///
   /// Combines cross-contract auth with multi-signature requirements.
   kOtherAddressSignedWeight = 3,
+
+  /// Requires a signature from a specific key
+  ///
+  /// XXX
+  kPubkeySignature = 4,
 };
 
 /// An authorization claim specifying what signatures are needed to authorize
@@ -147,6 +152,14 @@ case kOtherAddressSignedWeight:
     /// Total weight required from the accepted keys' signatures.
     Weight required_weight;
   } other_address_signed_weight;
+
+case kPubkeySignature:
+  PubkeyAccountPreimage pubkey_preimage;
+};
+
+struct PubkeyAccountPreimage {
+    PublicKey pubkey;
+    ReplayNonce nonce;
 };
 
 /// A list of auth claims for a transaction.
