@@ -16,10 +16,10 @@ enum TxInfoOutcome {
 };
 
 union TxInfoResult switch (TxInfoOutcome outcome) {
-  case TxInfoFound:
-    TxInfo info;
-  default:
-    void;
+case TxInfoFound:
+  TxInfo info;
+default:
+  void;
 };
 
 // Clients (e.g., block explorer GUIs) use this API to retrieve data from the
