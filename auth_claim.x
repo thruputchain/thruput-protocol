@@ -159,7 +159,7 @@ case kPubkeySignature:
 
 struct PubkeyAccountPreimage {
     PublicKey pubkey;
-    ReplayNonce nonce;
+    unsigned hyper nonce;
 };
 
 /// A list of auth claims for a transaction.
