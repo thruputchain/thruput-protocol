@@ -4,6 +4,7 @@
 %#include "sc_val.hh"
 
 namespace hogd {
+// clang-format on
 
 // The event format puts the first N * 32 bytes of the data
 // as the topics.
