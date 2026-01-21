@@ -4,13 +4,31 @@
 
 namespace hogd {
 
+struct TxInfo {
+  // The height of the block the tx was executed in.
+  BlockHeight height;
+  TxEventLog events;
+};
+
+enum TxInfoOutcome {
+  TxInfoFound = 0,
+  TxInfoNotFound = 1
+};
+
+union TxInfoResult switch (TxInfoOutcome outcome) {
+  case TxInfoFound:
+    TxInfo info;
+  default:
+    void;
+};
+
 // Clients (e.g., block explorer GUIs) use this API to retrieve data from the
 // indexer.
 program Indexer
 {
   version Indexer1
   {
-    TxEventLog get_events_for_transaction(SignedTransactionHash) = 0;
+    TxInfoResult get_transaction_info(SignedTransactionHash) = 0;
   } = 1;
 }
 = 0x4321aaaa;
