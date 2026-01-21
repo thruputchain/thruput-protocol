@@ -27,12 +27,17 @@ program IndexerEvent
 }
 = 0x4321aaab;
 
+struct IndexerCard {
+  Protocol protocol;
+  ServerAddress address_for_event;
+};
+
 // The indexer uses this API to communicate with the event server.
 program EventIndexer
 {
   version EventIndexer1
   {
-    TxEventLog event_indexer_intro() = 0;
+    TxEventLog event_indexer_intro(IndexerCard) = 0;
   } = 1;
 }
 = 0x4321aaac;
