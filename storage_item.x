@@ -221,6 +221,11 @@ case kDeltaTypeConsumeUniquifier:
   ConsumeUniquifierArgs consume_uniquifier_args;
 };
 
+/// Maximum heights with an unexpired consumed uniquifier in a cache.
+const kReplayCacheHeightsMaxLen = 4000;
+/// Maximum unexpired consumed uniquifiers allowed per height in a cache.
+const kReplayCacheNoncesMaxLen = 8000;
+
 // #[doc(hidden)]
 // Information about the number of nonces stored at each height of a
 // ReplayCache. Tracked in the ReplayCacheMetadata so nonce GC can
@@ -236,13 +241,13 @@ struct ReplayCacheMetadata {
   // Total count of all nonces in this ReplayCache across all heights.
   hyper size;
   // Sorted list of heights with active nonces and count at each.
-  ReplayCacheHeightCount heights<>;
+  ReplayCacheHeightCount heights<kReplayCacheNoncesMaxLen>;
 };
 
 // #[doc(hidden)]
 struct ReplayCacheData {
   // Sorted list of nonces for a particular height of a ReplayCache.
-  hyper nonces<>;
+  hyper nonces<kReplayCacheNoncesMaxLen>;
 };
 
 /// Flags that can be set on a storage delta to modify its behavior.
