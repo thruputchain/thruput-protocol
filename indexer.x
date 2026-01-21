@@ -35,7 +35,7 @@ program Indexer
 }
 = 0x4321aaaa;
 
-typedef TxEventLogBatch TxEventLog<>;
+typedef TxEventLog TxEventLogBatch<>;
 
 // The event server uses this API to communicate with the indexer.
 program IndexerEvent
