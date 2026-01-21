@@ -42,7 +42,7 @@ program IndexerEvent
 {
   version IndexerEvent1
   {
-    void indexer_event_process_events(TxEventLogBatch) = 0;
+    void indexer_event_process_events(BlockHeight, TxEventLogBatch) = 0;
   } = 1;
 }
 = 0x4321aaab;
