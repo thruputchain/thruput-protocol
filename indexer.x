@@ -22,7 +22,7 @@ program IndexerEvent
 {
   version IndexerEvent1
   {
-    TxEventLog indexer_event_process_events() = 0;
+    TxEventLog indexer_event_process_events(TxEventLogBatch) = 0;
   } = 1;
 }
 = 0x4321aaab;
