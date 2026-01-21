@@ -1,8 +1,10 @@
+// clang-format off
 %#include "event.hh"
 %#include "transaction.hh"
 %#include "types.hh"
 
 namespace hogd {
+// clang-format on
 
 struct TxInfo {
   // The height of the block the tx was executed in.
