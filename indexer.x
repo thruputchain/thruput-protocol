@@ -22,7 +22,7 @@ program IndexerEvent
 {
   version IndexerEvent1
   {
-    TxEventLog indexer_event_process_events(TxEventLogBatch) = 0;
+    void indexer_event_process_events(TxEventLogBatch) = 0;
   } = 1;
 }
 = 0x4321aaab;
@@ -37,7 +37,7 @@ program EventIndexer
 {
   version EventIndexer1
   {
-    TxEventLog event_indexer_intro(IndexerCard) = 0;
+    void event_indexer_intro(IndexerCard) = 0;
   } = 1;
 }
 = 0x4321aaac;
