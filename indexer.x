@@ -1,5 +1,6 @@
 // clang-format off
 %#include "event.hh"
+%#include "network.hh"
 %#include "transaction.hh"
 %#include "types.hh"
 
@@ -26,9 +27,9 @@ default:
 
 // Clients (e.g., block explorer GUIs) use this API to retrieve data from the
 // indexer.
-program Indexer
+program IndexerBlockExplorer
 {
-  version Indexer1
+  version IndexerBlockExplorer1
   {
     TxInfoResult get_transaction_info(SignedTransactionHash) = 0;
   } = 1;
