@@ -2,6 +2,8 @@
 namespace hogx {
 // clang-format on
 
+struct Void {};
+
 typedef hyper Timestamp;
 
 typedef string Path<>;
