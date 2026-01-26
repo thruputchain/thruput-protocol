@@ -2,7 +2,9 @@
 namespace hogx {
 // clang-format on
 
-struct Void {};
+struct Void {
+	void;
+};
 
 typedef hyper Timestamp;
 
