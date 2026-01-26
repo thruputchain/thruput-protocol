@@ -3,7 +3,7 @@ namespace hogx {
 // clang-format on
 
 struct Void {
-	void;
+  void;
 };
 
 typedef hyper Timestamp;
