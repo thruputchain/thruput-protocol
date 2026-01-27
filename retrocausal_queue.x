@@ -25,6 +25,21 @@ struct RetrocausalQueuePastBlockConsumeDelta {
   unsigned hyper partial_consumed_number;
 };
 
+// Root metadata for a Retrocausal Queue, stored at the item key.
+// Tracks both head (consume state) and tail (production state).
+struct RetrocausalQueueMetadata {
+  // Current consume state - where consumption left off.
+  RetrocausalQueuePastBlockConsumeDelta consume_state;
+
+  // The highest block number currently live (written and not fully consumed).
+  // New blocks will be numbered max_live_block_num + 1.
+  // 0 if no blocks have been produced yet.
+  unsigned hyper max_live_block_num;
+
+  // Total number of entries currently live in the queue (for cost calculation).
+  unsigned hyper live_entries;
+};
+
 struct RetrocausalQueueConsumeDelta {
   RetrocausalQueuePastBlockConsumeDelta past_block_consume;
   QueueEntry current_block_consumed<>;

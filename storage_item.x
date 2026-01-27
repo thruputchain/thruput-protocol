@@ -84,7 +84,7 @@ case kItemTypeNonnegativeInt:
 case kItemTypeAuthData:
   AddressAuthData auth_data;
 case kItemTypeRetrocausalQueue:
-  void;
+  RetrocausalQueueMetadata metadata;
 case kItemTypeReplayCacheData:
   void;
 case kItemTypeDeployedContractHash:

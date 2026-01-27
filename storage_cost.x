@@ -9,6 +9,8 @@ struct StorageCostModelXdr {
   int128_xdr base_contract_deployment_cost;
   int128_xdr contract_deployment_cost_per_byte;
   int128_xdr auth_per_key_cost;
+  int128_xdr rcq_cost_per_entry;
+  int128_xdr rcq_cost_per_block;
   int128_xdr replay_cache_cost_per_entry;
   int128_xdr balance_cost;
 };
