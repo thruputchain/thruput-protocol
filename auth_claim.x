@@ -110,6 +110,11 @@ enum AuthClaimType {
   kPubkeySignature = 4,
 };
 
+struct PubkeyAccountPreimage {
+  PublicKey pubkey;
+  unsigned hyper nonce;
+};
+
 /// An authorization claim specifying what signatures are needed to authorize
 /// a transaction.
 ///
@@ -155,11 +160,6 @@ case kOtherAddressSignedWeight:
 
 case kPubkeySignature:
   PubkeyAccountPreimage pubkey_preimage;
-};
-
-struct PubkeyAccountPreimage {
-  PublicKey pubkey;
-  unsigned hyper nonce;
 };
 
 /// A list of auth claims for a transaction.
