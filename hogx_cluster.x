@@ -10,6 +10,7 @@ struct HostDef {
   //
   string ssh_user<>;
   string ssh_address<>;
+  unsigned int *ssh_port;
   string ssh_private_key<>;
   //
   HostConfig host_config;
