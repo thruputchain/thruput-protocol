@@ -1,3 +1,4 @@
+%#include "precompiles.hh"
 %#include "types.hh"
 
 namespace hogd {
@@ -63,7 +64,7 @@ case kNative:
   /// Identifier for which native contract this is.
   ///
   /// Native contracts are hard-coded in the runtime.
-  int native_contract_id;
+  HogexecPrecompiledNativeContracts native_contract_id;
 case kMockTest:
   /// Identifier for the mock contract in the test harness.
   int mock_contract_id;

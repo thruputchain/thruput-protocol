@@ -70,7 +70,7 @@ program HogxAgent
     HogxUnitStopResult hogxagent_unit_stop(UnitID) = 210;
     HogxUnitQueryResult hogxagent_unit_query(UnitID) = 220;
     HogxUnitListResult hogxagent_unit_list(void) = 230;
-    HogxUnitClearResult hogxagent_unit_clear(SystemID) = 240;
+    HogxUnitClearResult hogxagent_unit_clear(UnitID) = 240;
 
   }
   = 1;

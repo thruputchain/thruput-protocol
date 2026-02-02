@@ -2,6 +2,12 @@
 namespace hogx {
 // clang-format on
 
+// TODO: x23c does not allow an empty struct, it requires "void;" inside, whereas
+// goxdr does not allow a "void;" field.
+struct Void {
+  int *xxx;
+};
+
 typedef hyper Timestamp;
 
 typedef string Path<>;

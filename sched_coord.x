@@ -58,6 +58,20 @@ enum SchedulerCommitOutcome {
   SchedulerCommitRace = 2
 };
 
+enum SchedulerGetTipOutcome {
+  SchedulerGetTipOK = 0,
+  SchedulerGetTipNoGenesisBlock = 1
+};
+
+union SchedulerGetTipResult switch (SchedulerGetTipOutcome outcome)
+{
+case SchedulerGetTipOK:
+  DbTip db_tip;
+case SchedulerGetTipNoGenesisBlock:
+default:
+  void;
+};
+
 // API exposed from the Scheduler for the Coordinator
 program SchedulerCoord
 {
@@ -89,8 +103,8 @@ program SchedulerCoord
     SchedulerCommitOutcome schedulercoord_commit_block(BlockID) = 6;
 
     // Returns information about the current highest committed block.
-    // If there is no committed block, returns DbSchedResultError.
-    DbTip schedcoord_get_tip(void) = 7;
+    // If there is no committed block, returns SchedulerGetTipNoGenesisBlock.
+    SchedulerGetTipResult schedcoord_get_tip(void) = 7;
 
     // TODO(jhumphri): Remove this once we integrate the coordinator into the
     // loadgen experiment.

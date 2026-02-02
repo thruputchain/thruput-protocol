@@ -76,6 +76,7 @@ struct UnitDefLinked {
 enum ProcessStatus {
   PROCESS_RUNNING = 1,
   PROCESS_EXITED = 2,
+  PROCESS_INTERRUPTED = 3,
 };
 
 union ProcessState switch (ProcessStatus status) {
@@ -83,6 +84,8 @@ case PROCESS_RUNNING:
   unsigned int pid;
 case PROCESS_EXITED:
   int exit;
+case PROCESS_INTERRUPTED:
+  void;
 };
 
 struct UnitState {

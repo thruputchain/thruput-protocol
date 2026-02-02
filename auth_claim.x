@@ -103,6 +103,16 @@ enum AuthClaimType {
   ///
   /// Combines cross-contract auth with multi-signature requirements.
   kOtherAddressSignedWeight = 3,
+
+  /// Requires a signature from a specific key
+  ///
+  /// XXX
+  kPubkeySignature = 4,
+};
+
+struct PubkeyAccountPreimage {
+  PublicKey pubkey;
+  unsigned hyper nonce;
 };
 
 /// An authorization claim specifying what signatures are needed to authorize
@@ -147,6 +157,9 @@ case kOtherAddressSignedWeight:
     /// Total weight required from the accepted keys' signatures.
     Weight required_weight;
   } other_address_signed_weight;
+
+case kPubkeySignature:
+  PubkeyAccountPreimage pubkey_preimage;
 };
 
 /// A list of auth claims for a transaction.
@@ -154,5 +167,45 @@ case kOtherAddressSignedWeight:
 /// Each transaction must include at least one auth claim to be valid.
 /// The list is bounded by `kMaxAuthClaims` to limit verification complexity.
 typedef AuthClaim AuthClaimData<kMaxAuthClaims>;
+
+//------------------------------------------------------------------------------
+// Auth Verification Error Codes
+//------------------------------------------------------------------------------
+
+/// Error codes returned when verifying authorization on a SignedTransaction.
+///
+/// There are three levels of verification:
+/// 1. Well-formedness: basic structural checks (e.g., key IDs are in range)
+/// 2. Claims validity: signatures match claimed keys and weights are satisfied
+/// 3. Signature verification: cryptographic validation of all signatures
+///
+/// These error codes distinguish between different failure modes to enable
+/// appropriate handling at different stages of transaction processing.
+enum AuthVerifyErrorCode {
+  /// The transaction's auth claims are malformed.
+  ///
+  /// Transactions with this error should never be flooded over the network
+  /// as they are structurally invalid. Examples include:
+  /// - Public key IDs that are out of bounds
+  /// - Invalid bitmaps (bits set beyond kMaxSigners)
+  /// - Mismatched signature counts
+  kAuthMalformed = 1,
+
+  /// Cryptographic signature verification failed.
+  ///
+  /// This indicates that one or more signatures did not pass cryptographic
+  /// validation against the claimed public keys. The transaction structure
+  /// is valid but the signatures themselves are incorrect.
+  kSignatureVerificationFailed = 2,
+
+  /// Mismatch between auth claims and actual auth data on an account.
+  ///
+  /// This indicates that the transaction references keys or permissions
+  /// that do not exist or do not satisfy the requirements. Examples include:
+  /// - Referencing a public key ID that doesn't exist in the auth data
+  /// - Failing to meet required weight thresholds
+  /// - Insufficient gas permissions for the claimed sponsorship
+  kAuthDataMismatch = 3,
+};
 
 } // namespace hogd
