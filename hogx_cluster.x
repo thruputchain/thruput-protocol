@@ -28,6 +28,7 @@ struct LayoutUnit {
 struct LayoutPorts {
   // coordinator
   unsigned int coordinator_public_port;
+  unsigned int coordinator_public_wallet_port;
   unsigned int coordinator_private_port;
   unsigned int coordinator_private_metrics_port;
   unsigned int coordinator_scpd_local_port;
