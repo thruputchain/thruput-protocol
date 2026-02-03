@@ -27,9 +27,8 @@ struct LayoutUnit {
 // LayoutPorts specifies service ports.
 struct LayoutPorts {
   // coordinator
-  unsigned int coordinator_public_validator_port;
-  unsigned int coordinator_private_wallet_port;
-  unsigned int coordinator_private_scheduler_port;
+  unsigned int coordinator_public_port;
+  unsigned int coordinator_private_port;
   unsigned int coordinator_private_metrics_port;
   unsigned int coordinator_scpd_local_port;
   unsigned int scpd_coordinator_local_port;
