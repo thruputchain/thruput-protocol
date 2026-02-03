@@ -65,6 +65,13 @@ struct BatonConfig {
   int max_catchup_height;
 };
 
+struct RepairConfig {
+  Milliseconds base_delay_msec;
+  Milliseconds max_delay_msec;
+  unsigned int multiplier_nom;
+  unsigned int multiplier_denom;
+};
+
 struct StorageConfig {
   Milliseconds reclaim_interval_msec;
   int max_catchup_blocks;

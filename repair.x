@@ -9,13 +9,6 @@
 namespace hogd {
 // clang-format on
 
-struct RepairConfig {
-  Milliseconds base_delay_msec;
-  Milliseconds max_delay_msec;
-  unsigned int multiplier_nom;
-  unsigned int multiplier_denom;
-};
-
 struct MissingTransactions {
   SignedTransactionHash transaction_hashes<>;
   BlockHash block_hash;
