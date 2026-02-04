@@ -4,28 +4,40 @@ namespace hogx {
 
 // input
 
-typedef string SystemID<>;
+enum SystemType {
+  SYSTEM_VALIDATOR = 1,
+  SYSTEM_LOADGEN = 2,
+}
 
-enum UnitType {
+  enum UnitType {
+  // validator
   UNIT_COORDINATOR = 1,
   UNIT_MEMPOOL = 2,
   UNIT_EXEC = 3,
   UNIT_DB = 4,
   UNIT_EVENT = 5,
+  // loadgen
+  UNIT_LOADGEN = 100,
 };
 
-struct UnitRole {
-  UnitType unit_type;  // sets HOGX_UNIT_TYPE
-  string unit_shard<>;  // sets HOGX_UNIT_SHARD
-};
+struct SystemID {
+  SystemType system_type;
+  string succession<>; // an identifier for a sequence of executions of a system instance
+  string session<>;
+}
+
+  struct UnitRole {
+    UnitType unit_type;
+    string unit_shard<>;
+  };
 
 struct UnitID {
-  SystemID system_id;  // sets HOGX_UNIT_SYSTEM_ID; identifies a set of unit instances comprising a system deployment
+  SystemID system_id;
   UnitRole unit_role;
 };
 
 struct UnitBuild {
-  string pkg<>;  // sets HOGX_UNIT_PKG
+  string pkg<>;
 };
 
 struct UnitAgreement {
@@ -35,14 +47,14 @@ struct UnitAgreement {
 
 struct UnitCommand {
   Path binary_file;
-  Path app_dir;  // holds persistent application data; does not depend on system_id
-  Path var_dir;  // holds configs, logs and core dumps; mounted as /var; depends on system_id
-  Path tmp_dir;  // mounted as /tmp; depends on system_id
-  Path stdout_file;  // resides in var_dir
-  Path stderr_file;  // resides in var_dir
+  Path app_dir;  // for persistent application data; APP_ROOT/system_id/unit_type/unit_shard
+  Path var_dir;  // for configs, logs and core dumps; VAR_ROOT/system_id/session_id/unit_type/unit_shard
+  Path tmp_dir;  // for scratch; TMP_ROOT/system_id/session_id/unit_type/unit_shard
+  Path stdout_file;  // var_dir/unit_type-unit_shard.stdout
+  Path stderr_file;  // var_dir/unit_type-unit_shard.stderr
   Flag flag<>;
   StringMap env;
-  Files files;  // config files placed in var_dir
+  Files files;  // supporting files are placed in var_dir
 };
 
 struct UnitDef {
