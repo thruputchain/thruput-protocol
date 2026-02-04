@@ -7,9 +7,9 @@ namespace hogx {
 enum SystemType {
   SYSTEM_VALIDATOR = 1,
   SYSTEM_LOADGEN = 2,
-}
+};
 
-  enum UnitType {
+enum UnitType {
   // validator
   UNIT_COORDINATOR = 1,
   UNIT_MEMPOOL = 2,
@@ -24,12 +24,12 @@ struct SystemID {
   SystemType system_type;
   string succession<>; // an identifier for a sequence of executions of a system instance
   string session<>;
-}
+};
 
-  struct UnitRole {
-    UnitType unit_type;
-    string unit_shard<>;
-  };
+struct UnitRole {
+  UnitType unit_type;
+  string unit_shard<>;
+};
 
 struct UnitID {
   SystemID system_id;
