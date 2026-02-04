@@ -53,11 +53,17 @@ struct LayoutPorts {
   unsigned int auth_mempool_private_port;
 };
 
+// LayoutConfig provides services operational parameters.
+struct LayoutConfig {
+  unsigned int exec_num_threads;
+};
+
 // LayoutDef maps all system units to cluster hosts.
 struct LayoutDef {
   string layout_id<>;
   LayoutUnit layout_units<>;
   LayoutPorts layout_ports;
+  LayoutConfig layout_config;
 };
 
 // -- cluster config
