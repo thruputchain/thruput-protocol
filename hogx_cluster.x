@@ -62,6 +62,7 @@ struct LayoutConfig {
 // LayoutDef maps all system units to cluster hosts.
 struct LayoutDef {
   string layout_id<>;
+  SystemType system_type;
   LayoutUnit layout_units<>;
   LayoutPorts layout_ports;
   LayoutConfig layout_config;
