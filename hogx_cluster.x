@@ -56,6 +56,7 @@ struct LayoutPorts {
 // LayoutConfig provides services operational parameters.
 struct LayoutConfig {
   unsigned int exec_num_threads;
+  unsigned hyper db_ram_bytes;
 };
 
 // LayoutDef maps all system units to cluster hosts.
