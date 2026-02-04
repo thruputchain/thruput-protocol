@@ -27,9 +27,9 @@ struct LayoutUnit {
 // LayoutPorts specifies service ports.
 struct LayoutPorts {
   // coordinator
-  unsigned int coordinator_public_validator_port;
+  unsigned int coordinator_public_port;
   unsigned int coordinator_public_wallet_port;
-  unsigned int coordinator_private_scheduler_port;
+  unsigned int coordinator_private_port;
   unsigned int coordinator_private_metrics_port;
   unsigned int coordinator_scpd_local_port;
   unsigned int scpd_coordinator_local_port;
@@ -38,14 +38,25 @@ struct LayoutPorts {
   unsigned int mempool_exec_private_port;
   unsigned int mempool_db_private_port;
   unsigned int mempool_event_private_port;
+  unsigned int mempool_auth_private_port;
   // exec
   unsigned int exec_mempool_private_port;
-  unsigned int exec_db_private_port;
   // db
   unsigned int db_exec_private_port;
+  unsigned int db_mempool_private_port;
+  unsigned int db_auth_private_port;
   // event
   unsigned int event_mempool_private_port;
   unsigned int event_exec_private_port;
+  // auth
+  unsigned int auth_db_private_port;
+  unsigned int auth_mempool_private_port;
+};
+
+// LayoutConfig provides services operational parameters.
+struct LayoutConfig {
+  unsigned int exec_num_threads;
+  unsigned hyper db_ram_bytes;
 };
 
 // LayoutDef maps all system units to cluster hosts.
@@ -53,6 +64,7 @@ struct LayoutDef {
   string layout_id<>;
   LayoutUnit layout_units<>;
   LayoutPorts layout_ports;
+  LayoutConfig layout_config;
 };
 
 // -- cluster config

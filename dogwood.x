@@ -3,8 +3,6 @@ namespace hogd {
 // trees
 
 typedef SHA256Hash DogwoodTreeHash;
-typedef hyper DogwoodInt64;
-typedef int DogwoodInt32;
 
 struct DogwoodTreeNode {
   ValidatorID node;

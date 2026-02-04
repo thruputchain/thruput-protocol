@@ -29,32 +29,11 @@ struct UnitBuild {
 };
 
 struct UnitAgreement {
-  StringMap meta;  // can use link variables
-  StringMap endpoint;  // can use link variables
-};
-
-struct UnitCommand {
-  Path binary;  // can use link variables
-  Flag flag<>;  // can use link variables
-  StringMap env;  // can use link variables
-  Files files;  // config files land in var_dir; can use link variables
-};
-
-struct UnitDef {
-  UnitID id;
-  UnitBuild build;
-  UnitAgreement agreement;  // can use link variables
-  UnitCommand command;  // can use link variables
-};
-
-// output: linked definitions
-
-struct UnitAgreementLinked {
   StringMap meta;
   SocketAddressMap endpoint;
 };
 
-struct UnitCommandLinked {
+struct UnitCommand {
   Path binary_file;
   Path app_dir;  // holds persistent application data; does not depend on system_id
   Path var_dir;  // holds configs, logs and core dumps; mounted as /var; depends on system_id
@@ -66,11 +45,11 @@ struct UnitCommandLinked {
   Files files;  // config files placed in var_dir
 };
 
-struct UnitDefLinked {
+struct UnitDef {
   UnitID id;
   UnitBuild build;
-  UnitAgreementLinked agreement;
-  UnitCommandLinked command;
+  UnitAgreement agreement;  // can use link variables
+  UnitCommand command;  // can use link variables
 };
 
 enum ProcessStatus {
@@ -91,7 +70,6 @@ case PROCESS_INTERRUPTED:
 struct UnitState {
   Timestamp time;
   UnitDef def;
-  UnitDefLinked def_linked;
   Timestamp started;
   ProcessState process_state;
 };
