@@ -25,13 +25,19 @@ default:
   void;
 };
 
+enum IndexerBlockExplorerIntroOutcome {
+  IntroSuccess = 0,
+  IntroMismatchedProtocol = 1,
+};
+
 // Clients (e.g., block explorer GUIs) use this API to retrieve data from the
 // indexer.
 program IndexerBlockExplorer
 {
   version IndexerBlockExplorer1
   {
-    TxInfoResult get_transaction_info(SignedTransactionHash) = 0;
+    IndexerBlockExplorerIntroOutcome indexer_block_explorer_intro(Protocol) = 0;
+    TxInfoResult get_transaction_info(SignedTransactionHash) = 1;
   } = 1;
 }
 = 0x4321aaaa;
