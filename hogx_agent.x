@@ -56,6 +56,19 @@ case HOGX_ERROR:
   string error<>;
 };
 
+union HogxUnitTailResult switch (HogxOutcome outcome) {
+case HOGX_OK:
+  void;
+case HOGX_ERROR:
+  string error<>;
+};
+
+struct HogxTailKick {
+  string tail_id<>;
+  UnitID unit_id;
+  SocketAddress delivery_address;
+};
+
 program HogxAgent
 {
   version HogxAgent1
@@ -72,9 +85,31 @@ program HogxAgent
     HogxUnitListResult hogxagent_unit_list(void) = 230;
     HogxUnitClearResult hogxagent_unit_clear(UnitID) = 240;
 
+    HogxUnitTailResult hogxagent_unit_tail(HogxTailKick) = 300;
+
   }
   = 1;
 }
 = 0x20011004;
+
+struct HogxTailChunk {
+  string tail_id<>;
+  UnitID unit_id;
+  opaque chunk<>;
+};
+
+program HogxTail
+{
+  version HogxTail1
+  {
+
+    void hogxtail_null(void) = 0;
+
+    bool hogxtail_deliver(HogxTailChunk) = 100;
+
+  }
+  = 1;
+}
+= 0x20015004;
 
 } // namespace hogx

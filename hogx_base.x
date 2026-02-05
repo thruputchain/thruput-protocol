@@ -20,6 +20,8 @@ struct KeyString {
 };
 typedef KeyString StringMap<>;
 
+typedef string SocketAddress<>;
+
 struct KeySocketAddress {
   string key<>;
   string address<>; // ip4 or ip6 + port
