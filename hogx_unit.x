@@ -23,7 +23,7 @@ enum UnitType {
 struct Context {
   AssemblyID assembly_id;
   string chain<>;
-  string session<>;
+  string uniquifier<>;
 };
 
 struct UnitRole {
