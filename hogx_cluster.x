@@ -84,7 +84,7 @@ typedef LayoutUnit SystemLayout<>;
 struct SystemDef {
   SystemID id;
   SystemConfig config;
-  SystemLayout layout<>;
+  SystemLayout layout;
 };
 
 // -- cluster config
