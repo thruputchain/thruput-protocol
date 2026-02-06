@@ -95,6 +95,7 @@ program HogxAgent
 struct HogxTailChunk {
   string tail_id<>;
   UnitID unit_id;
+  unsigned hyper index;
   opaque chunk<>;
 };
 
