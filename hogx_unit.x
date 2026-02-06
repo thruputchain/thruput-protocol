@@ -20,8 +20,8 @@ enum UnitType {
   UNIT_LOADGEN = 100,
 };
 
-struct Context { // used to be SystemID
-  SystemType system_type; // XXX: => assembly id
+struct Context {
+  AssemblyID assembly_id;
   string chain<>;
   string session<>;
 };
