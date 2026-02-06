@@ -20,9 +20,9 @@ enum UnitType {
   UNIT_LOADGEN = 100,
 };
 
-struct SystemID {
-  SystemType system_type;
-  string chain<>; // an identifier for a sequence of executions of a system instance
+struct Context { // used to be SystemID
+  SystemType system_type; // XXX: => assembly id
+  string chain<>;
   string session<>;
 };
 
@@ -32,7 +32,7 @@ struct UnitRole {
 };
 
 struct UnitID {
-  SystemID system_id;
+  Context ctx;
   HostID host_id;
   UnitRole unit_role;
 };

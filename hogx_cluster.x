@@ -81,8 +81,10 @@ struct LayoutUnit {
 
 typedef LayoutUnit SystemLayout<>;
 
-struct SystemDef {
-  SystemID id;
+typedef string AssemblyID<>;
+
+struct SystemDef { // XXX: => SystemAssembly
+  AssemblyID id;
   SystemConfig config;
   SystemLayout layout;
 };
