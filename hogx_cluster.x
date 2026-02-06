@@ -82,7 +82,7 @@ struct LayoutUnit {
 typedef LayoutUnit SystemLayout<>;
 
 struct SystemDef {
-  SystemID id<>;
+  SystemID id;
   SystemConfig config;
   SystemLayout layout<>;
 };
