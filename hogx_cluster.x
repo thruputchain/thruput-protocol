@@ -79,10 +79,12 @@ struct LayoutUnit {
   HostID host_id;
 };
 
+typedef LayoutUnit SystemLayout<>;
+
 struct SystemDef {
-  string id<>;
+  SystemID id<>;
   SystemConfig config;
-  LayoutUnit layout<>;
+  SystemLayout layout<>;
 };
 
 // -- cluster config
