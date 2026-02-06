@@ -16,16 +16,10 @@ struct HostDef {
   HostConfig host_config;
 };
 
-// -- system layouts
+// -- system definition and layouts
 
-// LayoutUnit maps a unit_type:unit_shard to a cluster host.
-struct LayoutUnit {
-  UnitRole unit_role;
-  string host_id<>;
-};
-
-// LayoutPorts specifies service ports.
-struct LayoutPorts {
+// SystemPorts specifies service ports.
+struct SystemPorts {
   // coordinator
   unsigned int coordinator_public_port;
   unsigned int coordinator_public_wallet_port;
@@ -53,25 +47,47 @@ struct LayoutPorts {
   unsigned int auth_mempool_private_port;
 };
 
-// LayoutConfig provides services operational parameters.
-struct LayoutConfig {
+struct ValidatorSystemConfig {
+  SystemPorts ports;
   unsigned int exec_num_threads;
   unsigned hyper db_ram_bytes;
 };
 
-// LayoutDef maps all system units to cluster hosts.
-struct LayoutDef {
-  string layout_id<>;
-  LayoutUnit layout_units<>;
-  LayoutPorts layout_ports;
-  LayoutConfig layout_config;
+struct LoadgenSystemConfig {
+  ValidatorSystemConfig validator_config;
+  //
+  unsigned int coordinator_private_debug_port;
+  unsigned int loadgen_private_port;
+  //
+  unsigned hyper num_accounts;
+  unsigned hyper txs_per_block;
+  unsigned hyper num_blocks;
+};
+
+union SystemConfig switch (SystemType system_type) {
+case SYSTEM_VALIDATOR:
+  ValidatorSystemConfig validator_config;
+case SYSTEM_LOADGEN:
+  LoadgenSystemConfig loadgen_config;
+};
+
+// LayoutUnit maps (unit_type, unit_shard) to a host.
+struct LayoutUnit {
+  UnitRole unit_role;
+  string host_id<>;
+};
+
+struct SystemDef {
+  string id<>;
+  SystemConfig config;
+  LayoutUnit layout<>;
 };
 
 // -- cluster config
 
 struct ClusterConfig {
   HostDef host_defs<>;
-  LayoutDef layout_defs<>;
+  SystemDef system_defs<>;
 };
 
 } // namespace hogx
