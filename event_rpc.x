@@ -9,6 +9,12 @@ program EventExecutor
   {
     void eventexecutor_null(void) = 0;
 
+    // Called when executor opens a block - increments executor handle count
+    RPCError eventexecutor_open_block(BlockID) = 31;
+
+    // Called when executor closes its handle to a block - decrements count
+    RPCError eventexecutor_close_block(BlockID) = 32;
+
     // A transaction should not call this more than once
     // We don't technically need the transaction ID here;
     // however, this will help later with tracing RPC calls through the system,
