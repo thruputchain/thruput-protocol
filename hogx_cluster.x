@@ -4,8 +4,10 @@ namespace hogx {
 
 // -- host def
 
+typedef string HostID<>;
+
 struct HostDef {
-  string host_id<>;
+  HostID host_id;
   Tag host_tags<>;
   //
   string ssh_user<>;
@@ -74,7 +76,7 @@ case SYSTEM_LOADGEN:
 // LayoutUnit maps (unit_type, unit_shard) to a host.
 struct LayoutUnit {
   UnitRole unit_role;
-  string host_id<>;
+  HostID host_id;
 };
 
 struct SystemDef {

@@ -33,6 +33,7 @@ struct UnitRole {
 
 struct UnitID {
   SystemID system_id;
+  HostID host_id;
   UnitRole unit_role;
 };
 
