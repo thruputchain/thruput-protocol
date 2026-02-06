@@ -22,7 +22,7 @@ enum UnitType {
 
 struct SystemID {
   SystemType system_type;
-  string succession<>; // an identifier for a sequence of executions of a system instance
+  string chain<>; // an identifier for a sequence of executions of a system instance
   string session<>;
 };
 
