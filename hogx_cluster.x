@@ -83,7 +83,7 @@ typedef LayoutUnit SystemLayout<>;
 
 typedef string AssemblyID<>;
 
-struct SystemDef { // XXX: => SystemAssembly
+struct AssemblyDef {
   AssemblyID id;
   SystemConfig config;
   SystemLayout layout;
@@ -93,7 +93,7 @@ struct SystemDef { // XXX: => SystemAssembly
 
 struct ClusterConfig {
   HostDef host_defs<>;
-  SystemDef system_defs<>;
+  AssemblyDef assembly_defs<>;
 };
 
 } // namespace hogx
