@@ -53,6 +53,7 @@ struct UnitCommand {
   Path tmp_dir;  // for scratch; TMP_ROOT/system_id/session_id/unit_type/unit_shard
   Path stdout_file;  // var_dir/unit_type-unit_shard.stdout
   Path stderr_file;  // var_dir/unit_type-unit_shard.stderr
+  Path combined_file;  // var_dir/unit_type-unit_shard.combined
   Flag flag<>;
   StringMap env;
   Files files;  // supporting files are placed in var_dir
