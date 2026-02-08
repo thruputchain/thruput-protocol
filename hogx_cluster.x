@@ -44,9 +44,13 @@ struct SystemPorts {
   // event
   unsigned int event_mempool_private_port;
   unsigned int event_exec_private_port;
+  unsigned int event_indexer_private_port;
   // auth
   unsigned int auth_db_private_port;
   unsigned int auth_mempool_private_port;
+  // indexer
+  unsigned int indexer_event_private_port;
+  unsigned int indexer_explorer_private_port;
 };
 
 struct ValidatorSystemConfig {
