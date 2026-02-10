@@ -25,7 +25,7 @@ typedef string ChainID<>;
 
 struct Context {
   AssemblyID assembly_id;
-  ChainID chain_id<>;
+  ChainID chain_id;
   string uniquifier<>;
 };
 
