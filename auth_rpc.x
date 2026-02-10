@@ -89,8 +89,17 @@ program DBAuth {
 }
 = 0x8aa87aa9;
 
-struct IntroAuthResult {
+enum IntroAuthOutcome {
+  kSuccess = 0,
+  kFailure = 1
+};
+
+union IntroAuthResult switch (IntroAuthOutcome outcome)
+{
+case kSuccess:
   ShardCard shards<>;
+default:
+  void;
 };
 
 program MempoolAuth {
