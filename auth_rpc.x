@@ -96,6 +96,8 @@ struct IntroAuthResult {
 program MempoolAuth {
   version MempoolAuth1 {
     IntroAuthResult mempoolauth_intro_auth(AuthCard) = 0;
+    // Forward updated key changes from the auth server to the mempool.
+    void mempoolauth_auth_data_changed(BlockHeight, KeyChangeBatch) = 1;
   }
   = 1;
 } = 0x8aa87aaa;
