@@ -96,6 +96,7 @@ struct UnitState {
   Timestamp started;
   Timestamp *died;
   ProcessState process_state;
+  UnitTcpInfo tcp_info;
 };
 
 } // namespace hogx
