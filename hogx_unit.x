@@ -87,7 +87,9 @@ case PROCESS_INTERRUPTED:
 struct UnitState {
   Timestamp time;
   UnitDef def;
+  string user<>;
   Timestamp started;
+  Timestamp *died;
   ProcessState process_state;
 };
 
