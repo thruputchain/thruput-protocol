@@ -84,7 +84,7 @@ case PROCESS_INTERRUPTED:
   void;
 };
 
-struct UnitTcpInfo {
+struct ProcessTcpInfo {
   SocketAddress listening<>;
   SocketConnection connections<>;
 };
@@ -96,7 +96,7 @@ struct UnitState {
   Timestamp started;
   Timestamp *died;
   ProcessState process_state;
-  UnitTcpInfo tcp_info;
+  ProcessTcpInfo *tcp_info;
 };
 
 } // namespace hogx
