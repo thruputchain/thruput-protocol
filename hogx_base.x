@@ -22,6 +22,11 @@ typedef KeyString StringMap<>;
 
 typedef string SocketAddress<>;
 
+struct SocketConnection {
+  SocketAddress local;
+  SocketAddress remote;
+};
+
 struct KeySocketAddress {
   string key<>;
   string address<>; // ip4 or ip6 + port

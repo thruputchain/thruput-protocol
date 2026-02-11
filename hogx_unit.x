@@ -84,6 +84,11 @@ case PROCESS_INTERRUPTED:
   void;
 };
 
+struct UnitTcpInfo {
+  SocketAddress listening<>;
+  SocketConnection connections<>;
+};
+
 struct UnitState {
   Timestamp time;
   UnitDef def;
