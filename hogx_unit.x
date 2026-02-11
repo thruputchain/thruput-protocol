@@ -21,9 +21,11 @@ enum UnitType {
   UNIT_LOADGEN = 100,
 };
 
+typedef string ChainID<>;
+
 struct Context {
   AssemblyID assembly_id;
-  string chain<>;
+  ChainID chain_id;
   string uniquifier<>;
 };
 
