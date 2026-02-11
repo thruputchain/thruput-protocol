@@ -89,13 +89,24 @@ program DBAuth {
 }
 = 0x8aa87aa9;
 
-struct IntroAuthResult {
+enum IntroAuthOutcome {
+  kSuccess = 0,
+  kFailure = 1
+};
+
+union IntroAuthResult switch (IntroAuthOutcome outcome)
+{
+case kSuccess:
   ShardCard shards<>;
+default:
+  void;
 };
 
 program MempoolAuth {
   version MempoolAuth1 {
     IntroAuthResult mempoolauth_intro_auth(AuthCard) = 0;
+    // Forward updated key changes from the auth server to the mempool.
+    void mempoolauth_auth_data_changed(BlockHeight, KeyChangeBatch) = 1;
   }
   = 1;
 } = 0x8aa87aaa;
