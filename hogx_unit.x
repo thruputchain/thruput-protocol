@@ -17,6 +17,7 @@ enum UnitType {
   UNIT_DB = 4,
   UNIT_EVENT = 5,
   UNIT_INDEXER = 6,
+  UNIT_AUTH = 7,
   // loadgen
   UNIT_LOADGEN = 100,
 };
