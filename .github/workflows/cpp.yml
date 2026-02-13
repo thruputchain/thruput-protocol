@@ -25,7 +25,9 @@ jobs:
     - name: install goxdr
       run: go install github.com/xdrpp/goxdr/cmd/goxdr@latest
     - name: check go generate
-      run: $HOME/go/bin/goxdr -o generated.go *.x
+      run: |
+        shopt -s extglob
+        $HOME/go/bin/goxdr -o generated.go !(transaction_trace).x
     - name: check go build
       # go vet has warnings on the goxdr/xdr package,
       # so we set -composites=false to ignore those errors
