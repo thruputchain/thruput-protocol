@@ -126,7 +126,6 @@ syscalls:
       the current call frame.
     errors:
   - name: "ConsoleLog"
-    needs_context: false
     # Logging is for debugging only.
     # On release builds, this is a no-op.
     # On debug builds, this logs to console.
@@ -316,7 +315,6 @@ syscalls:
     errors:
   - name: "VerifySignature"
     read_only: true
-    needs_context: false
     inputs:
       - name: "scheme"
         # This is a CryptographicScheme enum, but we pass it in as an

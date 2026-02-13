@@ -108,6 +108,22 @@ struct Invocation {
   Calldata calldata;
 };
 
+enum InvocationFrameStatusCode {
+  kInvocationFrameStatusCodeReturn = 0,
+  kInvocationFrameStatusCodeFault = 1,
+  kInvocationFrameStatusCodeAbort = 2,
+};
+
+union InvocationFrameOutput switch (InvocationFrameStatusCode status_code)
+{
+case kInvocationFrameStatusCodeReturn:
+  ReturnBuffer return_buffer;
+case kInvocationFrameStatusCodeAbort:
+  ReturnBuffer abort_buffer;
+case kInvocationFrameStatusCodeFault:
+  void;
+};
+
 /// Flags that modify the behavior of a contract invocation.
 ///
 /// These flags are used with the Invoke syscall to control how a subinvocation

@@ -457,21 +457,6 @@ struct SyscallTrace {
   HostFunctionStatusXdr status;
 };
 
-enum InvocationFrameStatusCode {
-  kFrameReturn = 0,
-  kFrameFault = 1,
-  kFrameAbort = 2,
-};
-
-union InvocationFrameStatus switch (InvocationFrameStatusCode status_code)
-{
-case kFrameReturn:
-case kFrameAbort:
-  opaque buffer<>;
-case kFrameFault:
-  void;
-};
-
 struct InvocationFrameTrace {
   Invocation invocation;
 
@@ -486,7 +471,7 @@ struct InvocationFrameTrace {
   FlaggedStorageDelta storage_writes<>;
 
   /// Status of the frame when it terminates.
-  InvocationFrameStatus status;
+  InvocationFrameOutput status;
 };
 
 } // namespace hogd
