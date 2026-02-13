@@ -3,6 +3,7 @@
 %#include "transaction.hh"
 %#include "address_auth.hh"
 %#include "auth_claim.hh"
+%#include "event.hh"
 
 namespace hogd
 {
@@ -196,8 +197,7 @@ case kSyscallErrorCodeNone:
   struct {
     StorageKeyContractData key;
     bool force_load;
-    int128_xdr current_set;
-    bool current_set_present;
+    int128_xdr *current_set;
     int128_xdr current_add;
   } success;
 default:
@@ -209,8 +209,7 @@ union SyscallNonnegativeIntSetAddTrace switch (SyscallErrorCode error)
 case kSyscallErrorCodeNone:
   struct {
     StorageKeyContractData key;
-    bool has_set_value;
-    int128_xdr set_value;
+    int128_xdr *set_value;
     int128_xdr add_value;
     StorageDeltaFlagSet flags;
   } success;
@@ -278,11 +277,9 @@ union SyscallChangePublicKeyRegistrationTrace switch (SyscallErrorCode error)
 case kSyscallErrorCodeNone:
   struct {
     unsigned int key_index;
-    bool has_key_scheme;
-    int key_scheme;
+    int *key_scheme;
     opaque key_bytes<>;
-    bool has_key_weight;
-    unsigned int key_weight;
+    unsigned int *key_weight;
   } success;
 default:
   void;
@@ -293,7 +290,7 @@ union SyscallLogEventTrace switch (SyscallErrorCode error)
 case kSyscallErrorCodeNone:
   struct {
     opaque data<>;
-    unsigned int num_topics;
+    Topic topics<3>;
   } success;
 default:
   void;
