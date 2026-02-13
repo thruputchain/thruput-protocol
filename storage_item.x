@@ -262,4 +262,16 @@ enum StorageDeltaFlags {
 /// A bitset of StorageDeltaFlags values.
 typedef int StorageDeltaFlagSet;
 
+/// The combined unit of storage modification sent to the database from the executor.
+/// A delta with a set of flags, applied to a specific entry in the database.
+struct FlaggedStorageDelta {
+  // TODO(geoff): The addrkey field is likely repetitive when sending 
+  // many deltas to the database.
+  // possibly we can readjust this data structure, if raw bandwidth becomes
+  // important.
+  AddressAndKey addrkey;
+  StorageDelta delta;
+  StorageDeltaFlagSet flags;
+};
+
 } // namespace hogd
