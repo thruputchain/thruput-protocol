@@ -7,6 +7,8 @@
 namespace hogd
 {
 
+%struct InvocationFrameTrace;
+
 // === Syscall Trace Unions ===
 // Each follows the pattern: success case holds inputs+outputs, default is void.
 
