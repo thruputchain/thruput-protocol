@@ -12,475 +12,453 @@ namespace hogd
 
 // === Syscall Trace Unions and Structs ===
 
-union SyscallSHA256Output switch (SyscallErrorCode error)
-{
-case kSyscallErrorCodeNone:
-  struct {
-    SHA256Hash hash;
-  } success;
-default:
-  void;
+struct SyscallSHA256Inputs {
+  opaque input<>;
+};
+
+struct SyscallSHA256Outputs {
+  SHA256Hash hash;
 };
 
 struct SyscallSHA256Trace {
-  opaque input<>;
-  SyscallSHA256Output output;
+  SyscallSHA256Inputs inputs;
+  SyscallSHA256Outputs *outputs;
 };
 
-union SyscallGetMsgSenderOutput switch (SyscallErrorCode error)
-{
-case kSyscallErrorCodeNone:
-  struct {
-    ContractAddress sender;
-  } success;
-default:
+struct SyscallGetMsgSenderInputs {
   void;
+};
+
+struct SyscallGetMsgSenderOutputs {
+  ContractAddress sender;
 };
 
 struct SyscallGetMsgSenderTrace {
-  SyscallGetMsgSenderOutput output;
+  SyscallGetMsgSenderInputs inputs;
+  SyscallGetMsgSenderOutputs *outputs;
 };
 
-union SyscallGetCalldataLenOutput switch (SyscallErrorCode error)
-{
-case kSyscallErrorCodeNone:
-  struct {
-    unsigned int len;
-  } success;
-default:
+struct SyscallGetCalldataLenInputs {
   void;
+};
+
+struct SyscallGetCalldataLenOutputs {
+  unsigned int len;
 };
 
 struct SyscallGetCalldataLenTrace {
-  SyscallGetCalldataLenOutput output;
+  SyscallGetCalldataLenInputs inputs;
+  SyscallGetCalldataLenOutputs *outputs;
 };
 
-union SyscallGetCalldataOutput switch (SyscallErrorCode error)
-{
-case kSyscallErrorCodeNone:
-  struct {
-    opaque calldata<>;
-  } success;
-default:
+struct SyscallGetCalldataInputs {
   void;
+};
+
+struct SyscallGetCalldataOutputs {
+  opaque calldata<>;
 };
 
 struct SyscallGetCalldataTrace {
-  SyscallGetCalldataOutput output;
+  SyscallGetCalldataInputs inputs;
+  SyscallGetCalldataOutputs *outputs;
 };
 
-union SyscallConsoleLogOutput switch (SyscallErrorCode error)
-{
-case kSyscallErrorCodeNone:
-  void;
-default:
+struct SyscallConsoleLogInputs {
+  opaque buffer<>;
+};
+
+struct SyscallConsoleLogOutputs {
   void;
 };
 
 struct SyscallConsoleLogTrace {
-  opaque buffer<>;
-  SyscallConsoleLogOutput output;
+  SyscallConsoleLogInputs inputs;
+  SyscallConsoleLogOutputs *outputs;
 };
 
-union SyscallInvokeOutput switch (SyscallErrorCode error)
-{
-case kSyscallErrorCodeNone:
-  struct {
-    InvocationFrameTrace *child_trace;
-  } success;
-default:
-  void;
-};
-
-struct SyscallInvokeTrace {
+struct SyscallInvokeInputs {
   ContractAddress address;
   unsigned hyper entrypoint_id;
   GasAmount gas_limit;
   opaque calldata<>;
   InvokeFlagSet flags;
-  SyscallInvokeOutput output;
 };
 
-union SyscallReturnOutput switch (SyscallErrorCode error)
-{
-case kSyscallErrorCodeNone:
-  void;
-default:
+struct SyscallInvokeOutputs {
+  InvocationFrameTrace *child_trace;
+};
+
+struct SyscallInvokeTrace {
+  SyscallInvokeInputs inputs;
+  SyscallInvokeOutputs *outputs;
+};
+
+struct SyscallReturnInputs {
+  opaque buffer<>;
+  bool revert_frame;
+};
+
+struct SyscallReturnOutputs {
   void;
 };
 
 struct SyscallReturnTrace {
-  opaque buffer<>;
-  bool revert_frame;
-  SyscallReturnOutput output;
+  SyscallReturnInputs inputs;
+  SyscallReturnOutputs *outputs;
 };
 
-union SyscallGetReturnedBufferOutput switch (SyscallErrorCode error)
-{
-case kSyscallErrorCodeNone:
-  struct {
-    opaque buffer<>;
-  } success;
-default:
+struct SyscallGetReturnedBufferInputs {
   void;
+};
+
+struct SyscallGetReturnedBufferOutputs {
+  ReturnBuffer buffer;
 };
 
 struct SyscallGetReturnedBufferTrace {
-  SyscallGetReturnedBufferOutput output;
+  SyscallGetReturnedBufferInputs inputs;
+  SyscallGetReturnedBufferOutputs *outputs;
 };
 
-union SyscallExitOutput switch (SyscallErrorCode error)
-{
-case kSyscallErrorCodeNone:
+struct SyscallExitInputs {
   void;
-default:
+};
+
+struct SyscallExitOutputs {
   void;
 };
 
 struct SyscallExitTrace {
-  SyscallExitOutput output;
+  SyscallExitInputs inputs;
+  SyscallExitOutputs *outputs;
 };
 
-union SyscallGetDeployAddressOutput switch (SyscallErrorCode error)
-{
-case kSyscallErrorCodeNone:
-  struct {
-    ContractAddress to_be_deployed;
-  } success;
-default:
-  void;
+struct SyscallGetDeployAddressInputs {
+  ContractAddress *caller_address;
+  SHA256Hash nonce;
+  SHA256Hash contract_hash;
+};
+
+struct SyscallGetDeployAddressOutputs {
+  ContractAddress to_be_deployed;
 };
 
 struct SyscallGetDeployAddressTrace {
-  SHA256Hash nonce;
-  SHA256Hash contract_hash;
-  SyscallGetDeployAddressOutput output;
+  SyscallGetDeployAddressInputs inputs;
+  SyscallGetDeployAddressOutputs *outputs;
 };
 
-union SyscallDeployContractOutput switch (SyscallErrorCode error)
-{
-case kSyscallErrorCodeNone:
-  struct {
-    ContractAddress deployed_address;
-  } success;
-default:
-  void;
+struct SyscallDeployContractInputs {
+  SHA256Hash nonce;
+  SHA256Hash contract_hash;
+};
+
+struct SyscallDeployContractOutputs {
+  ContractAddress deployed_address;
 };
 
 struct SyscallDeployContractTrace {
-  SHA256Hash nonce;
-  SHA256Hash contract_hash;
-  SyscallDeployContractOutput output;
+  SyscallDeployContractInputs inputs;
+  SyscallDeployContractOutputs *outputs;
 };
 
-union SyscallGetSourceTransactionHashOutput switch (SyscallErrorCode error)
-{
-case kSyscallErrorCodeNone:
-  struct {
-    SHA256Hash source_tx_hash;
-  } success;
-default:
+struct SyscallGetSourceTransactionHashInputs {
   void;
+};
+
+struct SyscallGetSourceTransactionHashOutputs {
+  SHA256Hash source_tx_hash;
 };
 
 struct SyscallGetSourceTransactionHashTrace {
-  SyscallGetSourceTransactionHashOutput output;
+  SyscallGetSourceTransactionHashInputs inputs;
+  SyscallGetSourceTransactionHashOutputs *outputs;
 };
 
-union SyscallVerifySignatureOutput switch (SyscallErrorCode error)
-{
-case kSyscallErrorCodeNone:
-  void;
-default:
-  void;
-};
-
-struct SyscallVerifySignatureTrace {
+struct SyscallVerifySignatureInputs {
   int scheme;
   opaque signature<>;
   opaque public_key<>;
   opaque message<>;
-  SyscallVerifySignatureOutput output;
 };
 
-union SyscallBytestringGetLenOutput switch (SyscallErrorCode error)
-{
-case kSyscallErrorCodeNone:
-  struct {
-    unsigned int length;
-  } success;
-default:
+struct SyscallVerifySignatureOutputs {
   void;
+};
+
+struct SyscallVerifySignatureTrace {
+  SyscallVerifySignatureInputs inputs;
+  SyscallVerifySignatureOutputs *outputs;
+};
+
+struct SyscallBytestringGetLenInputs {
+  StorageKeyContractData key;
+};
+
+struct SyscallBytestringGetLenOutputs {
+  unsigned int length;
 };
 
 struct SyscallBytestringGetLenTrace {
-  StorageKeyContractData key;
-  SyscallBytestringGetLenOutput output;
+  SyscallBytestringGetLenInputs inputs;
+  SyscallBytestringGetLenOutputs *outputs;
 };
 
-union SyscallBytestringGetOutput switch (SyscallErrorCode error)
-{
-case kSyscallErrorCodeNone:
-  struct {
-    opaque bytestring<>;
-  } success;
-default:
-  void;
+struct SyscallBytestringGetInputs {
+  StorageKeyContractData key;
+};
+
+struct SyscallBytestringGetOutputs {
+  Bytestring bytestring;
 };
 
 struct SyscallBytestringGetTrace {
-  StorageKeyContractData key;
-  SyscallBytestringGetOutput output;
+  SyscallBytestringGetInputs inputs;
+  SyscallBytestringGetOutputs *outputs;
 };
 
-union SyscallBytestringSetOutput switch (SyscallErrorCode error)
-{
-case kSyscallErrorCodeNone:
-  void;
-default:
+struct SyscallBytestringSetInputs {
+  StorageKeyContractData key;
+  opaque bytestring<>;
+  StorageDeltaFlagSet flags;
+};
+
+struct SyscallBytestringSetOutputs {
   void;
 };
 
 struct SyscallBytestringSetTrace {
-  StorageKeyContractData key;
-  opaque bytestring<>;
-  StorageDeltaFlagSet flags;
-  SyscallBytestringSetOutput output;
+  SyscallBytestringSetInputs inputs;
+  SyscallBytestringSetOutputs *outputs;
 };
 
-union SyscallNonnegativeIntGetOutput switch (SyscallErrorCode error)
-{
-case kSyscallErrorCodeNone:
-  struct {
-    int128_xdr *current_set;
-    int128_xdr current_add;
-  } success;
-default:
-  void;
+struct SyscallNonnegativeIntGetInputs {
+  StorageKeyContractData key;
+  bool force_load;
+};
+
+struct SyscallNonnegativeIntGetOutputs {
+  int128_xdr *current_set;
+  int128_xdr current_add;
 };
 
 struct SyscallNonnegativeIntGetTrace {
-  StorageKeyContractData key;
-  bool force_load;
-  SyscallNonnegativeIntGetOutput output;
+  SyscallNonnegativeIntGetInputs inputs;
+  SyscallNonnegativeIntGetOutputs *outputs;
 };
 
-union SyscallNonnegativeIntSetAddOutput switch (SyscallErrorCode error)
-{
-case kSyscallErrorCodeNone:
-  void;
-default:
-  void;
-};
-
-struct SyscallNonnegativeIntSetAddTrace {
+struct SyscallNonnegativeIntSetAddInputs {
   StorageKeyContractData key;
   int128_xdr *set_value;
   int128_xdr add_value;
   StorageDeltaFlagSet flags;
-  SyscallNonnegativeIntSetAddOutput output;
 };
 
-union SyscallDeleteObjectOutput switch (SyscallErrorCode error)
-{
-case kSyscallErrorCodeNone:
+struct SyscallNonnegativeIntSetAddOutputs {
   void;
-default:
+};
+
+struct SyscallNonnegativeIntSetAddTrace {
+  SyscallNonnegativeIntSetAddInputs inputs;
+  SyscallNonnegativeIntSetAddOutputs *outputs;
+};
+
+struct SyscallDeleteObjectInputs {
+  StorageKeyContractData key;
+  int flags;
+};
+
+struct SyscallDeleteObjectOutputs {
   void;
 };
 
 struct SyscallDeleteObjectTrace {
-  StorageKeyContractData key;
-  int flags;
-  SyscallDeleteObjectOutput output;
+  SyscallDeleteObjectInputs inputs;
+  SyscallDeleteObjectOutputs *outputs;
 };
 
-union SyscallGetCurrentAddressOutput switch (SyscallErrorCode error)
-{
-case kSyscallErrorCodeNone:
-  struct {
-    ContractAddress address;
-  } success;
-default:
+struct SyscallGetCurrentAddressInputs {
   void;
+};
+
+struct SyscallGetCurrentAddressOutputs {
+  ContractAddress address;
 };
 
 struct SyscallGetCurrentAddressTrace {
-  SyscallGetCurrentAddressOutput output;
+  SyscallGetCurrentAddressInputs inputs;
+  SyscallGetCurrentAddressOutputs *outputs;
 };
 
-union SyscallRetrocausalQueueInsertOutput switch (SyscallErrorCode error)
-{
-case kSyscallErrorCodeNone:
-  void;
-default:
+struct SyscallRetrocausalQueueInsertInputs {
+  StorageKeyContractData key;
+  QueueEntry queue_entry;
+};
+
+struct SyscallRetrocausalQueueInsertOutputs {
   void;
 };
 
 struct SyscallRetrocausalQueueInsertTrace {
-  StorageKeyContractData key;
-  opaque queue_entry<>;
-  SyscallRetrocausalQueueInsertOutput output;
+  SyscallRetrocausalQueueInsertInputs inputs;
+  SyscallRetrocausalQueueInsertOutputs *outputs;
 };
 
-union SyscallRetrocausalQueueConsumeOutput switch (SyscallErrorCode error)
-{
-case kSyscallErrorCodeNone:
-  struct {
-    opaque queue_entry<>;
-  } success;
-default:
-  void;
+struct SyscallRetrocausalQueueConsumeInputs {
+  StorageKeyContractData key;
+  bool peek;
+};
+
+struct SyscallRetrocausalQueueConsumeOutputs {
+  QueueEntry queue_entry;
 };
 
 struct SyscallRetrocausalQueueConsumeTrace {
-  StorageKeyContractData key;
-  bool peek;
-  SyscallRetrocausalQueueConsumeOutput output;
+  SyscallRetrocausalQueueConsumeInputs inputs;
+  SyscallRetrocausalQueueConsumeOutputs *outputs;
 };
 
-union SyscallGetTransactionStatisticsOutput switch (SyscallErrorCode error)
-{
-case kSyscallErrorCodeNone:
-  struct {
-    unsigned hyper result;
-  } success;
-default:
-  void;
+struct SyscallGetTransactionStatisticsInputs {
+  TransactionStatistic statistic;
+};
+
+struct SyscallGetTransactionStatisticsOutputs {
+  unsigned hyper result;
 };
 
 struct SyscallGetTransactionStatisticsTrace {
-  int statistic;
-  SyscallGetTransactionStatisticsOutput output;
+  SyscallGetTransactionStatisticsInputs inputs;
+  SyscallGetTransactionStatisticsOutputs *outputs;
 };
 
-union SyscallChangePublicKeyRegistrationOutput switch (SyscallErrorCode error)
-{
-case kSyscallErrorCodeNone:
-  void;
-default:
-  void;
-};
-
-struct SyscallChangePublicKeyRegistrationTrace {
+struct SyscallChangePublicKeyRegistrationInputs {
   unsigned int key_index;
   int *key_scheme;
   opaque key_bytes<>;
   unsigned int *key_weight;
-  SyscallChangePublicKeyRegistrationOutput output;
 };
 
-union SyscallLogEventOutput switch (SyscallErrorCode error)
-{
-case kSyscallErrorCodeNone:
+struct SyscallChangePublicKeyRegistrationOutputs {
   void;
-default:
+};
+
+struct SyscallChangePublicKeyRegistrationTrace {
+  SyscallChangePublicKeyRegistrationInputs inputs;
+  SyscallChangePublicKeyRegistrationOutputs *outputs;
+};
+
+struct SyscallLogEventInputs {
+  Topic* topic0;
+  Topic* topic1;
+  Topic* topic2;
+  opaque data<>;
+};
+
+struct SyscallLogEventOutputs {
   void;
 };
 
 struct SyscallLogEventTrace {
-  opaque data<>;
-  Topic topics<3>;
-  SyscallLogEventOutput output;
+  SyscallLogEventInputs inputs;
+  SyscallLogEventOutputs *outputs;
 };
 
-union SyscallGetAuthClaimCountOutput switch (SyscallErrorCode error)
-{
-case kSyscallErrorCodeNone:
-  struct {
-    unsigned int count;
-  } success;
-default:
+struct SyscallGetAuthClaimCountInputs {
   void;
+};
+
+struct SyscallGetAuthClaimCountOutputs {
+  unsigned int count;
 };
 
 struct SyscallGetAuthClaimCountTrace {
-  SyscallGetAuthClaimCountOutput output;
+  SyscallGetAuthClaimCountInputs inputs;
+  SyscallGetAuthClaimCountOutputs *outputs;
 };
 
-union SyscallGetAuthClaimOutput switch (SyscallErrorCode error)
-{
-case kSyscallErrorCodeNone:
-  struct {
-    AuthClaim auth_claim;
-  } success;
-default:
-  void;
+struct SyscallGetAuthClaimInputs {
+  unsigned int index;
+};
+
+struct SyscallGetAuthClaimOutputs {
+  AuthClaim auth_claim;
 };
 
 struct SyscallGetAuthClaimTrace {
-  unsigned int index;
-  SyscallGetAuthClaimOutput output;
+  SyscallGetAuthClaimInputs inputs;
+  SyscallGetAuthClaimOutputs *outputs;
 };
 
-union SyscallSHA256UpdateOutput switch (SyscallErrorCode error)
-{
-case kSyscallErrorCodeNone:
-  void;
-default:
+struct SyscallSHA256UpdateInputs {
+  unsigned int index;
+  opaque buffer<>;
+  bool reset;
+};
+
+struct SyscallSHA256UpdateOutputs {
   void;
 };
 
 struct SyscallSHA256UpdateTrace {
-  unsigned int index;
-  opaque buffer<>;
-  bool reset;
-  SyscallSHA256UpdateOutput output;
+  SyscallSHA256UpdateInputs inputs;
+  SyscallSHA256UpdateOutputs *outputs;
 };
 
-union SyscallSHA256FinalizeOutput switch (SyscallErrorCode error)
-{
-case kSyscallErrorCodeNone:
-  struct {
-    SHA256Hash hash;
-  } success;
-default:
-  void;
+struct SyscallSHA256FinalizeInputs {
+  unsigned int index;
+};
+
+struct SyscallSHA256FinalizeOutputs {
+  SHA256Hash hash;
 };
 
 struct SyscallSHA256FinalizeTrace {
-  unsigned int index;
-  SyscallSHA256FinalizeOutput output;
+  SyscallSHA256FinalizeInputs inputs;
+  SyscallSHA256FinalizeOutputs *outputs;
 };
 
-union SyscallWriteAddressNonceConfigOutput switch (SyscallErrorCode error)
-{
-case kSyscallErrorCodeNone:
-  void;
-default:
+struct SyscallWriteAddressNonceConfigInputs {
+  NonceConfig nonce_config;
+};
+
+struct SyscallWriteAddressNonceConfigOutputs {
   void;
 };
 
 struct SyscallWriteAddressNonceConfigTrace {
-  NonceConfig nonce_config;
-  SyscallWriteAddressNonceConfigOutput output;
+  SyscallWriteAddressNonceConfigInputs inputs;
+  SyscallWriteAddressNonceConfigOutputs *outputs;
 };
 
-union SyscallWriteAddressGasPermissionConfigsOutput switch (SyscallErrorCode error)
-{
-case kSyscallErrorCodeNone:
-  void;
-default:
+struct SyscallWriteAddressGasPermissionConfigsInputs {
+  GasPermissionConfig* permission0;
+  GasPermissionConfig* permission1;
+  GasPermissionConfig* permission2;
+  GasPermissionConfig* permission3;
+  GasPermissionConfig* permission4;
+};
+
+struct SyscallWriteAddressGasPermissionConfigsOutputs {
   void;
 };
 
 struct SyscallWriteAddressGasPermissionConfigsTrace {
-  GasPermissionConfig permissions<5>;
-  SyscallWriteAddressGasPermissionConfigsOutput output;
+  SyscallWriteAddressGasPermissionConfigsInputs inputs;
+  SyscallWriteAddressGasPermissionConfigsOutputs *outputs;
 };
 
-union SyscallGetBlockHeightOutput switch (SyscallErrorCode error)
-{
-case kSyscallErrorCodeNone:
-  struct {
-    BlockHeight result;
-  } success;
-default:
+struct SyscallGetBlockHeightInputs {
   void;
 };
 
+struct SyscallGetBlockHeightOutputs {
+  BlockHeight result;
+};
+
 struct SyscallGetBlockHeightTrace {
-  SyscallGetBlockHeightOutput output;
+  SyscallGetBlockHeightInputs inputs;
+  SyscallGetBlockHeightOutputs *outputs;
 };
 
 // === Main Trace Body ===
@@ -551,6 +529,8 @@ case kWriteAddressGasPermissionConfigs:
   SyscallWriteAddressGasPermissionConfigsTrace write_address_gas_permission_configs;
 case kGetBlockHeight:
   SyscallGetBlockHeightTrace get_block_height;
+default:
+  void;
 };
 
 union HostFunctionStatusXdr switch (HostFnErrorCode error)
