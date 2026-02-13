@@ -315,8 +315,8 @@ syscalls:
       execution.
     errors:
   - name: "VerifySignature"
-    read_only: true
     needs_context: false
+    read_only: true
     inputs:
       - name: "scheme"
         # This is a CryptographicScheme enum, but we pass it in as an
