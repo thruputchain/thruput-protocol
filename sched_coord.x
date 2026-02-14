@@ -23,6 +23,7 @@ enum SchedulerNominationOutcome {
 
 struct SchedulerNominatedBlock {
   BlockID block_id;
+  ParallelSignedTransactionBatch txs;
   Nomination nomination;
 };
 
