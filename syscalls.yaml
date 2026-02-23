@@ -701,6 +701,10 @@ syscalls:
     description: >
       Writes the nonce configuration for the current contract address.
     errors:
+      - code: kSyscallErrorCodeInvalidSyscallInput
+        description: >
+          Returns an error if `nonce_config.accepted_keys` has a bit set
+          beyond `kMaxSigners` in the configured signer bitmap.
   - name: "WriteAddressGasPermissionConfigs"
     inputs:
       - name: "permission_0"
