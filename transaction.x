@@ -259,10 +259,17 @@ struct Transaction {
 
 /// A cryptographic signature paired with its key identifier.
 ///
+/// The auth_claim_idx indicates which auth claim from a signed transaction's
+/// list of claims produced this signature.
+///
 /// The public_key_id indicates which key from an address's key set produced
 /// this signature, allowing the signature to be matched against the transaction's
 /// auth claims.
 struct DecoratedSignature {
+  // The index in [SignedTransaction::auth_claims] for the address that
+  // generated this signature.
+  unsigned int auth_claim_idx;
+
   /// The KeyID of the public key that created this signature.
   ///
   /// This is matched against the auth claims to determine if the signature
@@ -281,14 +288,6 @@ struct DecoratedSignature {
 /// This is the SHA-256 hash of the XDR-encoded SignedTransaction.
 typedef SHA256Hash SignedTransactionHash;
 
-/// A list of decorated signatures.
-///
-/// This is a simple wrapper around a variable-length array to allow
-/// multiple signature lists per signed transaction.
-struct DecoratedSignatureList {
-  DecoratedSignature list<>;
-};
-
 /// A transaction with cryptographic signatures.
 ///
 /// This is the form in which transactions are transmitted and stored.
@@ -303,10 +302,7 @@ struct SignedTransaction {
   ///
   /// These signatures must satisfy the auth_claims in the transaction.
   /// The signatures are over the [`Transaction`] object.
-  ///
-  /// The outer variable-length array allows grouping signatures by claim,
-  /// though the exact matching algorithm is implementation-defined.
-  DecoratedSignatureList signatures<>;
+  DecoratedSignature signatures<>;
 };
 
 //------------------------------------------------------------------------------
