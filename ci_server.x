@@ -4,13 +4,13 @@
 namespace hogd {
 // clang-format on
 
-typedef string ProgramArg<>;
+typedef opaque ProgramArg<>;
 struct ServerConfig {
-  string program_name<>;
+  opaque program_name<>;
   ProgramArg program_args<>;
 };
 
-typedef string HogdGitHash<>;
+typedef opaque HogdGitHash<>;
 
 enum CIServerErrorCode {
   kCIServerErrorCodeOK = 0,
@@ -30,7 +30,7 @@ default:
 
 union CIWorkDirStatus switch (CIServerErrorCode error_code) {
 case kCIServerErrorCodeOK:
-  string work_dir<>;
+  opaque work_dir<>;
 default:
   void;
 };
