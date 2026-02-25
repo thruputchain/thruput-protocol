@@ -1,5 +1,6 @@
 // clang-format off
 
+%#include "parallel.hh"
 %#include "types.hh"
 %#include "transaction.hh"
 %#include "genesis.hh"
@@ -33,7 +34,7 @@ struct LoadgenSuccessResult {
 };
 
 struct LoadgenExtension {
-  SignedTransaction work_txs<>;
+  ParallelSignedTransactionBatch work_txs;
 };
 
 enum LoadgenRPCError {
