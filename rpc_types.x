@@ -18,7 +18,8 @@ typedef SHA256Hash BlockHash;
 
 struct DbTip {
   BlockHeight height;
-  BlockHash hash;
+  BlockHash block_hash;
+  BlockHash db_hash;
   BlockID id;
 };
 

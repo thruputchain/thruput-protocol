@@ -48,7 +48,7 @@ default:
 union DbBlockResult switch (DbSchedResult result)
 {
 case DbSchedResultOK:
-  BlockHash block_hash;
+  BlockHash db_hash;
 default:
   void;
 };
