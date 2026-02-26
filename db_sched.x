@@ -57,6 +57,14 @@ enum DbShardResult {
   ShardOK = 0
 };
 
+union DbTipResult switch (DbSchedResult result)
+{
+case DbSchedResultOK:
+  DbTip db_tip;
+default:
+  void;
+};
+
 program DbSched
 {
   version DbSched1
@@ -113,6 +121,8 @@ program DbSched
     // This calculates storage keys and stores allocation amounts as
     // bytestrings
     DbSchedResult dbsched_load_genesis_configuration(GenesisConfiguration) = 9;
+
+    DbTipResult dbsched_get_tip(void) = 10;
   }
   = 1;
 }
