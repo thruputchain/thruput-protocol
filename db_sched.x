@@ -104,7 +104,7 @@ program DbSched
     // Any BlockID that is not a descendant of this block will return
     // an error if accessed. This BlockID must be the immediate descendant of
     // the most recently committed block.
-    DbBlockResult dbsched_commit_snapshot(BlockID) = 6;
+    DbBlockResult dbsched_commit_snapshot(BlockID, BlockHash) = 6;
 
     // Call to close a block. This indicates that no more transactions
     // will be added to this block. The block must have been previously opened
