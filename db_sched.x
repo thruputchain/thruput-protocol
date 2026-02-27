@@ -99,12 +99,12 @@ program DbSched
     DbSchedResult dbsched_create_snapshot(BlockID, BlockID, BlockExecutionMode)
     = 5;
 
-    // Commits the blockID to disk.  Should only be called for e.g. finalized
-    // blocks. At minimum block must be closed before being committed.
-    // Any BlockID that is not a descendant of this block will return
-    // an error if accessed. This BlockID must be the immediate descendant of
-    // the most recently committed block.
-    DbBlockResult dbsched_commit_snapshot(BlockID) = 6;
+    // Commits the block with the specified block ID to disk. Should only be
+    // called for e.g. finalized blocks. At a minimum, the block must be closed
+    // before being committed. Any BlockID that is not a descendant of this
+    // block will return an error if accessed. This BlockID must be the
+    // immediate descendant of the most recently committed block.
+    DbBlockResult dbsched_commit_snapshot(BlockID, BlockHash) = 6;
 
     // Call to close a block. This indicates that no more transactions
     // will be added to this block. The block must have been previously opened
