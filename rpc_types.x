@@ -13,13 +13,13 @@ namespace hogd
 // An internal unique ID describing a block.
 typedef unsigned hyper BlockID;
 
-// XXX(petar): BlockHash should be renamed to MerkleHash
 typedef SHA256Hash BlockHash;
+typedef SHA256Hash DbHash;
 
 struct DbTip {
   BlockHeight height;
   BlockHash block_hash;
-  BlockHash db_hash;
+  DbHash db_hash;
   BlockID id;
 };
 
