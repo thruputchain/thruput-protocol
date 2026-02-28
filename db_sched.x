@@ -121,7 +121,7 @@ program DbSched
     // This calculates storage keys and stores allocation amounts as
     // bytestrings
     DbSchedResult dbsched_load_genesis_configuration(GenesisConfiguration,
-						     BlockHash block_hash) = 9;
+						     BlockHash) = 9;
 
     DbTipResult dbsched_get_tip(void) = 10;
   }
