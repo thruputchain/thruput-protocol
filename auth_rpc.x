@@ -16,7 +16,7 @@ enum AuthErrorCode {
   // TODO(geoff): We could switch this around, to retry at the higher block height.
   kAuthStaleBlockHeight = 2,
   // Either an internal auth error or forwarded from an internal DB error
-  kAuthInternal = 3,
+  kAuthInternal = 3
 };
 
 typedef AuthErrorCode AuthErrorCodeBatch<>;
@@ -60,7 +60,7 @@ enum DBAuthError {
   kDBAuthSuccess = 0,
   kDBAuthNotFound = 1,
   kDBAuthStaleBlockHeight = 2,
-  kDBAuthInternal = 3,
+  kDBAuthInternal = 3
 };
 
 union DBAuthResult switch (DBAuthError error) {

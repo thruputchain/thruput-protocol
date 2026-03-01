@@ -10,7 +10,7 @@ namespace hogd {
 
 enum ExperimentType {
   kExperimentTypeERC20Payments = 0,
-  kExperimentTypeERC20BasicAuthPayments = 1,
+  kExperimentTypeERC20BasicAuthPayments = 1
 };
 
 struct ERC20PaymentsConfig {

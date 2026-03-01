@@ -121,7 +121,7 @@ enum SystemErrorCode {
   // Failure during validation of a transaction.  Signals that the whole
   // block must be aborted.
   // This converts to InvokeErrorCode::kInvokeValidationFailure or HostFnErrorCode::kHostValidationFailure.
-  kSystemValidationFailure = 3,
+  kSystemValidationFailure = 3
 };
 
 } // namespace hogd

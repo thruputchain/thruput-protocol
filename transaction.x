@@ -111,7 +111,7 @@ struct Invocation {
 enum InvocationFrameStatusCode {
   kInvocationFrameStatusCodeReturn = 0,
   kInvocationFrameStatusCodeFault = 1,
-  kInvocationFrameStatusCodeAbort = 2,
+  kInvocationFrameStatusCodeAbort = 2
 };
 
 union InvocationFrameOutput switch (InvocationFrameStatusCode status_code)
@@ -168,7 +168,7 @@ enum InvokeFlag {
   /// should NOT change (they return the original caller and current address),
   /// but storage operations should operate on the caller's storage. Document
   /// the behavior of all syscalls in a delegatecall context.
-  kInvokeFlagDelegateCall = 0x00000004,
+  kInvokeFlagDelegateCall = 0x00000004
 };
 
 /// A bitset of InvokeFlag values.
@@ -395,7 +395,7 @@ enum TransactionStatistic {
   /// This can be queried to monitor gas consumption during execution.
   /// Note that this statistic may be disabled or return nondeterministic
   /// values in test configurations (see syscalls.yaml for details).
-  kTxStatGasRemaining = 0,
+  kTxStatGasRemaining = 0
 };
 
 } // namespace hogd

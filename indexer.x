@@ -27,7 +27,7 @@ default:
 
 enum IndexerBlockExplorerIntroOutcome {
   IntroSuccess = 0,
-  IntroMismatchedProtocol = 1,
+  IntroMismatchedProtocol = 1
 };
 
 // Clients (e.g., block explorer GUIs) use this API to retrieve data from the

@@ -17,7 +17,7 @@ enum StorageItemType {
 
   // #[doc(hidden)]
   // This will be removed when we get rid of the old db interface.
-  kItemTypeDeleted = -1,
+  kItemTypeDeleted = -1
 };
 
 const kBytestringMaxLen = 1024;
@@ -101,7 +101,7 @@ enum StorageDeltaType {
   kDeltaTypeNonnegativeIntAdd = 5,
   kDeltaTypeAuthDataChange = 6,
   kDeltaTypeDeployContract = 7,
-  kDeltaTypeConsumeUniquifier = 8,
+  kDeltaTypeConsumeUniquifier = 8
 };
 
 struct AuthDataChangeSigner {

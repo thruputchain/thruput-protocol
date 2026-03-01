@@ -8,7 +8,7 @@ namespace hogd {
 
 enum CoordinatorRegistrationOutcome {
   CoordinatorRegistrationOK = 0,
-  CoordinatorRegistrationInvalidProtocol = 1,
+  CoordinatorRegistrationInvalidProtocol = 1
 };
 
 struct CoordCard {
@@ -18,7 +18,7 @@ struct CoordCard {
 
 enum SchedulerNominationOutcome {
   SchedulerNominationOK = 0,
-  SchedulerNominationError = 1,
+  SchedulerNominationError = 1
 };
 
 struct SchedulerNominatedBlock {
@@ -40,7 +40,7 @@ enum SchedulerValidationOutcome {
   SchedulerValidationInvalid = 1,
   SchedulerValidationMissingTxs = 2,
   SchedulerValidationDbFailed = 3,
-  SchedulerValidationExecutorFailed = 4,
+  SchedulerValidationExecutorFailed = 4
 };
 
 union SchedulerValidationResult switch (SchedulerValidationOutcome outcome)
@@ -69,6 +69,7 @@ union SchedulerGetTipResult switch (SchedulerGetTipOutcome outcome)
 case SchedulerGetTipOK:
   DbTip db_tip;
 case SchedulerGetTipNoGenesisBlock:
+  void;
 default:
   void;
 };
