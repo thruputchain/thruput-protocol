@@ -451,11 +451,9 @@ syscalls:
         typename: "StorageKeyContractData"
       - name: "set_value"
         typename: "int128_t"
-        syscall_pass_by_value: true
         optional: true
       - name: "add_value"
         typename: "int128_t"
-        syscall_pass_by_value: true
       - name: "flags"
         typename: "StorageDeltaFlagSet"
     outputs:
