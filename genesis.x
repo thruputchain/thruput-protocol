@@ -36,7 +36,7 @@ enum GenesisContractAddresses {
   // Precompiled native contract for the HogToken contract
   kAddressPrecompiledHogToken = 1,
   // InitialTokenClaim contract, for managing genesis token/contract setup
-  kAddressInitialTokenClaim = 2,
+  kAddressInitialTokenClaim = 2
 };
 
 } // namespace hogd

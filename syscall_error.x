@@ -45,7 +45,7 @@ enum SyscallErrorCode {
   kSyscallErrorCodeDeterministicWasm = -1,
 
   /// Child call frame manually reverted
-  kSyscallErrorCodeFrameReverted = -2,
+  kSyscallErrorCodeFrameReverted = -2
 };
 
 } // namespace hogd

@@ -36,7 +36,7 @@ typedef opaque Ed25519SecretKey[64]; // #[rust(newtype)]
 
 /// Represents the cryptographic scheme used for a signature or public key.
 enum CryptographicScheme {
-  Ed25519 = 0,
+  Ed25519 = 0
 };
 
 
@@ -118,7 +118,7 @@ enum StorageKeyType {
   ///
   /// Stores a set of active [`Uniquifier`] objects
   /// to prevent transaction replay attacks.
-  kStorageKeyTypeReplayCache = 4,
+  kStorageKeyTypeReplayCache = 4
 };
 
 /// Represents an arbitrary 32-byte key into contract storage.

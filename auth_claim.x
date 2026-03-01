@@ -107,7 +107,7 @@ enum AuthClaimType {
   /// Requires a signature from a specific key
   ///
   /// XXX
-  kPubkeySignature = 4,
+  kPubkeySignature = 4
 };
 
 struct PubkeyAccountPreimage {
@@ -205,7 +205,7 @@ enum AuthVerifyErrorCode {
   /// - Referencing a public key ID that doesn't exist in the auth data
   /// - Failing to meet required weight thresholds
   /// - Insufficient gas permissions for the claimed sponsorship
-  kAuthDataMismatch = 3,
+  kAuthDataMismatch = 3
 };
 
 } // namespace hogd

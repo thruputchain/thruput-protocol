@@ -22,7 +22,7 @@ enum StorageLockType {
   kNone = 0,
   kSetItemTypeClass = 1, // kind of like a readlock
   kExclusiveLock = 2,
-  kPermanentExclusiveLock = 3,
+  kPermanentExclusiveLock = 3
 };
 
 struct NNIntBoundsLock {

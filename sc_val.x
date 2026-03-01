@@ -68,7 +68,7 @@ enum SCValType {
 
   // Address is the universal identifier for contracts and classic
   // accounts.
-  SCV_ADDRESS = 18,
+  SCV_ADDRESS = 18
 
   // // The following are the internal SCVal variants that are not
   // // exposed to the contracts.
@@ -115,7 +115,7 @@ struct Int256Parts {
 
 enum SCAddressType {
   // SC_ADDRESS_TYPE_ACCOUNT = 0,
-  SC_ADDRESS_TYPE_CONTRACT = 1,
+  SC_ADDRESS_TYPE_CONTRACT = 1
   // SC_ADDRESS_TYPE_MUXED_ACCOUNT = 2,
   // SC_ADDRESS_TYPE_CLAIMABLE_BALANCE = 3,
   // SC_ADDRESS_TYPE_LIQUIDITY_POOL = 4
