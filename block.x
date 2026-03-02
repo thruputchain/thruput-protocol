@@ -7,8 +7,18 @@ namespace hogd
 // clang-format on
 
 // This struct is serialized and hashed to form the block hash.
-struct BlockHashPreimage {
-  SHA256Hash txs_merkle_trie_root_hash;
+struct BlockHeader {
+  // A unique identifier for this blockchain. If there are multiple instances of
+  // the blockchain running, each one will have a different [network_id].
+  unsigned hyper network_id;
+  // The Merkle root hash of the transactions.
+  BlockHash txset_hash;
+  // The hash of the database contents after this block is applied to the
+  // database.
+  BlockHash db_hash;
+  // The Merkle root hash of the events.
+  BlockHash events_hash;
+  // The hash of the previous block.
   BlockHash prev_block_hash;
 };
 
