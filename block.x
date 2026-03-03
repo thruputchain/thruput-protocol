@@ -12,12 +12,12 @@ struct BlockHeader {
   // the blockchain running, each one will have a different [network_id].
   unsigned hyper network_id;
   // The Merkle root hash of the transactions.
-  BlockHash txset_hash;
+  SHA256Hash txset_hash;
   // The hash of the database contents after this block is applied to the
   // database.
   DbHash db_hash;
   // The Merkle root hash of the events.
-  BlockHash events_hash;
+  SHA256Hash events_hash;
   // The hash of the previous block.
   BlockHash prev_block_hash;
 };
