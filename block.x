@@ -15,7 +15,7 @@ struct BlockHeader {
   BlockHash txset_hash;
   // The hash of the database contents after this block is applied to the
   // database.
-  BlockHash db_hash;
+  DbHash db_hash;
   // The Merkle root hash of the events.
   BlockHash events_hash;
   // The hash of the previous block.
