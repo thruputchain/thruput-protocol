@@ -14,7 +14,7 @@ namespace hogd
 typedef unsigned hyper BlockID;
 
 typedef SHA256Hash BlockHash;
-typedef SHA256Hash DbHash;
+typedef opaque DbHash[2048];
 
 struct DbTip {
   BlockHeight height;
