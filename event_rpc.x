@@ -37,8 +37,9 @@ program EventSched
     void eventsched_null(void) = 0;
 
     RPCError eventsched_open_block(BlockID) = 10;
-    EventBlockResult eventsched_close_block(BlockID, BlockHeight) = 20;
-    RPCError eventsched_abandon_block(BlockID) = 30;
+    EventBlockResult eventsched_get_block_hash(BlockID) = 20;
+    EventBlockResult eventsched_close_block(BlockID, BlockHeight) = 30;
+    RPCError eventsched_abandon_block(BlockID) = 40;
   } = 1;
 } = 0x8aa81226;
 
