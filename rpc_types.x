@@ -13,9 +13,6 @@ namespace hogd
 // An internal unique ID describing a block.
 typedef unsigned hyper BlockID;
 
-typedef SHA256Hash BlockHash;
-typedef opaque DbHash[2048];
-
 struct DbTip {
   BlockHeight height;
   BlockHash block_hash;

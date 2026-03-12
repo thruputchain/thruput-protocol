@@ -77,6 +77,13 @@ case 0:
 /// Represents a 256-bit SHA-256 hash.
 typedef opaque SHA256Hash[32]; // #[rust(newtype)]
 
+/// Hash of the groundhog database contents.
+/// Format is a 2048-bit LtHash16 hash.
+typedef opaque DbHash[2048];
+
+/// Hash of a groundhog block of transactions
+typedef SHA256Hash BlockHash;
+
 /// Represents a 256-bit contract address.
 /// In the groundhog storage model, each contract is deployed at a 
 /// 32-byte unique `ContractAddress`.
