@@ -70,7 +70,7 @@ default:
   void;
 };
 
-DBAuthIntroOutcome {
+enum DBAuthIntroOutcome {
   kSuccess = 0,
   kFailure = 1
 };
