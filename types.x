@@ -79,7 +79,7 @@ typedef opaque SHA256Hash[32]; // #[rust(newtype)]
 
 /// Hash of the groundhog database contents.
 /// Format is a 2048-bit LtHash16 hash.
-typedef opaque DbHash[2048];
+typedef opaque DbHash[2048]; // #[rust(newtype)]
 
 /// Hash of a groundhog block of transactions
 typedef SHA256Hash BlockHash;
