@@ -71,12 +71,12 @@ default:
 };
 
 enum DBAuthIntroOutcome {
-  kSuccess = 0,
-  kFailure = 1
+  kIntroSuccess = 0,
+  kIntroFailure = 1
 };
 
 union DBAuthIntroResult switch (DBAuthIntroOutcome outcome) {
-case kSuccess:
+case kIntroSuccess:
   BlockHeight current_height;
 default:
   void;
