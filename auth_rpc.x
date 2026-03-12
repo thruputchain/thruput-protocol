@@ -70,6 +70,18 @@ default:
   void;
 };
 
+DBAuthIntroOutcome {
+  kSuccess = 0,
+  kFailure = 1
+};
+
+union DBAuthIntroResult switch (DBAuthIntroOutcome outcome) {
+case kSuccess:
+  BlockHeight current_height;
+default:
+  void;
+};
+
 typedef DBAuthResult DBAuthResultBatch<>;
 
 program DBAuth {
@@ -83,7 +95,7 @@ program DBAuth {
 
     // Introduce an auth server to a db shard,
     // and subscribe to updates to auth data
-    bool dbauth_intro(AuthCard) = 2;
+    DBAuthIntroResult dbauth_intro(AuthCard) = 2;
   }
   = 1;
 }
