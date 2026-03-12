@@ -510,7 +510,8 @@ syscalls:
         description: >
           The storage key exists but contains a different type that
           cannot be converted to a retrocausal queue. This error will
-          also be returned if the queue entry is too large.
+          also be returned if the queue entry is too large,
+          or if too many entries are inserted in the current transaction.
   - name: "RetrocausalQueueConsume"
     inputs:
       - name: "key"

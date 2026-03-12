@@ -11,6 +11,9 @@ struct BlockHeader {
   // A unique identifier for this blockchain. If there are multiple instances of
   // the blockchain running, each one will have a different [network_id].
   unsigned hyper network_id;
+  // The height of this block.
+  BlockHeight block_height;
+
   // The Merkle root hash of the transactions.
   SHA256Hash txset_hash;
   // The hash of the database contents after this block is applied to the
