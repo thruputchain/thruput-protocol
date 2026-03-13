@@ -31,7 +31,7 @@ union SchedulerNominationResult switch (SchedulerNominationOutcome outcome)
 {
 case SchedulerNominationOK:
   SchedulerNominatedBlock nominated_block;
-default:
+case SchedulerNominationError:
   void;
 };
 
@@ -69,8 +69,6 @@ union SchedulerGetTipResult switch (SchedulerGetTipOutcome outcome)
 case SchedulerGetTipOK:
   DbTip db_tip;
 case SchedulerGetTipNoGenesisBlock:
-  void;
-default:
   void;
 };
 
