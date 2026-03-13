@@ -35,7 +35,7 @@ program ExecutorSched
 						  ProposedTransaction) = 20;
 
     ExecProposeBatchResult executorsched_propose_batch(
-      BlockID, SignedTransactionBatch) = 11;
+      BlockID, TransactionBatch) = 11;
     ExecValidateBatchResult executorsched_validate_batch(
       BlockID, ProposedTransactionBatch) = 21;
 

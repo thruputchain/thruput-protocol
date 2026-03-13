@@ -309,6 +309,9 @@ struct SignedTransaction {
 // Batch Types
 //------------------------------------------------------------------------------
 
+/// A batch of transactions (without signatures).
+typedef Transaction TransactionBatch<>;
+
 /// A batch of signed transactions.
 typedef SignedTransaction SignedTransactionBatch<>;
 
