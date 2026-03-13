@@ -11,8 +11,8 @@ struct ParallelBatch {
   opaque xdr<>;
 };
 
-typedef ParallelBatch ParallelSignedTransactionBatch;
-typedef ParallelBatch ParallelSignedTransactionHashBatch;
-typedef ParallelBatch ParallelNondeterministicProposalDataBatch;
+typedef ParallelBatch ParallelSignedTransactionBatch;  // #[rust(newtype)]
+typedef ParallelBatch ParallelSignedTransactionHashBatch;  // #[rust(newtype)]
+typedef ParallelBatch ParallelNondeterministicProposalDataBatch;  // #[rust(newtype)]
 
 } // namespace hogd
