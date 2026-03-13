@@ -29,7 +29,7 @@ program ExecutorSched
     ExecResult executorsched_ready(void) = 1;
 
     ExecProposeResult executorsched_propose_transaction(BlockID,
-							SignedTransaction) =
+							Transaction) =
     10;
     ExecResult executorsched_validate_transaction(BlockID,
 						  ProposedTransaction) = 20;
