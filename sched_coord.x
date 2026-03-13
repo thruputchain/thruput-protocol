@@ -49,7 +49,11 @@ case SchedulerValidationOK:
   DbTip db_tip;
 case SchedulerValidationMissingTxs:
   SignedTransactionHash missing_tx_hashes<>;
-default:
+  
+// Error cases
+case SchedulerValidationDbFailed:
+case SchedulerValidationExecutorFailed:
+case SchedulerValidationInvalid:
   void;
 };
 
