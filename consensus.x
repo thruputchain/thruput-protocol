@@ -8,7 +8,7 @@ namespace hogd {
 
 typedef opaque Upgrade<128>;
 
-typedef SHA256Hash ConsensusValueHash;
+typedef SHA256Hash ConsensusValueHash; // #[rust(newtype)]
 
 struct ConsensusValue {
   TimePoint timestamp;
