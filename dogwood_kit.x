@@ -1,6 +1,6 @@
 namespace hogd {
 
-typedef hyper DogwoodInt64;
-typedef int DogwoodInt32;
+typedef unsigned hyper DogwoodInt64;
+typedef unsigned int DogwoodInt32;
 
 }
