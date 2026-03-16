@@ -63,6 +63,11 @@ type_mappings:
     rust_name: "BlockHeight"
     rust_uses_as_ptr: false
     primitive_type: true
+  - base_name: "TransactionStatistic"
+    rust_name: "TransactionStatistic"
+    rust_uses_as_ptr: false
+    primitive_type: true
+    newtype: true
 # Syscalls MUST be defined in increasing numerical order (by the 'number'
 # field)
 #
@@ -549,7 +554,6 @@ syscalls:
     inputs:
       - name: "statistic"
         typename: "TransactionStatistic"
-        primitive_type: true
     outputs:
       - name: "result"
         typename: "uint64_t"
