@@ -234,7 +234,7 @@ struct DeployedContractHash {
 /// Metadata associated with an address.
 ///
 /// Currently only stores information about the deployed contract, if any.
-/// This is the type stored at storage key `kStorageKeyTypeAddressMetadata`.
+/// This is the type stored at storage key `AddressMetadata`.
 struct AddressMetadata {
   /// Information about the contract deployed at this address.
   DeployedContractHash deployed_contract;

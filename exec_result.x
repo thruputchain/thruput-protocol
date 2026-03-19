@@ -3,7 +3,7 @@ namespace hogd {
 enum ExecResult {
   ExecResultOK = 0,
   // Transaction execution (during proposal or validation) failed.
-  // Specifically, the root frame returned kInvokeDeterministic.
+  // Specifically, the root frame returned Deterministic.
   // the error is deterministic and can be replayed in validation.
   // Transactions with this error code can be included in the block.
   ExecResultTxDeterministicError = 1,

@@ -102,30 +102,30 @@ enum StorageKeyType {
   /// Contract-controlled data.
   ///
   /// Stores arbitrary data managed by the contract at this address.
-  kStorageKeyTypeContractData = 0,
+  ContractData = 0,
 
   /// Native token balance.
   ///
   /// Stores the free balance of the native HOG token for this address.
-  kStorageKeyTypeFreeNativeTokenBalance = 1,
+  FreeNativeTokenBalance = 1,
 
   /// Address authorization data.
   ///
   /// Stores [`AddressAuthData`] - the authorization configuration including
   /// public keys, weights, gas permissions, and nonce rules.
-  kStorageKeyTypeAddressAuthData = 2,
+  AuthData = 2,
 
   /// Address metadata.
   ///
   /// Stores [`AddressMetadata`] - metadata about the contract deployed at
   /// this address (hash, size, type).
-  kStorageKeyTypeAddressMetadata = 3,
+  Metadata = 3,
 
   /// Replay cache for nonce tracking.
   ///
   /// Stores a set of active [`Uniquifier`] objects
   /// to prevent transaction replay attacks.
-  kStorageKeyTypeReplayCache = 4
+  ReplayCache = 4
 };
 
 /// Represents an arbitrary 32-byte key into contract storage.
@@ -135,15 +135,15 @@ typedef opaque StorageKeyContractData[32]; // #[rust(newtype)]
 /// Union of a StorageKey type over the various storage key types.
 union StorageKey switch (StorageKeyType key_type)
 {
-case kStorageKeyTypeContractData:
+case ContractData:
   StorageKeyContractData contract_data_key;
-case kStorageKeyTypeFreeNativeTokenBalance:
+case FreeNativeTokenBalance:
   void;
-case kStorageKeyTypeAddressAuthData:
+case AuthData:
   void;
-case kStorageKeyTypeAddressMetadata:
+case Metadata:
   void;
-case kStorageKeyTypeReplayCache:
+case ReplayCache:
   void;
   // TODO(geoff): add other key types
 };

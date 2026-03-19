@@ -109,18 +109,18 @@ struct Invocation {
 };
 
 enum InvocationFrameStatusCode {
-  kInvocationFrameStatusCodeReturn = 0,
-  kInvocationFrameStatusCodeFault = 1,
-  kInvocationFrameStatusCodeAbort = 2
+  Return = 0,
+  Fault = 1,
+  Abort = 2
 };
 
 union InvocationFrameOutput switch (InvocationFrameStatusCode status_code)
 {
-case kInvocationFrameStatusCodeReturn:
+case Return:
   ReturnBuffer return_buffer;
-case kInvocationFrameStatusCodeAbort:
+case Abort:
   ReturnBuffer abort_buffer;
-case kInvocationFrameStatusCodeFault:
+case Fault:
   void;
 };
 
@@ -131,10 +131,10 @@ case kInvocationFrameStatusCodeFault:
 ///
 /// Note: InvokeFlagSet is NOT part of the Invocation struct itself, but is
 /// instead a parameter to the Invoke syscall. The root transaction invocation
-/// always has no flags set (equivalent to kInvokeFlagNone).
+/// always has no flags set (equivalent to None).
 enum InvokeFlag {
   /// No special behavior (default).
-  kInvokeFlagNone = 0,
+  None = 0,
 
   /// Enable early conflict detection for parallel execution.
   ///
@@ -149,13 +149,13 @@ enum InvokeFlag {
   /// This is nondeterministic, so the two-phase commit result (a boolean) is appended to
   /// the nondeterministic_bits in [`NondeterministicProposalData`] for deterministic
   /// re-execution by validators.
-  kInvokeFlagTryInvoke = 0x00000001,
+  TryInvoke = 0x00000001,
 
   /// Prevent all state modifications in the subinvocation.
   ///
   /// The subinvocation can read storage but cannot write, deploy contracts,
   /// or perform any other state-modifying operations.
-  kInvokeFlagReadOnly = 0x00000002,
+  ReadOnly = 0x00000002,
 
   /// Execute the target contract's code in the caller's context.
   ///
@@ -168,13 +168,13 @@ enum InvokeFlag {
   /// should NOT change (they return the original caller and current address),
   /// but storage operations should operate on the caller's storage. Document
   /// the behavior of all syscalls in a delegatecall context.
-  kInvokeFlagDelegateCall = 0x00000004
+  DelegateCall = 0x00000004
 };
 
 /// A bitset of InvokeFlag values.
 ///
 /// Multiple flags can be combined using bitwise OR. For example:
-/// `kInvokeFlagReadOnly | kInvokeFlagTryInvoke`
+/// `ReadOnly | TryInvoke`
 typedef int InvokeFlagSet;
 
 //------------------------------------------------------------------------------
@@ -187,7 +187,7 @@ typedef int InvokeFlagSet;
 /// 1. An expiry height - the transaction becomes invalid after this block
 /// 2. A nonce - ensures uniqueness even if the same operation is repeated
 ///
-/// The uniquifier is stored in the replay cache (see [`StorageKeyType::kStorageKeyTypeReplayCache`]
+/// The uniquifier is stored in the replay cache (see [`StorageKeyType::ReplayCache`]
 /// in types.x) at the invoked contract's address to prevent replays.
 ///
 /// Important: The replay cache considers the (nonce, block_expiry_height) pair as the
@@ -398,7 +398,7 @@ enum TransactionStatistic {
   /// This can be queried to monitor gas consumption during execution.
   /// Note that this statistic may be disabled or return nondeterministic
   /// values in test configurations (see syscalls.yaml for details).
-  kTxStatGasRemaining = 0
+  GasRemaining = 0
 };
 
 } // namespace hogd
