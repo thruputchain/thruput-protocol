@@ -535,7 +535,7 @@ default:
 
 union HostFunctionStatusXdr switch (HostFnErrorCode error)
 {
-case kHostNoneOrRecoverable:
+case NoneOrRecoverable:
   SyscallErrorCode syscall_return_code;
 default:
   void;

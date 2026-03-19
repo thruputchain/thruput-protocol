@@ -5,28 +5,28 @@ namespace hogd {
 // InvokeStatus<int32_t> (a std::expected).
 //
 // When InvokeStatus<int32_t> has an int32_t value (and an
-// InvokeErrorCode::kNone), the int32_t value represents a handleable
+// InvokeErrorCode::None), the int32_t value represents a handleable
 // (deterministic) result from the invocation. (Specifically, the invoke()
 // syscall in a nested smart contract invocation passes an
-// {InvokeErrorCode::kNone, code} back as a
-// {HostFnErrorCode::kNoneOrRecoverable, code}).
+// {InvokeErrorCode::None, code} back as a
+// {HostFnErrorCode::NoneOrRecoverable, code}).
 //
 // This value is generated as either the returned value from the selected
 // WebAssembly exported function that was run, the code caused by a host
-// function returning HostFnErrorCode::kExit, or 0, if invocation ends because a
-// host function returns HostFnErrorCode::kReturn.
+// function returning HostFnErrorCode::Exit, or 0, if invocation ends because a
+// host function returns HostFnErrorCode::Return.
 enum InvokeErrorCode {
   // A call frame can only succeed if this code is returned.
   // All others revert the call frame.
-  kInvokeNone = 0,
+  None = 0,
   // An unspecified deterministic error.
-  kInvokeDeterministic = 1,
+  Deterministic = 1,
   // Runtime exceeded its gas budget.
-  kInvokeOutOfGas = 2,
+  OutOfGas = 2,
   // Nondeterministic error during invocation (e.g. malloc error)
   // Signals a serious system issue or a serious bug in our code and should be
   // diagnosed ASAP.
-  kInvokeUnrecoverable = 3,
+  Unrecoverable = 3,
   // Discovered during validation that proposer submitted bad data.
   // If a block contains a transaction with this error, the block does not need
   // to be discarded.  The transaction that causes this error is discarded,
@@ -38,12 +38,12 @@ enum InvokeErrorCode {
   // those errors are discovered _after_ executing the transactions in a block,
   // and require
   // discarding the entire block.
-  kInvokeValidationFailure = 4,
+  ValidationFailure = 4,
   // The transaction was aborted due to an external reason (such as the current
   // block being discarded),
   // but this is not the result of a totally unrecoverable error. This is to be
   // expected during normal system operation.
-  kInvokeAbortTransaction = 5
+  Abandon = 5
 };
 
 // HostFunctionErrorCode categorizes errors returned from system calls. The
@@ -55,52 +55,52 @@ enum InvokeErrorCode {
 // access to our table of system call handlers.
 //
 // When a HostFnStatus<int32_t> (a wrapper around std::expected) has an int32_t
-// value, (and a HostFnErrorCode::kNoneOrRecoverable), that int32_t is passed to
+// value, (and a HostFnErrorCode::NoneOrRecoverable), that int32_t is passed to
 // WebAssembly as a handleable error code, as the return result from the host
 // function. The WebAssembly bytecode (the smart contract) itself never sees the
 // HostFnErrorCode. Other HostFnErrorCodes terminate the WebAssembly runtime
 // (returning to the caller), and are handled by the WebAssembly runtime.
 enum HostFnErrorCode {
-  kHostNoneOrRecoverable = 0,
+  NoneOrRecoverable = 0,
   // Insufficient gas to continue WebAssembly execution.
   //
   // Result: the WebAssembly runtime immediately returns an
-  // InvokeErrorCode::kHostOutOfGas.
-  kHostOutOfGas = 1,
+  // InvokeErrorCode::OutOfGas.
+  OutOfGas = 1,
   // Unrecoverable (nondeterministic) error, such as a malloc error.
   // The only course of action is to abort the entire transaction.
   //
   // Result: the WebAssembly runtime immediately returns an
-  // InvokeErrorCode::kUnrecoverable
+  // InvokeErrorCode::Unrecoverable
   // Signals a serious system issue or a serious bug in our code and should be
   // diagnosed ASAP.
-  kHostUnrecoverable = 2,
+  Unrecoverable = 2,
   // Return from a WebAssembly invocation to the caller.  Registers a byte
   // buffer to be passed back to the caller.
   //
-  // Result: Runtime immediately returns an {InvokeErrorCode::kNone, 0}.
-  kHostReturn = 3,
+  // Result: Runtime immediately returns an {InvokeErrorCode::None, 0}.
+  Return = 3,
   // Return from a WebAssembly invocation to the caller, with some (int32_t)
   // error code.
   //
-  // Result: Runtime immediately returns an {InvokeErrorCode::kNone, code}.
+  // Result: Runtime immediately returns an {InvokeErrorCode::None, code}.
   //
   // On a root smart contract invocation, a nonzero code is converted to a
-  // InvokeErrorCode::kDeterministic.
-  kHostExit = 4,
+  // InvokeErrorCode::Deterministic.
+  Exit = 4,
   // Validation fails because a proposer submitted bad nondeterministic
   // proposal data.
   //
   // Result: the WebAssembly runtime immediately returns an
-  // InvokeErrorCode::kValidationFailure
-  kHostValidationFailure = 5,
+  // InvokeErrorCode::ValidationFailure
+  ValidationFailure = 5,
   // The transaction was aborted due to an external reason (such as the current
   // block being discarded), but this is not the result of a totally
   // unrecoverable error. This is to be expected during normal system operation.
   //
   // Result: the WebAssembly runtime immediately returns an
-  // InvokeErrorCode::kAbortTransaction
-  kHostAbortTransaction = 6
+  // InvokeErrorCode::Abandon
+  Abandon = 6
 };
 
 // General-purpose system error codes returned from within various executor operations.
@@ -110,18 +110,18 @@ enum SystemErrorCode {
   // Unrecoverable error (e.g. out of memory, or critical logic error).
   // Only recourse is to abort entire transaction and possibly crash binary.
   // Signals serious error, which we should investigate.
-  // This converts to InvokeErrorCode::kInvokeUnrecoverable or HostFnErrorCode::kHostUnrecoverable.
-  kSystemUnrecoverable = 1,
+  // This converts to InvokeErrorCode::Unrecoverable or HostFnErrorCode::Unrecoverable.
+  Unrecoverable = 1,
   // Nondeterministic error that occurs during normal course of operation.
   // E.g. a transaction is being executed concurrently with the whole block
   // getting cancelled.
   // Only recourse is to abort the entire transaction.
-  // This converts to InvokeErrorCode::kInvokeAbortTransaction or HostFnErrorCode::kHostAbortTransaction.
-  kSystemAbortTransaction = 2,
+  // This converts to InvokeErrorCode::Abandon or HostFnErrorCode::Abandon.
+  Abandon = 2,
   // Failure during validation of a transaction.  Signals that the whole
   // block must be aborted.
-  // This converts to InvokeErrorCode::kInvokeValidationFailure or HostFnErrorCode::kHostValidationFailure.
-  kSystemValidationFailure = 3
+  // This converts to InvokeErrorCode::ValidationFailure or HostFnErrorCode::ValidationFailure.
+  ValidationFailure = 3
 };
 
 } // namespace hogd

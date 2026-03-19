@@ -119,7 +119,7 @@ const kDefaultNewAddressKeyID = 0;
 /// When a transaction is submitted, its `AuthClaims` are verified against
 /// this data to determine if the transaction is properly authorized.
 ///
-/// This is the type stored at storage key `kStorageKeyTypeAddressAuthData`.
+/// This is the type stored at storage key `AddressAuthData`.
 ///
 /// # TODO
 ///

@@ -40,9 +40,9 @@ case kItemTypeBytestring:
 case kItemTypeNonnegativeInt:
   /// A nonnegative integer, stored as a 128-bit value.
   ///
-  /// This can be stored at any [`StorageKey`] of type `kStorageKeyTypeContractData`.
+  /// This can be stored at any [`StorageKey`] of type `ContractData`.
   /// This type is also used to store the free native token balance at 
-  /// storage key `kStorageKeyTypeFreeNativeTokenBalance`.
+  /// storage key `FreeNativeTokenBalance`.
   int128_xdr nnint;
 case kItemTypeRetrocausalQueue:
   /// A retrocausal multi-producer, single-consumer queue.
@@ -53,19 +53,19 @@ case kItemTypeReplayCacheData:
   /// A set of [`Uniquifier`]s that have been used by the current address.
   /// Transactions can only insert a Uniquifier, not read the whole set.
   /// 
-  /// This is the type stored at storage key `kStorageKeyTypeReplayCache`.
+  /// This is the type stored at storage key `ReplayCache`.
   /// It cannot be stored at any other storage key.
   Uniquifier active_uniquifiers<>;
 case kItemTypeAuthData:
   /// The authorization data for the current address.
   ///
-  /// This is the type stored at storage key `kStorageKeyTypeAddressAuthData`.
+  /// This is the type stored at storage key `AddressAuthData`.
   /// It cannot be stored at any other storage key.
   AddressAuthData auth_data;
 case kItemTypeDeployedContractHash:
   /// The hash of the deployed contract for the current address.
   ///
-  /// This is the type stored at storage key `kStorageKeyTypeAddressMetadata`.
+  /// This is the type stored at storage key `AddressMetadata`.
   /// It cannot be stored at any other storage key.
   DeployedContractHash deployed_contract_hash;
 };
