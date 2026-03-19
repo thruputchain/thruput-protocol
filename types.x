@@ -113,13 +113,13 @@ enum StorageKeyType {
   ///
   /// Stores [`AddressAuthData`] - the authorization configuration including
   /// public keys, weights, gas permissions, and nonce rules.
-  AddressAuthData = 2,
+  AuthData = 2,
 
   /// Address metadata.
   ///
   /// Stores [`AddressMetadata`] - metadata about the contract deployed at
   /// this address (hash, size, type).
-  AddressMetadata = 3,
+  Metadata = 3,
 
   /// Replay cache for nonce tracking.
   ///
@@ -139,9 +139,9 @@ case ContractData:
   StorageKeyContractData contract_data_key;
 case FreeNativeTokenBalance:
   void;
-case AddressAuthData:
+case AuthData:
   void;
-case AddressMetadata:
+case Metadata:
   void;
 case ReplayCache:
   void;
