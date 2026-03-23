@@ -47,6 +47,7 @@ union SchedulerValidationResult switch (SchedulerValidationOutcome outcome)
 {
 case SchedulerValidationOK:
   DbTip db_tip;
+  ParallelSignedTransactionBatch signed_transactions;
 case SchedulerValidationMissingTxs:
   SignedTransactionHash missing_tx_hashes<>;
   
