@@ -11,6 +11,7 @@ namespace hogd {
 
 struct MissingTransactions {
   SignedTransactionHash transaction_hashes<>;
+  ConsensusValueHash cv_hash;
   BlockHash block_hash;
 };
 
