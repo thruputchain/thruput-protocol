@@ -67,4 +67,9 @@ struct ClusterConfig {
   AssemblyDef assembly_defs<>;
 };
 
+struct VariantPlan {
+  UnitDef unit_defs<>;
+  SocketAddress public_address;
+};
+
 } // namespace hogx
