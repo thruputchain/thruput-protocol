@@ -19,7 +19,7 @@ jobs:
 
       - name: Trigger protocol-rs auto-update
         run: |
-          gh api repos/groundhogchain/protocol-rs/dispatches \
-            -f event_type=protocol-updated
+          gh workflow run auto-update.yml \
+            --repo groundhogchain/protocol-rs
         env:
           GH_TOKEN: ${{ steps.app-token.outputs.token }}
