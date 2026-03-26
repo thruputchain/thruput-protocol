@@ -1,0 +1,25 @@
+name: Notify protocol-rs
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  dispatch:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Generate app token
+        id: app-token
+        uses: actions/create-github-app-token@v1
+        with:
+          app-id: ${{ vars.PROTOCOL_SYNCHRONIZER_APP_ID }}
+          private-key: ${{ secrets.PROTOCOL_SYNCHRONIZER_SECRET_KEY }}
+          owner: groundhogchain
+          repositories: protocol-rs
+
+      - name: Trigger protocol-rs auto-update
+        run: |
+          gh api repos/groundhogchain/protocol-rs/dispatches \
+            -f event_type=protocol-updated
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
