@@ -17,13 +17,13 @@ jobs:
           owner: groundhogchain
           repositories: protocol-rs,protocol-ts
 
-      - name: Trigger protocol-rs auto-update
+      - name: Trigger protocol-rs auto update
         run: |
           gh workflow run auto-update.yml \
             --repo groundhogchain/protocol-rs
         env:
           GH_TOKEN: ${{ steps.app-token.outputs.token }}
-      - name: Trigger protocol-ts auto-update
+      - name: Trigger protocol-ts auto update
         run: |
           gh workflow run auto-update.yml \
             --repo groundhogchain/protocol-ts
