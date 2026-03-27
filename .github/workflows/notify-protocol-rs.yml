@@ -1,4 +1,4 @@
-name: Notify protocol-rs
+name: Notify consumers
 
 on:
   push:
@@ -15,11 +15,17 @@ jobs:
           app-id: ${{ vars.PROTOCOL_SYNCHRONIZER_APP_ID }}
           private-key: ${{ secrets.PROTOCOL_SYNCHRONIZER_SECRET_KEY }}
           owner: groundhogchain
-          repositories: protocol-rs
+          repositories: protocol-rs,protocol-ts
 
       - name: Trigger protocol-rs auto update
         run: |
           gh workflow run auto-update.yml \
             --repo groundhogchain/protocol-rs
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+      - name: Trigger protocol-ts auto update
+        run: |
+          gh workflow run auto-update.yml \
+            --repo groundhogchain/protocol-ts
         env:
           GH_TOKEN: ${{ steps.app-token.outputs.token }}
