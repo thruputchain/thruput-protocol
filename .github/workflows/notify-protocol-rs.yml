@@ -17,7 +17,7 @@ jobs:
           owner: groundhogchain
           repositories: protocol-rs
 
-      - name: Trigger protocol-rs automatic update
+      - name: Trigger protocol-rs auto update
         run: |
           gh workflow run auto-update.yml \
             --repo groundhogchain/protocol-rs
