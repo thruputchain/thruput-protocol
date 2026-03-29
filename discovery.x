@@ -4,7 +4,7 @@
 
 namespace hogd {
 
-typedef opaque ValidatorID[32];
+typedef opaque ValidatorID[32]; // #[rust(newtype)]
 
 typedef Ed25519PublicKey ValidatorPublicKey;
 typedef Ed25519SecretKey ValidatorSecretKey;
