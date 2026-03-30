@@ -203,6 +203,9 @@ syscalls:
       - code: kSyscallErrorCodeFrameReverted
         description: >
           The invoked contract manually reverted itself.
+      - code: kSyscallErrorCodeReentrance
+        description: >
+          The invoked address is already on the stack.
   - name: "Return"
     read_only: true
     inputs:
