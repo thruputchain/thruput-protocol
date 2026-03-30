@@ -257,10 +257,10 @@ struct ReplayCacheData {
 /// Flags that can be set on a storage delta to modify its behavior.
 /// Multiple flags can be combined using bitwise OR.
 enum StorageDeltaFlags {
-  kStorageDeltaFlagNone = 0,
+  None = 0,
   /// Forces the delta to acquire an exclusive lock on the item at the storage key,
   /// regardless of any other conflict resolution rules.
-  kStorageDeltaFlagExclusiveLock = 0x00000001
+  ExclusiveLock = 0x00000001
 };
 
 /// A bitset of StorageDeltaFlags values.
