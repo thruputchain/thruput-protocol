@@ -64,8 +64,7 @@ case SchedulerValidationInvalid:
 
 enum SchedulerCommitOutcome {
   SchedulerCommitOK = 0,
-  SchedulerCommitBlockNotFound = 1,
-  SchedulerCommitRace = 2
+  SchedulerCommitBlockNotFound = 1
 };
 
 enum SchedulerGetTipOutcome {
