@@ -40,7 +40,8 @@ enum SchedulerValidationOutcome {
   SchedulerValidationInvalid = 1,
   SchedulerValidationMissingTxs = 2,
   SchedulerValidationDbFailed = 3,
-  SchedulerValidationExecutorFailed = 4
+  SchedulerValidationExecutorFailed = 4,
+  SchedulerValidationTooLateToValidate = 5
 };
 
 struct SchedulerValidationBlock {
