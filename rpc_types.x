@@ -3,7 +3,6 @@
 %#include "types.hh"
 %#include "contract.hh"
 %#include "transaction.hh"
-%#include "storage_item.hh"
 %#include "address_auth.hh"
 
 namespace hogd
@@ -83,14 +82,6 @@ union ExpectedProposalData switch (RPCError error)
 {
 case kRPCNone:
   NondeterministicProposalData proposal_data;
-default:
-  void;
-};
-
-union ExpectedStorageItem switch (RPCError error)
-{
-case kRPCNone:
-  WireStorageItem item;
 default:
   void;
 };

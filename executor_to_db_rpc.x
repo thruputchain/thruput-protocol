@@ -10,6 +10,14 @@ namespace hogd
 {
 // clang-format on
 
+union ExpectedStorageItem switch (RPCError error)
+{
+case kRPCNone:
+  WireStorageItem item;
+default:
+  void;
+};
+
 typedef FlaggedStorageDelta StorageDeltaBatch<>;
 
 typedef Contract NewContractBatch<>;
