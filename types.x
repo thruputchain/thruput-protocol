@@ -16,7 +16,7 @@ struct int128_xdr {
 
 /// uint64_t, Unix time as nanoseconds elapsed since
 /// January 1, 1970 UTC
-typedef unsigned hyper TimePoint;
+typedef unsigned hyper TimePoint; // #[rust(newtype)]
 
 /// Typedef representing a length of memory in bytes, within
 /// a wasm runtime.  This is primarily used as an argument to syscalls,
@@ -163,6 +163,6 @@ struct AddressAndKey {
 /// The first block of transactions is at height 0.
 /// It is signed to prevent overflows in
 /// calculations.
-typedef hyper BlockHeight;
+typedef hyper BlockHeight; // #[rust(newtype)]
 
 } // namespace hogd
