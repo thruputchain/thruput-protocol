@@ -60,6 +60,7 @@ case SchedulerValidationMissingTxs:
 case SchedulerValidationDbFailed:
 case SchedulerValidationExecutorFailed:
 case SchedulerValidationInvalid:
+case SchedulerValicationTooLateToValidate:
   void;
 };
 
