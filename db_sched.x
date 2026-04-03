@@ -32,10 +32,12 @@ typedef HogAge HogAgeBatch<>;
 union HogAgeResult switch (DbSchedResult result)
 {
 case DbSchedResultOK:
-  HogAgeBatch hog_age_batch;
+  HogAge hog_age;
 default:
   void;
 };
+
+typedef HogAgeResult HogAgeResults<>;
 
 union DbAddressAuthDataBatchResult switch (DbSchedResult result)
 {
@@ -74,7 +76,7 @@ program DbSched
     DbAddressAuthDataBatchResult dbsched_get_address_auth_data(
       BlockID, ContractAddressBatch) = 1;
 
-    HogAgeResult dbsched_get_hog_ages(ContractAddressBatch) = 2;
+    HogAgeResults dbsched_get_hog_ages(ContractAddressBatch) = 2;
     DbSchedResult dbsched_write_hog_ages(HogAgeBatch) = 3;
 
     // Examples of valid call sequences to the db:
