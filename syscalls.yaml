@@ -750,3 +750,22 @@ syscalls:
     description: >
       Returns the current block height.
     errors:
+  - name: RetrocausalQueuePeekLen
+    inputs:
+      - name: "key"
+        typename: "StorageKeyContractData"
+    outputs:
+      - name: "len"
+        typename: "RuntimeMemoryLength"
+        primitive_type: true
+    number: 32
+    description: >
+      Returns the length of the retrocausal queue at the specified storage key.
+    errors:
+      - code: kSyscallErrorCodeInvalidSyscallInput
+        description: >
+          The storage key exists but contains a different type.
+      - code: kSyscallErrorCodeNoRetrocausalQueueEntry
+        description: >
+          The retrocausal queue is empty and has no entries to peek.
+      

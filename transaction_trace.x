@@ -461,6 +461,19 @@ struct SyscallGetBlockHeightTrace {
   SyscallGetBlockHeightOutputs *outputs;
 };
 
+struct SyscallRetrocausalQueuePeekLenInputs {
+  StorageKeyContractData key;
+};
+
+struct SyscallRetrocausalQueuePeekLenOutputs {
+  RuntimeMemoryLength len;
+};
+
+struct SyscallRetrocausalQueuePeekLenTrace {
+  SyscallRetrocausalQueuePeekLenInputs inputs;
+  SyscallRetrocausalQueuePeekLenOutputs *outputs;
+};
+
 // === Main Trace Body ===
 
 union SyscallTraceBody switch (SyscallNo syscall_number)
@@ -529,6 +542,8 @@ case kWriteAddressGasPermissionConfigs:
   SyscallWriteAddressGasPermissionConfigsTrace write_address_gas_permission_configs;
 case kGetBlockHeight:
   SyscallGetBlockHeightTrace get_block_height;
+case kRetrocausalQueuePeekLen:
+  SyscallRetrocausalQueuePeekLenTrace retrocausal_queue_peek_len;
 default:
   void;
 };
