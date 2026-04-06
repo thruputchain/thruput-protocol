@@ -25,6 +25,8 @@ default:
   void;
 };
 
+typedef IdentifiedEvent IdentifiedEventBatch<>;
+
 enum IndexerBlockExplorerIntroOutcome {
   IntroSuccess = 0,
   IntroMismatchedProtocol = 1
@@ -38,6 +40,7 @@ program IndexerBlockExplorer
   {
     IndexerBlockExplorerIntroOutcome indexer_block_explorer_intro(Protocol) = 0;
     TxInfoResult get_transaction_info(SignedTransactionHash) = 1;
+    IdentifiedEventBatch get_contract_events(ContractAddress, BlockHeight, BlockHeight) = 2;
   } = 1;
 }
 = 0x4321aaaa;
