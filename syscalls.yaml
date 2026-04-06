@@ -768,4 +768,3 @@ syscalls:
       - code: kSyscallErrorCodeNoRetrocausalQueueEntry
         description: >
           The retrocausal queue is empty and has no entries to peek.
-      
