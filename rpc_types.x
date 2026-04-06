@@ -15,6 +15,7 @@ typedef unsigned hyper BlockID;
 struct DbTip {
   BlockHeight height;
   BlockHash block_hash;
+  SHA256Hash events_hash;
   DbHash db_hash;
   BlockID id;
 };
