@@ -123,6 +123,8 @@ program SchedulerCoord
 
     // Returns transactions from the mempool that have not yet been committed in a block.
     OptSignedTransactionBatch schedcoord_lookup_transactions(SignedTransactionHashBatch) = 100;
+
+    BlockHeight schedcoord_pending_transaction_count(void) = 101;
   }
   = 1;
 }

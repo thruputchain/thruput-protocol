@@ -1,6 +1,7 @@
 // clang-format off
 %#include "types.hh"
 %#include "rpc_types.hh"
+%#include "exec_result.hh"
 %#include "sc_val.hh"
 
 namespace hogd {
@@ -41,6 +42,7 @@ struct TxEmittedEvent {
 /// querying of all events associated with a specific transaction.
 struct TxEventLog {
   SHA256Hash proposed_tx_hash; // sha256(ProposedTransaction)
+  ExecResult exec_result;
   TxEmittedEvent events<>;
 };
 
@@ -53,6 +55,7 @@ struct TxEventLog {
 /// the same transaction.
 struct IdentifiedEvent {
   SHA256Hash proposed_tx_hash; // sha256(ProposedTransaction)
+  BlockHeight block_height;
   unsigned int sequence_number; // uniquifies the event
   TxEmittedEvent emitted_event;
 };
