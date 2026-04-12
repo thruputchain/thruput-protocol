@@ -14,12 +14,12 @@ typedef string ContractSpecString<>;
 % union ContractType;
 
 struct ContractArrayType {
-  ContractType *element;
+  ContractType *element; // #[rust(box_ptr)]
   unsigned int len;
 };
 
 struct ContractVectorType {
-  ContractType *element;
+  ContractType *element; // #[rust(box_ptr)]
   unsigned int max_len;
 };
 
@@ -69,7 +69,7 @@ case Bytes:
 case Address:
   void;
 case Option:
-  ContractType *option_inner;
+  ContractType *option_inner; // #[rust(box_ptr)]
 case Vector:
   ContractVectorType vector;
 case Tuple:
