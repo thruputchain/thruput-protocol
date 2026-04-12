@@ -1,11 +1,8 @@
 // Groundhog contract specification AST
 //
-// Discriminants match #[repr(i32)] on the Rust enums. Recursive references follow the
-// xdrpp-friendly pattern used in sc_val.x (pointers for nested ContractType where needed).
-//
 // Excluded from goxdr in CI; intended as the canonical .x source for future Rust codegen.
 
-namespace hogd_contract_spec {
+namespace hogd {
 
 // RFC 4506: string types must declare a max length; `<>` is unbounded (max 2^32-1 bytes).
 typedef string ContractSpecString<>;
@@ -126,13 +123,21 @@ struct ContractEnumDef {
   ContractEnumVariant variants<>;
 };
 
-union ContractUnionCaseType switch (int v)
+/// Mirrors #[repr(i32)] enum ContractUnionCaseType in sdk_rs/groundhog-contract-spec/src/model.rs
+/// (goxdr requires enum tags unique across the namespace; names prefixed for uniqueness.)
+enum ContractUnionCaseKind {
+  UnionCaseVoid = 0,
+  UnionCaseTuple = 1,
+  UnionCaseStruct = 2
+};
+
+union ContractUnionCaseType switch (ContractUnionCaseKind v)
 {
-case 0:
+case UnionCaseVoid:
   void;
-case 1:
+case UnionCaseTuple:
   ContractType tuple<>;
-case 2:
+case UnionCaseStruct:
   ContractField struct_fields<>;
 };
 
@@ -147,13 +152,19 @@ struct ContractUnionDef {
   ContractUnionCase cases<>;
 };
 
-union ContractTypeDef switch (int v)
+enum ContractTypeDefKind {
+  TypeDefStruct = 0,
+  TypeDefEnum = 1,
+  TypeDefUnion = 2
+};
+
+union ContractTypeDef switch (ContractTypeDefKind v)
 {
-case 0:
+case TypeDefStruct:
   ContractStructDef struct_def;
-case 1:
+case TypeDefEnum:
   ContractEnumDef enum_def;
-case 2:
+case TypeDefUnion:
   ContractUnionDef union_def;
 };
 
@@ -182,14 +193,20 @@ struct SpecMethodFragment {
   ContractSpecMethod method;
 };
 
-union SpecFragment switch (int v)
+enum SpecFragmentKind {
+  SpecInterface = 0,
+  SpecMethod = 1,
+  SpecTypeDef = 2
+};
+
+union SpecFragment switch (SpecFragmentKind v)
 {
-case 0:
+case SpecInterface:
   SpecInterfaceFragment interface_fragment;
-case 1:
+case SpecMethod:
   SpecMethodFragment method_fragment;
-case 2:
+case SpecTypeDef:
   ContractTypeDef type_def;
 };
 
-} // namespace hogd_contract_spec
+} // namespace hogd
