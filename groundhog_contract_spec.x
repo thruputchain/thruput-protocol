@@ -83,6 +83,15 @@ case Array:
 };
 
 // ---------------------------------------------------------------------------
+// Exception type wrapper (carries selector metadata alongside the type)
+// ---------------------------------------------------------------------------
+
+struct ContractExceptionType {
+  unsigned hyper selector;
+  ContractType ty;
+};
+
+// ---------------------------------------------------------------------------
 // Fields, methods, interfaces
 // ---------------------------------------------------------------------------
 
@@ -100,7 +109,7 @@ struct ContractSpecMethod {
 struct ContractSpecInterface {
   ContractSpecString name;
   ContractSpecString vers;
-  ContractType throws<>;
+  ContractExceptionType throws<>;
   ContractSpecMethod methods<>;
 };
 
@@ -184,7 +193,7 @@ struct ContractSpec {
 struct SpecInterfaceFragment {
   ContractSpecString interface_name;
   ContractSpecString interface_version;
-  ContractType throws<>;
+  ContractExceptionType throws<>;
 };
 
 struct SpecMethodFragment {
