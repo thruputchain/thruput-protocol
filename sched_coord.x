@@ -62,6 +62,7 @@ case SchedulerValidationDbFailed:
 case SchedulerValidationExecutorFailed:
 case SchedulerValidationInvalid:
 case SchedulerValidationTooLateToValidate:
+case SchedulerValidationUnknownParentBlock:
   void;
 };
 
