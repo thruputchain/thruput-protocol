@@ -205,7 +205,8 @@ struct SpecMethodFragment {
 enum SpecFragmentKind {
   SpecInterface = 0,
   SpecMethod = 1,
-  SpecTypeDef = 2
+  SpecTypeDef = 2,
+  ExportedSpecTypeDef = 3,
 };
 
 union SpecFragment switch (SpecFragmentKind v)
@@ -215,6 +216,7 @@ case SpecInterface:
 case SpecMethod:
   SpecMethodFragment method_fragment;
 case SpecTypeDef:
+case ExportedSpecTypeDef:
   ContractTypeDef type_def;
 };
 
