@@ -14,6 +14,10 @@ namespace hogd {
 /// Events exceeding this length will be rejected by the LogEvent syscall.
 const kMaxEventLength = 1024; // #[rust(const=u32)]
 
+/// Maximum number of events a single transaction may emit.
+/// This keeps a single TxEventLog well below the RPC transport message limit.
+const kMaxEventsPerTransaction = 1000; // #[rust(const=u32)]
+
 /// Maximum number of topics that can be attached to an event.
 /// Topics enable efficient indexing and filtering of events.
 const kMaxTopics = 3;
@@ -43,7 +47,7 @@ struct TxEmittedEvent {
 struct TxEventLog {
   SHA256Hash proposed_tx_hash; // sha256(ProposedTransaction)
   ExecResult exec_result;
-  TxEmittedEvent events<>;
+  TxEmittedEvent events<kMaxEventsPerTransaction>;
 };
 
 /// Complete identification of a unique event within the blockchain.
