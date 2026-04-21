@@ -8,6 +8,7 @@ typedef opaque ProgramArg<>;
 struct ServerConfig {
   opaque program_name<>;
   ProgramArg program_args<>;
+  opaque cpu_affinity<>;
 };
 
 typedef opaque HogdGitHash<>;
