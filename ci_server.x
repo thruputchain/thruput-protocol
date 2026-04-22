@@ -36,11 +36,23 @@ default:
   void;
 };
 
+struct CIStartPaths {
+  opaque stdout_path<>;
+  opaque stderr_path<>;
+};
+
+union CIStartStatus switch (CIServerErrorCode error_code) {
+case kCIServerErrorCodeOK:
+  CIStartPaths paths;
+default:
+  void;
+};
+
 program CIServer
 {
   version CIServer1
   {
-    CIServerErrorCode ciserver_start(HogdGitHash, ServerConfig) = 0;
+    CIStartStatus ciserver_start(HogdGitHash, ServerConfig) = 0;
     CIServerErrorCode ciserver_stop(HogdGitHash) = 1;
     CIServerErrorCode ciserver_shutdown(HogdGitHash) = 2;
     // returns the status of the most recent process
