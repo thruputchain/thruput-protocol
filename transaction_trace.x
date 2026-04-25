@@ -482,7 +482,7 @@ struct SyscallMintAuthTokenInputs {
 };
 
 struct SyscallMintAuthTokenOutputs {
-  uint32_t token_id;
+  unsigned int token_id;
 };
 
 struct SyscallMintAuthTokenTrace {
