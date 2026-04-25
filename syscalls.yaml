@@ -203,7 +203,8 @@ syscalls:
       - code: kSyscallErrorCodeInvalidSyscallInput
         description: >
           The invocation failed because the contract was not found, or one or
-          more of the supplied auth token ids are not owned by the current frame.
+          more of the supplied auth token ids are not owned by the current
+          frame.
       - code: kSyscallErrorCodeDeterministicWasm
         description: >
           The invoked contract terminated with an unspecified internal
@@ -797,6 +798,6 @@ syscalls:
     errors:
       - code: kSyscallErrorCodeInvalidSyscallInput
         description: >
-          The serialized authentication token fails to parse as a valid 
+          The serialized authentication token fails to parse as a valid
           AuthToken, expiry height is in the past, or the number of auth
           tokens minted would exceed the maximum for the transaction.
