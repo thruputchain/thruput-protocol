@@ -5,7 +5,7 @@
 # condition is not enforced.)
 # The actual imported syscall function has 8 arguments. The first argument
 # is the syscall number.
-syscall_input_count: 7
+syscall_input_count: 10
 # A set of mappings for common types between the SDK (rust) and the syscall
 # implementation (cpp).
 # All types passed in or out of a syscall must be trivially copyable and
@@ -166,8 +166,13 @@ syscalls:
       - name: "flags"
         typename: "InvokeFlagSet"
         primitive_type: true
+      - name: "owned_auth_token_ids_list"
+        span_argument: true
     outputs:
       - name: return_buffer_len
+        typename: "RuntimeMemoryLength"
+        primitive_type: true
+      - name: "returned_auth_token_len"
         typename: "RuntimeMemoryLength"
         primitive_type: true
     number: 5
@@ -191,10 +196,14 @@ syscalls:
       (and, if the compiler is able to find this optimization,
       the entrypoint id can in principle be passed as a wasm stack argument,
       without an i64.store into linear memory).
+
+      The list of auth tokens is passed as a span, which should be
+      interpreted as a [u32] slice.
     errors:
       - code: kSyscallErrorCodeInvalidSyscallInput
         description: >
-          The invocation failed because the contract was not found.
+          The invocation failed because the contract was not found, or one or
+          more of the supplied auth token ids are not owned by the current frame.
       - code: kSyscallErrorCodeDeterministicWasm
         description: >
           The invoked contract terminated with an unspecified internal
@@ -235,6 +244,11 @@ syscalls:
       - name: "buffer"
         span_argument: true
       - name: "written_len"
+        typename: "RuntimeMemoryLength"
+        primitive_type: true
+      - name: "restored_auth_token_ids"
+        span_argument: true
+      - name: "restored_auth_token_ids_written_len"
         typename: "RuntimeMemoryLength"
         primitive_type: true
     number: 7
@@ -768,3 +782,21 @@ syscalls:
       - code: kSyscallErrorCodeNoRetrocausalQueueEntry
         description: >
           The retrocausal queue is empty and has no entries to peek.
+  - name: "MintAuthToken"
+    inputs:
+      - name: "expiry_height"
+        typename: "BlockHeight"
+      - name: "serialized_auth_token"
+        span_argument: true
+    outputs:
+      - name: "token_id"
+        typename: "uint32_t"
+    number: 33
+    description: >
+      Mints an authentication token for the current contract address.
+    errors:
+      - code: kSyscallErrorCodeInvalidSyscallInput
+        description: >
+          The serialized authentication token fails to parse as a valid 
+          AuthToken, expiry height is in the past, or the number of auth
+          tokens minted would exceed the maximum for the transaction.

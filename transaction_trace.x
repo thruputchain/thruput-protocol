@@ -83,6 +83,7 @@ struct SyscallInvokeInputs {
   GasAmount gas_limit;
   opaque calldata<>;
   InvokeFlagSet flags;
+  opaque owned_auth_token_ids_list<>;
 };
 
 struct SyscallInvokeOutputs {
@@ -114,6 +115,7 @@ struct SyscallGetReturnedBufferInputs {
 
 struct SyscallGetReturnedBufferOutputs {
   ReturnBuffer buffer;
+  opaque returned_auth_tokens<>;
 };
 
 struct SyscallGetReturnedBufferTrace {
@@ -474,6 +476,20 @@ struct SyscallRetrocausalQueuePeekLenTrace {
   SyscallRetrocausalQueuePeekLenOutputs *outputs;
 };
 
+struct SyscallMintAuthTokenInputs {
+  BlockHeight expiry_height;
+  opaque serialized_auth_token<>;
+};
+
+struct SyscallMintAuthTokenOutputs {
+  uint32_t token_id;
+};
+
+struct SyscallMintAuthTokenTrace {
+  SyscallMintAuthTokenInputs inputs;
+  SyscallMintAuthTokenOutputs *outputs;
+};
+
 // === Main Trace Body ===
 
 union SyscallTraceBody switch (SyscallNo syscall_number)
@@ -544,6 +560,8 @@ case kGetBlockHeight:
   SyscallGetBlockHeightTrace get_block_height;
 case kRetrocausalQueuePeekLen:
   SyscallRetrocausalQueuePeekLenTrace retrocausal_queue_peek_len;
+case kMintAuthToken:
+  SyscallMintAuthTokenTrace mint_auth_token;
 default:
   void;
 };
