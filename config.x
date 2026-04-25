@@ -9,11 +9,6 @@ struct ValidatorConfig {
   ValidatorPublicInfo known_validators<>;
 };
 
-struct WalletConfig {
-  JWTSecretKey secret_key;
-  WalletUser users<>;
-};
-
 struct DiscoveryConfig {
   Milliseconds advertise_interval_msec;
   unsigned int advertise_par;
@@ -80,7 +75,6 @@ struct StorageConfig {
 
 struct Config {
   ValidatorConfig *validator_config;
-  WalletConfig *wallet_config;
   DiscoveryConfig *discovery_config;
   RouterConfig *router_config;
   DogwoodConfig *dogwood_config;

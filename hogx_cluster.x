@@ -23,7 +23,6 @@ struct HostDef {
 struct ValidatorSystemConfig {
   unsigned int base_private_port;
   unsigned int coordinator_public_port;
-  unsigned int coordinator_public_wallet_port;
   //
   unsigned int exec_num_threads;
   unsigned hyper db_ram_bytes;
