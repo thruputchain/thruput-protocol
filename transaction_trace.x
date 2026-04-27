@@ -498,6 +498,7 @@ struct SyscallConsumeAuthTokenInputs {
 
 struct SyscallConsumeAuthTokenOutputs {
   AuthTokenPayload payload;
+  RuntimeMemoryLength auth_payload_written_len;
   unsigned int unwrapped_token_id_start;
   unsigned int unwrapped_token_id_count;
 };
