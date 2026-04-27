@@ -25,4 +25,8 @@ const kCoordinatorMaxBytesSCPEnvelopeMessage = 5'000'000; // 5MB
 /// before submitting them to the mempool without violating kMempoolCoordinatorRpcMaxBytes.
 const kMaxBytesSignedTransaction = 2'000'000; // 2MB
 
+/// kRPCFrameMaxBytes is an over-estimate of the maximum RPC frame size, used by the coordinator
+/// to make sure it does not overflow the mempool's max RPC message size.
+const kRPCFrameMaxBytes = 10'000; // 10KB
+
 } // namespace hogd
