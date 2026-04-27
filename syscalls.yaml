@@ -112,10 +112,13 @@ syscalls:
     outputs:
       - name: "len"
         typename: "RuntimeMemoryLength"
+      - name: "auth_token_count"
+        typename: "uint32_t"
     number: 2
     description: >
       Returns the length of the calldata supplied to the invocation
       associated with the current call frame.
+      Also returns the number of auth tokens supplied to the invocation.
     errors:
   - name: "GetCalldata"
     read_only: true
@@ -126,10 +129,17 @@ syscalls:
       - name: "written_len"
         typename: "RuntimeMemoryLength"
         primitive_type: true
+      - name: "auth_token_list"
+        span_argument: true
+      - name: "auth_token_written_len"
+        typename: "RuntimeMemoryLength"
     number: 3
     description: >
       Returns the calldata supplied to the invocation associated with
       the current call frame.
+      Also returns the auth tokens supplied to the invocation.
+      The auth token list is passed as a span, which should be
+      interpreted as a [u32] slice.
     errors:
   - name: "ConsoleLog"
     needs_context: false

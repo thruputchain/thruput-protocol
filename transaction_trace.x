@@ -44,6 +44,7 @@ struct SyscallGetCalldataLenInputs {
 
 struct SyscallGetCalldataLenOutputs {
   unsigned int len;
+  unsigned int auth_token_count;
 };
 
 struct SyscallGetCalldataLenTrace {
@@ -57,6 +58,7 @@ struct SyscallGetCalldataInputs {
 
 struct SyscallGetCalldataOutputs {
   opaque calldata<>;
+  unsigned int auth_tokens<>;
 };
 
 struct SyscallGetCalldataTrace {
