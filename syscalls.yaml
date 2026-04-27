@@ -812,3 +812,23 @@ syscalls:
           The serialized authentication token fails to parse as a valid
           AuthToken, expiry height is in the past, or the number of auth
           tokens minted would exceed the maximum for the transaction.
+  - name: "ConsumeAuthToken"
+    inputs:
+      - name: "token_id"
+        typename: "uint32_t"
+    outputs:
+      - name: "auth_payload"
+        span_argument: true
+      - name: "unwrapped_token_id_start"
+        typename: "uint32_t"
+      - name: "unwrapped_token_id_count"
+        typename: "uint32_t"
+    number: 34
+    description: >
+      Consumes an authentication token for the current contract address.
+      Returns any nested tokens unwrapped by the token.
+    errors:
+      - code: kSyscallErrorCodeInvalidSyscallInput
+        description: >
+          The authentication token is not owned by the current contract address,
+          or the auth token has expired.

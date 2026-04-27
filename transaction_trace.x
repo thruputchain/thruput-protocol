@@ -492,6 +492,21 @@ struct SyscallMintAuthTokenTrace {
   SyscallMintAuthTokenOutputs *outputs;
 };
 
+struct SyscallConsumeAuthTokenInputs {
+  unsigned int token_id;
+};
+
+struct SyscallConsumeAuthTokenOutputs {
+  AuthTokenPayload payload;
+  unsigned int unwrapped_token_id_start;
+  unsigned int unwrapped_token_id_count;
+};
+
+struct SyscallConsumeAuthTokenTrace {
+  SyscallConsumeAuthTokenInputs inputs;
+  SyscallConsumeAuthTokenOutputs *outputs;
+};
+
 // === Main Trace Body ===
 
 union SyscallTraceBody switch (SyscallNo syscall_number)
@@ -564,6 +579,8 @@ case kRetrocausalQueuePeekLen:
   SyscallRetrocausalQueuePeekLenTrace retrocausal_queue_peek_len;
 case kMintAuthToken:
   SyscallMintAuthTokenTrace mint_auth_token;
+case kConsumeAuthToken:
+  SyscallConsumeAuthTokenTrace consume_auth_token;
 default:
   void;
 };
