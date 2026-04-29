@@ -235,6 +235,8 @@ syscalls:
       - name: "revert_frame"
         typename: "bool"
         primitive_type: true
+      - name: "returned_auth_token_ids"
+        span_argument: true
     outputs:
     returns: false
     number: 6
