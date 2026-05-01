@@ -46,12 +46,10 @@ type_mappings:
   - base_name: "generated::AuthClaim"
     rust_name: "AuthClaim"
     rust_uses_as_ptr: false
-  - base_name: "generated::NonceConfig"
-    rust_name: "NonceConfig"
+  - base_name: "Weight"
+    rust_name: "u32"
     rust_uses_as_ptr: false
-  - base_name: "generated::GasPermissionConfig"
-    rust_name: "GasPermissionConfig"
-    rust_uses_as_ptr: false
+    primitive_type: true
   - base_name: "Topic"
     rust_name: "[u8; 32]"
     rust_uses_as_ptr: false
@@ -655,35 +653,19 @@ syscalls:
           The event data exceeds the maximum allowed length (kMaxEventLength),
           or topics are not supplied in a continuous sequence (e.g., topic0
           and topic2 provided without topic1).
-  - name: "GetAuthClaimCount"
-    read_only: true
-    inputs:
-    outputs:
-      - name: "count"
-        typename: "uint32_t"
-    number: 25
-    description: >
-      Returns the number of authentication claims associated with the
-      current transaction.
-    errors:
   - name: "GetAuthClaim"
     read_only: true
     inputs:
-      - name: "index"
-        typename: "uint32_t"
     outputs:
       - name: "auth_claim"
-        typename: "generated::AuthClaim"
-    number: 26
+        typename: "AuthClaim"
+    number: 25
     description: >
-      Returns the authentication claim at the specified index.
+      Returns the authentication claim associated with the
+      current transaction.
     errors:
-      - code: kSyscallErrorCodeInvalidSyscallInput
-        description: >
-          The (0-indexed) input index is out of bounds (i.e. >= the
-          number of authentication claims).
   - name: "SHA256Update"
-    number: 27
+    number: 26
     read_only: true
     inputs:
       - name: "index"
@@ -707,7 +689,7 @@ syscalls:
           - The buffer becomes too large.
           - There are too many active hash buffers.
   - name: "SHA256Finalize"
-    number: 28
+    number: 27
     read_only: true
     inputs:
       - name: "index"
@@ -726,55 +708,24 @@ syscalls:
           For example, if finalize is called twice on the same buffer
           without an intervening reset, then the second call will
           return this error.
-  - name: "WriteAddressNonceConfig"
+  - name: "WriteAddressRequiredWeight"
     inputs:
-      - name: "nonce_config"
-        typename: "generated::NonceConfig"
+      - name: "required_weight"
+        typename: "Weight"
+        syscall_pass_by_value: true
     outputs:
-    number: 29
+    number: 28
     description: >
-      Writes the nonce configuration for the current contract address.
-    errors:
-      - code: kSyscallErrorCodeInvalidSyscallInput
-        description: >
-          Returns an error if `nonce_config.accepted_keys` has a bit set
-          beyond `kMaxSigners` in the configured signer bitmap.
-  - name: "WriteAddressGasPermissionConfigs"
-    inputs:
-      - name: "permission_0"
-        typename: "generated::GasPermissionConfig"
-        optional: true
-      - name: "permission_1"
-        typename: "generated::GasPermissionConfig"
-        optional: true
-      - name: "permission_2"
-        typename: "generated::GasPermissionConfig"
-        optional: true
-      - name: "permission_3"
-        typename: "generated::GasPermissionConfig"
-        optional: true
-      - name: "permission_4"
-        typename: "generated::GasPermissionConfig"
-        optional: true
-    outputs:
-    number: 30
-    description: >
-      Writes the gas permission configurations for the current contract
-      address. Up to 5 permission configurations can be set.
-    errors:
-      - code: kSyscallErrorCodeInvalidSyscallInput
-        description: >
-          The gas permission configurations are invalid, or if
-          permissions are not supplied in an initial segment of the
-          submitted arguments (i.e. if permission_1 is supplied, then
-          permission_0 must also be supplied).
+      Writes the required weight threshold for the current contract
+      address. This is the minimum total weight of signing keys needed
+      to authorize a transaction from this address.
   - name: "GetBlockHeight"
     read_only: true
     inputs:
     outputs:
       - name: "result"
         typename: "BlockHeight"
-    number: 31
+    number: 29
     description: >
       Returns the current block height.
     errors:
@@ -786,7 +737,7 @@ syscalls:
       - name: "len"
         typename: "RuntimeMemoryLength"
         primitive_type: true
-    number: 32
+    number: 30
     description: >
       Returns the length of the retrocausal queue at the specified storage key.
     errors:
@@ -805,7 +756,7 @@ syscalls:
     outputs:
       - name: "token_id"
         typename: "uint32_t"
-    number: 33
+    number: 31
     description: >
       Mints an authentication token for the current contract address.
     errors:
@@ -828,7 +779,7 @@ syscalls:
         typename: "uint32_t"
       - name: "unwrapped_token_id_count"
         typename: "uint32_t"
-    number: 34
+    number: 32
     description: >
       Consumes an authentication token for the current contract address.
       Returns any nested tokens unwrapped by the token.

@@ -368,19 +368,6 @@ struct SyscallLogEventTrace {
   SyscallLogEventOutputs *outputs;
 };
 
-struct SyscallGetAuthClaimCountInputs {
-  void;
-};
-
-struct SyscallGetAuthClaimCountOutputs {
-  unsigned int count;
-};
-
-struct SyscallGetAuthClaimCountTrace {
-  SyscallGetAuthClaimCountInputs inputs;
-  SyscallGetAuthClaimCountOutputs *outputs;
-};
-
 struct SyscallGetAuthClaimInputs {
   unsigned int index;
 };
@@ -545,8 +532,6 @@ case kChangePublicKeyRegistration:
   SyscallChangePublicKeyRegistrationTrace change_public_key_registration;
 case kLogEvent:
   SyscallLogEventTrace log_event;
-case kGetAuthClaimCount:
-  SyscallGetAuthClaimCountTrace get_auth_claim_count;
 case kGetAuthClaim:
   SyscallGetAuthClaimTrace get_auth_claim;
 case kSHA256Update:

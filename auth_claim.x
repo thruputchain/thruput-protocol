@@ -6,22 +6,23 @@ namespace hogd {
 // Authentication Claims
 //
 // This module defines the authorization model for Groundhog transactions.
-// Each transaction includes a set of AuthClaims that specify which signatures
+// Each transaction includes an AuthClaim that specifies which signatures
 // are required to authorize the transaction's execution.
 //
 // Workflow:
-// 1. A user constructs a Transaction, which includes some number of AuthClaims.
+// 1. A user constructs a Transaction, which includes an AuthClaim.
 // 2. Signatures are added to create a SignedTransaction
-// 3. Groundhog verifies that signatures match the auth claims (before execution)
-// 4. During execution, contracts can read the auth claims but NOT the signatures
+// 3. Groundhog verifies that signatures match the AuthClaim (before execution)
+// 4. During execution, contracts can read the AuthClaim and relevant compressed metadata,
+// (such as which keys were used to authorize the transaction), but not the actual signatures.
 //
-// This design ensures transaction behavior depends only on the auth claims
+// This design ensures transaction behavior depends only on the AuthClaim
 // (which are included in what gets signed), not on the signature bytes themselves.
 // This makes transactions signature-scheme agnostic and prevents signature
 // reordering or re-randomization from changing transaction behavior.
 //
 // The authentication model supports two claim types:
-// - Weighted bitmap: the transaction carries a bitmap of which keys signed,
+// - Source address auth data: the transaction is signed by the keys in the source address's auth data.
 //   and the account stores per-key weights and a minimum threshold
 // - Pubkey signature: a standalone public key signs the transaction
 //
@@ -61,23 +62,17 @@ typedef unsigned int KeyID;
 /// Must be <= 31 to fit in the `BitMap` representation.
 const kMaxSigners = 21; // #[rust(const=u32)]
 
-/// Maximum number of auth claims allowed in a single transaction.
-///
-/// This limits the verification complexity of a transaction.
-const kMaxAuthClaims = 10;
-
 //------------------------------------------------------------------------------
 // Auth Claim Types
 //------------------------------------------------------------------------------
 
 /// Discriminator for the different types of authorization claims.
 enum AuthClaimType {
-  /// Requires a weighted threshold of signatures from the source address.
-  ///
-  /// The bitmap specifies which keys signed the transaction, and the
-  /// account's per-key weights are accumulated and compared against
-  /// `required_weight` stored in the account's AddressAuthData.
-  kSourceAddressSignedWeight = 0,
+  /// Requires a set of signatures from the source address's auth data.
+  /// The runtime checks whether there are sufficient signatures associated with the address
+  /// to satisfy the address auth data's required weight.
+  // TODO(geoff): consider surfacing the data about which keys signed in a syscall.
+  kSourceAddressAuthData = 0,
 
   /// Requires a signature from a specific public key.
   ///
@@ -92,27 +87,18 @@ struct PubkeyAccountPreimage {
 
 /// An authorization claim specifying what signatures are needed to authorize
 /// a transaction.
-///
-/// Each transaction includes one or more auth claims. During verification,
-/// the signatures in the `SignedTransaction` are matched against these claims
-/// to determine if the transaction is properly authorized.
 union AuthClaim switch (AuthClaimType claim_type) {
-case kSourceAddressSignedWeight:
-  /// Bitmap of keys that signed the transaction.
-  /// Bit `i` = 1 means key `i` from the source address's key set signed.
-  /// The accumulated weight of the signing keys must meet the account's
-  /// `required_weight` threshold.
-  BitMap accepted_keys;
+case kSourceAddressAuthData:
+  /// The transaction is signed by the keys in the source address's auth data.
+  /// The bitmap specifies which are allowed to be used to sign the transaction.
+{
+  BitMap allowed_keys;
+  Weight required_weight;
+} source_address_claim;
 
 case kPubkeySignature:
   PubkeyAccountPreimage pubkey_preimage;
 };
-
-/// A list of auth claims for a transaction.
-///
-/// Each transaction must include at least one auth claim to be valid.
-/// The list is bounded by `kMaxAuthClaims` to limit verification complexity.
-typedef AuthClaim AuthClaimData<kMaxAuthClaims>;
 
 //------------------------------------------------------------------------------
 // Auth Verification Error Codes
@@ -133,8 +119,6 @@ enum AuthVerifyErrorCode {
   /// Transactions with this error should never be flooded over the network
   /// as they are structurally invalid. Examples include:
   /// - Public key IDs that are out of bounds
-  /// - Invalid bitmaps (bits set beyond kMaxSigners)
-  /// - Mismatched signature counts
   kAuthMalformed = 1,
 
   /// Cryptographic signature verification failed.

@@ -167,10 +167,10 @@ struct Transaction {
   /// Deployed via the DeployContract syscall during transaction execution.
   Contract contracts_to_deploy<>;
 
-  /// Authorization claims specifying required signatures.
+  /// Authorization claim specifying required signatures.
   ///
-  /// See [`AuthClaimData`] in auth_claim.x for details.
-  AuthClaimData auth_claims;
+  /// See [`AuthClaim`] in auth_claim.x for details.
+  AuthClaim auth_claim;
 };
 
 //------------------------------------------------------------------------------
@@ -179,17 +179,10 @@ struct Transaction {
 
 /// A cryptographic signature paired with its key identifier.
 ///
-/// The auth_claim_idx indicates which auth claim from a signed transaction's
-/// list of claims produced this signature.
-///
 /// The public_key_id indicates which key from an address's key set produced
 /// this signature, allowing the signature to be matched against the transaction's
 /// auth claims.
 struct DecoratedSignature {
-  // The index in [SignedTransaction::auth_claims] for the address that
-  // generated this signature.
-  unsigned int auth_claim_idx;
-
   /// The KeyID of the public key that created this signature.
   ///
   /// This is matched against the auth claims to determine if the signature
@@ -220,7 +213,7 @@ struct SignedTransaction {
 
   /// Signatures that authorize this transaction.
   ///
-  /// These signatures must satisfy the auth_claims in the transaction.
+  /// These signatures must satisfy the auth_claim in the transaction.
   /// The signatures are over the [`Transaction`] object.
   DecoratedSignature signatures<>;
 };
