@@ -422,34 +422,17 @@ struct SyscallSHA256FinalizeTrace {
   SyscallSHA256FinalizeOutputs *outputs;
 };
 
-struct SyscallWriteAddressNonceConfigInputs {
-  NonceConfig nonce_config;
+struct SyscallWriteAddressRequiredWeightInputs {
+  Weight required_weight;
 };
 
-struct SyscallWriteAddressNonceConfigOutputs {
+struct SyscallWriteAddressRequiredWeightOutputs {
   void;
 };
 
-struct SyscallWriteAddressNonceConfigTrace {
-  SyscallWriteAddressNonceConfigInputs inputs;
-  SyscallWriteAddressNonceConfigOutputs *outputs;
-};
-
-struct SyscallWriteAddressGasPermissionConfigsInputs {
-  GasPermissionConfig* permission0;
-  GasPermissionConfig* permission1;
-  GasPermissionConfig* permission2;
-  GasPermissionConfig* permission3;
-  GasPermissionConfig* permission4;
-};
-
-struct SyscallWriteAddressGasPermissionConfigsOutputs {
-  void;
-};
-
-struct SyscallWriteAddressGasPermissionConfigsTrace {
-  SyscallWriteAddressGasPermissionConfigsInputs inputs;
-  SyscallWriteAddressGasPermissionConfigsOutputs *outputs;
+struct SyscallWriteAddressRequiredWeightTrace {
+  SyscallWriteAddressRequiredWeightInputs inputs;
+  SyscallWriteAddressRequiredWeightOutputs *outputs;
 };
 
 struct SyscallGetBlockHeightInputs {
@@ -570,10 +553,8 @@ case kSHA256Update:
   SyscallSHA256UpdateTrace sha256_update;
 case kSHA256Finalize:
   SyscallSHA256FinalizeTrace sha256_finalize;
-case kWriteAddressNonceConfig:
-  SyscallWriteAddressNonceConfigTrace write_address_nonce_config;
-case kWriteAddressGasPermissionConfigs:
-  SyscallWriteAddressGasPermissionConfigsTrace write_address_gas_permission_configs;
+case kWriteAddressRequiredWeight:
+  SyscallWriteAddressRequiredWeightTrace write_address_required_weight;
 case kGetBlockHeight:
   SyscallGetBlockHeightTrace get_block_height;
 case kRetrocausalQueuePeekLen:

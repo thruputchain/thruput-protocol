@@ -18,7 +18,7 @@ namespace hogd
 // Key concepts:
 // - Each transaction invokes a contract method with specified parameters
 // - Transactions include authorization claims and signatures
-// - Transactions can deploy new contracts and sponsor gas
+// - Transactions can deploy new contracts
 // - Groundhog executes transactions in parallel, using two-phase commit for conflict resolution
 // - Proposers attach nondeterministic data to ensure deterministic re-execution
 //
@@ -56,28 +56,6 @@ const kMaxReturnBufferLen = 1024; // #[rust(const=u32)]
 /// Like Calldata, contracts can encode return values arbitrarily, but the
 /// SDK default uses XDR serialization per RFC 4506 (<https://datatracker.ietf.org/doc/html/rfc4506>).
 typedef opaque ReturnBuffer<kMaxReturnBufferLen>;
-
-//------------------------------------------------------------------------------
-// Gas Sponsorship
-//------------------------------------------------------------------------------
-
-/// A claim that gas should be sponsored for a specific contract.
-///
-/// Gas claims allow one contract to pay for the gas costs of another contract's
-/// execution. The transaction will fail if the gas claim is not covered during
-/// execution by the appropriate authorization.
-///
-/// TODO(geoff): Update this documentation once gas sponsorship syscalls are finalized.
-/// Current plan: Add a syscall that lets a contract declare "I am willing to
-/// sponsor X units of gas". The transaction will fail if there's a gas claim
-/// that isn't covered during execution by such a declaration.
-struct GasClaim {
-  /// The contract address whose gas costs are being sponsored.
-  ContractAddress sponsored_contract;
-
-  /// The number of gas units being sponsored for this contract.
-  GasAmount amount;
-};
 
 //------------------------------------------------------------------------------
 // Invocations
@@ -193,11 +171,6 @@ struct Transaction {
   ///
   /// See [`AuthClaimData`] in auth_claim.x for details.
   AuthClaimData auth_claims;
-
-  /// Gas sponsorship claims for this transaction.
-  ///
-  /// TODO(geoff): Update when gas sponsorship is finalized.
-  GasClaim gas_claims<>;
 };
 
 //------------------------------------------------------------------------------

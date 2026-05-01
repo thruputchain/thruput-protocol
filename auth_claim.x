@@ -20,10 +20,10 @@ namespace hogd {
 // This makes transactions signature-scheme agnostic and prevents signature
 // reordering or re-randomization from changing transaction behavior.
 //
-// The authentication model supports:
-// - Single-signature authorization (one specific key must sign)
-// - Multi-signature authorization (weighted threshold of keys must sign)
-// - Cross-contract authorization (signatures from other contract addresses)
+// The authentication model supports two claim types:
+// - Weighted bitmap: the transaction carries a bitmap of which keys signed,
+//   and the account stores per-key weights and a minimum threshold
+// - Pubkey signature: a standalone public key signs the transaction
 //
 // Auth claims reference AddressAuthData stored at each contract address,
 // which defines the available keys and their weights.
@@ -61,12 +61,6 @@ typedef unsigned int KeyID;
 /// Must be <= 31 to fit in the `BitMap` representation.
 const kMaxSigners = 21; // #[rust(const=u32)]
 
-/// Maximum number of gas permission configurations per address.
-///
-/// Multiple configs allow separation of concerns (e.g., sponsored gas vs
-/// contract owner management operations).
-const kMaxGasConfigs = 5; // #[rust(const=u32)]
-
 /// Maximum number of auth claims allowed in a single transaction.
 ///
 /// This limits the verification complexity of a transaction.
@@ -77,37 +71,18 @@ const kMaxAuthClaims = 10;
 //------------------------------------------------------------------------------
 
 /// Discriminator for the different types of authorization claims.
-///
-/// Claims are categorized by:
-/// 1. Whether they reference the invoked contract or another contract
-/// 2. Whether they require a single signature or weighted multi-sig
 enum AuthClaimType {
-  /// Requires a signature from a specific key on the invoked contract address.
+  /// Requires a weighted threshold of signatures from the source address.
   ///
-  /// This is the simplest and most common authorization pattern.
-  kInvokedAddressSignature = 0,
+  /// The bitmap specifies which keys signed the transaction, and the
+  /// account's per-key weights are accumulated and compared against
+  /// `required_weight` stored in the account's AddressAuthData.
+  kSourceAddressSignedWeight = 0,
 
-  /// Requires a weighted threshold of signatures from the invoked contract.
+  /// Requires a signature from a specific public key.
   ///
-  /// The bitmap specifies which keys are acceptable, and signatures are
-  /// accumulated until the `required_weight` threshold is met.
-  kInvokedAddressSignedWeight = 1,
-
-  /// Requires a signature from a specific key on a different contract address.
-  ///
-  /// Used for cross-contract authorization (e.g., a contract authorizing
-  /// operations on behalf of another contract).
-  kOtherAddressSignature = 2,
-
-  /// Requires a weighted threshold of signatures from a different contract.
-  ///
-  /// Combines cross-contract auth with multi-signature requirements.
-  kOtherAddressSignedWeight = 3,
-
-  /// Requires a signature from a specific key
-  ///
-  /// XXX
-  kPubkeySignature = 4
+  /// Used for accounts identified by a pubkey preimage (pubkey + nonce).
+  kPubkeySignature = 1
 };
 
 struct PubkeyAccountPreimage {
@@ -121,42 +96,13 @@ struct PubkeyAccountPreimage {
 /// Each transaction includes one or more auth claims. During verification,
 /// the signatures in the `SignedTransaction` are matched against these claims
 /// to determine if the transaction is properly authorized.
-///
-/// The four variants support different authorization patterns:
-/// - Single key from invoked contract (most common)
-/// - Multi-sig from invoked contract (for high-security operations)
-/// - Single key from other contract (for delegation)
-/// - Multi-sig from other contract (for complex delegated operations)
 union AuthClaim switch (AuthClaimType claim_type) {
-case kInvokedAddressSignature:
-  /// The ID of the key that must sign, from the invoked address's key set.
-  KeyID invoked_address_signature_id;
-
-case kInvokedAddressSignedWeight:
-  struct {
-    /// Bitmap of acceptable keys (bit `i` = 1 means key `i` can contribute).
-    BitMap accepted_keys;
-    /// Total weight required from the accepted keys' signatures.
-    Weight required_weight;
-  } invoked_address_signed_weight;
-
-case kOtherAddressSignature:
-  struct {
-    /// The contract address whose key must sign.
-    ContractAddress address;
-    /// The ID of the key from that address's key set.
-    KeyID key_id;
-  } other_address_signature_id;
-
-case kOtherAddressSignedWeight:
-  struct {
-    /// The contract address whose keys must sign.
-    ContractAddress address;
-    /// Bitmap of acceptable keys from that address's key set.
-    BitMap accepted_keys;
-    /// Total weight required from the accepted keys' signatures.
-    Weight required_weight;
-  } other_address_signed_weight;
+case kSourceAddressSignedWeight:
+  /// Bitmap of keys that signed the transaction.
+  /// Bit `i` = 1 means key `i` from the source address's key set signed.
+  /// The accumulated weight of the signing keys must meet the account's
+  /// `required_weight` threshold.
+  BitMap accepted_keys;
 
 case kPubkeySignature:
   PubkeyAccountPreimage pubkey_preimage;
@@ -204,7 +150,6 @@ enum AuthVerifyErrorCode {
   /// that do not exist or do not satisfy the requirements. Examples include:
   /// - Referencing a public key ID that doesn't exist in the auth data
   /// - Failing to meet required weight thresholds
-  /// - Insufficient gas permissions for the claimed sponsorship
   kAuthDataMismatch = 3
 };
 

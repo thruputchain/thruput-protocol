@@ -16,8 +16,8 @@ enum ExecResult {
   // Transactions with this error code should not be included in a proposal,
   // and indicate a block validation failure.
   ExecResultTxNonDeterministicError = 3,
-  // One or more [GasClaim]s in the transaction were not validated with a
-  // corresponding [sponsor_gas()] system call in a contract.
+  // No longer used. Previously indicated that gas sponsorship claims were
+  // not validated. Retained to avoid renumbering enum values.
   ExecResultFailedGasSponsorship = 100,
   // Validation on the transaction has failed because the attached validation
   // data is bad. E.g. missing data or unused data. This error code is only
