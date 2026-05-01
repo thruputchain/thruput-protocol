@@ -658,7 +658,7 @@ syscalls:
     inputs:
     outputs:
       - name: "auth_claim"
-        typename: "AuthClaim"
+        typename: "generated::AuthClaim"
     number: 25
     description: >
       Returns the authentication claim associated with the
