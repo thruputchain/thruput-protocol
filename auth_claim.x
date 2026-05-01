@@ -91,10 +91,10 @@ union AuthClaim switch (AuthClaimType claim_type) {
 case kSourceAddressAuthData:
   /// The transaction is signed by the keys in the source address's auth data.
   /// The bitmap specifies which are allowed to be used to sign the transaction.
-{
-  BitMap allowed_keys;
-  Weight required_weight;
-} source_address_claim;
+  struct {
+    BitMap allowed_keys;
+    Weight required_weight;
+  } source_address_claim;
 
 case kPubkeySignature:
   PubkeyAccountPreimage pubkey_preimage;
