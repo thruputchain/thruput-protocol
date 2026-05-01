@@ -369,7 +369,6 @@ struct SyscallLogEventTrace {
 };
 
 struct SyscallGetAuthClaimInputs {
-  unsigned int index;
 };
 
 struct SyscallGetAuthClaimOutputs {
