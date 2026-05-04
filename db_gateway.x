@@ -2,6 +2,7 @@
 
 %#include "network.hh"
 %#include "rpc_types.hh"
+%#include "storage_cost.hh"
 %#include "storage_item.hh"
 %#include "types.hh"
 
@@ -52,6 +53,26 @@ enum DbGatewayIntroOutcome {
   DbGatewayIntroMismatchedProtocol = 1
 };
 
+/// Cost model paired with the committed block height it was read at.
+///
+/// Wallets compute storage costs locally from the constants in `model`.
+/// `valid_at` is the freshness anchor: the committed tip when this RPC
+/// was served.  Wallets that re-fetch on `chainTip` movement past
+/// `valid_at` are guaranteed correct across protocol upgrades that
+/// change the constants.
+struct CostModelAt {
+  StorageCostModelXdr model;
+  BlockHeight valid_at;
+};
+
+union CostModelResult switch (RPCError error)
+{
+case kRPCNone:
+  CostModelAt payload;
+default:
+  void;
+};
+
 // API exposed from the Db (hogdb) for the public RPC Gateway.
 //
 // Reads are always against the latest committed snapshot at the time
@@ -67,6 +88,7 @@ program DbGateway
   {
     DbGatewayIntroOutcome dbgateway_intro(Protocol) = 0;
     DbGatewayResult dbgateway_get_items(AddressAndKeyBatch) = 1;
+    CostModelResult dbgateway_get_cost_model(void) = 2;
   } = 1;
 }
 = 0x44424757;
