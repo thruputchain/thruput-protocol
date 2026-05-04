@@ -69,6 +69,7 @@ case Bytes:
 case Address:
   void;
 case Option:
+  // Cannot be null; uses pointer indirection to make type constructible.
   ContractType *option_inner; // #[rust(box_ptr)]
 case Vector:
   ContractVectorType vector;
