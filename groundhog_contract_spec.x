@@ -41,7 +41,8 @@ enum ContractTypeKind {
   Tuple = 13,
   Named = 14,
   U8 = 15,
-  Array = 16
+  Array = 16,
+  SignedToken = 17
 };
 
 union ContractType switch (ContractTypeKind v)
@@ -69,8 +70,7 @@ case Bytes:
 case Address:
   void;
 case Option:
-  // Cannot be null; uses pointer indirection to make type constructible.
-  ContractType *option_inner; // #[rust(box_ptr)]
+  ContractType option_inner; // #[rust(box_ptr)], #[cpp(box)]
 case Vector:
   ContractVectorType vector;
 case Tuple:
@@ -81,6 +81,16 @@ case U8:
   void;
 case Array:
   ContractArrayType array;
+case SignedToken:
+  ContractSignedTokenPreimage signed_token_preimage;
+};
+
+// ---------------------------------------------------------------------------
+// SignedTokenPreimage (Rust: SignedTokenPreimage)
+// ---------------------------------------------------------------------------
+
+struct ContractSignedTokenPreimage {
+  ContractType preimage_type; // #[rust(box_ptr)], #[cpp(box)]
 };
 
 // ---------------------------------------------------------------------------
