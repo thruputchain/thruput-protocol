@@ -276,6 +276,10 @@ syscalls:
         description: >
           No return buffer is available. Either the most recent subcall
           failed, or there have been no subcalls within this call frame.
+      - code: kSyscallErrorCodeInvalidSyscallInput
+        description: >
+          The restored auth token ID output span byte length is not a multiple
+          of the size of a u32.
   - name: "Exit"
     read_only: true
     needs_context: false
