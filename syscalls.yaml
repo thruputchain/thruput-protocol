@@ -139,6 +139,10 @@ syscalls:
       The auth token list is passed as a span, which should be
       interpreted as a [u32] slice.
     errors:
+      - code: kSyscallErrorCodeInvalidSyscallInput
+        description: >
+          The auth token list output span byte length is not a multiple of the
+          size of a u32.
   - name: "ConsoleLog"
     needs_context: false
     # Logging is for debugging only.
@@ -212,8 +216,8 @@ syscalls:
       - code: kSyscallErrorCodeInvalidSyscallInput
         description: >
           The invocation failed because the contract was not found, or one or
-          more of the supplied auth token ids are not owned by the current
-          frame.
+          more of the supplied auth token ids are duplicated or not owned by
+          the current frame.
       - code: kSyscallErrorCodeDeterministicWasm
         description: >
           The invoked contract terminated with an unspecified internal
