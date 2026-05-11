@@ -780,6 +780,8 @@ syscalls:
     outputs:
       - name: "auth_payload"
         span_argument: true
+      - name: "token_minter"
+        typename: "ContractAddress"
       - name: "auth_payload_written_len"
         typename: "RuntimeMemoryLength"
         primitive_type: true
