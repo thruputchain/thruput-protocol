@@ -3,6 +3,7 @@
 %#include "rpc_types.hh"
 %#include "exec_result.hh"
 %#include "sc_val.hh"
+%#include "transaction.hh"
 
 namespace hogd {
 // clang-format on
@@ -44,9 +45,16 @@ struct TxEmittedEvent {
 /// The key is the proposed_tx_hash, and the value is the complete list of
 /// events emitted by that transaction. This structure enables efficient
 /// querying of all events associated with a specific transaction.
+///
+/// `root_output` carries the InvocationFrameOutput of the transaction's
+/// root frame: the Return buffer on success, the Abort buffer on a
+/// deterministic revert, or the Fault variant when no root output was
+/// produced (e.g., non-deterministic failure).  Downstream indexers and
+/// the receipt-read paths surface this as `return_data`/`abort_data`.
 struct TxEventLog {
   SHA256Hash proposed_tx_hash; // sha256(ProposedTransaction)
   ExecResult exec_result;
+  InvocationFrameOutput root_output;
   TxEmittedEvent events<kMaxEventsPerTransaction>;
 };
 
