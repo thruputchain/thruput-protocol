@@ -42,7 +42,11 @@ enum SchedulerValidationOutcome {
   SchedulerValidationDbFailed = 3,
   SchedulerValidationExecutorFailed = 4,
   SchedulerValidationTooLateToValidate = 5,
-  SchedulerValidationUnknownParentBlock = 6
+  SchedulerValidationUnknownParentBlock = 6,
+  // Nomination batch metadata is malformed or fails to decode (e.g.
+  // segment token/byte counts are inconsistent, XDR deserialization
+  // fails, or tx_hashes/tx_nominations counts do not match).
+  SchedulerValidationMalformed = 7
 };
 
 struct SchedulerValidationBlock {
@@ -63,6 +67,7 @@ case SchedulerValidationExecutorFailed:
 case SchedulerValidationInvalid:
 case SchedulerValidationTooLateToValidate:
 case SchedulerValidationUnknownParentBlock:
+case SchedulerValidationMalformed:
   void;
 };
 
