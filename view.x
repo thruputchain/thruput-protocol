@@ -42,6 +42,10 @@ enum TransactionViewStatus {
   // Invalid input: i.e. reentrance guard violation.  Deterministic, but the frame does not start,
   // so no frame output is produced.
   InvalidInput = 3,
+
+  // Validation failure: supplied nondeterministic data is somehow invalid,
+  // such as requesting a queue entry that is not present.
+  NondeterministicDataValidationFailure = 4,
 };
 
 union ExpectedViewResult switch (TransactionViewStatus status) {
