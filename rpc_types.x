@@ -49,7 +49,11 @@ enum RPCError {
 // The mode in which a block executes.
 enum BlockExecutionMode {
   kBlockExecutionModeValidation = 0,
-  kBlockExecutionModeProposal = 1
+  kBlockExecutionModeProposal = 1,
+  // Read-only access to the database.
+  // Used for view RPCs, guaranteeing that the executor cannot accidentially
+  // do a write operation when it should not be able to.
+  kBlockExecutionModeViewing = 2
 };
 
 typedef int128_xdr StorageCost;
