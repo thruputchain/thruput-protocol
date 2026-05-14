@@ -34,7 +34,10 @@ union ViewGatewayResult switch (ViewGatewayOutcome outcome)
 case ViewGatewayOk:
   ViewGatewayPayload payload;
 case ViewGatewayAbandoned:
+  void;
 case ViewGatewayInternalError:
+  void;
+default:
   void;
 };
 
