@@ -45,7 +45,7 @@ enum TransactionViewStatus {
 
   // Validation failure: supplied nondeterministic data is somehow invalid,
   // such as requesting a queue entry that is not present.
-  NondeterministicDataValidationFailure = 4,
+  NondeterministicDataValidationFailure = 4
 };
 
 union ExpectedViewResult switch (TransactionViewStatus status) {
@@ -53,7 +53,9 @@ case Ok:
   TransactionViewResult result;
 case InvalidInput:
   SyscallErrorCode error_code;
-default:
+case Abandoned:
+case InternalError:
+case NondeterministicDataValidationFailure:
   void;
 };
 
