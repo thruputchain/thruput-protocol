@@ -4,14 +4,14 @@ namespace hogd {
 
 struct StorageCostModelXdr {
   ExtensionPoint ext;
-  int128_xdr base_data_item_cost;
-  int bytestring_cost_per_byte;
-  int128_xdr base_contract_deployment_cost;
-  int128_xdr contract_deployment_cost_per_byte;
-  int128_xdr auth_per_key_cost;
-  int128_xdr rcq_cost_per_entry;
-  int128_xdr replay_cache_cost_per_entry;
-  int128_xdr balance_cost;
+  unsigned hyper base_data_item_cost;
+  unsigned int bytestring_cost_per_byte;
+  unsigned hyper base_contract_deployment_cost;
+  unsigned hyper contract_deployment_cost_per_byte;
+  unsigned hyper auth_per_key_cost;
+  unsigned hyper rcq_cost_per_entry;
+  unsigned hyper replay_cache_cost_per_entry;
+  unsigned hyper balance_cost;
 };
 
 // Cost of storing a bytestring:
