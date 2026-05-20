@@ -115,6 +115,19 @@ default:
   void;
 };
 
+struct ViewingSnapshot {
+  BlockID block_id;
+  DbTip tip;
+};
+
+union ExpectedViewingSnapshot switch (RPCError error)
+{
+case kRPCNone:
+  ViewingSnapshot snapshot;
+default:
+  void;
+};
+
 /// Typedef for a list of contract addresses.
 typedef ContractAddress ContractAddressBatch<>;
 

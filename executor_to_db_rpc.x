@@ -73,6 +73,14 @@ program DatabaseToExecutorInterface
 
     // Get the db tip for the current block.
     ExpectedDBTip get_db_tip(BlockID) = 300;
+
+    // Open a read-only viewing snapshot. Returns the new block ID and
+    // the current committed tip. The caller must eventually call
+    // close_viewing_snapshot to release the block tx.
+    ExpectedViewingSnapshot open_viewing_snapshot(void) = 400;
+
+    // Close a viewing snapshot opened by open_viewing_snapshot.
+    RPCError close_viewing_snapshot(BlockID) = 401;
   }
   = 1;
 }
