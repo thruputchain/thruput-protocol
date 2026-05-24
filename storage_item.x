@@ -246,7 +246,7 @@ struct ReplayCacheMetadata {
 // #[doc(hidden)]
 struct ReplayCacheData {
   // Sorted list of nonces for a particular height of a ReplayCache.
-  hyper nonces<kReplayCacheNoncesMaxLen>;
+  unsigned hyper nonces<kReplayCacheNoncesMaxLen>;
 };
 
 /// Flags that can be set on a storage delta to modify its behavior.
