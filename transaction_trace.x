@@ -297,7 +297,7 @@ struct SyscallGetCurrentAddressTrace {
 
 struct SyscallRetrocausalQueueInsertInputs {
   StorageKeyContractData key;
-  QueueEntry queue_entry;
+  opaque queue_entry<>;
 };
 
 struct SyscallRetrocausalQueueInsertOutputs {
