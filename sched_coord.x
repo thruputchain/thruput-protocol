@@ -8,7 +8,8 @@ namespace hogd {
 
 enum CoordinatorRegistrationOutcome {
   CoordinatorRegistrationOK = 0,
-  CoordinatorRegistrationInvalidProtocol = 1
+  CoordinatorRegistrationInvalidProtocol = 1,
+  CoordinatorRegistrationAlreadyRegistered = 2
 };
 
 struct CoordCard {
