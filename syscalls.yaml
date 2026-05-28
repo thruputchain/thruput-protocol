@@ -5,7 +5,7 @@
 # condition is not enforced.)
 # The actual imported syscall function has 8 arguments. The first argument
 # is the syscall number.
-syscall_input_count: 10
+syscall_input_count: 8
 # A set of mappings for common types between the SDK (rust) and the syscall
 # implementation (cpp).
 # All types passed in or out of a syscall must be trivially copyable and
@@ -169,25 +169,15 @@ syscalls:
     inputs:
       - name: "address"
         typename: "ContractAddress"
-      - name: "entrypoint_id"
-        typename: "uint64_t"
-      - name: "gas_limit"
-        typename: "GasAmount"
-        primitive_type: true
       - name: "calldata"
         span_argument: true
-      - name: "flags"
-        typename: "InvokeFlagSet"
-        primitive_type: true
       - name: "owned_auth_token_ids_list"
         span_argument: true
+      - name: "inputs"
+        typename: "CopyableInvokeInputs"
     outputs:
-      - name: return_buffer_len
-        typename: "RuntimeMemoryLength"
-        primitive_type: true
-      - name: "returned_auth_token_len"
-        typename: "RuntimeMemoryLength"
-        primitive_type: true
+      - name: "outputs"
+        typename: "CopyableInvokeOutputs"
     number: 5
     description: |
       Invokes the specified method of the contract at the specified

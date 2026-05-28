@@ -4,6 +4,7 @@
 %#include "address_auth.hh"
 %#include "auth_claim.hh"
 %#include "event.hh"
+%#include "invoke_args.hh"
 
 namespace hogd
 {
@@ -81,11 +82,9 @@ struct SyscallConsoleLogTrace {
 
 struct SyscallInvokeInputs {
   ContractAddress address;
-  unsigned hyper entrypoint_id;
-  GasAmount gas_limit;
   opaque calldata<>;
-  InvokeFlagSet flags;
   opaque owned_auth_token_ids_list<>;
+  CopyableInvokeInputs inputs;
 };
 
 struct SyscallInvokeOutputs {
