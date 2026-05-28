@@ -5,7 +5,7 @@
 # condition is not enforced.)
 # The actual imported syscall function has 8 arguments. The first argument
 # is the syscall number.
-syscall_input_count: 8
+syscall_input_count: 7
 # A set of mappings for common types between the SDK (rust) and the syscall
 # implementation (cpp).
 # All types passed in or out of a syscall must be trivially copyable and
@@ -67,6 +67,12 @@ type_mappings:
     rust_uses_as_ptr: false
     primitive_type: true
     dot_zero_type: true
+  - base_name: "CopyableInvokeInputs"
+    rust_name: "CopyableInvokeInputs"
+    rust_uses_as_ptr: false
+  - base_name: "CopyableInvokeOutputs"
+    rust_name: "CopyableInvokeOutputs"
+    rust_uses_as_ptr: false
 # Syscalls MUST be defined in increasing numerical order (by the 'number'
 # field)
 #
