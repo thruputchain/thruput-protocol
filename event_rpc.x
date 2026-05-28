@@ -38,6 +38,7 @@ program EventSched
 
     RPCError eventsched_open_block(BlockID) = 10;
     EventBlockResult eventsched_close_block(BlockID, BlockHeight) = 30;
+    RPCError eventsched_commit_block(BlockID) = 31;
     RPCError eventsched_abandon_block(BlockID) = 40;
   } = 1;
 } = 0x8aa81226;
