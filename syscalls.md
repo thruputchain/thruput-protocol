@@ -4,8 +4,11 @@ invalid contract memory address.
 All syscalls that return a bytespan of non-static size (a [u8], as written
 here) take as one of their arguments a contract-allocated bytespan, in which
 the output argument should be written, AND return a RuntimeMemoryLength
-variable, which describes how much of the contract-supplied bytespan was
-overwritten. We do not change any of the remaining elements of the bytespan.
+variable, which describes the full length of the output. At most bytespan.len()
+bytes are written into the contract-supplied bytespan; if the returned length
+is greater than bytespan.len(), the output did not fit and was truncated, and
+the contract should retry with a buffer of at least the returned length. We do
+not change any of the remaining elements of the bytespan.
 
 # SHA256 
 
@@ -38,8 +41,9 @@ Does not return additional errors.
 Signature: () -> [u8]
 
 Returns the calldata supplied to the invocation associated with the current
-call frame. Truncates the calldata to the size of the bytestring allocated by
-the contract to accept the calldata.
+call frame. Writes at most as many bytes as the contract-allocated bytestring
+holds; the returned length is the full calldata length, so a returned length
+greater than the buffer size indicates the calldata was truncated.
 
 Does not return additional errors.
 
