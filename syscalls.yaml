@@ -211,20 +211,14 @@ syscalls:
     errors:
       - code: kSyscallErrorCodeInvalidSyscallInput
         description: >
-          The invocation failed because the contract was not found, or one or
-          more of the supplied auth token ids are duplicated or not owned by
-          the current frame.
-      - code: kSyscallErrorCodeDeterministicWasm
-        description: >
-          The invoked contract terminated with an unspecified internal
-          error (e.g. divide by zero). This error will be returned if
-          the invoked contract runs out of gas.
-      - code: kSyscallErrorCodeFrameReverted
-        description: >
-          The invoked contract manually reverted itself.
+          The invocation was rejected before any child frame ran: the contract
+          was not found, the invoke flags were invalid, or one or more of the
+          supplied auth token ids are malformed, duplicated, or not owned by
+          the current frame. The syscall is a complete no-op in this case.
       - code: kSyscallErrorCodeReentrance
         description: >
-          The invoked address is already on the stack.
+          The invoked address is already on the stack. The invocation is
+          rejected before any child frame runs and the syscall is a no-op.
   - name: "Return"
     read_only: true
     inputs:
