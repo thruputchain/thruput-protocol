@@ -1,5 +1,8 @@
 ---
-# The number of u64 arguments to a syscall.
+# The number of u32 arguments to a syscall.
+# (The wasm32 syscall ABI passes each argument slot as a 32-bit value / i32.
+# The native mock entrypoint in test_ffi keeps u64 slots so it can carry host
+# pointers, but value slots are still validated against the 32-bit constraint.)
 # Syscalls that need fewer than this many arguments pad the argument list
 # with arbitrary values (in the SDK, this defaults to 0, although that
 # condition is not enforced.)
@@ -12,8 +15,10 @@ syscall_input_count: 7
 # FFI-safe.
 # Syscall arguments are either spans of bytes, (aliases of) integral types,
 # or repr(C) types.
-# primitive_type: true means that the type can be passed as a single u64
-# argument to the syscall.
+# primitive_type: true means that the type can be passed by value as a single
+# 32-bit argument slot to the syscall. Such a type MUST be at most 32 bits
+# wide; wider types (e.g. BlockHeight, a 64-bit value) are passed by reference
+# (as an offset into contract memory) instead.
 # rust_uses_as_ptr: true means that the type is by calling .as_ptr() on
 # the type in the sdk.
 type_mappings:
@@ -60,7 +65,9 @@ type_mappings:
   - base_name: "BlockHeight"
     rust_name: "BlockHeight"
     rust_uses_as_ptr: false
-    primitive_type: true
+    # NOT primitive_type: BlockHeight is a 64-bit value (typedef hyper), which
+    # does not fit in a single 32-bit syscall argument slot. It is therefore
+    # passed by reference (as an offset into contract memory), not by value.
     newtype: true
   - base_name: "TransactionStatistic"
     rust_name: "TransactionStatistic"
