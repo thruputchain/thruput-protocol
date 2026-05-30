@@ -17,7 +17,7 @@ enum SchedGatewayIntroOutcome {
 };
 
 // Number of transactions currently pending in the mempool.
-typedef unsigned hyper PendingTxCount;
+typedef hyper PendingTxCount;
 
 // API exposed from the Scheduler for the public RPC Gateway.
 program SchedGateway
