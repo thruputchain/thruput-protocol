@@ -10,7 +10,7 @@ namespace hogd {
 // code that can be deployed to addresses and invoked to execute logic.
 //
 // Key concepts:
-// - Contracts can be WebAssembly blobs, native precompiled code, or test mocks
+// - Contracts can be executable blobs, native precompiled code, or test mocks
 // - Contract addresses are deterministically derived from deployment parameters
 // - Contract methods are identified by 8-byte entrypoint IDs
 // - Entrypoint IDs are derived from interface names and versions
@@ -20,11 +20,11 @@ namespace hogd {
 // Contract Types and Code
 //------------------------------------------------------------------------------
 
-/// An opaque blob of WebAssembly code.
+/// An opaque blob of executable code.
 ///
-/// This is the raw WASM binary that will be executed by the Wasmi runtime.
+/// This is the raw binary that will be executed as a (wasm or riscv) contract.
 struct ContractBlob {
-  opaque wasm<>;
+  opaque data<>;
 };
 
 /// The execution environment for a contract.
@@ -43,7 +43,12 @@ enum ContractType {
   /// Mock contract for local testing.
   ///
   /// Never deployed on-chain; exists only in the test harness.
-  kMockTest = 2
+  kMockTest = 2,
+
+  /// RiscV contract executed in the RV32 VM.
+  ///
+  /// This is the standard contract type for user-deployed contracts.
+  kRv32 = 3
 };
 
 /// A contract that can be deployed to an address and invoked.
@@ -68,6 +73,8 @@ case kNative:
 case kMockTest:
   /// Identifier for the mock contract in the test harness.
   int mock_contract_id;
+case kRv32:
+  ContractBlob rv32_contract;
 };
 
 //------------------------------------------------------------------------------
