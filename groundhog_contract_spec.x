@@ -2,6 +2,8 @@
 //
 // Excluded from goxdr in CI; intended as the canonical .x source for future Rust codegen.
 
+%#include "event.hh"
+
 namespace hogd {
 
 // RFC 4506: string types must declare a max length; `<>` is unbounded (max 2^32-1 bytes).
@@ -189,12 +191,31 @@ case TypeDefUnion:
 };
 
 // ---------------------------------------------------------------------------
+// Event definitions (Rust: ContractEventDef)
+// ---------------------------------------------------------------------------
+
+/// Describes an event emitted via the LogEvent syscall (see event.x).
+/// Topic 0 is always the event signature:
+///   sha256(MAJOR_VERSION :: CRATE_NAME :: TYPE_NAME)
+/// Topic fields and payload fields are listed separately, each in
+/// declaration order. Topic values that are not already 32 bytes wide are
+/// XDR-encoded and sha256-hashed; payload fields are XDR-encoded in order
+/// to form the event data.
+struct ContractEventDef {
+  ContractSpecString name;
+  Topic signature;          // topic 0
+  ContractField topics<>;   // topics 1.. ; at most kMaxTopics-1 entries
+  ContractField fields<>;   // payload, XDR-encoded in order
+};
+
+// ---------------------------------------------------------------------------
 // Full spec (Rust: ContractSpec)
 // ---------------------------------------------------------------------------
 
 struct ContractSpec {
   ContractSpecInterface interfaces<>;
   ContractTypeDef type_defs<>;
+  ContractEventDef events<>;
 };
 
 // ---------------------------------------------------------------------------
@@ -218,6 +239,8 @@ enum SpecFragmentKind {
   SpecMethod = 1,
   SpecTypeDef = 2,
   ExportedSpecTypeDef = 3,
+  SpecEvent = 4,
+  ExportedSpecEvent = 5,
 };
 
 union SpecFragment switch (SpecFragmentKind v)
@@ -229,6 +252,9 @@ case SpecMethod:
 case SpecTypeDef:
 case ExportedSpecTypeDef:
   ContractTypeDef type_def;
+case SpecEvent:
+case ExportedSpecEvent:
+  ContractEventDef event_def;
 };
 
 } // namespace hogd
