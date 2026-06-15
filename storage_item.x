@@ -46,7 +46,7 @@ case kItemTypeNonnegativeInt:
   int128_xdr nnint;
 case kItemTypeRetrocausalQueue:
   /// A retrocausal multi-producer, single-consumer queue.
-  /// Tranactions can only insert entries into the queue or consume entries one by one
+  /// Transactions can only insert entries into the queue or consume entries one by one
   /// from the queue, so the whole queue is generally not loaded all at once.
   QueueEntry queue_entries<>;
 case kItemTypeReplayCacheData:
