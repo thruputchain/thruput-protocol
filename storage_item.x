@@ -222,8 +222,14 @@ const kReplayCacheHeightsMaxLen = 4000;
 const kReplayCacheNoncesMaxLen = 8000;
 
 /// Maximum number of entries in a single RetrocausalQueue block.
-/// Each entry is at most 256 bytes, so 1000 entries is ~256KB.
-const kRetrocausalQueueBlockEntriesMaxLen = 1000;
+/// A serialized block must fit ramdb's 64 KiB item limit (kBigItemThreshold).
+/// Each entry serializes to at most 260 bytes (4-byte length + 256-byte value),
+/// and the stored item also carries a 24-byte ItemHeader, a 73-byte block key,
+/// and 12 bytes of block framing (4-byte array length + 8-byte block number):
+/// 65536 - 24 - 73 - 12 = 65427, so 65427 / 260 = 251 entries is the ceiling.
+/// We use 250 (an even, round value with ~427 bytes of headroom): a full block
+/// is 12 + 260*250 + 73 + 24 = 65109 <= 65536.
+const kRetrocausalQueueBlockEntriesMaxLen = 250;
 
 // #[doc(hidden)]
 // Information about the number of nonces stored at each height of a
