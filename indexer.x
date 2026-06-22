@@ -28,6 +28,8 @@ default:
 
 typedef IdentifiedEvent IdentifiedEventBatch<>;
 
+typedef TxInfo TxInfoBatch<>;
+
 /// Max contracts per filter and max filters per query.  Matches Soroban
 /// getEvents' limit of 5; designed to be low enough that the merge-walk
 /// stays cheap even on degenerate inputs.
@@ -105,6 +107,52 @@ struct EventPage {
   BlockHeight oldest_block;
 };
 
+/// `get_transactions` request.  Walked in `order` from `anchor`,
+/// optionally filtered to transactions involving a single address.
+struct TransactionQuery {
+  /// When present, match only transactions involving this address.
+  /// Absent means match all transactions.  TODO(confirm): "involving"
+  /// = source/sender only, or any address touched during execution?
+  /// Depends on what the indexer indexes.
+  ContractAddress *address;
+
+  IterationOrder order;
+  BlockAnchor anchor;
+
+  /// Empty on the initial call.  Non-empty to continue where a previous
+  /// response left off; `order` and `anchor` in the request are ignored
+  /// when a cursor is supplied — the cursor carries them.
+  PaginationCursor cursor;
+
+  /// Clamped server-side to [1, 200]; 0 means server default (50).
+  unsigned int limit;
+};
+
+/// `get_transactions` response.
+struct TransactionPage {
+  /// Matched transactions in the requested order.  May be empty even
+  /// when `cursor` is non-empty: the current scan window produced no
+  /// matches, so the client should keep paginating.  Empty
+  /// transactions + empty cursor = stream exhausted.
+  TxInfoBatch transactions;
+
+  /// Empty when the stream has been exhausted in the requested
+  /// direction.  Non-empty: pass back in the next call's `cursor`
+  /// argument.
+  PaginationCursor cursor;
+
+  /// Highest block height the indexer has processed at response time.
+  /// Clients compare to the heights on their last-seen transactions to
+  /// decide whether they're caught up.
+  BlockHeight latest_block;
+
+  /// Oldest block height the indexer still retains data for at
+  /// response time.  Today always 0; once retention/pruning lands
+  /// this is the lower bound below which queries return empty
+  /// regardless of anchor.
+  BlockHeight oldest_block;
+};
+
 enum IndexerBlockExplorerIntroOutcome {
   IntroSuccess = 0,
   IntroMismatchedProtocol = 1
@@ -123,6 +171,9 @@ program IndexerBlockExplorer
     // across filters, AND within each filter).  Supports the wallet
     // "transfers to OR from me" case in a single call.
     EventPage get_events(EventQuery) = 3;
+
+    // Paginated transactions, optionally filtered to a single address.
+    TransactionPage get_transactions(TransactionQuery) = 4;
   } = 1;
 }
 = 0x4321aaaa;
