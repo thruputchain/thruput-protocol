@@ -272,7 +272,7 @@ struct NondeterministicProposalData {
   /// TODO(geoff): Update this documentation once retrocausal queue handling
   /// is finalized. This field captures the queue entries consumed during
   /// execution to ensure deterministic replay.
-  QueueEntry observed_queue_entry_sequence<>;
+  QueueEntry observed_queue_entry_sequence<kMaxConcurrentRcqReadsPerTx>;
 };
 
 /// A signed transaction with nondeterministic execution data attached.

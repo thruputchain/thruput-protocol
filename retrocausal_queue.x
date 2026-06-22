@@ -7,6 +7,18 @@ namespace hogd {
 const kQueueEntryMaxLen = 256;
 typedef opaque QueueEntry<kQueueEntryMaxLen>; // #[rust(newtype)]
 
+/// Per-transaction cap on the number of concurrent RetrocausalQueue entries a
+/// transaction may observe (peek/consume) and record in its
+/// NondeterministicProposalData. Each observation is proposer-controlled and
+/// must be buffered and validated against an insert, so an unbounded count is
+/// an unbounded memory/compute vector — this is a tx resource limit in the same
+/// family as gas, not an RPC artifact. Because it is a tx-observable count
+/// checked against this protocol constant, the limit is consensus-uniform
+/// (every node agrees on "<= cap reads") and independent of any RPC buffer size.
+/// (Full rationale — incl. why an RPC-message-size bound would be unsafe — in
+/// the PR.)
+const kMaxConcurrentRcqReadsPerTx = 16384;
+
 // A block in a retrocausal queue, containing a list of entries and a block
 // number The entries are stored in lexicographically sorted order within the
 // block Block numbers are monotonically increasing
@@ -58,6 +70,6 @@ struct RetrocausalQueueDelta {
   // HogDB validates that each entry was actually inserted by a concurrent
   // transaction. Unlike current_block_consumed, these do not decrement the
   // insert balance — they only require that a matching insert exists.
-  QueueEntry observed_concurrent_entries<>;
+  QueueEntry observed_concurrent_entries<kMaxConcurrentRcqReadsPerTx>;
 };
 }
