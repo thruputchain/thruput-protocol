@@ -15,7 +15,6 @@ default:
   void;
 };
 
-typedef ProposedTransaction ProposedTransactionBatch<>;
 typedef ExecProposeResult ExecProposeBatchResult<>;
 typedef ExecResult ExecValidateBatchResult<>;
 

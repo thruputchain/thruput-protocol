@@ -185,7 +185,16 @@ program IndexerEvent
 {
   version IndexerEvent1
   {
-    void indexer_event_process_events(BlockHeight, TxEventLogBatch) = 0;
+    // Event logs and the full transaction bodies for a committed block,
+    // forwarded together and index-aligned: the body at position i is the
+    // transaction whose event log is at position i.  The event server pairs
+    // them at emission, so the indexer never has to re-match bodies to events.
+    //
+    // The bodies travel beside the event log (which is hashed into the
+    // consensus event trie) rather than inside it; the indexer stores them for
+    // block-explorer transaction lookups.
+    void indexer_event_process_events(BlockHeight, TxEventLogBatch,
+                                      ProposedTransactionBatch) = 0;
   } = 1;
 }
 = 0x4321aaab;

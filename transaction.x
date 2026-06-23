@@ -296,6 +296,8 @@ struct ProposedTransaction {
   NondeterministicProposalData nondeterministic_proposal_data;
 };
 
+typedef ProposedTransaction ProposedTransactionBatch<>;
+
 //------------------------------------------------------------------------------
 // Transaction Statistics
 //------------------------------------------------------------------------------
