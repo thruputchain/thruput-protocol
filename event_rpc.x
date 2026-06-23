@@ -1,5 +1,6 @@
 %#include "event.hh"
 %#include "rpc_types.hh"
+%#include "transaction.hh"
 
 namespace hogd {
 
@@ -19,7 +20,14 @@ program EventExecutor
     // We don't technically need the transaction ID here;
     // however, this will help later with tracing RPC calls through the system,
     // and helps in testing.
-    RPCError eventexecutor_emit_event(BlockID, TransactionID, TxEventLog) = 30;
+    //
+    // The ProposedTransaction carries the full transaction body (signed_tx +
+    // nondeterministic data) so the event server can forward bodies to the
+    // indexer alongside the event log.  In proposal mode the executor assembles
+    // it from the SignedTransaction it executed plus the nondeterministic data
+    // it produced; in validation mode it is the ProposedTransaction it was given.
+    RPCError eventexecutor_emit_event(BlockID, TransactionID, TxEventLog,
+                                      ProposedTransaction) = 30;
   } = 1;
 } = 0x8aa81224;
 

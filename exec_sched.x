@@ -29,13 +29,13 @@ program ExecutorSched
     ExecResult executorsched_ready(void) = 1;
 
     ExecProposeResult executorsched_propose_transaction(BlockID,
-							Transaction) =
+							SignedTransaction) =
     10;
     ExecResult executorsched_validate_transaction(BlockID,
 						  ProposedTransaction) = 20;
 
     ExecProposeBatchResult executorsched_propose_batch(
-      BlockID, TransactionBatch) = 11;
+      BlockID, SignedTransactionBatch) = 11;
     ExecValidateBatchResult executorsched_validate_batch(
       BlockID, ProposedTransactionBatch) = 21;
 
