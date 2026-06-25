@@ -11,6 +11,9 @@ namespace hogd {
 struct TxInfo {
   // The height of the block the tx was executed in.
   BlockHeight height;
+  // The full transaction body (signed tx + nondeterministic data), as
+  // forwarded by the event server and stored in the indexer.
+  ProposedTransaction tx;
   TxEventLog events;
 };
 
