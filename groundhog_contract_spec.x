@@ -234,6 +234,11 @@ struct SpecMethodFragment {
   ContractSpecMethod method;
 };
 
+struct SpecInterfaceAnchor {
+  ContractSpecString interface_name;
+  ContractSpecString interface_version;
+};
+
 enum SpecFragmentKind {
   SpecInterface = 0,
   SpecMethod = 1,
@@ -241,6 +246,7 @@ enum SpecFragmentKind {
   ExportedSpecTypeDef = 3,
   SpecEvent = 4,
   ExportedSpecEvent = 5,
+  InterfaceAnchor = 6,
 };
 
 union SpecFragment switch (SpecFragmentKind v)
@@ -255,6 +261,8 @@ case ExportedSpecTypeDef:
 case SpecEvent:
 case ExportedSpecEvent:
   ContractEventDef event_def;
+case InterfaceAnchor:
+  SpecInterfaceAnchor interface_anchor;
 };
 
 } // namespace hogd
