@@ -19,6 +19,13 @@ typedef opaque QueueEntry<kQueueEntryMaxLen>; // #[rust(newtype)]
 /// the PR.)
 const kMaxConcurrentRcqReadsPerTx = 16384;
 
+/// Maximum number of entries in a single RetrocausalQueue block.
+/// Each entry is at most 256 bytes. With XDR serialization overhead (4 bytes
+/// per entry length prefix, 12 bytes framing), ramdb key overhead (73 bytes),
+/// and ItemHeader (24 bytes), 250 entries of 256 bytes fits within ramdb's
+/// 64 KiB item limit (kBigItemThreshold). See issue #1437.
+const kRetrocausalQueueBlockEntriesMaxLen = 250;
+
 // A block in a retrocausal queue, containing a list of entries and a block
 // number The entries are stored in lexicographically sorted order within the
 // block Block numbers are monotonically increasing
@@ -54,11 +61,11 @@ struct RetrocausalQueueMetadata {
 
 struct RetrocausalQueueConsumeDelta {
   RetrocausalQueuePastBlockConsumeDelta past_block_consume;
-  QueueEntry current_block_consumed<>;
+  QueueEntry current_block_consumed<kRetrocausalQueueBlockEntriesMaxLen>;
 };
 
 struct RetrocausalQueueInsertDelta {
-  QueueEntry added_entries<>;
+  QueueEntry added_entries<kRetrocausalQueueBlockEntriesMaxLen>;
 };
 
 struct RetrocausalQueueDelta {
@@ -70,6 +77,17 @@ struct RetrocausalQueueDelta {
   // HogDB validates that each entry was actually inserted by a concurrent
   // transaction. Unlike current_block_consumed, these do not decrement the
   // insert balance — they only require that a matching insert exists.
+  //
+  // This is bounded by the per-transaction observation cap
+  // (kMaxConcurrentRcqReadsPerTx), not the much smaller per-block entry cap
+  // (kRetrocausalQueueBlockEntriesMaxLen), for a non-obvious reason: when a
+  // validator replays a proposed block, the executor rebuilds this per-queue
+  // array from the proposer-supplied observation list, and a dishonest proposer
+  // can pack a whole transaction's observations into a single queue. The bogus
+  // entries are caught afterward (HogDB matches each observed entry to a real
+  // insert), but the array must be built before that check runs -- so it has to
+  // hold a full transaction's worth. Capping it at the per-block size would make
+  // that rebuild overflow and crash the validator instead of cleanly rejecting.
   QueueEntry observed_concurrent_entries<kMaxConcurrentRcqReadsPerTx>;
 };
 }
