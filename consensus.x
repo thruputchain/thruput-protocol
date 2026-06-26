@@ -14,16 +14,16 @@ struct ConsensusBasis {
   TimePoint timestamp;
   Nomination nomination;
   Upgrade upgrades<6>;
-  ConsensusBasisHash prev_cv_hash;
+  ConsensusBasisHash prev_basis_hash;
 };
 
 typedef ConsensusBasis *OptConsensusBasis;
 
 
-struct ConsensusValueCue {
+struct ConsensusValue {
   ValidatorPublicInfo proposer;
-  ConsensusBasisHash cv_hash;
-  ConsensusBasisHash prev_cv_hash;
+  ConsensusBasisHash basis_hash;
+  ConsensusBasisHash prev_basis_hash;
   BlockHeight block_height;
   BlockHash block_hash;
   BlockHash prev_block_hash;
