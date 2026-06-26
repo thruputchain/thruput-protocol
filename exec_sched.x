@@ -2,6 +2,7 @@
 %#include "rpc_types.hh"
 %#include "transaction.hh"
 %#include "exec_result.hh"
+%#include "parallel.hh"
 namespace hogd {
 // clang-format on
 
@@ -33,10 +34,11 @@ program ExecutorSched
     ExecResult executorsched_validate_transaction(BlockID,
 						  ProposedTransaction) = 20;
 
-    ExecProposeBatchResult executorsched_propose_batch(
-      BlockID, SignedTransactionBatch) = 11;
-    ExecValidateBatchResult executorsched_validate_batch(
-      BlockID, ProposedTransactionBatch) = 21;
+    ParallelExecProposeResultBatch executorsched_propose_batch(
+      BlockID, ParallelSignedTransactionBatch) = 11;
+    ParallelExecResultBatch executorsched_validate_batch(
+      BlockID, ParallelSignedTransactionBatch,
+      ParallelNondeterministicProposalDataBatch) = 21;
 
     // Executor can be in one of three states: None, Proposing, Validating
     // open_xyz_block() methods set the executor state, or return an error
