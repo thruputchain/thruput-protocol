@@ -9,7 +9,6 @@ namespace hogd {
 
 // XXX(petar): Nomination should be renamed to Proposal
 struct Nomination {
-  ValidatorPublicInfo proposer;
   BlockHeight block_height;
   BlockHash block_hash; //XXX: rename to merkle_hash
   BlockHash prev_block_hash; //XXX: rename to prev_merkle_hash
