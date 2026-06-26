@@ -8,22 +8,22 @@ namespace hogd {
 
 typedef opaque Upgrade<128>;
 
-typedef SHA256Hash ConsensusValueHash; // #[rust(newtype)]
+typedef SHA256Hash ConsensusBasisHash; // #[rust(newtype)]
 
-struct ConsensusValue {
+struct ConsensusBasis {
   TimePoint timestamp;
   Nomination nomination;
   Upgrade upgrades<6>;
-  ConsensusValueHash prev_cv_hash;
+  ConsensusBasisHash prev_cv_hash;
 };
 
-typedef ConsensusValue *OptConsensusValue;
+typedef ConsensusBasis *OptConsensusBasis;
 
 
 struct ConsensusValueCue {
   ValidatorPublicInfo proposer;
-  ConsensusValueHash cv_hash;
-  ConsensusValueHash prev_cv_hash;
+  ConsensusBasisHash cv_hash;
+  ConsensusBasisHash prev_cv_hash;
   BlockHeight block_height;
   BlockHash block_hash;
   BlockHash prev_block_hash;
