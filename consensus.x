@@ -16,6 +16,7 @@ struct ConsensusBasis {
   ValidatorID proposer;
   Nomination nomination;
   Upgrade upgrades<6>;
+  ConsensusValueHash prev_value;
   ConsensusBasisHash prev_basis_hash;
 };
 
