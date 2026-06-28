@@ -28,7 +28,7 @@ struct ConsensusValue {
   ValidatorID proposer;
   Upgrade upgrades<6>;
   BlockHeight block_height;
-  ConsensusValueHash prev_value;
+  ConsensusValueHash prev_value_hash;
   ConsensusBasisHash basis_hash;
   ConsensusBasisHash prev_basis_hash;
   BlockHash block_hash;
