@@ -110,15 +110,10 @@ struct EventPage {
   BlockHeight oldest_block;
 };
 
-/// `get_transactions` request.  Walked in `order` from `anchor`,
-/// optionally filtered to transactions involving a single address.
+/// `get_transactions` request.  Whole-chain walk in `order` from `anchor`.
+/// There is no address filter here — use `get_transactions_by_address` for
+/// per-account (root invoked address) transaction history.
 struct TransactionQuery {
-  /// When present, match only transactions involving this address.
-  /// Absent means match all transactions.  TODO(confirm): "involving"
-  /// = source/sender only, or any address touched during execution?
-  /// Depends on what the indexer indexes.
-  ContractAddress *address;
-
   IterationOrder order;
   BlockAnchor anchor;
 
@@ -156,6 +151,38 @@ struct TransactionPage {
   BlockHeight oldest_block;
 };
 
+/// Lightweight reference to a transaction: its hash plus the block it
+/// executed in.  Returned by `get_transactions_by_address`; hydrate the
+/// full body via `get_transaction_info`.
+struct TransactionRef {
+  SignedTransactionHash tx_hash;
+  BlockHeight height;
+};
+
+typedef TransactionRef TransactionRefBatch<>;
+
+/// `get_transactions_by_address` request.  Walked in `order` from `anchor`,
+/// returning transactions whose ROOT invocation targets `address` (i.e. the
+/// account's transaction history).
+struct AddressTransactionQuery {
+  ContractAddress address;
+  IterationOrder order;
+  BlockAnchor anchor;
+  /// Empty on the initial call.  Non-empty to continue; `order`/`anchor`
+  /// are ignored when a cursor is supplied.
+  PaginationCursor cursor;
+  /// Clamped server-side to [1, 200]; 0 means server default (50).
+  unsigned int limit;
+};
+
+/// `get_transactions_by_address` response: transaction refs in `order`.
+struct TransactionRefPage {
+  TransactionRefBatch refs;
+  PaginationCursor cursor;
+  BlockHeight latest_block;
+  BlockHeight oldest_block;
+};
+
 enum IndexerBlockExplorerIntroOutcome {
   IntroSuccess = 0,
   IntroMismatchedProtocol = 1
@@ -175,8 +202,12 @@ program IndexerBlockExplorer
     // "transfers to OR from me" case in a single call.
     EventPage get_events(EventQuery) = 3;
 
-    // Paginated transactions, optionally filtered to a single address.
+    // Paginated transactions, whole-chain, in block order.
     TransactionPage get_transactions(TransactionQuery) = 4;
+
+    // Paginated transaction refs whose root invoked address == the query
+    // address (account transaction history).  Hydrate via get_transaction_info.
+    TransactionRefPage get_transactions_by_address(AddressTransactionQuery) = 5;
   } = 1;
 }
 = 0x4321aaaa;
