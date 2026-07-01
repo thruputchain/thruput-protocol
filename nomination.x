@@ -9,9 +9,7 @@ namespace hogd {
 
 // XXX(petar): Nomination should be renamed to Proposal
 struct Nomination {
-  BlockHeight block_height;
-  BlockHash block_hash; //XXX: rename to merkle_hash
-  BlockHash prev_block_hash; //XXX: rename to prev_merkle_hash
+  BlockHeader block_header;
   ParallelSignedTransactionHashBatch transactions_hash;
   ParallelNondeterministicProposalDataBatch transactions_nondeterministic_data;
 };
