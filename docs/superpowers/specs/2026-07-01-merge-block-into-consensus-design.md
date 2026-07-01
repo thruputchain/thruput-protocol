@@ -17,10 +17,10 @@ Target model, following the standard blockchain header/body split:
   `sha256(ConsensusValue)` (a `ConsensusValueHash`) identifies the block.
 - **`ConsensusBasis`** is the *big* data behind a value — a wrapper around
   `Nomination`. `sha256(ConsensusBasis)` is a `ConsensusBasisHash`.
-- **`ConsensusValueWithBasis`** is the *big* value — a full block. Its XDR
-  serialization begins with the XDR serialization of its `ConsensusValue`
-  (fields repeated verbatim, prefix property stated as a documented
-  invariant), followed by the `ConsensusBasis`.
+- **`ConsensusValueWithBasis`** is the *big* value — a full block. It embeds
+  the `ConsensusValue` as its first field, so its XDR serialization begins
+  with the XDR serialization of its `ConsensusValue`, followed by the
+  `ConsensusBasis`.
 
 `block.x` is deleted.
 
@@ -56,22 +56,12 @@ struct ConsensusBasis {
 
 typedef ConsensusBasis *OptConsensusBasis;
 
-// The big consensus value: a full block.
-// INVARIANT: the fields before [basis] are exactly the fields of
-// ConsensusValue, in the same order, so that the XDR serialization of a
+// The big consensus value: a full block. Contains all of the fields of the
+// small value (ConsensusValue) up front, so the XDR serialization of a
 // ConsensusValueWithBasis begins with the XDR serialization of its
 // ConsensusValue.
 struct ConsensusValueWithBasis {
-  unsigned hyper network_id;
-  BlockHeight block_height;
-  TimePoint timestamp;
-  ValidatorID proposer;
-  Upgrade upgrades<6>;
-  SHA256Hash txset_hash;
-  DbHash db_hash;
-  SHA256Hash events_hash;
-  ConsensusBasisHash basis_hash;
-  ConsensusValueHash prev_value_hash;
+  ConsensusValue value;
   ConsensusBasis basis;
 };
 ```
@@ -88,8 +78,9 @@ Decisions baked in:
 - All "basis" names (`ConsensusBasisHash`, `basis_hash`, `OptConsensusBasis`,
   `repair_missing_basis`) are kept to avoid rename churn; `ConsensusBasis`
   slims to a wrapper around `Nomination`.
-- The prefix property is expressed by repeating the fields plus a documented
-  invariant (not by embedding `ConsensusValue` as a field).
+- The prefix property is enforced by construction: `ConsensusValueWithBasis`
+  embeds `ConsensusValue` as its first field (XDR serializes embedded structs
+  inline, so the byte layout is identical to repeating the fields).
 
 ### block.x
 

@@ -12,7 +12,7 @@ union MultiplexMessage switch (MultiplexMessageType type)
 case MultiplexMessageSubmittedTxs:
   SubmittedTransactions submitted;
 case MultiplexMessageConsensusBasis:
-  ConsensusBasis consensus_basis;
+  ConsensusValueWithBasis consensus_value_with_basis;
 case MultiplexMessageSCP:
   SCPEnvelope envelope;
 default:
