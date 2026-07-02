@@ -20,6 +20,27 @@ typedef SHA256Hash BigValueHash; // #[rust(newtype)]
 // hashed to form the BigValueHash. Everything in the SmallValue is derived
 // from this struct; the BigValue is authoritative.
 
+====
+// proposal
+struct SmallValue {
+  // stuff
+
+  NominationHash foo;
+}
+
+typedef Proposal ...
+
+
+struct BigValue {
+  SmallValue small;
+  Nomination blah;
+};
+
+
+query(SmallValue) -> BigValue; assert(input == output.small); assert(nomination hash matches)
+====
+
+
 // First fields of Bigvalue are from smallvalue; keep these in sync.
 struct BigValue {
   // Reserved for future extensions.
@@ -32,8 +53,10 @@ struct BigValue {
   // only in SmallValue) so that the SmallValue is derivable from the BigValue
   // alone.
   BlockHash prev_small_value_hash;
-  Nomination nomination;
 
+  BigValueHash big_value_hash;
+
+  Nomination nomination;
 };
 
 typedef BigValue *OptBigValue;

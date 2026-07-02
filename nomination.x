@@ -35,6 +35,8 @@ struct BackendHeader { // TODO pick better name
 
 struct Nomination { // -> rename to Proposal
 
+  ExtensionPoint ext;
+
   BackendHeader foo;
 
   ParallelSignedTransactionHashBatch transactions_hash;
