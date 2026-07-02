@@ -11,7 +11,7 @@ namespace hogd {
 
 struct MissingTransactions {
   SignedTransactionHash transaction_hashes<>;
-  ConsensusValue consensus_value;
+  BlockHeader block_header;
 };
 
 struct MissingTransactionsEnvelope {
@@ -34,7 +34,7 @@ program Repair
     RepairedTransactions repair_missing_txs(MissingTransactionsEnvelope) =
     10;
 
-    OptConsensusBasis repair_missing_basis(ConsensusValue) = 20;
+    OptConsensusBasis repair_missing_basis(BlockHeader) = 20;
 
     SCPEnvelopes repair_missing_scp_envelopes(SCPSlotIndex) = 30;
   }
