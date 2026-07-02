@@ -13,8 +13,8 @@ namespace hogd {
 // and reads only its stable fields.
 //
 // Deliberately carries no timestamp (the block's one timestamp is assigned by
-// consensus, in ConsensusBasis) and no pointer to the previous block (chain
-// linkage happens once, at the BlockHeader level).
+// consensus, in the BigValue) and no pointer to the previous block (chain
+// linkage happens once, at the SmallValue level).
 struct ChainState {
   // A unique identifier for this blockchain. If there are multiple instances
   // of the blockchain running, each one will have a different [network_id].

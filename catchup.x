@@ -8,7 +8,7 @@
 namespace hogd {
 
 struct CatchupBlock {
-  ConsensusBasis consensus_basis;
+  BigValue big_value;
   ParallelSignedTransactionBatch signed_transactions;
 };
 
