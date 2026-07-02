@@ -19,17 +19,21 @@ typedef SHA256Hash BigValueHash; // #[rust(newtype)]
 // The big value: the canonical data on which consensus runs. Serialized and
 // hashed to form the BigValueHash. Everything in the SmallValue is derived
 // from this struct; the BigValue is authoritative.
+
+// First fields of Bigvalue are from smallvalue; keep these in sync.
 struct BigValue {
   // Reserved for future extensions.
   ExtensionPoint ext;
-  TimePoint timestamp;
+  BackendHeader backend;
   ValidatorID proposer;
-  Nomination nomination;
   Upgrade upgrades<6>;
+
   // The hash of the previous block's SmallValue. Present here (rather than
   // only in SmallValue) so that the SmallValue is derivable from the BigValue
   // alone.
   BlockHash prev_small_value_hash;
+  Nomination nomination;
+
 };
 
 typedef BigValue *OptBigValue;
@@ -43,38 +47,16 @@ typedef BigValue *OptBigValue;
 // Merkle proofs, without holding the multi-kilobyte BigValue.
 struct SmallValue {
   // Reserved for future extensions.
-  // = BigValue.ext
   ExtensionPoint ext;
-  // A unique identifier for this blockchain. If there are multiple instances
-  // of the blockchain running, each one will have a different [network_id].
-  // = nomination.network_id
-  unsigned hyper network_id;
-  // The height of this block.
-  // = nomination.block_height
-  BlockHeight block_height;
-  // = BigValue.timestamp
-  TimePoint timestamp;
-  // = BigValue.proposer
+
+  BackendHeader backend;
+ 
   ValidatorID proposer;
-  // = BigValue.upgrades
   Upgrade upgrades<6>;
-  // The Merkle root hash of the transactions.
-  // = nomination.txset_hash
-  SHA256Hash txset_hash;
-  // The Merkle root hash of the events.
-  // = nomination.events_hash
-  SHA256Hash events_hash;
-  // The commitment to the database contents after this block is applied.
-  // = nomination.db_commitment
-  DbCommitment db_commitment;
-  // The hash of this block's BigValue (the current big value).
-  // = sha256(BigValue)
+
+  SmallValueHash previous_small_value_hash;
+  
   BigValueHash big_value_hash;
-  // The hash of the previous block's SmallValue (the previous small value).
-  // The previous BigValue is pinned transitively, via the previous small
-  // value's big_value_hash.
-  // = BigValue.prev_small_value_hash
-  BlockHash prev_small_value_hash;
 };
 
 } // namespace hogd
