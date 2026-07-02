@@ -4,6 +4,13 @@
 %#include "transaction.hh"
 %#include "types.hh"
 
+# Other open questions:
+- Timestamp -- should be given to the DB when?  Presumably on the nominate() call?
+- Coord should tell the db what the network ID is, presumably on initialize/genesis
+- Refactor the schedulercoord rpc boundary re the DbTip question
+- DbCommitment -> StorageCommitmentHash? StorageHash?
+
+
 namespace hogd {
 // clang-format on
 
