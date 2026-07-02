@@ -20,6 +20,8 @@ typedef SHA256Hash BigValueHash; // #[rust(newtype)]
 // hashed to form the BigValueHash. Everything in the SmallValue is derived
 // from this struct; the BigValue is authoritative.
 struct BigValue {
+  // Reserved for future extensions.
+  ExtensionPoint ext;
   TimePoint timestamp;
   ValidatorID proposer;
   Nomination nomination;
@@ -40,6 +42,9 @@ typedef BigValue *OptBigValue;
 // indexers) can identify and chain blocks, and verify transaction/event
 // Merkle proofs, without holding the multi-kilobyte BigValue.
 struct SmallValue {
+  // Reserved for future extensions.
+  // = BigValue.ext
+  ExtensionPoint ext;
   // A unique identifier for this blockchain. If there are multiple instances
   // of the blockchain running, each one will have a different [network_id].
   // = nomination.network_id
