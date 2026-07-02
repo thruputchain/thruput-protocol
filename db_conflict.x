@@ -47,15 +47,17 @@ enum DbConflictCode {
   kDbConflictCapacityExceeded = 7
 };
 
-/// How much conflict diagnostic detail try_push_new_subtransaction should
-/// report on failure.
+/// How much conflict diagnostic detail try_push_new_subtransaction reports
+/// on failure. Selected by the database from the block's execution mode:
+/// proposal blocks report First (release builds) or All (debug builds);
+/// validation and viewing blocks report None.
 enum DbDiagnosticLevel {
-  /// No diagnostics (prod default; current behavior).
+  /// No diagnostics (validation / viewing; previous behavior).
   kDbDiagnosticNone = 0,
-  /// Report only the first conflict encountered (prod opt-in).
+  /// Report only the first conflict encountered (proposal, release builds).
   kDbDiagnosticFirst = 1,
   /// Report a best-effort list of all conflicting deltas in the batch
-  /// (SDK testing / debug).
+  /// (proposal, debug builds — SDK testing).
   kDbDiagnosticAll = 2
 };
 
@@ -67,9 +69,10 @@ struct DbConflictDiagnostic {
 };
 
 /// Conflict diagnostics attached to a failed try_push_new_subtransaction.
-/// The discriminant echoes the DbDiagnosticLevel the caller requested, so
-/// the variable-length arm is only ever constructed in kDbDiagnosticAll
-/// mode; prod modes are allocation-free by construction.
+/// The discriminant is the DbDiagnosticLevel the database selected from
+/// the block's execution mode, so the variable-length arm is only ever
+/// constructed in kDbDiagnosticAll mode (debug-build proposals); prod
+/// levels are allocation-free by construction.
 union DbConflictResult switch (DbDiagnosticLevel level) {
 case kDbDiagnosticNone:
   void;

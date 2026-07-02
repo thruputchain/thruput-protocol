@@ -25,9 +25,9 @@ typedef Contract NewContractBatch<>;
 
 /// Result of try_push_new_subtransaction. On kRPCStorageWriteFailed —
 /// the nondeterministic transaction failure — carries the conflict
-/// diagnostics the caller requested via the DbDiagnosticLevel argument.
-/// All other arms are void; kRPCNone costs one discriminant word, same
-/// as the previous bare RPCError return.
+/// diagnostics at the level the database selected from the block's
+/// execution mode. All other arms are void; kRPCNone costs one
+/// discriminant word, same as the previous bare RPCError return.
 union TryPushSubtransactionResult switch (RPCError error)
 {
 case kRPCStorageWriteFailed:
@@ -48,7 +48,7 @@ program DatabaseToExecutorInterface
     // by calling this method with any deltas created during the (sub)
     // transaction.
     TryPushSubtransactionResult try_push_new_subtransaction(
-        BlockID, TransactionID, StorageDeltaBatch, DbDiagnosticLevel) = 0;
+        BlockID, TransactionID, StorageDeltaBatch) = 0;
     // We don't need a try_reserve_deltas method; use
     // try_push_new_subtransaction instead.
     RPCError commit_transaction(BlockID, TransactionID, NewContractBatch) = 1;
