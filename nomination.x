@@ -7,15 +7,13 @@
 namespace hogd {
 // clang-format on
 
-// The database's summary of the chain state after this block is applied,
-// produced by the db when it proposes a block. hogd owns this struct and may
-// evolve it without changes to the coordinator, which handles it as a unit
-// and reads only its stable fields.
+// The db's proposal for a block, produced in propose. Deliberately carries no
+// timestamp (the block's one timestamp is assigned by consensus, in the
+// BigValue) and no pointer to the previous block (chain linkage happens once,
+// at the SmallValue level).
 //
-// Deliberately carries no timestamp (the block's one timestamp is assigned by
-// consensus, in the BigValue) and no pointer to the previous block (chain
-// linkage happens once, at the SmallValue level).
-struct ChainState {
+// XXX(petar): Nomination should be renamed to Proposal
+struct Nomination {
   // A unique identifier for this blockchain. If there are multiple instances
   // of the blockchain running, each one will have a different [network_id].
   unsigned hyper network_id;
@@ -23,16 +21,12 @@ struct ChainState {
   BlockHeight block_height;
   // The Merkle root hash of the transactions.
   SHA256Hash txset_hash;
-  // The hash of the database contents after this block is applied to the
-  // database.
-  DbHash db_hash;
+  // sha256 of the database's 2 KiB DbHash after this block is applied. The
+  // raw DbHash never travels in consensus structures; each node maintains it
+  // locally and compares commitments.
+  DbCommitment db_commitment;
   // The Merkle root hash of the events.
   SHA256Hash events_hash;
-};
-
-// XXX(petar): Nomination should be renamed to Proposal
-struct Nomination {
-  ChainState chain_state;
   ParallelSignedTransactionHashBatch transactions_hash;
   ParallelNondeterministicProposalDataBatch transactions_nondeterministic_data;
 };

@@ -42,10 +42,10 @@ typedef BigValue *OptBigValue;
 struct SmallValue {
   // A unique identifier for this blockchain. If there are multiple instances
   // of the blockchain running, each one will have a different [network_id].
-  // = nomination.chain_state.network_id
+  // = nomination.network_id
   unsigned hyper network_id;
   // The height of this block.
-  // = nomination.chain_state.block_height
+  // = nomination.block_height
   BlockHeight block_height;
   // = BigValue.timestamp
   TimePoint timestamp;
@@ -54,16 +54,14 @@ struct SmallValue {
   // = BigValue.upgrades
   Upgrade upgrades<6>;
   // The Merkle root hash of the transactions.
-  // = nomination.chain_state.txset_hash
+  // = nomination.txset_hash
   SHA256Hash txset_hash;
   // The Merkle root hash of the events.
-  // = nomination.chain_state.events_hash
+  // = nomination.events_hash
   SHA256Hash events_hash;
-  // The hash of the database's post-state summary. Stands in for the full
-  // ChainState (which contains the 2 KiB DbHash) to keep the small value
-  // small.
-  // = sha256(nomination.chain_state)
-  SHA256Hash chain_state_hash;
+  // The commitment to the database contents after this block is applied.
+  // = nomination.db_commitment
+  DbCommitment db_commitment;
   // The hash of this block's BigValue (the current big value).
   // = sha256(BigValue)
   BigValueHash big_value_hash;

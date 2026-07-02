@@ -81,6 +81,11 @@ typedef opaque SHA256Hash[32]; // #[rust(newtype)]
 /// Format is a 2048-byte LtHash16 hash.
 typedef opaque DbHash[2048]; // #[rust(newtype)]
 
+/// The consensus-facing commitment to the database contents: sha256 of the
+/// 2048-byte DbHash. Nodes maintain the raw DbHash locally; only this 32-byte
+/// commitment appears in consensus structures.
+typedef SHA256Hash DbCommitment; // #[rust(newtype)]
+
 /// Hash of a groundhog block of transactions
 typedef SHA256Hash BlockHash; // #[rust(newtype)]
 
