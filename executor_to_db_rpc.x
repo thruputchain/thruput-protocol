@@ -5,6 +5,7 @@
 %#include "transaction.hh"
 %#include "storage_item.hh"
 %#include "rpc_types.hh"
+%#include "db_conflict.hh"
 
 namespace hogd
 {
@@ -22,6 +23,19 @@ typedef FlaggedStorageDelta StorageDeltaBatch<>;
 
 typedef Contract NewContractBatch<>;
 
+/// Result of try_push_new_subtransaction. On kRPCStorageWriteFailed —
+/// the nondeterministic transaction failure — carries the conflict
+/// diagnostics the caller requested via the DbDiagnosticLevel argument.
+/// All other arms are void; kRPCNone costs one discriminant word, same
+/// as the previous bare RPCError return.
+union TryPushSubtransactionResult switch (RPCError error)
+{
+case kRPCStorageWriteFailed:
+  DbConflictResult conflict;
+default:
+  void;
+};
+
 program DatabaseToExecutorInterface
 {
   version DatabaseToExecutorInterfaceV1
@@ -33,8 +47,8 @@ program DatabaseToExecutorInterface
     // The root transaction, and any subtransactions, should finish
     // by calling this method with any deltas created during the (sub)
     // transaction.
-    RPCError try_push_new_subtransaction(BlockID, TransactionID,
-					 StorageDeltaBatch) = 0;
+    TryPushSubtransactionResult try_push_new_subtransaction(
+        BlockID, TransactionID, StorageDeltaBatch, DbDiagnosticLevel) = 0;
     // We don't need a try_reserve_deltas method; use
     // try_push_new_subtransaction instead.
     RPCError commit_transaction(BlockID, TransactionID, NewContractBatch) = 1;
