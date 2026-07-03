@@ -48,7 +48,7 @@ program DatabaseToExecutorInterface
     // by calling this method with any deltas created during the (sub)
     // transaction.
     TryPushSubtransactionResult try_push_new_subtransaction(
-        BlockID, TransactionID, StorageDeltaBatch) = 0;
+      BlockID, TransactionID, StorageDeltaBatch) = 0;
     // We don't need a try_reserve_deltas method; use
     // try_push_new_subtransaction instead.
     RPCError commit_transaction(BlockID, TransactionID, NewContractBatch) = 1;
