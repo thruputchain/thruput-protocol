@@ -10,6 +10,7 @@ typedef opaque Upgrade<128>;
 
 typedef SHA256Hash ConsensusValueHash; // #[rust(newtype)]
 
+// The XDR encoding of this structure is the value that the consensus protocol agrees upon.
 struct ConsensusValue {
   ExtensionPoint ext;
   ValidatorID proposer;
