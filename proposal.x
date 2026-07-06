@@ -7,9 +7,9 @@
 namespace hogd {
 // clang-format on
 
-struct Synopsis {
+struct ProposalHeader {
   ExtensionPoint ext;
-  
+
   // A unique identifier for this blockchain. If there are multiple instances of
   // the blockchain running, each one will have a different [network_id].
   unsigned hyper network_id;
@@ -32,9 +32,13 @@ struct Synopsis {
 };
 
 struct Proposal {
-  Synopsis synopsis;
-  ParallelSignedTransactionHashBatch transactions_hash;
-  ParallelNondeterministicProposalDataBatch transactions_nondeterministic_data;
+  ProposalHeader header;
+  ProposalTxs transactions;
+};
+
+struct ProposalTxs {
+  ParallelSignedTransactionHashBatch hash;
+  ParallelNondeterministicProposalDataBatch nondeterministic_data;
 };
 
 typedef SHA256Hash ProposalHash; // #[rust(newtype)]

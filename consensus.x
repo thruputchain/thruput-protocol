@@ -14,14 +14,14 @@ struct ConsensusValue {
   ExtensionPoint ext;
   ValidatorID proposer;
   Upgrade upgrades<6>;
-  Synopsis synopsis;
+  ProposalHeader proposal_header;
   ProposalHash proposal_hash;
   ConsensusValueHash prev_value_hash;
 };
 
 struct ConsensusBasis {
   ConsensusValue value;
-  Proposal proposal;
+  ProposalTxs proposal_txs;
 };
 
 } // namespace hogd

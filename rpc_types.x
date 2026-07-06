@@ -15,7 +15,7 @@ typedef unsigned hyper BlockID;
 
 struct DbTip {
   BlockID id;
-  Synopsis synopsis;
+  ProposalHeader proposal_header;
   ConsensusValue value;
 };
 
