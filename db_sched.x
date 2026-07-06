@@ -108,7 +108,7 @@ program DbSched
     // block will return an error if accessed. This BlockID must be the
     // immediate descendant of the most recently committed block.
     // XXX: What is the third hash argument? It should be typed by its purpose!
-    DbBlockResult dbsched_commit_snapshot(BlockID, ContextHash, SHA256Hash) = 6;
+    DbBlockResult dbsched_commit_snapshot(BlockID, ProposalHeaderHash, SHA256Hash) = 6;
 
     // Call to close a block. This indicates that no more transactions
     // will be added to this block. The block must have been previously opened

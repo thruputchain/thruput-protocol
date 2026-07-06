@@ -85,8 +85,8 @@ typedef SHA256Hash TxsHash; // #[rust(newtype)]
 
 typedef SHA256Hash EventsHash; // #[rust(newtype)]
 
-/// Hash of proposal context
-typedef SHA256Hash ContextHash; // #[rust(newtype)]
+/// Hash of proposal header
+typedef SHA256Hash ProposalHeaderHash; // #[rust(newtype)]
 
 /// Represents a 256-bit contract address.
 /// In the groundhog storage model, each contract is deployed at a 
