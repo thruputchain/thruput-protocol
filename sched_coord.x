@@ -109,18 +109,18 @@ program SchedulerCoord
 
     // schedulercoord_nominate asks the scheduler to prepare a proposal (a
     // block proposal) on top of the given db block.
-    SchedulerProposalResult schedulercoord_propose(BlockID, TimePoint) = 4;
+    SchedulerProposalResult schedulercoord_propose_block(BlockID, TimePoint) = 4;
 
     // schedulercoord_validate asks the scheduler to validate a proposal,
     // and if successful, return the block ID in the db of the validated
     // block. BlockID is the block onto which the proposal is done.
-    SchedulerValidationResult schedulercoord_validate(BlockID, Proposal) = 5;
+    SchedulerValidationResult schedulercoord_validate_block(BlockID, Proposal) = 5;
 
     // Commit the block with block ID. This block must have been previously
     // nominated or validated by the mempool.
     // On commit the block is associated with the ConsensusValue that confirmed it.
     // This value is saved in the database and retrievable via schedcoord_get_tip.
-    SchedulerCommitOutcome schedulercoord_commit(BlockID, ConsensusValue) = 6;
+    SchedulerCommitOutcome schedulercoord_commit_block(BlockID, ConsensusValue) = 6;
 
     // Returns information about the current highest committed block.
     // If there is no committed block, returns SchedulerGetTipNoGenesisBlock.
