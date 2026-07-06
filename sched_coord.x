@@ -118,6 +118,8 @@ program SchedulerCoord
 
     // Commit the block with block ID. This block must have been previously
     // nominated or validated by the mempool.
+    // On commit the block is associated with the ConsensusValue that confirmed it.
+    // This value is saved in the database and retrievable via schedcoord_get_tip.
     SchedulerCommitOutcome schedulercoord_commit_block(BlockID, ConsensusValue) = 6;
 
     // Returns information about the current highest committed block.
