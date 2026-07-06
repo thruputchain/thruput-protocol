@@ -4,6 +4,7 @@
 %#include "contract.hh"
 %#include "transaction.hh"
 %#include "address_auth.hh"
+%#include "consensus.hh"
 
 namespace hogd
 {
@@ -15,6 +16,7 @@ typedef unsigned hyper BlockID;
 struct DbTip {
   BlockID id;
   Synopsis synopsis;
+  ConsensusValue value;
 };
 
 // Internal unique ID describing a transaction.
