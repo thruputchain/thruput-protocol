@@ -20,6 +20,9 @@ struct ConsensusValue {
   ConsensusValueHash prev_value_hash;
 };
 
+// This structure is disseminated via broadcast.
+// It associates a consensus value with a set of transactions, and
+// It can be used to derive the proposal associated with the consensus value.
 struct ConsensusBasis {
   ConsensusValue value;
   ProposalTxs proposal_txs;
