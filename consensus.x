@@ -21,8 +21,8 @@ struct ConsensusValue {
 };
 
 // This structure is disseminated via broadcast.
-// It associates a consensus value with a set of transactions, and
-// It can be used to derive the proposal associated with the consensus value.
+// It associates a consensus value with a proposal.
+// The associated proposal is derivable from the basis.
 struct ConsensusBasis {
   ConsensusValue value;
   ProposalTxs proposal_txs;
