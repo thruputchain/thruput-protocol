@@ -4,7 +4,7 @@
 %#include "types.hh"
 %#include "catchup.hh"
 %#include "network.hh"
-%#include "nomination.hh"
+%#include "proposal.hh"
 %#include "genesis.hh"
 %#include "rpc_types.hh"
 
@@ -51,7 +51,7 @@ default:
 union DbBlockResult switch (DbSchedResult result)
 {
 case DbSchedResultOK:
-  DbHash db_hash;
+  StorageHash storage_hash;
 default:
   void;
 };
@@ -107,7 +107,8 @@ program DbSched
     // before being committed. Any BlockID that is not a descendant of this
     // block will return an error if accessed. This BlockID must be the
     // immediate descendant of the most recently committed block.
-    DbBlockResult dbsched_commit_snapshot(BlockID, BlockHash, SHA256Hash) = 6;
+    // XXX: What is the third hash argument? It should be typed by its purpose!
+    DbBlockResult dbsched_commit_snapshot(BlockID, ContextHash, SHA256Hash) = 6;
 
     // Call to close a block. This indicates that no more transactions
     // will be added to this block. The block must have been previously opened

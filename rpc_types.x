@@ -13,11 +13,8 @@ namespace hogd
 typedef unsigned hyper BlockID;
 
 struct DbTip {
-  BlockHeight height;
-  BlockHash block_hash;
-  SHA256Hash events_hash;
-  DbHash db_hash;
   BlockID id;
+  Synopsis synopsis;
 };
 
 // Internal unique ID describing a transaction.
@@ -115,6 +112,7 @@ default:
   void;
 };
 
+// XXX: block_id and tip is redundant!
 struct ViewingSnapshot {
   BlockID block_id;
   DbTip tip;

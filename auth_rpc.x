@@ -32,7 +32,7 @@ program AuthMempool {
 
     // Verify a batch of transactions.  This version returns a single result for the batch,
     // i.e. are all correct or is there at least one invalid transaction?
-    // This version should be called when validating a nomination, in which if even one
+    // This version should be called when validating a proposal, in which if even one
     // transaction is invalid then the whole block can be rejected.
     // This version can use batch verification to speed up the verification.
     AuthErrorCode authmempool_verify_batch(BlockHeight, SignedTransactionBatch) = 3;

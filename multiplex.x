@@ -3,7 +3,7 @@ namespace hogd {
 enum MultiplexMessageType {
   MultiplexMessageInvalid = 0,
   MultiplexMessageSubmittedTxs = 1,
-  MultiplexMessageConsensusBasis = 2,
+  MultiplexMessageProposal = 2,
   MultiplexMessageSCP = 3,
 };
 
@@ -11,8 +11,8 @@ union MultiplexMessage switch (MultiplexMessageType type)
 {
 case MultiplexMessageSubmittedTxs:
   SubmittedTransactions submitted;
-case MultiplexMessageConsensusBasis:
-  ConsensusBasis consensus_basis;
+case MultiplexMessageProposal:
+  Proposal proposal;
 case MultiplexMessageSCP:
   SCPEnvelope envelope;
 default:

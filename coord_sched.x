@@ -1,7 +1,7 @@
 // clang-format off
 %#include "exec_sched.hh"
 %#include "rpc_types.hh"
-%#include "nomination.hh"
+%#include "proposal.hh"
 %#include "parallel.hh"
 %#include "transaction.hh"
 namespace hogd {

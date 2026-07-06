@@ -79,10 +79,14 @@ typedef opaque SHA256Hash[32]; // #[rust(newtype)]
 
 /// Hash of the groundhog database contents.
 /// Format is a 2048-byte LtHash16 hash.
-typedef opaque DbHash[2048]; // #[rust(newtype)]
+typedef opaque StorageHash[2048]; // #[rust(newtype)]
 
-/// Hash of a groundhog block of transactions
-typedef SHA256Hash BlockHash; // #[rust(newtype)]
+typedef SHA256Hash TxsHash; // #[rust(newtype)]
+
+typedef SHA256Hash EventsHash; // #[rust(newtype)]
+
+/// Hash of proposal context
+typedef SHA256Hash ContextHash; // #[rust(newtype)]
 
 /// Represents a 256-bit contract address.
 /// In the groundhog storage model, each contract is deployed at a 
