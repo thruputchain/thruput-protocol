@@ -8,6 +8,8 @@ namespace hogd {
 // clang-format on
 
 struct Synopsis {
+  ExtensionPoint ext;
+  
   // A unique identifier for this blockchain. If there are multiple instances of
   // the blockchain running, each one will have a different [network_id].
   unsigned hyper network_id;

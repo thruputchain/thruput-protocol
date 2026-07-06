@@ -11,6 +11,7 @@ typedef opaque Upgrade<128>;
 typedef SHA256Hash ConsensusValueHash; // #[rust(newtype)]
 
 struct ConsensusValue {
+  ExtensionPoint ext;
   ValidatorID proposer;
   Upgrade upgrades<6>;
   Synopsis synopsis;
