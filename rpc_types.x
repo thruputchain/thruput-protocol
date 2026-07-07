@@ -15,7 +15,7 @@ typedef unsigned hyper BlockID;
 
 struct DbTip {
   BlockID id;
-  StorageLongHash storage_hash;
+  StorageLongHash storage_long_hash;
   ConsensusValue value;
 };
 

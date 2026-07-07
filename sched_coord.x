@@ -31,7 +31,7 @@ struct SchedulerProposedBlock {
 union SchedulerProposalResult switch (SchedulerProposalOutcome outcome)
 {
 case SchedulerProposalOK:
-  SchedulerProposedBlock nominated_block;
+  SchedulerProposedBlock proposed_block;
 case SchedulerProposalError:
   void;
 };
@@ -46,7 +46,7 @@ enum SchedulerValidationOutcome {
   SchedulerValidationUnknownParentBlock = 6,
   // Proposal batch metadata is malformed or fails to decode (e.g.
   // segment token/byte counts are inconsistent, XDR deserialization
-  // fails, or tx_hashes/tx_nominations counts do not match).
+  // fails, or tx_hashes/tx_nondeterministic counts do not match).
   SchedulerValidationMalformed = 7
 };
 
@@ -107,7 +107,7 @@ program SchedulerCoord
     void schedulercoord_submit_unvetted(ParallelSignedTransactionBatch) = 2;
     void schedulercoord_submit_vetted(ValidatorID, ParallelSignedTransactionBatch) = 3;
 
-    // schedulercoord_nominate asks the scheduler to prepare a proposal (a
+    // schedulercoord_propose asks the scheduler to prepare a proposal (a
     // block proposal) on top of the given db block.
     SchedulerProposalResult schedulercoord_propose_block(BlockID, ProposalContext) = 4;
 
@@ -117,7 +117,7 @@ program SchedulerCoord
     SchedulerValidationResult schedulercoord_validate_block(BlockID, Proposal) = 5;
 
     // Commit the block with block ID. This block must have been previously
-    // nominated or validated by the mempool.
+    // proposed or validated by the mempool.
     // On commit the block is associated with the ConsensusValue that confirmed it.
     // This value is saved in the database and retrievable via schedcoord_get_tip.
     SchedulerCommitOutcome schedulercoord_commit_block(BlockID, ConsensusValue) = 6;

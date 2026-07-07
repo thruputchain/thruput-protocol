@@ -24,7 +24,7 @@ struct ConsensusValue {
   ExtensionPoint ext;
 
   /// Hash of the parent block's `ConsensusValue`, linking the chain.
-  ConsensusValueHash prev_value_hash;
+  ConsensusValueHash prev_hash;
 
   /// The executed header of the proposed block.
   ProposalHeader proposal_header;
