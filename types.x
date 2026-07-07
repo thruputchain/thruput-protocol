@@ -77,9 +77,13 @@ case 0:
 /// Represents a 256-bit SHA-256 hash.
 typedef opaque SHA256Hash[32]; // #[rust(newtype)]
 
+typedef SHA256Hash NetworkHash; // #[rust(newtype)]
+
 /// Hash of the groundhog database contents.
 /// Format is a 2048-byte LtHash16 hash.
-typedef opaque StorageHash[2048]; // #[rust(newtype)]
+typedef opaque StorageLongHash[2048]; // #[rust(newtype)]
+
+typedef SHA256Hash StorageShortHash; // #[rust(newtype)]
 
 typedef SHA256Hash TxsHash; // #[rust(newtype)]
 

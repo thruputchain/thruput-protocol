@@ -15,6 +15,7 @@ typedef unsigned hyper BlockID;
 
 struct DbTip {
   BlockID id;
+  StorageLongHash storage_hash;
   ConsensusValue value;
 };
 
@@ -113,16 +114,15 @@ default:
   void;
 };
 
-// XXX: block_id and tip is redundant!
 struct ViewingSnapshot {
-  BlockID block_id;
+  BlockID viewing_block_id;
   DbTip tip;
 };
 
 union ExpectedViewingSnapshot switch (RPCError error)
 {
 case kRPCNone:
-  ViewingSnapshot snapshot;
+  DbTip snapshot;
 default:
   void;
 };

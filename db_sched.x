@@ -51,7 +51,7 @@ default:
 union DbBlockResult switch (DbSchedResult result)
 {
 case DbSchedResultOK:
-  StorageHash storage_hash;
+  StorageShortHash storage_hash;
 default:
   void;
 };
@@ -107,8 +107,7 @@ program DbSched
     // before being committed. Any BlockID that is not a descendant of this
     // block will return an error if accessed. This BlockID must be the
     // immediate descendant of the most recently committed block.
-    // XXX: What is the third hash argument? It should be typed by its purpose!
-    DbBlockResult dbsched_commit_snapshot(BlockID, ProposalHeaderHash, SHA256Hash) = 6;
+    DbBlockResult dbsched_commit_snapshot(BlockID, ConsensusValue) = 6;
 
     // Call to close a block. This indicates that no more transactions
     // will be added to this block. The block must have been previously opened
@@ -130,7 +129,7 @@ program DbSched
     // This RPC calculates storage keys and stores allocation amounts as
     // bytestrings.
     DbSchedResult dbsched_load_genesis_configuration(GenesisConfiguration,
-						     unsigned hyper, SHA256Hash, SHA256Hash) = 9;
+						     ConsensusValue) = 9;
 
     DbTipResult dbsched_get_tip(void) = 10;
   }

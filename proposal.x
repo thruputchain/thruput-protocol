@@ -7,12 +7,13 @@
 namespace hogd {
 // clang-format on
 
+// Captures pre-execution context (timestamp, block height), and
+// post-execution results (transactions hash, stoarge hash, events hash).
 struct ProposalHeader {
   ExtensionPoint ext;
 
-  // A unique identifier for this blockchain. If there are multiple instances of
-  // the blockchain running, each one will have a different [network_id].
-  unsigned hyper network_id;
+  // The hash of the network name.
+  NetworkHash network_hash;
 
   // The time of the block,
   // given to the executors by the coordinator before computation begins.
@@ -25,7 +26,7 @@ struct ProposalHeader {
   TxsHash txs_hash;
 
   // The hash of the storage contents after this block is applied.
-  StorageHash storage_hash;
+  StorageShortHash storage_hash;
 
   // The Merkle root hash of the events.
   EventsHash events_hash;

@@ -51,7 +51,7 @@ enum SchedulerValidationOutcome {
 };
 
 struct SchedulerValidationBlock {
-  DbTip db_tip;
+  BlockID block_id;
   ParallelSignedTransactionBatch signed_transactions;
 };
 
