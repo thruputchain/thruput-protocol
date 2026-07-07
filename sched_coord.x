@@ -109,7 +109,7 @@ program SchedulerCoord
 
     // schedulercoord_nominate asks the scheduler to prepare a proposal (a
     // block proposal) on top of the given db block.
-    SchedulerProposalResult schedulercoord_propose_block(BlockID, TimePoint) = 4;
+    SchedulerProposalResult schedulercoord_propose_block(BlockID, ProposalContext) = 4;
 
     // schedulercoord_validate asks the scheduler to validate a proposal,
     // and if successful, return the block ID in the db of the validated

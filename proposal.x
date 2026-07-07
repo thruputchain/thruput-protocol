@@ -7,17 +7,30 @@
 namespace hogd {
 // clang-format on
 
+struct ProposalContext {
+  // Block proposer. Also used to repair missing block data.
+  ValidatorID proposer;
+
+  // The time of the block,
+  // given to the executors by the coordinator before computation begins.
+  TimePoint block_timepoint;
+};
+
 // Captures pre-execution context (timestamp, block height), and
 // post-execution results (transactions hash, stoarge hash, events hash).
+// Travels on network.
 struct ProposalHeader {
   ExtensionPoint ext;
 
   // The hash of the network name.
   NetworkHash network_hash;
 
+  // Block proposer. Also used to repair missing block data.
+  ValidatorID proposer;
+
   // The time of the block,
   // given to the executors by the coordinator before computation begins.
-  TimePoint timestamp;
+  TimePoint block_timepoint;
 
   // The height of this block.
   BlockHeight block_height;
@@ -32,17 +45,20 @@ struct ProposalHeader {
   EventsHash events_hash;
 };
 
+// Only inside validator.
 struct Proposal {
   ProposalHeader header;
   ProposalTxs transactions;
 };
 
+// Travels on network.
 struct ProposalTxs {
+  ExtensionPoint ext;
   ParallelSignedTransactionHashBatch hash;
   ParallelNondeterministicProposalDataBatch nondeterministic_data;
 };
 
-typedef SHA256Hash ProposalHash; // #[rust(newtype)]
+typedef SHA256Hash ProposalTxsHash; // #[rust(newtype)]
 
 typedef Proposal *OptProposal;
 
