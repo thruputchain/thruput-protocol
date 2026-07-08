@@ -122,7 +122,7 @@ struct ViewingSnapshot {
 union ExpectedViewingSnapshot switch (RPCError error)
 {
 case kRPCNone:
-  DbTip snapshot;
+  ViewingSnapshot snapshot;
 default:
   void;
 };

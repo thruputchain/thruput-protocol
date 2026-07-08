@@ -54,16 +54,6 @@ struct ProposalHeader {
   EventsHash events_hash;
 };
 
-/// A candidate block: header plus the transaction metadata needed to
-/// re-execute it.
-///
-/// Does not travel on network: nodes reconstruct it from a `ConsensusValue`
-/// and its `ProposalTxs`.
-struct Proposal {
-  ProposalHeader header;
-  ProposalTxs transactions;
-};
-
 /// Transaction-side payload for a proposal.
 ///
 /// This is the payload a `ConsensusValue` commits to through
@@ -84,6 +74,16 @@ struct ProposalTxs {
 
 /// SHA-256 of the XDR-encoded `ProposalTxs`.
 typedef SHA256Hash ProposalTxsHash; // #[rust(newtype)]
+
+/// A candidate block: header plus the transaction metadata needed to
+/// re-execute it.
+///
+/// Does not travel on network: nodes reconstruct it from a `ConsensusValue`
+/// and its `ProposalTxs`.
+struct Proposal {
+  ProposalHeader header;
+  ProposalTxs transactions;
+};
 
 typedef Proposal *OptProposal;
 

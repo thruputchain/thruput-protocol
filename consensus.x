@@ -9,9 +9,6 @@ namespace hogd {
 /// A serialized protocol upgrade, carried opaquely in `ConsensusValue`.
 typedef opaque Upgrade<128>;
 
-/// SHA-256 of the XDR-encoded `ConsensusValue`; the canonical block identity.
-typedef SHA256Hash ConsensusValueHash; // #[rust(newtype)]
-
 /// The block commitment externalized by consensus.
 ///
 /// `ConsensusValue` is the small value that systems use to identify
