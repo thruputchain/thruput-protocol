@@ -48,10 +48,15 @@ default:
   void;
 };
 
+struct DbBlockOk {
+  StorageShortHash storage_hash;
+  StorageLongHash storage_long_hash;
+};
+
 union DbBlockResult switch (DbSchedResult result)
 {
 case DbSchedResultOK:
-  StorageShortHash storage_hash;
+  DbBlockOk block;
 default:
   void;
 };

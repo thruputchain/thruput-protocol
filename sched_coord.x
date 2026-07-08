@@ -74,7 +74,8 @@ case SchedulerValidationMalformed:
 
 enum SchedulerCommitOutcome {
   SchedulerCommitOK = 0,
-  SchedulerCommitBlockNotFound = 1
+  SchedulerCommitBlockNotFound = 1,
+  SchedulerCommitInvalidConsensusValue = 2
 };
 
 enum SchedulerGetTipOutcome {
