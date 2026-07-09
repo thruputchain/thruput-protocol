@@ -136,14 +136,14 @@ program Repair
 
     void repair_null(void) = 0;
 
-    SignedRepairedTxs repair_missing_txs(SignedMissingTxs) =
+    RepairedTxs repair_missing_txs(SignedMissingTxs) =
     10;
 
-    SignedRepairedProposal repair_missing_proposal(SignedMissingProposal) = 20;
+    RepairedProposal repair_missing_proposal(SignedMissingProposal) = 20;
 
-    SignedRepairedSlot repair_missing_slot(SignedMissingSlot) = 30;
+    RepairedSlot repair_missing_slot(SignedMissingSlot) = 30;
 
-    SignedRepairedBlocks repair_missing_blocks(SignedMissingBlocks) = 40;
+    RepairedBlocks repair_missing_blocks(SignedMissingBlocks) = 40;
   }
   = 2;
 }
