@@ -8,7 +8,7 @@ namespace hogd {
 
 // Uniquely describes an executor instance.
 struct ExecCard {
-  Protocol protocol;
+  ProtocolCommit protocol;
   UPID upid;
   ServerAddress address;
 };

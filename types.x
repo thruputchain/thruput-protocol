@@ -14,6 +14,9 @@ struct int128_xdr {
   unsigned hyper lowbits;
 };
 
+/// Network protocol version.
+typedef unsigned int Protocol; // #[rust(newtype)]
+
 /// uint64_t, Unix time as nanoseconds elapsed since
 /// January 1, 1970 UTC
 typedef unsigned hyper TimePoint; // #[rust(newtype)]

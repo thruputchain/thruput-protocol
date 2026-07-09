@@ -65,7 +65,7 @@ program DbGateway
 {
   version DbGateway1
   {
-    DbGatewayIntroOutcome dbgateway_intro(Protocol) = 0;
+    DbGatewayIntroOutcome dbgateway_intro(ProtocolCommit) = 0;
     DbGatewayResult dbgateway_get_items(AddressAndKeyBatch) = 1;
   } = 1;
 }

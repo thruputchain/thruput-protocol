@@ -13,7 +13,7 @@ enum CoordinatorRegistrationOutcome {
 };
 
 struct CoordCard {
-  Protocol protocol;
+  ProtocolCommit protocol;
   ServerAddress address_for_sched;
 };
 

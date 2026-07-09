@@ -203,7 +203,7 @@ program IndexerBlockExplorer
 {
   version IndexerBlockExplorer1
   {
-    IndexerBlockExplorerIntroOutcome indexer_block_explorer_intro(Protocol) = 0;
+    IndexerBlockExplorerIntroOutcome indexer_block_explorer_intro(ProtocolCommit) = 0;
     TxInfoResult get_transaction_info(SignedTransactionHash) = 1;
 
     // Paginated, filtered events query.  A candidate event matches
@@ -251,7 +251,7 @@ program IndexerEvent
 = 0x4321aaab;
 
 struct IndexerCard {
-  Protocol protocol;
+  ProtocolCommit protocol;
   ServerAddress address_for_event;
 };
 

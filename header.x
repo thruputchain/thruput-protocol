@@ -14,6 +14,9 @@ namespace hogd {
 /// the parent block is identified by the surrounding RPC. Both fields are
 /// copied into the resulting `ProposalHeader`.
 struct ProposalContext {
+  // Network protocol version.
+  Protocol protocol;
+
   /// Block proposer. Nodes missing block data fetch it from the proposer.
   ValidatorID proposer;
 

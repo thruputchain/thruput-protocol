@@ -18,6 +18,9 @@ typedef opaque Upgrade<128>;
 ///
 /// Travels on network.
 struct ConsensusValue {
+  // Network protocol version.
+  Protocol protocol;
+
   ExtensionPoint ext;
 
   /// Hash of the parent block's `ConsensusValue`, linking the chain.

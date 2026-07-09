@@ -51,7 +51,7 @@ program ViewGateway
 {
   version ViewGateway1
   {
-    ViewGatewayIntroOutcome viewgateway_intro(Protocol) = 0;
+    ViewGatewayIntroOutcome viewgateway_intro(ProtocolCommit) = 0;
     ViewGatewayResult viewgateway_view(TransactionViewQuery) = 1;
   } = 1;
 }
