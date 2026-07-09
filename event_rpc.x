@@ -1,3 +1,4 @@
+%#include "db_conflict.hh"
 %#include "event.hh"
 %#include "rpc_types.hh"
 %#include "transaction.hh"
@@ -15,6 +16,15 @@ program EventExecutor
 
     // Called when executor closes its handle to a block - decrements count
     RPCError eventexecutor_close_block(BlockID) = 32;
+
+    // Best-effort report that a transaction failed nondeterministically
+    // during 2-phase commit and was excluded from the proposal. The event
+    // server relays this immediately to every registered indexer; it touches
+    // no per-block state (the tx will never commit, so it has no place in
+    // the commit pipeline). The executor sends fire-and-forget and ignores
+    // the result.
+    RPCError eventexecutor_report_tx_failure(SignedTransactionHash,
+                                             TxFailureDiagnostic) = 33;
 
     // A transaction should not call this more than once
     // We don't technically need the transaction ID here;
