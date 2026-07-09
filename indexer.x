@@ -1,4 +1,5 @@
 // clang-format off
+%#include "db_conflict.hh"
 %#include "event.hh"
 %#include "network.hh"
 %#include "pagination.hh"
@@ -19,12 +20,21 @@ struct TxInfo {
 
 enum TxInfoOutcome {
   TxInfoFound = 0,
-  TxInfoNotFound = 1
+  TxInfoNotFound = 1,
+  /// No committed record, but the transaction failed nondeterministically
+  /// within the last few blocks and the indexer still holds the diagnostic.
+  /// Best-effort and advisory: reports are dropped freely under load, only
+  /// the proposing node's indexers hear them, and a later retry of the same
+  /// tx may still commit (at which point TxInfoFound wins). Absence of this
+  /// outcome proves nothing.
+  TxInfoRecentFailure = 2
 };
 
 union TxInfoResult switch (TxInfoOutcome outcome) {
 case TxInfoFound:
   TxInfo info;
+case TxInfoRecentFailure:
+  TxFailureDiagnostic recent_failure;
 default:
   void;
 };
@@ -229,6 +239,13 @@ program IndexerEvent
     // block-explorer transaction lookups.
     void indexer_event_process_events(BlockHeight, TxEventLogBatch,
                                       ProposedTransactionBatch) = 0;
+
+    // Best-effort relay (from the event server) of a transaction that failed
+    // nondeterministically at proposal time. The indexer caches it briefly so
+    // get_transaction_info can explain the failure; it may drop reports
+    // freely (cache full) and expires them a few blocks later.
+    void indexer_event_report_tx_failure(SignedTransactionHash,
+                                         TxFailureDiagnostic) = 1;
   } = 1;
 }
 = 0x4321aaab;

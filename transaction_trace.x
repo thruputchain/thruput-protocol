@@ -5,6 +5,7 @@
 %#include "auth_claim.hh"
 %#include "event.hh"
 %#include "invoke_args.hh"
+%#include "db_conflict.hh"
 
 namespace hogd
 {
@@ -584,6 +585,12 @@ struct InvocationFrameTrace {
 
   /// Status of the frame when it terminates.
   InvocationFrameOutput status;
+
+  /// Two-phase-commit conflict diagnostic for a try_invoke frame whose
+  /// subtransaction push failed (proposal mode). The kDbDiagnosticNone arm on
+  /// every other frame. Best-effort SDK-testing diagnostic; see
+  /// SystemCallHandler::finish_frame.
+  DbConflictResult commit_conflict;
 };
 
 } // namespace hogd
