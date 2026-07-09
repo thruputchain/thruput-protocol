@@ -112,10 +112,11 @@ program SchedulerCoord
     // block proposal) on top of the given db block.
     SchedulerProposalResult schedulercoord_propose_block(BlockID, ProposalContext) = 4;
 
-    // schedulercoord_validate asks the scheduler to validate a proposal,
-    // and if successful, return the block ID in the db of the validated
-    // block. BlockID is the block onto which the proposal is done.
-    SchedulerValidationResult schedulercoord_validate_block(BlockID, Proposal) = 5;
+    // schedulercoord_validate asks the scheduler to validate a consensus value
+    // against the proposal transaction payload. If successful, it returns the
+    // block ID in the db of the validated block. BlockID is the block onto which
+    // the consensus value is done.
+    SchedulerValidationResult schedulercoord_validate_block(BlockID, ConsensusValue, ProposalTxs) = 5;
 
     // Commit the block with block ID. This block must have been previously
     // proposed or validated by the mempool.
