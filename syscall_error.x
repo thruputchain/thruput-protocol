@@ -40,7 +40,14 @@ enum SyscallErrorCode {
   kSyscallErrorCodeStorageKeyNotExist = 8,
 
   /// No entry in the retrocausal queue to consume
-  kSyscallErrorCodeNoRetrocausalQueueEntry = 9
+  kSyscallErrorCodeNoRetrocausalQueueEntry = 9,
+
+  /// The transaction has reached its per-transaction limit on concurrent
+  /// retrocausal-queue reads (kMaxConcurrentRcqReadsPerTx). This is a resource
+  /// limit, not a malformed call, and does not by itself fail the transaction;
+  /// a contract may use it as a stop condition (e.g. drain a queue until it
+  /// returns this).
+  kSyscallErrorCodeRetrocausalQueueReadLimitReached = 10
 };
 
 } // namespace hogd
