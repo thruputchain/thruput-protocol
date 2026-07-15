@@ -255,12 +255,23 @@ struct IndexerCard {
   ServerAddress address_for_event;
 };
 
+enum EventIndexerIntroOutcome {
+  EventIntroSuccess = 0,
+  // The indexer advertised a protocol string the event server does not speak.
+  EventIntroMismatchedProtocol = 1,
+  // The event server could not dial the indexer's advertised address_for_event
+  // (e.g. a bind/advertise mismatch or a refused connection). The registration
+  // is rejected rather than silently accepted, so the indexer does not mark
+  // itself healthy while the event server has no client for it.
+  EventIntroConnectFailed = 2
+};
+
 // The indexer uses this API to communicate with the event server.
 program EventIndexer
 {
   version EventIndexer1
   {
-    void event_indexer_intro(IndexerCard) = 0;
+    EventIndexerIntroOutcome event_indexer_intro(IndexerCard) = 0;
   } = 1;
 }
 = 0x4321aaac;
