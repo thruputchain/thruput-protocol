@@ -3,8 +3,8 @@
 namespace hogd {
 
 struct DomainSeparator {
-    ExtensionPoint ext;
-    opaque domain_separator<256>;
+  ExtensionPoint ext;
+  opaque domain_separator<256>;
 };
 
 // XDR does not have generics.
