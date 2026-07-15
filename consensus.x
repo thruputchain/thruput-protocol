@@ -27,12 +27,10 @@ struct ConsensusValue {
   TimePoint timestamp;
   ValidatorID proposer;
   Upgrade upgrades<6>;
-  BlockHeight block_height;
+  BlockHeader block_header;
   ConsensusValueHash prev_value_hash;
   ConsensusBasisHash basis_hash;
   ConsensusBasisHash prev_basis_hash;
-  BlockHash block_hash;
-  BlockHash prev_block_hash;
 };
 
 } // namespace hogd
