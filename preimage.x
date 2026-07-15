@@ -1,0 +1,22 @@
+%#include "types.hh"
+
+namespace hogd {
+
+struct DomainSeparator {
+  ExtensionPoint ext;
+  opaque domain_separator<256>;
+};
+
+// XDR does not have generics.
+// The preimage to a signature or hash is as follows:
+//
+// template<typename T> struct VersionedPreimage {
+//    DomainSeparator domain_separator;
+//    T object;
+//};
+//
+// For example, the address of a pubkey auth account is derived as follows:
+// sha256(cxs(DomainSeparator) || cxs(PubkeyAccountPreimage))
+
+
+} // namespace hogd
