@@ -68,6 +68,7 @@ case Ed25519:
 /// the only valid byte value is 0, but a struct that embeds this can
 /// later replace itself with a union (with the prior struct as variant 0)
 /// without breaking backwards compatibility.
+// #[rust(ConstWriteXDR)
 union ExtensionPoint switch (int v)
 {
 case 0:

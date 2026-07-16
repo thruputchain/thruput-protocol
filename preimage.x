@@ -2,6 +2,7 @@
 
 namespace hogd {
 
+// #[rust(ConstWriteXDR)
 struct DomainSeparator {
   ExtensionPoint ext;
   opaque domain_separator<256>;
