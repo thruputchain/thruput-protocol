@@ -1,4 +1,5 @@
 // clang-format off
+%#include "block.hh"
 %#include "db_conflict.hh"
 %#include "event.hh"
 %#include "network.hh"
@@ -35,6 +36,18 @@ case TxInfoFound:
   TxInfo info;
 case TxInfoRecentFailure:
   TxFailureDiagnostic recent_failure;
+default:
+  void;
+};
+
+enum BlockLookupOutcome {
+  BlockFound = 0,
+  BlockNotFound = 1
+};
+
+union BlockLookupResult switch (BlockLookupOutcome outcome) {
+case BlockFound:
+  BlockHeader header;
 default:
   void;
 };
@@ -162,8 +175,8 @@ struct TransactionPage {
 };
 
 /// Lightweight reference to a transaction: its hash plus the block it
-/// executed in.  Returned by `get_transactions_by_address`; hydrate the
-/// full body via `get_transaction_info`.
+/// executed in. Returned by transaction-ref queries; hydrate the full body
+/// via `get_transaction_info`.
 struct TransactionRef {
   SignedTransactionHash tx_hash;
   BlockHeight height;
@@ -185,7 +198,22 @@ struct AddressTransactionQuery {
   unsigned int limit;
 };
 
-/// `get_transactions_by_address` response: transaction refs in `order`.
+/// `get_transactions_by_block` request. Returns transactions committed at
+/// exactly `height`, ordered lexicographically by their 32 unsigned hash bytes.
+struct BlockTransactionQuery {
+  BlockHeight height;
+  IterationOrder order;
+  /// Empty on the initial call. Non-empty to continue at the same height;
+  /// `order` is ignored when a cursor is supplied because the cursor carries it.
+  /// Malformed, stale, or height-mismatched cursors produce an empty page with
+  /// an empty cursor.
+  PaginationCursor cursor;
+  /// Clamped server-side to [1, 200]; 0 means server default (50).
+  unsigned int limit;
+};
+
+/// Transaction refs in the query's order. Every successful response reports
+/// the indexer's current bounds, including empty responses.
 struct TransactionRefPage {
   TransactionRefBatch refs;
   PaginationCursor cursor;
@@ -206,6 +234,11 @@ program IndexerBlockExplorer
     IndexerBlockExplorerIntroOutcome indexer_block_explorer_intro(ProtocolCommit) = 0;
     TxInfoResult get_transaction_info(SignedTransactionHash) = 1;
 
+    // The canonical header for a retained, indexed height. Unknown, future,
+    // and unavailable heights return BlockNotFound; backend failures remain
+    // RPC errors.
+    BlockLookupResult get_block_by_height(BlockHeight) = 2;
+
     // Paginated, filtered events query.  A candidate event matches
     // iff it matches at least one EventFilter in the request (OR
     // across filters, AND within each filter).  Supports the wallet
@@ -218,6 +251,10 @@ program IndexerBlockExplorer
     // Paginated transaction refs whose root invoked address == the query
     // address (account transaction history).  Hydrate via get_transaction_info.
     TransactionRefPage get_transactions_by_address(AddressTransactionQuery) = 5;
+
+    // Paginated transaction refs committed at exactly the requested height.
+    // Hydrate via get_transaction_info.
+    TransactionRefPage get_transactions_by_block(BlockTransactionQuery) = 6;
   } = 1;
 }
 = 0x4321aaaa;
