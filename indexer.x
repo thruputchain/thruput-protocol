@@ -1,5 +1,5 @@
 // clang-format off
-%#include "block.hh"
+%#include "consensus.hh"
 %#include "db_conflict.hh"
 %#include "event.hh"
 %#include "network.hh"
@@ -47,7 +47,7 @@ enum BlockLookupOutcome {
 
 union BlockLookupResult switch (BlockLookupOutcome outcome) {
 case BlockFound:
-  BlockHeader header;
+  ConsensusValue value;
 default:
   void;
 };
@@ -234,9 +234,9 @@ program IndexerBlockExplorer
     IndexerBlockExplorerIntroOutcome indexer_block_explorer_intro(ProtocolCommit) = 0;
     TxInfoResult get_transaction_info(SignedTransactionHash) = 1;
 
-    // The canonical header for a retained, indexed height. Unknown, future,
-    // and unavailable heights return BlockNotFound; backend failures remain
-    // RPC errors.
+    // The canonical consensus value for a retained, indexed height. Unknown,
+    // future, and unavailable heights return BlockNotFound; backend failures
+    // remain RPC errors.
     BlockLookupResult get_block_by_height(BlockHeight) = 2;
 
     // Paginated, filtered events query.  A candidate event matches
