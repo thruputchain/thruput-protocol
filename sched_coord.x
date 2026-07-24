@@ -13,26 +13,26 @@ enum CoordinatorRegistrationOutcome {
 };
 
 struct CoordCard {
-  Protocol protocol;
+  ProtocolCommit protocol;
   ServerAddress address_for_sched;
 };
 
-enum SchedulerNominationOutcome {
-  SchedulerNominationOK = 0,
-  SchedulerNominationError = 1
+enum SchedulerProposalOutcome {
+  SchedulerProposalOK = 0,
+  SchedulerProposalError = 1
 };
 
-struct SchedulerNominatedBlock {
+struct SchedulerProposedBlock {
   BlockID block_id;
   ParallelSignedTransactionBatch txs;
-  Nomination nomination;
+  Proposal proposal;
 };
 
-union SchedulerNominationResult switch (SchedulerNominationOutcome outcome)
+union SchedulerProposalResult switch (SchedulerProposalOutcome outcome)
 {
-case SchedulerNominationOK:
-  SchedulerNominatedBlock nominated_block;
-case SchedulerNominationError:
+case SchedulerProposalOK:
+  SchedulerProposedBlock proposed_block;
+case SchedulerProposalError:
   void;
 };
 
@@ -44,14 +44,14 @@ enum SchedulerValidationOutcome {
   SchedulerValidationExecutorFailed = 4,
   SchedulerValidationTooLateToValidate = 5,
   SchedulerValidationUnknownParentBlock = 6,
-  // Nomination batch metadata is malformed or fails to decode (e.g.
+  // Proposal batch metadata is malformed or fails to decode (e.g.
   // segment token/byte counts are inconsistent, XDR deserialization
-  // fails, or tx_hashes/tx_nominations counts do not match).
+  // fails, or tx_hashes/tx_nondeterministic counts do not match).
   SchedulerValidationMalformed = 7
 };
 
 struct SchedulerValidationBlock {
-  DbTip db_tip;
+  BlockID block_id;
   ParallelSignedTransactionBatch signed_transactions;
 };
 
@@ -74,7 +74,8 @@ case SchedulerValidationMalformed:
 
 enum SchedulerCommitOutcome {
   SchedulerCommitOK = 0,
-  SchedulerCommitBlockNotFound = 1
+  SchedulerCommitBlockNotFound = 1,
+  SchedulerCommitInvalidConsensusValue = 2
 };
 
 enum SchedulerGetTipOutcome {
@@ -107,18 +108,20 @@ program SchedulerCoord
     void schedulercoord_submit_unvetted(ParallelSignedTransactionBatch) = 2;
     void schedulercoord_submit_vetted(ValidatorID, ParallelSignedTransactionBatch) = 3;
 
-    // schedulercoord_nominate asks the scheduler to prepare a nomination (a
+    // schedulercoord_propose asks the scheduler to prepare a proposal (a
     // block proposal) on top of the given db block.
-    SchedulerNominationResult schedulercoord_nominate(DbTip) = 4;
+    SchedulerProposalResult schedulercoord_propose_block(BlockID, ProposalContext) = 4;
 
-    // schedulercoord_validate asks the scheduler to validate a nomination,
+    // schedulercoord_validate asks the scheduler to validate a proposal,
     // and if successful, return the block ID in the db of the validated
-    // block. DbTip is the block onto which the nomination is done.
-    SchedulerValidationResult schedulercoord_validate(DbTip, Nomination) = 5;
+    // block. BlockID is the block onto which the proposal is done.
+    SchedulerValidationResult schedulercoord_validate_block(BlockID, Proposal) = 5;
 
     // Commit the block with block ID. This block must have been previously
-    // nominated or validated by the mempool.
-    SchedulerCommitOutcome schedulercoord_commit_block(BlockID) = 6;
+    // proposed or validated by the mempool.
+    // On commit the block is associated with the ConsensusValue that confirmed it.
+    // This value is saved in the database and retrievable via schedcoord_get_tip.
+    SchedulerCommitOutcome schedulercoord_commit_block(BlockID, ConsensusValue) = 6;
 
     // Returns information about the current highest committed block.
     // If there is no committed block, returns SchedulerGetTipNoGenesisBlock.

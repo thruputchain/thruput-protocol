@@ -6,7 +6,7 @@ namespace hogd {
 
 // Uniquely describes an event server instance.
 struct EventCard {
-  Protocol protocol;
+  ProtocolCommit protocol;
   UPID upid;
   ServerAddress address_for_exec;
   ServerAddress address_for_sched;

@@ -1,5 +1,5 @@
 %#include "discovery.hh"
-%#include "nomination.hh"
+%#include "proposal.hh"
 %#include "consensus.hh"
 %#include "parallel.hh"
 %#include "transaction.hh"

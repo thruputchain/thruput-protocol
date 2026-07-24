@@ -14,6 +14,9 @@ struct int128_xdr {
   unsigned hyper lowbits;
 };
 
+/// Network protocol version.
+typedef unsigned int Protocol; // #[rust(newtype)]
+
 /// uint64_t, Unix time as nanoseconds elapsed since
 /// January 1, 1970 UTC
 typedef unsigned hyper TimePoint; // #[rust(newtype)]
@@ -78,12 +81,23 @@ case 0:
 /// Represents a 256-bit SHA-256 hash.
 typedef opaque SHA256Hash[32]; // #[rust(newtype)]
 
+/// SHA-256 of the XDR-encoded `ConsensusValue`; the canonical block identity.
+typedef SHA256Hash ConsensusValueHash; // #[rust(newtype)]
+
+typedef SHA256Hash NetworkHash; // #[rust(newtype)]
+
 /// Hash of the groundhog database contents.
 /// Format is a 2048-byte LtHash16 hash.
-typedef opaque DbHash[2048]; // #[rust(newtype)]
+typedef opaque StorageLongHash[2048]; // #[rust(newtype)]
 
-/// Hash of a groundhog block of transactions
-typedef SHA256Hash BlockHash; // #[rust(newtype)]
+typedef SHA256Hash StorageShortHash; // #[rust(newtype)]
+
+typedef SHA256Hash TxsHash; // #[rust(newtype)]
+
+typedef SHA256Hash EventsHash; // #[rust(newtype)]
+
+/// Hash of proposal header
+typedef SHA256Hash ProposalHeaderHash; // #[rust(newtype)]
 
 /// Represents a 256-bit contract address.
 /// In the groundhog storage model, each contract is deployed at a 

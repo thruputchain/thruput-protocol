@@ -24,7 +24,7 @@ program SchedGateway
 {
   version SchedGateway1
   {
-    SchedGatewayIntroOutcome schedgateway_intro(Protocol) = 0;
+    SchedGatewayIntroOutcome schedgateway_intro(ProtocolCommit) = 0;
 
     // Submit a batch of wallet-originated transactions to the
     // mempool.  Wallet clients learn about commit via

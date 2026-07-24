@@ -4,6 +4,7 @@
 %#include "contract.hh"
 %#include "transaction.hh"
 %#include "address_auth.hh"
+%#include "consensus.hh"
 
 namespace hogd
 {
@@ -13,11 +14,9 @@ namespace hogd
 typedef unsigned hyper BlockID;
 
 struct DbTip {
-  BlockHeight height;
-  BlockHash block_hash;
-  SHA256Hash events_hash;
-  DbHash db_hash;
   BlockID id;
+  StorageLongHash storage_long_hash;
+  ConsensusValue value;
 };
 
 // Internal unique ID describing a transaction.
@@ -116,7 +115,7 @@ default:
 };
 
 struct ViewingSnapshot {
-  BlockID block_id;
+  BlockID viewing_block_id;
   DbTip tip;
 };
 

@@ -11,7 +11,8 @@ typedef string ServerAddress<>;
 /// and randomness)
 typedef opaque UPID[8];
 
-/// Protocol describes a specific protocol and version.
-typedef string Protocol<>;
+/// ProtocolCommit describes a specific protocol repo version.
+/// Used to ensure communicating daemons in a validator deployment are compatible.
+typedef string ProtocolCommit<>;
 
 } // namespace hogd

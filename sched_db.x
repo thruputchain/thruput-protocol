@@ -7,7 +7,7 @@ namespace hogd {
 // ShardCard uniquely describes a database shard instance and its initial
 // state.
 struct ShardCard {
-  Protocol protocol;
+  ProtocolCommit protocol;
   UPID upid;
   BlockHeight block_height;
   // This is the db address that the executor should connect to.
