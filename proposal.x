@@ -27,7 +27,11 @@ struct ProposalTxs {
   ParallelNondeterministicProposalDataBatch nondeterministic_data;
 };
 
-/// SHA-256 of the XDR-encoded `ProposalTxs`.
+/// Compatibility commitment over `ProposalTxs`.
+///
+/// This is not SHA-256 of the complete canonical XDR. It XORs the hash of a
+/// base value with empty batches, the hashes of each raw batch segment, and
+/// the XDR hash of each batch index with its raw bytes removed.
 typedef SHA256Hash ProposalTxsHash; // #[rust(newtype)]
 
 /// A candidate block: header plus the transaction metadata needed to
