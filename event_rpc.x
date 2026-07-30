@@ -70,6 +70,9 @@ program EventSched
     EventBlockResult eventsched2_close_block(BlockID, BlockHeight,
                                              ProposalTxs) = 30;
     RPCError eventsched2_commit_block(BlockID, ConsensusValue) = 31;
+    // Called only after both HogDB and event durable commits succeed. This
+    // releases the committed record for indexer delivery.
+    RPCError eventsched2_confirm_committed_block(ConsensusValue) = 32;
     RPCError eventsched2_abandon_block(BlockID) = 40;
   } = 2;
 } = 0x8aa81226;
