@@ -261,6 +261,96 @@ program IndexerBlockExplorer
 
 typedef TxEventLog TxEventLogBatch<>;
 
+/// Immutable identity of one protocol epoch in the event service's durable
+/// indexer outbox. The first committed block in the epoch is `first_height`
+/// and links to `first_prev_hash`.
+struct IndexerOutboxOrigin {
+  ProtocolCommit protocol;
+  unsigned hyper epoch_sequence;
+  BlockHeight first_height;
+  ConsensusValueHash first_prev_hash;
+};
+
+/// Canonical durable outbox payload. This exact XDR value is hashed for
+/// `payload_digest`, stored in the private outbox record, and delivered to the
+/// indexer so both sides use one content identity.
+struct IndexerCommittedBlockPayload {
+  unsigned int format_version;
+  ConsensusValue consensus_value;
+  ProposalTxs proposal_txs;
+  TxEventLogBatch event_logs;
+  ProposedTransactionBatch tx_bodies;
+};
+
+struct IndexerCommittedBlockIdentity {
+  ConsensusValueHash consensus_hash;
+  SHA256Hash payload_digest;
+};
+
+struct IndexerCommittedBlock {
+  IndexerCommittedBlockPayload payload;
+  IndexerCommittedBlockIdentity identity;
+};
+
+struct IndexerInitializedProgress {
+  IndexerOutboxOrigin origin;
+  BlockHeight contiguous_height;
+  ConsensusValueHash last_consensus_hash;
+  SHA256Hash last_payload_digest;
+};
+
+enum IndexerProgressState {
+  IndexerProgressUninitialized = 0,
+  IndexerProgressInitialized = 1
+};
+
+union IndexerProgress switch (IndexerProgressState state) {
+case IndexerProgressInitialized:
+  IndexerInitializedProgress initialized;
+default:
+  void;
+};
+
+typedef string IndexerFailureMessage<1024>;
+
+enum IndexerEpochOutcome {
+  IndexerEpochInitialized = 0,
+  IndexerEpochUnchanged = 1,
+  IndexerEpochConflict = 2,
+  IndexerEpochInternalFailure = 3
+};
+
+union IndexerEpochResult switch (IndexerEpochOutcome outcome) {
+case IndexerEpochInitialized:
+case IndexerEpochUnchanged:
+  IndexerInitializedProgress progress;
+default:
+  IndexerFailureMessage diagnostic;
+};
+
+struct IndexerHeightGap {
+  BlockHeight expected_height;
+};
+
+enum IndexerBlockApplyOutcome {
+  IndexerBlockApplied = 0,
+  IndexerBlockDuplicate = 1,
+  IndexerBlockGap = 2,
+  IndexerBlockOriginMismatch = 3,
+  IndexerBlockContentConflict = 4,
+  IndexerBlockInternalFailure = 5
+};
+
+union IndexerBlockApplyResult switch (IndexerBlockApplyOutcome outcome) {
+case IndexerBlockApplied:
+case IndexerBlockDuplicate:
+  IndexerInitializedProgress progress;
+case IndexerBlockGap:
+  IndexerHeightGap gap;
+default:
+  IndexerFailureMessage diagnostic;
+};
+
 // The event server uses this API to communicate with the indexer.
 program IndexerEvent
 {
@@ -284,12 +374,39 @@ program IndexerEvent
     void indexer_event_report_tx_failure(SignedTransactionHash,
                                          TxFailureDiagnostic) = 1;
   } = 1;
+
+  version IndexerEvent2
+  {
+    IndexerProgress indexer_event_get_progress(void) = 10;
+    IndexerEpochResult indexer_event_initialize_epoch(IndexerOutboxOrigin) = 11;
+    IndexerBlockApplyResult indexer_event_apply_committed_block(
+        IndexerOutboxOrigin, IndexerCommittedBlock) = 12;
+
+    // Diagnostics remain best-effort and are independent of durable block
+    // acknowledgement.
+    void indexer_event_report_tx_failure_v2(SignedTransactionHash,
+                                            TxFailureDiagnostic) = 13;
+  } = 2;
 }
 = 0x4321aaab;
 
 struct IndexerCard {
   ProtocolCommit protocol;
   ServerAddress address_for_event;
+};
+
+/// V2 registration is bound to one indexer process generation and the durable
+/// progress observed immediately before registration. A later successful
+/// registration replaces the event service's single receiver slot.
+struct IndexerCardV2 {
+  ProtocolCommit protocol;
+  UPID generation;
+  // Absent for the first durable indexer session. A new session may replace
+  // only the event slot named by this predecessor. Exact-generation retries
+  // remain heartbeats, including retries after an accepted response was lost.
+  UPID *predecessor_generation;
+  ServerAddress address_for_event;
+  IndexerProgress progress;
 };
 
 enum EventIndexerIntroOutcome {
@@ -303,6 +420,18 @@ enum EventIndexerIntroOutcome {
   EventIntroConnectFailed = 2
 };
 
+enum EventIndexerRegistrationOutcome {
+  EventRegistrationAccepted = 0,
+  EventRegistrationMismatchedProtocol = 1,
+  EventRegistrationConnectFailed = 2,
+  EventRegistrationOriginUnavailable = 3,
+  EventRegistrationProgressConflict = 4,
+  EventRegistrationReplayFailed = 5,
+  // This process generation previously owned the slot but was superseded by a
+  // later registration. It cannot reclaim ownership by retrying.
+  EventRegistrationStaleGeneration = 6
+};
+
 // The indexer uses this API to communicate with the event server.
 program EventIndexer
 {
@@ -310,6 +439,11 @@ program EventIndexer
   {
     EventIndexerIntroOutcome event_indexer_intro(IndexerCard) = 0;
   } = 1;
+
+  version EventIndexer2
+  {
+    EventIndexerRegistrationOutcome event_indexer_register(IndexerCardV2) = 10;
+  } = 2;
 }
 = 0x4321aaac;
 
