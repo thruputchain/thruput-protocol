@@ -57,24 +57,14 @@ program EventSched
     void eventsched_null(void) = 0;
 
     RPCError eventsched_open_block(BlockID) = 10;
-    EventBlockResult eventsched_close_block(BlockID, BlockHeight) = 30;
-    RPCError eventsched_commit_block(BlockID) = 31;
-    RPCError eventsched_abandon_block(BlockID) = 40;
-  } = 1;
-
-  version EventSched2
-  {
-    void eventsched2_null(void) = 0;
-
-    RPCError eventsched2_open_block(BlockID) = 10;
-    EventBlockResult eventsched2_close_block(BlockID, BlockHeight,
-                                             ProposalTxs) = 30;
-    RPCError eventsched2_commit_block(BlockID, ConsensusValue) = 31;
+    EventBlockResult eventsched_close_block(BlockID, BlockHeight,
+                                            ProposalTxs) = 30;
+    RPCError eventsched_commit_block(BlockID, ConsensusValue) = 31;
     // Called only after both HogDB and event durable commits succeed. This
     // releases the committed record for indexer delivery.
-    RPCError eventsched2_confirm_committed_block(ConsensusValue) = 32;
-    RPCError eventsched2_abandon_block(BlockID) = 40;
-  } = 2;
+    RPCError eventsched_confirm_committed_block(ConsensusValue) = 32;
+    RPCError eventsched_abandon_block(BlockID) = 40;
+  } = 1;
 } = 0x8aa81226;
 
 } // namespace hogd

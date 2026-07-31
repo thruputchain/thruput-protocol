@@ -53,19 +53,11 @@ program SchedEvent
 {
   version SchedEvent1
   {
-    // [schedevent_intro_event] is called by an event server to introduce itself to
-    // the system.
-    RPCError schedevent_intro_event(EventCard) = 1;
+    EventPrepareResult schedevent_prepare_event(EventCard) = 1;
+    EventActivationResult
+    schedevent_activate_event(EventRegistrationSnapshot) = 2;
   }
   = 1;
-
-  version SchedEvent2
-  {
-    EventPrepareResult schedevent2_prepare_event(EventCard) = 1;
-    EventActivationResult
-    schedevent2_activate_event(EventRegistrationSnapshot) = 2;
-  }
-  = 2;
 }
 = 0x7ee79998;
 

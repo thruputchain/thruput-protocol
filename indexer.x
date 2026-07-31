@@ -356,27 +356,6 @@ program IndexerEvent
 {
   version IndexerEvent1
   {
-    // Event logs and the full transaction bodies for a committed block,
-    // forwarded together and index-aligned: the body at position i is the
-    // transaction whose event log is at position i.  The event server pairs
-    // them at emission, so the indexer never has to re-match bodies to events.
-    //
-    // The bodies travel beside the event log (which is hashed into the
-    // consensus event trie) rather than inside it; the indexer stores them for
-    // block-explorer transaction lookups.
-    void indexer_event_process_events(BlockHeight, TxEventLogBatch,
-                                      ProposedTransactionBatch) = 0;
-
-    // Best-effort relay (from the event server) of a transaction that failed
-    // nondeterministically at proposal time. The indexer caches it briefly so
-    // get_transaction_info can explain the failure; it may drop reports
-    // freely (cache full) and expires them a few blocks later.
-    void indexer_event_report_tx_failure(SignedTransactionHash,
-                                         TxFailureDiagnostic) = 1;
-  } = 1;
-
-  version IndexerEvent2
-  {
     IndexerProgress indexer_event_get_progress(void) = 10;
     IndexerEpochResult indexer_event_initialize_epoch(IndexerOutboxOrigin) = 11;
     IndexerBlockApplyResult indexer_event_apply_committed_block(
@@ -384,21 +363,15 @@ program IndexerEvent
 
     // Diagnostics remain best-effort and are independent of durable block
     // acknowledgement.
-    void indexer_event_report_tx_failure_v2(SignedTransactionHash,
-                                            TxFailureDiagnostic) = 13;
-  } = 2;
+    void indexer_event_report_tx_failure(SignedTransactionHash,
+                                         TxFailureDiagnostic) = 13;
+  } = 1;
 }
 = 0x4321aaab;
 
+/// Registration is bound to one indexer process generation and the durable
+/// progress observed immediately before registration.
 struct IndexerCard {
-  ProtocolCommit protocol;
-  ServerAddress address_for_event;
-};
-
-/// V2 registration is bound to one indexer process generation and the durable
-/// progress observed immediately before registration. A later successful
-/// registration replaces the event service's single receiver slot.
-struct IndexerCardV2 {
   ProtocolCommit protocol;
   UPID generation;
   // Absent for the first durable indexer session. A new session may replace
@@ -407,17 +380,6 @@ struct IndexerCardV2 {
   UPID *predecessor_generation;
   ServerAddress address_for_event;
   IndexerProgress progress;
-};
-
-enum EventIndexerIntroOutcome {
-  EventIntroSuccess = 0,
-  // The indexer advertised a protocol string the event server does not speak.
-  EventIntroMismatchedProtocol = 1,
-  // The event server could not dial the indexer's advertised address_for_event
-  // (e.g. a bind/advertise mismatch or a refused connection). The registration
-  // is rejected rather than silently accepted, so the indexer does not mark
-  // itself healthy while the event server has no client for it.
-  EventIntroConnectFailed = 2
 };
 
 enum EventIndexerRegistrationOutcome {
@@ -437,14 +399,9 @@ program EventIndexer
 {
   version EventIndexer1
   {
-    EventIndexerIntroOutcome event_indexer_intro(IndexerCard) = 0;
-  } = 1;
-
-  version EventIndexer2
-  {
-    EventIndexerRegistrationOutcome event_indexer_register(IndexerCardV2) = 10;
+    EventIndexerRegistrationOutcome event_indexer_register(IndexerCard) = 10;
     EventIndexerRegistrationOutcome event_indexer_probe(UPID) = 11;
-  } = 2;
+  } = 1;
 }
 = 0x4321aaac;
 
