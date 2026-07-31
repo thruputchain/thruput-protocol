@@ -380,7 +380,7 @@ program IndexerEvent
     IndexerProgress indexer_event_get_progress(void) = 10;
     IndexerEpochResult indexer_event_initialize_epoch(IndexerOutboxOrigin) = 11;
     IndexerBlockApplyResult indexer_event_apply_committed_block(
-        IndexerOutboxOrigin, IndexerCommittedBlock) = 12;
+      IndexerOutboxOrigin, IndexerCommittedBlock) = 12;
 
     // Diagnostics remain best-effort and are independent of durable block
     // acknowledgement.
