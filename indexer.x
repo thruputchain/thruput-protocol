@@ -443,6 +443,7 @@ program EventIndexer
   version EventIndexer2
   {
     EventIndexerRegistrationOutcome event_indexer_register(IndexerCardV2) = 10;
+    EventIndexerRegistrationOutcome event_indexer_probe(UPID) = 11;
   } = 2;
 }
 = 0x4321aaac;
