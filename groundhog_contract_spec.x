@@ -92,7 +92,7 @@ case SignedToken:
 // ---------------------------------------------------------------------------
 
 struct ContractSignedTokenPreimage {
-  ContractType preimage_type; // #[rust(box_ptr)], #[cpp(box)]
+  ContractType *preimage_type; // #[rust(box_ptr)], #[cpp(box)]
 };
 
 // ---------------------------------------------------------------------------
