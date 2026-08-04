@@ -74,7 +74,7 @@ struct RetrocausalQueueDelta {
   RetrocausalQueueConsumeDelta *consume;
   RetrocausalQueueInsertDelta insert;
   // Concurrent entries observed (e.g. via peek) but not consumed.
-  // HogDB validates that each entry was actually inserted by a concurrent
+  // HogDb validates that each entry was actually inserted by a concurrent
   // transaction. Unlike current_block_consumed, these do not decrement the
   // insert balance — they only require that a matching insert exists.
   //
@@ -84,7 +84,7 @@ struct RetrocausalQueueDelta {
   // validator replays a proposed block, the executor rebuilds this per-queue
   // array from the proposer-supplied observation list, and a dishonest proposer
   // can pack a whole transaction's observations into a single queue. The bogus
-  // entries are caught afterward (HogDB matches each observed entry to a real
+  // entries are caught afterward (HogDb matches each observed entry to a real
   // insert), but the array must be built before that check runs -- so it has to
   // hold a full transaction's worth. Capping it at the per-block size would make
   // that rebuild overflow and crash the validator instead of cleanly rejecting.

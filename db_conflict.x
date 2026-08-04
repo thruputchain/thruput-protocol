@@ -84,7 +84,7 @@ case kDbDiagnosticAll:
 
 /// Best-effort diagnostic for a transaction that failed nondeterministically
 /// during two-phase commit at proposal time: the executing block height of
-/// the failed attempt plus the first conflicting storage op hogdb reported.
+/// the failed attempt plus the first conflicting storage op hog_db reported.
 /// Fixed-size by construction; the wire and caches carry exactly one
 /// diagnostic per failure to bound memory end to end.
 struct TxFailureDiagnostic {
