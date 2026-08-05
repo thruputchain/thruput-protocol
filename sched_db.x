@@ -13,9 +13,9 @@ struct ShardIdentity {
   ExtensionPoint ext;
   unsigned int shard_id;
   unsigned int total_shards;
-  // Routing function that produced this shard's data (0 == FNV-1a placeholder);
-  // see sharding.h kShardFunctionId. A mismatch is fail-stop.
-  unsigned int shard_function_id;
+  // Routing function that produced this shard's data; see sharding.h
+  // kShardFunctionId. A mismatch is fail-stop.
+  ShardFunction shard_function_id;
 };
 
 // ShardCard uniquely describes a database shard instance and its initial

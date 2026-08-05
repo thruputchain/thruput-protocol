@@ -174,6 +174,14 @@ struct AddressAndKey {
   StorageKey key;
 };
 
+/// Identifies the function that maps an address to a db shard. Declared and
+/// persisted per shard, so data placed by a different function is rejected
+/// rather than silently misrouted.
+enum ShardFunction {
+  /// Unkeyed FNV-1a, and so grindable -- to be replaced by a keyed hash.
+  Fnv1aPlaceholder = 0
+};
+
 /// BlockHeight is the height of a block, measured as the number of blocks since the genesis of the chain.
 /// The first block of transactions is at height 0.
 /// It is signed to prevent overflows in
