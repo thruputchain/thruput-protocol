@@ -272,7 +272,7 @@ struct IndexerOutboxOrigin {
 };
 
 /// Canonical durable outbox payload. This exact XDR value is hashed for
-/// `payload_digest`, stored in the private outbox record, and delivered to the
+/// `payload_digest`, stored in the private outbox record, and returned to the
 /// indexer so both sides use one content identity.
 struct IndexerCommittedBlockPayload {
   unsigned int format_version;

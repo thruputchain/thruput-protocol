@@ -21,10 +21,10 @@ program EventExecutor
 
     // Best-effort report that a transaction failed nondeterministically
     // during 2-phase commit and was excluded from the proposal. The event
-    // server relays this immediately to every registered indexer; it touches
-    // no per-block state (the tx will never commit, so it has no place in
-    // the commit pipeline). The executor sends fire-and-forget and ignores
-    // the result.
+    // server places this in a bounded best-effort mailbox for the indexer to
+    // pull; it touches no per-block state (the tx will never commit, so it has
+    // no place in the commit pipeline). The executor sends fire-and-forget and
+    // ignores the result.
     RPCError eventexecutor_report_tx_failure(SignedTransactionHash,
                                              TxFailureDiagnostic) = 33;
 
@@ -61,7 +61,7 @@ program EventSched
                                             ProposalTxs) = 30;
     RPCError eventsched_commit_block(BlockID, ConsensusValue) = 31;
     // Called only after both HogDB and event durable commits succeed. This
-    // releases the committed record for indexer delivery.
+    // makes the committed record admissible to indexer pull requests.
     RPCError eventsched_confirm_committed_block(ConsensusValue) = 32;
     RPCError eventsched_abandon_block(BlockID) = 40;
   } = 1;
