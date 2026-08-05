@@ -351,56 +351,54 @@ default:
   IndexerFailureMessage diagnostic;
 };
 
-// The event server uses this API to communicate with the indexer.
-program IndexerEvent
-{
-  version IndexerEvent1
-  {
-    IndexerProgress indexer_event_get_progress(void) = 10;
-    IndexerEpochResult indexer_event_initialize_epoch(IndexerOutboxOrigin) = 11;
-    IndexerBlockApplyResult indexer_event_apply_committed_block(
-      IndexerOutboxOrigin, IndexerCommittedBlock) = 12;
-
-    // Diagnostics remain best-effort and are independent of durable block
-    // acknowledgement.
-    void indexer_event_report_tx_failure(SignedTransactionHash,
-                                         TxFailureDiagnostic) = 13;
-  } = 1;
-}
-= 0x4321aaab;
-
-/// Registration is bound to one indexer process generation and the durable
-/// progress observed immediately before registration.
-struct IndexerCard {
+/// The indexer's durable progress is its replay cursor. A lost reply is safe:
+/// the next request either repeats the same immutable block or advances from
+/// progress already committed by the indexer.
+struct EventIndexerPullRequest {
   ProtocolCommit protocol;
-  UPID generation;
-  // Absent for the first durable indexer session. A new session may replace
-  // only the event slot named by this predecessor. Exact-generation retries
-  // remain heartbeats, including retries after an accepted response was lost.
-  UPID *predecessor_generation;
-  ServerAddress address_for_event;
   IndexerProgress progress;
 };
 
-enum EventIndexerRegistrationOutcome {
-  EventRegistrationAccepted = 0,
-  EventRegistrationMismatchedProtocol = 1,
-  EventRegistrationConnectFailed = 2,
-  EventRegistrationOriginUnavailable = 3,
-  EventRegistrationProgressConflict = 4,
-  EventRegistrationReplayFailed = 5,
-  // This process generation previously owned the slot but was superseded by a
-  // later registration. It cannot reclaim ownership by retrying.
-  EventRegistrationStaleGeneration = 6
+struct EventIndexerPulledBlock {
+  IndexerOutboxOrigin origin;
+  IndexerCommittedBlock block;
 };
 
-// The indexer uses this API to communicate with the event server.
+enum EventIndexerPullOutcome {
+  EventIndexerPullBlock = 0,
+  EventIndexerPullCaughtUp = 1,
+  EventIndexerPullNotReady = 2,
+  EventIndexerPullMismatchedProtocol = 3,
+  EventIndexerPullProgressConflict = 4,
+  EventIndexerPullInternalFailure = 5
+};
+
+union EventIndexerPullResult switch (EventIndexerPullOutcome outcome) {
+case EventIndexerPullBlock:
+  EventIndexerPulledBlock pulled_block;
+case EventIndexerPullCaughtUp:
+  IndexerOutboxOrigin origin;
+default:
+  IndexerFailureMessage diagnostic;
+};
+
+struct IndexerTxFailureNotice {
+  SignedTransactionHash tx_hash;
+  TxFailureDiagnostic diagnostic;
+};
+
+typedef IndexerTxFailureNotice IndexerTxFailureNoticeBatch<256>;
+
+// The indexer pulls durable blocks and best-effort diagnostics from the event
+// server. Diagnostics use a separate bounded reply so they never reduce the
+// maximum committed-block reply size.
 program EventIndexer
 {
   version EventIndexer1
   {
-    EventIndexerRegistrationOutcome event_indexer_register(IndexerCard) = 10;
-    EventIndexerRegistrationOutcome event_indexer_probe(UPID) = 11;
+    EventIndexerPullResult event_indexer_pull_next(
+      EventIndexerPullRequest) = 10;
+    IndexerTxFailureNoticeBatch event_indexer_pull_tx_failures(void) = 11;
   } = 1;
 }
 = 0x4321aaac;
