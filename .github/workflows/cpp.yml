@@ -27,7 +27,7 @@ jobs:
     - name: check go generate
       run: |
         shopt -s extglob
-        $HOME/go/bin/goxdr -o generated.go !(transaction_trace|ffi_enums|storage_lock|executor_to_db_rpc|invoke_flag|groundhog_contract_spec|view|view_gateway|invoke_args).x
+        $HOME/go/bin/goxdr -o generated.go !(transaction_trace|ffi_enums|storage_lock|executor_to_db_rpc|invoke_flag|groundhog_contract_spec|view|view_gateway|invoke_args|repair2).x
     - name: check go build
       # go vet has warnings on the goxdr/xdr package,
       # so we set -composites=false to ignore those errors
