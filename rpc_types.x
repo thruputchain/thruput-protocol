@@ -17,6 +17,13 @@ struct DbTip {
   BlockID id;
   StorageLongHash storage_long_hash;
   ConsensusValue value;
+
+  /// The chain-configured contract resolved for a root invocation of an
+  /// address with no deployed contract (see
+  /// SystemCallHandler::resolve_runtime). Set at genesis from
+  /// GenesisConfiguration::default_wallet; carried forward verbatim by
+  /// every subsequent commit.
+  DeployedContractHash default_wallet;
 };
 
 // Internal unique ID describing a transaction.

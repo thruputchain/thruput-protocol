@@ -2,6 +2,7 @@
 %#include "types.hh"
 %#include "transaction.hh"
 %#include "storage_cost.hh"
+%#include "contract.hh"
 
 namespace hogd {
 // clang-format on
@@ -23,6 +24,11 @@ typedef InitialConfigurationEntry InitialConfigurationList<>;
 struct GenesisConfiguration {
   InitialConfigurationList initial_config;
   StorageCostModelXdr storage_cost_model;
+
+  /// The contract resolved for root invocations of undeployed addresses.
+  /// Carried into the DbTip at genesis. GenesisConfigurationBuilder
+  /// defaults this to the native default_wallet precompile's record.
+  DeployedContractHash default_wallet;
 };
 
 // These translated into the contract addresses that are initialized
