@@ -137,6 +137,9 @@ program DbSched
 						     ConsensusValue) = 9;
 
     DbTipResult dbsched_get_tip(void) = 10;
+
+    DbSchedResult dbsched_load_genesis_configuration_v2(
+      GenesisConfigurationV2, ConsensusValue) = 11;
   }
   = 1;
 }
