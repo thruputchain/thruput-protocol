@@ -261,54 +261,144 @@ program IndexerBlockExplorer
 
 typedef TxEventLog TxEventLogBatch<>;
 
-// The event server uses this API to communicate with the indexer.
-program IndexerEvent
-{
-  version IndexerEvent1
-  {
-    // Event logs and the full transaction bodies for a committed block,
-    // forwarded together and index-aligned: the body at position i is the
-    // transaction whose event log is at position i.  The event server pairs
-    // them at emission, so the indexer never has to re-match bodies to events.
-    //
-    // The bodies travel beside the event log (which is hashed into the
-    // consensus event trie) rather than inside it; the indexer stores them for
-    // block-explorer transaction lookups.
-    void indexer_event_process_events(BlockHeight, TxEventLogBatch,
-                                      ProposedTransactionBatch) = 0;
-
-    // Best-effort relay (from the event server) of a transaction that failed
-    // nondeterministically at proposal time. The indexer caches it briefly so
-    // get_transaction_info can explain the failure; it may drop reports
-    // freely (cache full) and expires them a few blocks later.
-    void indexer_event_report_tx_failure(SignedTransactionHash,
-                                         TxFailureDiagnostic) = 1;
-  } = 1;
-}
-= 0x4321aaab;
-
-struct IndexerCard {
+/// Immutable identity of one protocol epoch in the event service's durable
+/// indexer outbox. The first committed block in the epoch is `first_height`
+/// and links to `first_prev_hash`.
+struct IndexerOutboxOrigin {
   ProtocolCommit protocol;
-  ServerAddress address_for_event;
+  unsigned hyper epoch_sequence;
+  BlockHeight first_height;
+  ConsensusValueHash first_prev_hash;
 };
 
-enum EventIndexerIntroOutcome {
-  EventIntroSuccess = 0,
-  // The indexer advertised a protocol string the event server does not speak.
-  EventIntroMismatchedProtocol = 1,
-  // The event server could not dial the indexer's advertised address_for_event
-  // (e.g. a bind/advertise mismatch or a refused connection). The registration
-  // is rejected rather than silently accepted, so the indexer does not mark
-  // itself healthy while the event server has no client for it.
-  EventIntroConnectFailed = 2
+/// Canonical durable outbox payload. This exact XDR value is hashed for
+/// `payload_digest`, stored in the private outbox record, and returned to the
+/// indexer so both sides use one content identity.
+struct IndexerCommittedBlockPayload {
+  unsigned int format_version;
+  ConsensusValue consensus_value;
+  ProposalTxs proposal_txs;
+  TxEventLogBatch event_logs;
+  ProposedTransactionBatch tx_bodies;
 };
 
-// The indexer uses this API to communicate with the event server.
+struct IndexerCommittedBlockIdentity {
+  ConsensusValueHash consensus_hash;
+  SHA256Hash payload_digest;
+};
+
+struct IndexerCommittedBlock {
+  IndexerCommittedBlockPayload payload;
+  IndexerCommittedBlockIdentity identity;
+};
+
+struct IndexerInitializedProgress {
+  IndexerOutboxOrigin origin;
+  BlockHeight contiguous_height;
+  ConsensusValueHash last_consensus_hash;
+  SHA256Hash last_payload_digest;
+};
+
+enum IndexerProgressState {
+  IndexerProgressUninitialized = 0,
+  IndexerProgressInitialized = 1
+};
+
+union IndexerProgress switch (IndexerProgressState state) {
+case IndexerProgressInitialized:
+  IndexerInitializedProgress initialized;
+default:
+  void;
+};
+
+typedef string IndexerFailureMessage<1024>;
+
+enum IndexerEpochOutcome {
+  IndexerEpochInitialized = 0,
+  IndexerEpochUnchanged = 1,
+  IndexerEpochConflict = 2,
+  IndexerEpochInternalFailure = 3
+};
+
+union IndexerEpochResult switch (IndexerEpochOutcome outcome) {
+case IndexerEpochInitialized:
+case IndexerEpochUnchanged:
+  IndexerInitializedProgress progress;
+default:
+  IndexerFailureMessage diagnostic;
+};
+
+struct IndexerHeightGap {
+  BlockHeight expected_height;
+};
+
+enum IndexerBlockApplyOutcome {
+  IndexerBlockApplied = 0,
+  IndexerBlockDuplicate = 1,
+  IndexerBlockGap = 2,
+  IndexerBlockOriginMismatch = 3,
+  IndexerBlockContentConflict = 4,
+  IndexerBlockInternalFailure = 5
+};
+
+union IndexerBlockApplyResult switch (IndexerBlockApplyOutcome outcome) {
+case IndexerBlockApplied:
+case IndexerBlockDuplicate:
+  IndexerInitializedProgress progress;
+case IndexerBlockGap:
+  IndexerHeightGap gap;
+default:
+  IndexerFailureMessage diagnostic;
+};
+
+/// The indexer's durable progress is its replay cursor. A lost reply is safe:
+/// the next request either repeats the same immutable block or advances from
+/// progress already committed by the indexer.
+struct EventIndexerPullRequest {
+  ProtocolCommit protocol;
+  IndexerProgress progress;
+};
+
+struct EventIndexerPulledBlock {
+  IndexerOutboxOrigin origin;
+  IndexerCommittedBlock block;
+};
+
+enum EventIndexerPullOutcome {
+  EventIndexerPullBlock = 0,
+  EventIndexerPullCaughtUp = 1,
+  EventIndexerPullNotReady = 2,
+  EventIndexerPullMismatchedProtocol = 3,
+  EventIndexerPullProgressConflict = 4,
+  EventIndexerPullInternalFailure = 5
+};
+
+union EventIndexerPullResult switch (EventIndexerPullOutcome outcome) {
+case EventIndexerPullBlock:
+  EventIndexerPulledBlock pulled_block;
+case EventIndexerPullCaughtUp:
+  IndexerOutboxOrigin origin;
+default:
+  IndexerFailureMessage diagnostic;
+};
+
+struct IndexerTxFailureNotice {
+  SignedTransactionHash tx_hash;
+  TxFailureDiagnostic diagnostic;
+};
+
+typedef IndexerTxFailureNotice IndexerTxFailureNoticeBatch<256>;
+
+// The indexer pulls durable blocks and best-effort diagnostics from the event
+// server. Diagnostics use a separate bounded reply so they never reduce the
+// maximum committed-block reply size.
 program EventIndexer
 {
   version EventIndexer1
   {
-    EventIndexerIntroOutcome event_indexer_intro(IndexerCard) = 0;
+    EventIndexerPullResult event_indexer_pull_next(
+      EventIndexerPullRequest) = 10;
+    IndexerTxFailureNoticeBatch event_indexer_pull_tx_failures(void) = 11;
   } = 1;
 }
 = 0x4321aaac;
