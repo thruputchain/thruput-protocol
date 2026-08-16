@@ -19,8 +19,8 @@ namespace hogd {
 struct ProposalTxs {
   ExtensionPoint ext;
 
-  /// Hashes of the block's signed transactions, in execution order.
-  ParallelSignedTransactionHashBatch hash;
+  /// Hashes of the block's transactions, in execution order.
+  ParallelTransactionHashBatch hash;
 
   /// Nondeterministic choices captured by the proposer, replayed by
   /// validators so re-execution reproduces the header outputs exactly.

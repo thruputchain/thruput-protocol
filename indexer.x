@@ -178,7 +178,7 @@ struct TransactionPage {
 /// executed in. Returned by transaction-ref queries; hydrate the full body
 /// via `get_transaction_info`.
 struct TransactionRef {
-  SignedTransactionHash tx_hash;
+  TransactionHash tx_hash;
   BlockHeight height;
 };
 
@@ -232,7 +232,7 @@ program IndexerBlockExplorer
   version IndexerBlockExplorer1
   {
     IndexerBlockExplorerIntroOutcome indexer_block_explorer_intro(ProtocolCommit) = 0;
-    TxInfoResult get_transaction_info(SignedTransactionHash) = 1;
+    TxInfoResult get_transaction_info(TransactionHash) = 1;
 
     // The canonical consensus value for a retained, indexed height. Unknown,
     // future, and unavailable heights return BlockNotFound; backend failures
@@ -383,7 +383,7 @@ default:
 };
 
 struct IndexerTxFailureNotice {
-  SignedTransactionHash tx_hash;
+  TransactionHash tx_hash;
   TxFailureDiagnostic diagnostic;
 };
 
