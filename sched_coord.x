@@ -100,7 +100,6 @@ struct GenesisCeremonyRequest {
 
 enum GenesisCeremonyOutcome {
   GenesisCeremonyCommitted = 0,
-  GenesisCeremonyAlreadyCommitted = 1,
   GenesisCeremonyParentMismatch = 2,
   GenesisCeremonyBatchMismatch = 3,
   GenesisCeremonyInvalidTransaction = 4,
@@ -115,7 +114,6 @@ struct GenesisCeremonyCommit {
 union GenesisCeremonyResult switch (GenesisCeremonyOutcome outcome)
 {
 case GenesisCeremonyCommitted:
-case GenesisCeremonyAlreadyCommitted:
   GenesisCeremonyCommit commit;
 default:
   void;
