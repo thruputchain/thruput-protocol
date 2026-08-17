@@ -94,7 +94,6 @@ case SchedulerGetTipNoGenesisBlock:
 struct GenesisCeremonyRequest {
   BlockHeight expected_parent_height;
   ConsensusValueHash expected_parent_value_hash;
-  SHA256Hash expected_batch_hash;
   ProposalContext context;
   ParallelSignedTransactionBatch transactions;
 };
