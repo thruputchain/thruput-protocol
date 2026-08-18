@@ -351,7 +351,8 @@ syscalls:
     number: 11
     description: >
       Returns the hash of the transaction that initiated the current
-      execution.
+      execution: sha256 of the XDR-encoded Transaction, the same
+      TransactionHash that identifies it network-wide.
     errors:
   - name: "VerifySignature"
     needs_context: false

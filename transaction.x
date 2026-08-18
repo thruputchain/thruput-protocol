@@ -196,10 +196,26 @@ struct DecoratedSignature {
   Signature signature;
 };
 
-/// Hash of a signed transaction, used as a unique transaction identifier.
+/// Hash of a transaction, used as its unique identifier network-wide.
 ///
-/// This is the SHA-256 hash of the XDR-encoded SignedTransaction.
-typedef SHA256Hash SignedTransactionHash;
+/// This is the SHA-256 hash of the XDR-encoded [`Transaction`] -- the same
+/// object the signatures are over. It deliberately covers neither the
+/// signatures wrapped around it by [`SignedTransaction`] nor the
+/// nondeterministic data attached to it by [`ProposedTransaction`]:
+///
+///  - Excluding the signatures makes the identifier stable under signature
+///    malleability, so a third party cannot change the identity of an
+///    in-flight transaction by re-encoding its signatures.
+///  - Excluding the proposal data keeps the identifier computable by the
+///    submitter at signing time. Nondeterministic proposal data does not
+///    exist until a proposer has executed the transaction, so an identifier
+///    covering it could not be used to look up one's own transaction.
+///
+/// Uniqueness across blocks therefore rests on replay protection -- the
+/// [`Uniquifier`] every [`Transaction`] carries -- rather than on anything
+/// in the preimage: two distinct commits can never share a hash, because
+/// the same [`Transaction`] cannot commit twice.
+typedef SHA256Hash TransactionHash;
 
 /// A transaction with cryptographic signatures.
 ///
@@ -234,8 +250,8 @@ typedef SignedTransaction *OptSignedTransaction;
 /// A batch of optional signed transactions.
 typedef OptSignedTransaction OptSignedTransactionBatch<>;
 
-/// A batch of signed transaction hashes.
-typedef SignedTransactionHash SignedTransactionHashBatch<>;
+/// A batch of transaction hashes.
+typedef TransactionHash TransactionHashBatch<>;
 
 //------------------------------------------------------------------------------
 // Proposed Transactions and Nondeterministic Data

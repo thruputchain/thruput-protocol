@@ -37,7 +37,7 @@ program SchedGateway
 
     // Lookup in-flight (not-yet-committed) transactions by hash.
     // Returns one OptSignedTransaction per input hash (same order).
-    OptSignedTransactionBatch schedgateway_lookup_tx(SignedTransactionHashBatch) = 3;
+    OptSignedTransactionBatch schedgateway_lookup_tx(TransactionHashBatch) = 3;
 
     // Number of transactions currently pending in the mempool.
     PendingTxCount schedgateway_pending_tx_count(void) = 4;
