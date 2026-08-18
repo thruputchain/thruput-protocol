@@ -25,7 +25,7 @@ program EventExecutor
     // pull; it touches no per-block state (the tx will never commit, so it has
     // no place in the commit pipeline). The executor sends fire-and-forget and
     // ignores the result.
-    RPCError eventexecutor_report_tx_failure(SignedTransactionHash,
+    RPCError eventexecutor_report_tx_failure(TransactionHash,
                                              TxFailureDiagnostic) = 33;
 
     // A transaction should not call this more than once

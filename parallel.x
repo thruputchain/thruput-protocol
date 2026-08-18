@@ -12,7 +12,7 @@ struct ParallelBatch {
 };
 
 typedef ParallelBatch ParallelSignedTransactionBatch;  // #[rust(newtype)]
-typedef ParallelBatch ParallelSignedTransactionHashBatch;  // #[rust(newtype)]
+typedef ParallelBatch ParallelTransactionHashBatch;  // #[rust(newtype)]
 typedef ParallelBatch ParallelNondeterministicProposalDataBatch;  // #[rust(newtype)]
 
 } // namespace hogd

@@ -60,7 +60,7 @@ union SchedulerValidationResult switch (SchedulerValidationOutcome outcome)
 case SchedulerValidationOK:
   SchedulerValidationBlock block;
 case SchedulerValidationMissingTxs:
-  SignedTransactionHash missing_tx_hashes<>;
+  TransactionHash missing_tx_hashes<>;
   
 // Error cases
 case SchedulerValidationDbFailed:
@@ -166,7 +166,7 @@ program SchedulerCoord
       GenesisCeremonyRequest) = 10;
 
     // Returns transactions from the mempool that have not yet been committed in a block.
-    OptSignedTransactionBatch schedcoord_lookup_transactions(SignedTransactionHashBatch) = 100;
+    OptSignedTransactionBatch schedcoord_lookup_transactions(TransactionHashBatch) = 100;
   }
   = 1;
 }

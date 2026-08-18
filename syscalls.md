@@ -136,7 +136,9 @@ The deployment is visible only within the current transaction's context
 
 Signature: GetSourceTransactionHash() -> SHA256Hash
 
-Returns the sha256 hash of the originating transaction.
+Returns the sha256 hash of the originating transaction: sha256 of the
+XDR-encoded Transaction, the same TransactionHash that identifies it
+network-wide.
 
 No other errors.
 
