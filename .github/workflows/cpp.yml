@@ -12,6 +12,10 @@ jobs:
     
     steps:
     - uses: actions/checkout@v6
+      with:
+        # xdrcompat compares the PR merge-base (or the pre-push commit) with
+        # the exact head revision, so both sides must be available locally.
+        fetch-depth: 0
     - name: gcc version check
       run: gcc --version
     - name: clang version check
@@ -20,6 +24,27 @@ jobs:
       run: sudo apt-get install emacs
     - name: check format
       run: ./scripts/xdrformat -c
+    - name: check XDR evolution rules (advisory)
+      env:
+        EVENT_NAME: ${{ github.event_name }}
+        PR_BASE_SHA: ${{ github.event.pull_request.base.sha }}
+        PR_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        PUSH_BEFORE_SHA: ${{ github.event.before }}
+        PUSH_HEAD_SHA: ${{ github.sha }}
+      run: |
+        if [[ "$EVENT_NAME" == "pull_request" ]]; then
+          base="$(git merge-base "$PR_BASE_SHA" "$PR_HEAD_SHA")"
+          head="$PR_HEAD_SHA"
+        else
+          base="$PUSH_BEFORE_SHA"
+          head="$PUSH_HEAD_SHA"
+          if [[ "$base" =~ ^0+$ ]]; then
+            # An initial branch push has no predecessor. Compare the full tree
+            # against Git's empty tree, not merely the final commit's parent.
+            base="$(git hash-object -t tree /dev/null)"
+          fi
+        fi
+        scripts/xdrcompat/ci-wrapper.sh . "$base" "$head"
     - name: install yamllint
       run: sudo apt-get install yamllint
     - name: install goxdr
