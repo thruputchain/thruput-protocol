@@ -58,11 +58,11 @@ program EventSched
 
     RPCError eventsched_open_block(BlockID) = 10;
     EventBlockResult eventsched_close_block(BlockID, BlockHeight,
-                                            ProposalTxs) = 30;
+                                            ProposalTxsHash) = 30;
+    // Called after finalization. Durably publishes the event/indexer record;
+    // the record becomes pullable as soon as this call succeeds, even if the
+    // local HogDB commit running alongside it has not completed yet.
     RPCError eventsched_commit_block(BlockID, ConsensusValue) = 31;
-    // Called only after both HogDB and event durable commits succeed. This
-    // makes the committed record admissible to indexer pull requests.
-    RPCError eventsched_confirm_committed_block(ConsensusValue) = 32;
     RPCError eventsched_abandon_block(BlockID) = 40;
   } = 1;
 } = 0x8aa81226;

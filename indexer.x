@@ -277,7 +277,12 @@ struct IndexerOutboxOrigin {
 struct IndexerCommittedBlockPayload {
   unsigned int format_version;
   ConsensusValue consensus_value;
-  ProposalTxs proposal_txs;
+  // Both batches are paired and stored in deterministic transaction-hash
+  // order. Each body already contains the signed transaction and
+  // nondeterministic proposal data; carrying ProposalTxs as well would
+  // duplicate that block payload. The segmentation-sensitive
+  // ConsensusValue.proposal_txs_hash remains scheduler-authenticated; the
+  // outbox payload digest protects these trusted internal bodies at rest.
   TxEventLogBatch event_logs;
   ProposedTransactionBatch tx_bodies;
 };
