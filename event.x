@@ -42,15 +42,22 @@ struct TxEmittedEvent {
 };
 
 /// Event log for a single transaction, stored in the merkle-patricia trie.
-/// The key is the tx_hash, and the value is the complete list of
-/// events emitted by that transaction. This structure enables efficient
-/// querying of all events associated with a specific transaction.
+/// The trie leaf is encoded canonically as follows:
+///
+/// - key: the leading TransactionHash from XDR(TxEventLog);
+/// - value: the remainder of XDR(TxEventLog), followed by
+///   XDR(NondeterministicProposalData).
+///
+/// The appended proposal data binds the nondeterministic inputs used during
+/// execution to the events root. Signature-wrapper bytes are deliberately not
+/// included: TransactionHash identifies the inner Transaction independently
+/// of its signatures, so validators with different valid wrappers compute the
+/// same root.
 ///
 /// That key is the identity of the transaction the submitter signed, not of
 /// the [`ProposedTransaction`] the proposer assembled from it, so a
 /// submitter can compute it before submission and use it to find its own
-/// events. The nondeterministic proposal data travels alongside the log to
-/// the indexer and is not part of this commitment. See [`TransactionHash`].
+/// events. See [`TransactionHash`].
 ///
 /// `root_output` carries the InvocationFrameOutput of the transaction's
 /// root frame: the Return buffer on success, the Abort buffer on a
