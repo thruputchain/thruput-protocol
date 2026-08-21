@@ -1,7 +1,6 @@
 %#include "consensus.hh"
 %#include "db_conflict.hh"
 %#include "event.hh"
-%#include "proposal.hh"
 %#include "rpc_types.hh"
 %#include "transaction.hh"
 
@@ -57,8 +56,7 @@ program EventSched
     void eventsched_null(void) = 0;
 
     RPCError eventsched_open_block(BlockID) = 10;
-    EventBlockResult eventsched_close_block(BlockID, BlockHeight,
-                                            ProposalTxsHash) = 30;
+    EventBlockResult eventsched_close_block(BlockID, BlockHeight) = 30;
     // Called after finalization. Durably publishes the event/indexer record;
     // the record becomes pullable as soon as this call succeeds, even if the
     // local HogDB commit running alongside it has not completed yet.

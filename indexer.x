@@ -278,11 +278,12 @@ struct IndexerCommittedBlockPayload {
   unsigned int format_version;
   ConsensusValue consensus_value;
   // Both batches are positionally paired; their order is not significant.
-  // Each body already contains the signed transaction and nondeterministic
-  // proposal data, so carrying ProposalTxs as well would duplicate that block
-  // payload. The segmentation-sensitive
-  // ConsensusValue.proposal_txs_hash remains scheduler-authenticated; the
-  // outbox payload digest protects these trusted internal bodies at rest.
+  // Each inner Transaction is bound by consensus_value.proposal_header.txs_hash,
+  // while the corresponding event log and nondeterministic proposal data are
+  // bound together by consensus_value.proposal_header.events_hash. Signature
+  // wrappers are intentionally outside both consensus commitments and remain
+  // trusted internal payload; the outbox digest protects the complete payload
+  // from later corruption at rest.
   TxEventLogBatch event_logs;
   ProposedTransactionBatch tx_bodies;
 };
