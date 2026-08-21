@@ -31,6 +31,18 @@ struct GenesisConfiguration {
   DeployedContractHash default_wallet;
 };
 
+/// Minimal genesis state for root-contract chain creation. Token allocation
+/// happens through the root contract in the single ceremony block at height 1.
+struct GenesisConfigurationV2 {
+  NetworkHash network_hash;
+  StorageCostModelXdr storage_cost_model;
+  Contract root_contract;
+
+  /// Preserved from V1 so the genesis transition does not implicitly alter
+  /// undeployed-address invocation behavior.
+  DeployedContractHash default_wallet;
+};
+
 // These translated into the contract addresses that are initialized
 // at the start of the chain.
 //

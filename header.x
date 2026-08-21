@@ -39,6 +39,9 @@ struct ProposalHeader {
   /// those of other networks.
   NetworkHash network_hash;
 
+  /// Hash of the exact genesis configuration that initialized this chain.
+  GenesisConfigurationHash genesis_configuration_hash;
+
   /// Block proposer. Nodes missing block data fetch it from the proposer.
   ValidatorID proposer;
 

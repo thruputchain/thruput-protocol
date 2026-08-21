@@ -91,6 +91,34 @@ case SchedulerGetTipNoGenesisBlock:
   void;
 };
 
+struct GenesisCeremonyRequest {
+  BlockHeight expected_parent_height;
+  ConsensusValueHash expected_parent_value_hash;
+  ProposalContext context;
+  ParallelSignedTransactionBatch transactions;
+};
+
+enum GenesisCeremonyOutcome {
+  GenesisCeremonyCommitted = 0,
+  GenesisCeremonyParentMismatch = 2,
+  GenesisCeremonyBatchMismatch = 3,
+  GenesisCeremonyInvalidTransaction = 4,
+  GenesisCeremonyExecutionFailed = 5
+};
+
+struct GenesisCeremonyCommit {
+  DbTip db_tip;
+  ProposalTxs proposal_txs;
+};
+
+union GenesisCeremonyResult switch (GenesisCeremonyOutcome outcome)
+{
+case GenesisCeremonyCommitted:
+  GenesisCeremonyCommit commit;
+default:
+  void;
+};
+
 // API exposed from the Scheduler for the Coordinator
 program SchedulerCoord
 {
@@ -130,6 +158,12 @@ program SchedulerCoord
     // TODO(jhumphri): Remove this once we integrate the coordinator into the
     // loadgen experiment.
     DbSchedResult schedcoord_load_genesis_configuration(GenesisConfiguration) = 8;
+
+    DbSchedResult schedcoord_load_genesis_configuration_v2(
+      GenesisConfigurationV2) = 9;
+
+    GenesisCeremonyResult schedulercoord_commit_genesis_ceremony(
+      GenesisCeremonyRequest) = 10;
 
     // Returns transactions from the mempool that have not yet been committed in a block.
     OptSignedTransactionBatch schedcoord_lookup_transactions(TransactionHashBatch) = 100;

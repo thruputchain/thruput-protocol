@@ -15,6 +15,7 @@ enum ExperimentType {
 
 struct ERC20PaymentsConfig {
   unsigned hyper num_addresses;
+  NetworkHash network_hash;
 };
 
 union ExperimentConfig switch (ExperimentType experiment_type)
@@ -28,7 +29,8 @@ typedef SignedTransaction InitializationBlock<>;
 typedef unsigned hyper LoadgenContextID;
 
 struct LoadgenSuccessResult {
-  GenesisConfiguration genesis_configuration;
+  GenesisConfigurationV2 genesis_configuration;
+  InitializationBlock genesis_ceremony_txs;
   InitializationBlock initialization_txs<>;
   LoadgenContextID context_id;
 };
