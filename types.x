@@ -86,6 +86,11 @@ typedef SHA256Hash ConsensusValueHash; // #[rust(newtype)]
 
 typedef SHA256Hash NetworkHash; // #[rust(newtype)]
 
+/// SHA-256 of the XDR-encoded genesis configuration loaded by the scheduler.
+/// Carried in every proposal header so the chain's execution prerequisites are
+/// recoverable as part of its consensus identity.
+typedef SHA256Hash GenesisConfigurationHash; // #[rust(newtype)]
+
 /// Hash of the groundhog database contents.
 /// Format is a 2048-byte LtHash16 hash.
 typedef opaque StorageLongHash[2048]; // #[rust(newtype)]
