@@ -1,15 +1,12 @@
-// clang-format off
 %#include "address_auth.hh"
-%#include "rpc_types.hh"
-%#include "types.hh"
 %#include "catchup.hh"
 %#include "network.hh"
-%#include "proposal.hh"
 %#include "genesis.hh"
+%#include "proposal.hh"
 %#include "rpc_types.hh"
+%#include "types.hh"
 
 namespace hogd {
-// clang-format on
 
 enum DbSchedResult {
   DbSchedResultOK = 0,
