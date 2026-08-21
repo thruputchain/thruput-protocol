@@ -29,7 +29,7 @@ typedef SignedTransaction InitializationBlock<>;
 typedef unsigned hyper LoadgenContextID;
 
 struct LoadgenSuccessResult {
-  GenesisConfigurationV2 genesis_configuration;
+  GenesisConfiguration genesis_configuration;
   InitializationBlock genesis_ceremony_txs;
   InitializationBlock initialization_txs<>;
   LoadgenContextID context_id;

@@ -125,21 +125,11 @@ program DbSched
     // Call to abandon a block.
     DbSchedResult dbsched_abandon_snapshot(BlockID) = 8;
 
-    // Load genesis configuration data into storage. The second argument is the
-    // network ID. The third argument is the txset hash and the third argument
-    // is the events hash. Since the genesis block does not contain any
-    // transactions, both of these hashes will generally be the root hash of an
-    // empty Merkle trie.
-    //
-    // This RPC calculates storage keys and stores allocation amounts as
-    // bytestrings.
     DbSchedResult dbsched_load_genesis_configuration(GenesisConfiguration,
 						     ConsensusValue) = 9;
 
     DbTipResult dbsched_get_tip(void) = 10;
 
-    DbSchedResult dbsched_load_genesis_configuration_v2(
-      GenesisConfigurationV2, ConsensusValue) = 11;
   }
   = 1;
 }
