@@ -106,10 +106,15 @@ enum IntroAuthOutcome {
   kFailure = 1
 };
 
+struct MempoolAuthIntroSuccess {
+  ShardCard shards<>;
+  NetworkHash network_hash;
+};
+
 union IntroAuthResult switch (IntroAuthOutcome outcome)
 {
 case kSuccess:
-  ShardCard shards<>;
+  MempoolAuthIntroSuccess success;
 default:
   void;
 };
