@@ -155,12 +155,7 @@ program SchedulerCoord
     // If there is no committed block, returns SchedulerGetTipNoGenesisBlock.
     SchedulerGetTipResult schedcoord_get_tip(void) = 7;
 
-    // TODO(jhumphri): Remove this once we integrate the coordinator into the
-    // loadgen experiment.
     DbSchedResult schedcoord_load_genesis_configuration(GenesisConfiguration) = 8;
-
-    DbSchedResult schedcoord_load_genesis_configuration_v2(
-      GenesisConfigurationV2) = 9;
 
     GenesisCeremonyResult schedulercoord_commit_genesis_ceremony(
       GenesisCeremonyRequest) = 10;
