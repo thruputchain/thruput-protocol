@@ -271,26 +271,28 @@ struct IndexerOutboxOrigin {
   ConsensusValueHash first_prev_hash;
 };
 
-/// Canonical durable outbox payload. This exact XDR value is hashed for
-/// `payload_digest`, stored in the private outbox record, and returned to the
-/// indexer so both sides use one content identity.
+/// Canonical committed-block payload returned to the indexer. The durable
+/// outbox record stores only `format_version` and `consensus_value`; the two
+/// batches live in the block's content-addressed events file, named by
+/// `consensus_value.proposal_header.events_hash`, and are reassembled on load.
 struct IndexerCommittedBlockPayload {
   unsigned int format_version;
   ConsensusValue consensus_value;
   // Both batches are positionally paired; their order is not significant.
   // Each inner Transaction is bound by consensus_value.proposal_header.txs_hash,
   // while the corresponding event log and nondeterministic proposal data are
-  // bound together by consensus_value.proposal_header.events_hash. Signature
+  // bound together by consensus_value.proposal_header.events_hash. Both roots
+  // are recomputed whenever the payload is loaded from disk. Signature
   // wrappers are intentionally outside both consensus commitments and remain
-  // trusted internal payload; the outbox digest protects the complete payload
-  // from later corruption at rest.
+  // trusted internal payload: any wrapper satisfying the transaction's auth
+  // claim is equally valid, so which one a block carries is not observable to
+  // anything that validates against the header.
   TxEventLogBatch event_logs;
   ProposedTransactionBatch tx_bodies;
 };
 
 struct IndexerCommittedBlockIdentity {
   ConsensusValueHash consensus_hash;
-  SHA256Hash payload_digest;
 };
 
 struct IndexerCommittedBlock {
@@ -302,7 +304,6 @@ struct IndexerInitializedProgress {
   IndexerOutboxOrigin origin;
   BlockHeight contiguous_height;
   ConsensusValueHash last_consensus_hash;
-  SHA256Hash last_payload_digest;
 };
 
 enum IndexerProgressState {
