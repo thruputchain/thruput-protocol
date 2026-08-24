@@ -1,0 +1,1 @@
+const NOTHING = 0;
