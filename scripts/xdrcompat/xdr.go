@@ -565,9 +565,11 @@ func (m *Model) lookup(ns, n string) (string, bool) {
 	}
 	return got, count == 1
 }
-func (m *Model) constValue(ns, v string) string {
+// constLookup resolves v by one level, returning the value as declared and
+// whether v named a constant at all. An unresolvable name returns itself.
+func (m *Model) constLookup(ns, v string) (string, bool) {
 	if c := m.Constants[qualify(ns, v)]; c != nil {
-		return c.Value
+		return c.Value, true
 	}
 	got := ""
 	count := 0
@@ -578,9 +580,32 @@ func (m *Model) constValue(ns, v string) string {
 		}
 	}
 	if count == 1 {
-		return got
+		return got, true
 	}
-	return v
+	return v, false
+}
+
+// constValue resolves v to a terminal value, following constant aliases.
+//
+// A constant may name another constant (`const LIMIT = BASE;`). Resolving only
+// one level leaves the canonical layout as the alias name, identical on both
+// revisions, so a change to the terminal value reports nothing even though the
+// encoded width moved — a silent wire break. Follow the chain to its end.
+//
+// A cycle terminates deterministically at the name that closed it; such input
+// is malformed, and looping would be worse than an arbitrary answer.
+func (m *Model) constValue(ns, v string) string {
+	seen := map[string]bool{}
+	cur := v
+	for !seen[cur] {
+		seen[cur] = true
+		next, ok := m.constLookup(ns, cur)
+		if !ok || next == cur {
+			return next
+		}
+		cur = next
+	}
+	return cur
 }
 func suffixParts(s string) (string, string) {
 	if len(s) < 2 {

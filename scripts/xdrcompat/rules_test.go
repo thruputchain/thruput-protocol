@@ -8,6 +8,7 @@ import (
 	"reflect"
 	"strings"
 	"testing"
+	"time"
 )
 
 func model(t *testing.T, files map[string]string) *Model {
@@ -97,6 +98,10 @@ func TestTypedefWireLayouts(t *testing.T) {
 		// which rendered as "int[MAXN] -> int[MAXN]" and read as a false
 		// positive.
 		{"const MAXN = 4; typedef int Arr[MAXN];", "const MAXN = 8; typedef int Arr[MAXN];"},
+		// The bound is reached through a constant alias chain. Resolving only
+		// one level leaves both sides as the alias name "BASE", identical, and
+		// reports nothing despite the encoded width moving.
+		{"const BASE = 4; const LIMIT = BASE; typedef int Arr[LIMIT];", "const BASE = 8; const LIMIT = BASE; typedef int Arr[LIMIT];"},
 	}
 	for _, c := range cases {
 		b, h := pair(t, c[0], c[1])
@@ -325,5 +330,21 @@ func TestFindingsCarrySourceOrigins(t *testing.T) {
 	}
 	if len(want) != 0 {
 		t.Fatalf("missing findings: %#v", want)
+	}
+}
+
+// A constant cycle is malformed input, but resolution must terminate rather
+// than loop, and must do so deterministically.
+func TestConstantCycleTerminates(t *testing.T) {
+	m, _ := pair(t, "const A = B; const B = A; typedef int Arr[A];", "const A = B; const B = A; typedef int Arr[A];")
+	done := make(chan string, 1)
+	go func() { done <- m.constValue("", "A") }()
+	select {
+	case got := <-done:
+		if got != "A" && got != "B" {
+			t.Fatalf("cycle resolved to unexpected value %q", got)
+		}
+	case <-time.After(5 * time.Second):
+		t.Fatal("constValue did not terminate on a constant cycle")
 	}
 }
