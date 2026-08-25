@@ -39,6 +39,9 @@ struct ProposalHeader {
   /// those of other networks.
   NetworkHash network_hash;
 
+  /// The hash of the post-block network configuration.
+  ConfigHash config_hash;
+
   /// Block proposer. Nodes missing block data fetch it from the proposer.
   ValidatorID proposer;
 
