@@ -1,4 +1,3 @@
-
 namespace hogd {
 
 // Definitions for network config parameters
