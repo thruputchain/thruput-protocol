@@ -96,7 +96,6 @@ struct SignedRepairedBlocks {
   RepairedBlocks repaired_blocks;
 };
 
-
 program Repair
 {
   version Repair2

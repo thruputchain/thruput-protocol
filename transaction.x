@@ -146,7 +146,7 @@ struct Uniquifier {
 ///
 /// Transactions are the fundamental unit of state modification. Each transaction:
 /// - Invokes a single contract method (which may make subinvocations)
-/// - Includes claims about attached signatures, which must be verified before execution 
+/// - Includes claims about attached signatures, which must be verified before execution
 ///   can begin.  A transaction is invalid if any attached signatures are invalid
 ///   or if the attached signatures do not match the auth claims.
 /// - Can deploy new contracts that will be available during execution

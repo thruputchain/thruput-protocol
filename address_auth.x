@@ -22,7 +22,7 @@ namespace hogd
 // that can initiate transactions but have no associated code, and "contract addresses",
 // which hold invocable code but cannot initiate transactions,
 // Groundhog treats every address uniformly: all addresses can both hold a contract
-// and initiate a transaction. 
+// and initiate a transaction.
 //==============================================================================
 
 //------------------------------------------------------------------------------

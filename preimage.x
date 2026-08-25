@@ -19,5 +19,4 @@ struct DomainSeparator {
 // For example, the address of a pubkey auth account is derived as follows:
 // sha256(cxs(DomainSeparator) || cxs(PubkeyAccountPreimage))
 
-
 } // namespace hogd

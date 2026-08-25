@@ -28,7 +28,7 @@ typedef opaque Bytestring<kBytestringMaxLen>;
 ///
 /// [`StorageDelta`]s are modifications that are applied to these StorageItem objects.
 ///
-/// Contracts do not generally directly load these values, but can access them via the typed 
+/// Contracts do not generally directly load these values, but can access them via the typed
 /// system call interface provided by the Groundhog runtime.
 /// For example, a contract can call `BytestringGet`, which will return either a Bytestring value or
 /// an error if the storage key does not exist or contains a different type.
@@ -41,7 +41,7 @@ case kItemTypeNonnegativeInt:
   /// A nonnegative integer, stored as a 128-bit value.
   ///
   /// This can be stored at any [`StorageKey`] of type `ContractData`.
-  /// This type is also used to store the free native token balance at 
+  /// This type is also used to store the free native token balance at
   /// storage key `FreeNativeTokenBalance`.
   int128_xdr nnint;
 case kItemTypeRetrocausalQueue:
@@ -52,7 +52,7 @@ case kItemTypeRetrocausalQueue:
 case kItemTypeReplayCacheData:
   /// A set of [`Uniquifier`]s that have been used by the current address.
   /// Transactions can only insert a Uniquifier, not read the whole set.
-  /// 
+  ///
   /// This is the type stored at storage key `ReplayCache`.
   /// It cannot be stored at any other storage key.
   Uniquifier active_uniquifiers<>;
@@ -74,7 +74,7 @@ case kItemTypeDeployedContractHash:
 // This is the type that is actually sent over the network from the database to the executor.
 // This type strips out complex types (the replay cache and retrocausal queue) that the
 // executor does not need to load.
-// The types are filled in, as the executor does need to know the type of an item even 
+// The types are filled in, as the executor does need to know the type of an item even
 // without knowing the contents.
 union WireStorageItem switch (StorageItemType type) {
 case kItemTypeBytestring:
@@ -140,7 +140,7 @@ case kDeltaTypeBytestringSet:
   ///
   /// Item Type: `kItemTypeBytestring`
   ///
-  /// Conflicts: 
+  /// Conflicts:
   ///   - Will conflict with any other delta that creates a *different* item at the same storage key.
   Bytestring bytestring;
 case kDeltaTypeNonnegativeIntSetAdd:
@@ -150,7 +150,7 @@ case kDeltaTypeNonnegativeIntSetAdd:
   ///
   /// Item Type: `kItemTypeNonnegativeInt`
   ///
-  /// Conflicts: 
+  /// Conflicts:
   ///   - Will conflict with any NonnegativeIntSetAdd delta with a different `set_value`.
   ///   - NonnegativeIntAdd deltas are equivalent to a NonnegativeIntSetAdd delta with a `set_value` equal
   ///     to the value of the item at the start of the block (if it is a nonnegative integer) or 0 otherwise.
@@ -161,13 +161,13 @@ case kDeltaTypeNonnegativeIntSetAdd:
   NonnegativeInt128SetAddArgs nnint;
 case kDeltaTypeNonnegativeIntAdd:
   /// Adds the supplied value to the nonnegative integer item at the storage key.
-  /// This type is equivalent to a NonnegativeIntSetAdd delta with a `set_value` 
+  /// This type is equivalent to a NonnegativeIntSetAdd delta with a `set_value`
   /// equal to the value of the item at the start of the block (if it is a nonnegative integer) or 0 otherwise.
   /// This delta type enables a more efficient implementation of common nonnegative integer use cases (like token balances).
   ///
   /// Item Type: `kItemTypeNonnegativeInt`
   ///
-  /// Conflicts: 
+  /// Conflicts:
   ///   - Same as NonnegativeIntSetAdd deltas.
   int128_xdr nnint_add;
 case kDeltaTypeDelete:
@@ -175,7 +175,7 @@ case kDeltaTypeDelete:
   ///
   /// Item Type: None (deletes the item at the storage key)
   ///
-  /// Conflicts: 
+  /// Conflicts:
   ///   - Will conflict with any other delta that creates a *different* item at the same storage key.
   void;
 case kDeltaTypeRetrocausalQueue:
@@ -183,7 +183,7 @@ case kDeltaTypeRetrocausalQueue:
   ///
   /// Item Type: `kItemTypeRetrocausalQueue`
   ///
-  /// Conflicts: 
+  /// Conflicts:
   ///   - Insertions do not conflict with each other.
   ///     TODO(geoff): we may impose limits on the number of entries that can be inserted in one block.
   ///   - Consuming entries conflicts with other consumption deltas in the same block.
@@ -193,25 +193,25 @@ case kDeltaTypeAuthDataChange:
   ///
   /// Item Type: `kItemTypeAuthData`
   ///
-  /// Conflicts: 
+  /// Conflicts:
   ///   - Will conflict with any other auth change delta in the same block.
   AuthDataChangeArgs auth_data_change;
 case kDeltaTypeDeployContract:
   /// Deploys a new contract for the current address.
-  /// 
+  ///
   /// Item Type: `kItemTypeDeployedContractHash`
   ///
-  /// Conflicts: 
+  /// Conflicts:
   ///   - None.  The semantics of how contract deployment addresses are calculated (see [`ContractDeploymentHashPreimage`])
-  ///     if two transactions deploy a contract to the same address, 
+  ///     if two transactions deploy a contract to the same address,
   ///     then both transactions are deploying the exact same contract.
   DeployedContractHash deployed_contract_hash;
 case kDeltaTypeConsumeUniquifier:
   /// Add a [`Uniquifier`] to the replay cache.
   ///
-  /// Item Type: kItemTypeReplayCacheData 
+  /// Item Type: kItemTypeReplayCacheData
   ///
-  /// Conflicts: 
+  /// Conflicts:
   ///   - Will conflict with any other attempt to consume the same [`Uniquifier`].
   ConsumeUniquifierArgs consume_uniquifier_args;
 };
@@ -260,7 +260,7 @@ typedef int StorageDeltaFlagSet;
 /// The combined unit of storage modification sent to the database from the executor.
 /// A delta with a set of flags, applied to a specific entry in the database.
 struct FlaggedStorageDelta {
-  // TODO(geoff): The addrkey field is likely repetitive when sending 
+  // TODO(geoff): The addrkey field is likely repetitive when sending
   // many deltas to the database.
   // possibly we can readjust this data structure, if raw bandwidth becomes
   // important.
