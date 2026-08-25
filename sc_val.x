@@ -8,7 +8,7 @@
 //// under the Apache License, Version 2.0. See the COPYING file at the root
 //// of this distribution or at http://www.apache.org/licenses/LICENSE-2.0
 
-% #include "sc_types.hh" 
+% #include "sc_types.hh"
 
 namespace stellar
 {
@@ -202,7 +202,7 @@ case SCV_ADDRESS:
   //     void;
   // case SCV_LEDGER_KEY_NONCE:
   //     SCNonceKey nonce_key;
-  // 
+  //
 };
 
 } // namespace stellar

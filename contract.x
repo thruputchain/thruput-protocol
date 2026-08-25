@@ -154,7 +154,7 @@ typedef string SemVer<>;
 ///
 /// Contract entrypoints can be arbitrary 8 byte identifiers (the [`ContractEntrypointID`] type).
 ///  By default, the SDK
-/// for Groundhog contracts follows the following scheme for allocating those 
+/// for Groundhog contracts follows the following scheme for allocating those
 /// identifiers, although this scheme is not a strict requirement.
 ///
 /// Contract interfaces define a set of methods (entrypoints) with a name

@@ -27,4 +27,3 @@ struct StorageCostModelXdr {
 // base_data_item_cost + auth_per_key_cost * num_keys
 
 } // namespace hogd
-

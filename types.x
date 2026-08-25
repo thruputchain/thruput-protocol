@@ -42,7 +42,6 @@ enum CryptographicScheme {
   Ed25519 = 0
 };
 
-
 /// Union of a Signature type over the various cryptographic schemes.
 union Signature switch (CryptographicScheme scheme)
 {
@@ -100,7 +99,7 @@ typedef SHA256Hash EventsHash; // #[rust(newtype)]
 typedef SHA256Hash ProposalHeaderHash; // #[rust(newtype)]
 
 /// Represents a 256-bit contract address.
-/// In the groundhog storage model, each contract is deployed at a 
+/// In the groundhog storage model, each contract is deployed at a
 /// 32-byte unique `ContractAddress`.
 typedef opaque ContractAddress[32]; // #[rust(newtype)]
 
@@ -162,7 +161,6 @@ case ReplayCache:
   void;
   // TODO(geoff): add other key types
 };
-
 
 const kTotalHogSupply = 62'500'000'000; // #[rust(const=u64)]
 const kHogDivisibility = 10'000'000;    // #[rust(const=u32)]

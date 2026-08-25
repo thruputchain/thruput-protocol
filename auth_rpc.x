@@ -5,7 +5,6 @@
 
 namespace hogd {
 
-
 enum AuthErrorCode {
   kAuthSuccess = 0,
   kAuthFailed = 1,
@@ -26,7 +25,7 @@ program AuthMempool {
 
     // Verify a list of transactions.  This version returns a result for each transaction.
     // The BlockHeight is the height of the most recently committed block,
-    // i.e. the block height of the block that produced the snapshot auth data against which 
+    // i.e. the block height of the block that produced the snapshot auth data against which
     // the transactions are to be verified.
     AuthErrorCodeBatch authmempool_verify_transactions(BlockHeight, SignedTransactionBatch) = 2;
 
@@ -49,7 +48,7 @@ typedef KeyChange KeyChangeBatch<>;
 
 program AuthDB {
   version AuthDB1 {
-    // Forward updated key changes to the auth server 
+    // Forward updated key changes to the auth server
     void authdb_forward_key_changes(BlockHeight, KeyChangeBatch) = 1;
   }
   = 1;

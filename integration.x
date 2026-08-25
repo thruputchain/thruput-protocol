@@ -2,7 +2,7 @@ namespace hogd {
 // clang-format on
 
 /// kCoordinatorMaxBytesTxsMessage is the maximum size of a dissemination
-/// message containing transactions. The transaction batches inside these 
+/// message containing transactions. The transaction batches inside these
 /// messages will be submitted to the mempool as vetted txs.
 /// Thus the mempool-to-coordinator RPC must have a slightly higher
 /// maximum message size to accommodate for RPC framing.

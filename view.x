@@ -7,7 +7,6 @@
 
 namespace hogd {
 
-
 struct TransactionViewQuery {
   // The invocation to be queried
   Invocation invocation;

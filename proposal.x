@@ -8,7 +8,6 @@
 namespace hogd {
 // clang-format on
 
-
 /// Transaction-side payload for a proposal.
 ///
 /// This is the payload a `ConsensusValue` commits to through

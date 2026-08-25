@@ -61,7 +61,7 @@ case SchedulerValidationOK:
   SchedulerValidationBlock block;
 case SchedulerValidationMissingTxs:
   TransactionHash missing_tx_hashes<>;
-  
+
 // Error cases
 case SchedulerValidationDbFailed:
 case SchedulerValidationExecutorFailed:
