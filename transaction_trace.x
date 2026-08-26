@@ -479,6 +479,20 @@ struct SyscallConsumeAuthTokenTrace {
   SyscallConsumeAuthTokenOutputs *outputs;
 };
 
+struct SyscallSHA256CopyInputs {
+  unsigned int src_index;
+  unsigned int dst_index;
+};
+
+struct SyscallSHA256CopyOutputs {
+  void;
+};
+
+struct SyscallSHA256CopyTrace {
+  SyscallSHA256CopyInputs inputs;
+  SyscallSHA256CopyOutputs *outputs;
+};
+
 // === Main Trace Body ===
 
 union SyscallTraceBody switch (SyscallNo syscall_number)
@@ -549,6 +563,8 @@ case kMintAuthToken:
   SyscallMintAuthTokenTrace mint_auth_token;
 case kConsumeAuthToken:
   SyscallConsumeAuthTokenTrace consume_auth_token;
+case kSHA256Copy:
+  SyscallSHA256CopyTrace sha256_copy;
 default:
   void;
 };

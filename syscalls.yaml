@@ -808,3 +808,27 @@ syscalls:
         description: >
           The authentication token is not owned by the current contract address,
           or the auth token has expired.
+  - name: "SHA256Copy"
+    number: 33
+    read_only: true
+    inputs:
+      - name: "src_index"
+        typename: "uint32_t"
+        primitive_type: true
+      - name: "dst_index"
+        typename: "uint32_t"
+        primitive_type: true
+    description: >
+      Copies the in-progress SHA256 hash computation at src_index to
+      dst_index, replacing any hash computation already at dst_index.
+      Both computations can then be extended and finalized
+      independently. Copying an index onto itself succeeds and changes
+      nothing.
+    errors:
+      - code: kSyscallErrorCodeInvalidSyscallInput
+        description: >
+          This error will be returned if any of the following
+          conditions are met:
+          - The hash computation at src_index does not exist.
+          - dst_index does not already hold a hash computation and
+            there are too many active hash buffers.
