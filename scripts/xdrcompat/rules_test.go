@@ -6,6 +6,7 @@ import (
 	"os/exec"
 	"path/filepath"
 	"reflect"
+	"strconv"
 	"strings"
 	"testing"
 	"time"
@@ -33,6 +34,13 @@ func fixture(t *testing.T, rule, outcome, rev string) *Model {
 		t.Fatal(e)
 	}
 	return model(t, map[string]string{p: string(b)})
+}
+
+// noPullRequestEnv blanks the variables that make the wrapper post a comment.
+// The suite itself runs inside pull request builds, and a test must never
+// write to the pull request it is running under.
+func noPullRequestEnv() []string {
+	return append(os.Environ(), "GITHUB_EVENT_NAME=", "PR_NUMBER=", "GH_TOKEN=")
 }
 func core(fs []Finding) [][4]string {
 	o := make([][4]string, len(fs))
@@ -266,6 +274,7 @@ func TestParseFailureExitsTwoAndFailsCIWrapper(t *testing.T) {
 	}
 
 	wrapper := exec.Command("bash", "ci-wrapper.sh", d, "HEAD", "HEAD")
+	wrapper.Env = noPullRequestEnv()
 	output, err = wrapper.CombinedOutput()
 	if !errors.As(err, &exitErr) || exitErr.ExitCode() != 2 || !strings.Contains(string(output), "error:") {
 		t.Fatalf("wrapper should preserve operational failure: err=%v output=%s", err, output)
@@ -289,6 +298,7 @@ func TestCIWrapperKeepsFindingsAdvisoryAndInitialPushUsesEmptyTree(t *testing.T)
 	base := git(t, d, "rev-parse", "HEAD")
 	write("program P { version P1 { hyper call(int)=1; }=1; }=1;")
 	cmd := exec.Command("bash", "ci-wrapper.sh", d, base, "HEAD")
+	cmd.Env = noPullRequestEnv()
 	output, err := cmd.CombinedOutput()
 	if err != nil || !strings.Contains(string(output), "1 wire-compatibility violation(s)") {
 		t.Fatalf("findings should be logged but advisory: err=%v output=%s", err, output)
@@ -346,5 +356,113 @@ func TestConstantCycleTerminates(t *testing.T) {
 		}
 	case <-time.After(5 * time.Second):
 		t.Fatal("constValue did not terminate on a constant cycle")
+	}
+}
+
+// An annotation whose message or title is not escaped is silently mangled or
+// truncated by the runner, so a finding can appear on the pull request with
+// the wrong text. Newlines end the command, and ':' and ',' end a property.
+func TestAnnotationsEscapeAndAnchorToSource(t *testing.T) {
+	var out strings.Builder
+	emitAnnotations(&out, []Finding{
+		{Rule: "R1", Subject: "P.P1 proc 1 (call)", Detail: "was: int\nnow: hyper",
+			Remedy: "allocate a new number", BaseOrigin: "rpc.x", HeadOrigin: "rpc.x"},
+		{Rule: "R7", Subject: "program Gone (0x2)", Detail: "deleted 50% of it",
+			Remedy: "deprecate first", BaseOrigin: "gone.x"},
+		{Rule: "R8", Subject: "number 0x1: A, B", Detail: "new owner", Remedy: "renumber"},
+	})
+	lines := strings.Split(strings.TrimSuffix(out.String(), "\n"), "\n")
+	if len(lines) != 3 {
+		t.Fatalf("one annotation per finding, on one line each:\n%s", out.String())
+	}
+	// The message ends at the newline, so newlines escape; ':' does not,
+	// because the runner splits the message off at the first '::' pair.
+	if lines[0] != "::warning file=rpc.x,title=R1 P.P1 proc 1 (call)::was: int%0Anow: hyper%0A-> allocate a new number" {
+		t.Fatalf("message escaping: %s", lines[0])
+	}
+	// A deleted declaration has no head origin; the annotation must still
+	// anchor to where the reviewer can see what was removed.
+	if !strings.HasPrefix(lines[1], "::warning file=gone.x,") || !strings.Contains(lines[1], "deleted 50%25 of it") {
+		t.Fatalf("base-origin fallback and %% escaping: %s", lines[1])
+	}
+	// Unanchored findings must omit file= rather than emit an empty path.
+	if strings.Contains(lines[2], "file=") || !strings.Contains(lines[2], "title=R8 number 0x1%3A A%2C B") {
+		t.Fatalf("property escaping without an origin: %s", lines[2])
+	}
+}
+
+// GitHub drops warning annotations past ten per step. Dropping them silently
+// would make a large change look like it found exactly ten problems.
+func TestAnnotationsAreCappedWithOverflowNotice(t *testing.T) {
+	findings := make([]Finding, 12)
+	for i := range findings {
+		findings[i] = Finding{Rule: "R3", Subject: "struct S" + strconv.Itoa(i),
+			Detail: "layout changed", Remedy: "define a new struct", HeadOrigin: "types.x"}
+	}
+	var out strings.Builder
+	emitAnnotations(&out, findings)
+	lines := strings.Split(strings.TrimSuffix(out.String(), "\n"), "\n")
+	if len(lines) != maxAnnotations+1 {
+		t.Fatalf("want %d annotations plus one notice, got %d", maxAnnotations, len(lines))
+	}
+	if !strings.Contains(lines[maxAnnotations], "2 more wire-compatibility violation(s) not annotated") {
+		t.Fatalf("overflow notice must name the withheld count: %s", lines[maxAnnotations])
+	}
+}
+
+// Findings are advisory, so the job stays green. That makes the reporting the
+// only thing a reviewer ever sees, and a silent reporting path is the same as
+// no checker at all.
+func TestCIWrapperReportsFindingsWhereAReviewerLooks(t *testing.T) {
+	d := t.TempDir()
+	git(t, d, "init")
+	git(t, d, "config", "user.email", "test@example.com")
+	git(t, d, "config", "user.name", "Test")
+	write := func(src string) {
+		t.Helper()
+		if err := os.WriteFile(filepath.Join(d, "wire.x"), []byte(src), 0600); err != nil {
+			t.Fatal(err)
+		}
+		git(t, d, "add", ".")
+		git(t, d, "commit", "-m", "revision")
+	}
+	write("program P { version P1 { int call(int)=1; }=1; }=1;")
+	base := git(t, d, "rev-parse", "HEAD")
+	write("program P { version P1 { hyper call(int)=1; }=1; }=1;")
+
+	summary := filepath.Join(t.TempDir(), "summary.md")
+	cmd := exec.Command("bash", "ci-wrapper.sh", d, base, "HEAD")
+	// Blank the pull request variables explicitly: this test must never post
+	// a comment just because it happens to run inside a pull request build.
+	cmd.Env = append(noPullRequestEnv(), "GITHUB_STEP_SUMMARY="+summary)
+	output, err := cmd.CombinedOutput()
+	if err != nil {
+		t.Fatalf("findings stay advisory: err=%v output=%s", err, output)
+	}
+	if !strings.Contains(string(output), "::warning file=wire.x,title=R1 P.P1 proc 1 (call)::") {
+		t.Fatalf("annotations must reach the runner:\n%s", output)
+	}
+
+	rendered, err := os.ReadFile(summary)
+	if err != nil {
+		t.Fatal(err)
+	}
+	// The marker is what lets a repeated push edit one comment in place.
+	for _, want := range []string{"<!-- xdrcompat-report -->", "advisory", "1 wire-compatibility violation(s)"} {
+		if !strings.Contains(string(rendered), want) {
+			t.Fatalf("summary is missing %q:\n%s", want, rendered)
+		}
+	}
+
+	workflow, err := os.ReadFile(filepath.Join("..", "..", ".github", "workflows", "cpp.yml"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	// Without the write permission the comment cannot be posted, and the
+	// wrapper treats that as an operational failure rather than staying quiet.
+	for _, want := range []string{"pull-requests: write", "PR_NUMBER:", "GH_TOKEN:"} {
+		if !strings.Contains(string(workflow), want) {
+			t.Fatalf("workflow is missing %q, so pull requests would go unreported", want)
+		}
 	}
 }

@@ -6,10 +6,16 @@ on:
   pull_request:
     branches: [ "main" ]
 
+# pull-requests: write lets the advisory XDR check post its report as a
+# comment on the pull request under review.
+permissions:
+  contents: read
+  pull-requests: write
+
 jobs:
   build:
     runs-on: ubuntu-24.04
-    
+
     steps:
     - uses: actions/checkout@v6
       with:
@@ -31,6 +37,11 @@ jobs:
         PR_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
         PUSH_BEFORE_SHA: ${{ github.event.before }}
         PUSH_HEAD_SHA: ${{ github.sha }}
+        PR_NUMBER: ${{ github.event.pull_request.number }}
+        # A fork pull request gets a read-only token, so leave GH_TOKEN unset
+        # there: the wrapper then skips the comment instead of failing to post
+        # one. Same-repository pull requests are the case that must report.
+        GH_TOKEN: ${{ github.event.pull_request.head.repo.full_name == github.repository && github.token || '' }}
       run: |
         if [[ "$EVENT_NAME" == "pull_request" ]]; then
           base="$(git merge-base "$PR_BASE_SHA" "$PR_HEAD_SHA")"
@@ -45,6 +56,13 @@ jobs:
           fi
         fi
         scripts/xdrcompat/ci-wrapper.sh . "$base" "$head"
+    # Must run before the root `go mod init temp_module` below, and is what
+    # keeps the checker's own reporting and rule coverage honest.
+    - name: test XDR evolution rule checker
+      working-directory: scripts/xdrcompat
+      run: |
+        go vet ./...
+        go test ./...
     - name: install yamllint
       run: sudo apt-get install yamllint
     - name: install goxdr
