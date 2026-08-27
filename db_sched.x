@@ -48,6 +48,7 @@ default:
 struct DbBlockOk {
   StorageShortHash storage_hash;
   StorageLongHash storage_long_hash;
+  ConfigHashPreimage config_hash_preimage;
 };
 
 union DbBlockResult switch (DbSchedResult result)

@@ -85,6 +85,9 @@ typedef SHA256Hash ConsensusValueHash; // #[rust(newtype)]
 
 typedef SHA256Hash NetworkHash; // #[rust(newtype)]
 
+/// SHA-256 of the XDR-encoded ConfigHashPreimage.
+typedef SHA256Hash ConfigHash; // #[rust(newtype)]
+
 /// Hash of the groundhog database contents.
 /// Format is a 2048-byte LtHash16 hash.
 typedef opaque StorageLongHash[2048]; // #[rust(newtype)]
