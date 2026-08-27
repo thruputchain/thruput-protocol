@@ -84,7 +84,6 @@ type Union struct {
 	Discriminant    Field
 	Arms            []Arm
 	Default         *Field
-	HasDefault      bool
 	Origin          Origin
 }
 type Typedef struct {
@@ -260,7 +259,7 @@ func parseTypeOrInline(c *cursor) string {
 		d := parseDeclaration(c)
 		c.expect(")")
 		c.expect("{")
-		a, def, _ := parseArms(c)
+		a, def := parseArms(c)
 		c.expect("}")
 		return "union<" + d.Type.String() + ">{" + strings.Join(canonicalArms(a, def), ",") + "}"
 	}
@@ -282,11 +281,10 @@ func parseTypeOrInline(c *cursor) string {
 	}
 	return parseBase(c)
 }
-func parseArms(c *cursor) ([]Arm, *Field, bool) {
+func parseArms(c *cursor) ([]Arm, *Field) {
 	var a []Arm
 	var labels []string
 	var def *Field
-	has := false
 	for c.peek(0) != "" && c.peek(0) != "}" {
 		if c.accept("case") {
 			labels = append(labels, parseValue(c, ":"))
@@ -295,7 +293,6 @@ func parseArms(c *cursor) ([]Arm, *Field, bool) {
 		}
 		if c.accept("default") {
 			c.expect(":")
-			has = true
 			f := parseDeclaration(c)
 			def = &f
 			c.accept(";")
@@ -306,7 +303,7 @@ func parseArms(c *cursor) ([]Arm, *Field, bool) {
 		labels = nil
 		c.accept(";")
 	}
-	return a, def, has
+	return a, def
 }
 func canonicalArms(a []Arm, def *Field) []string {
 	p := make([]string, 0, len(a)+1)
@@ -427,11 +424,11 @@ func (p *parser) parseUnion(ns string) {
 	d := parseDeclaration(p.c)
 	p.c.expect(")")
 	p.c.expect("{")
-	a, def, h := parseArms(p.c)
+	a, def := parseArms(p.c)
 	p.c.expect("}")
 	p.c.accept(";")
 	k := qualify(ns, n)
-	putUnique(p.m.Unions, k, "union", &Union{n, ns, d, a, def, h, p.origin})
+	putUnique(p.m.Unions, k, "union", &Union{n, ns, d, a, def, p.origin})
 }
 func (p *parser) parseTypedef(ns string) {
 	p.c.expect("typedef")
@@ -703,48 +700,4 @@ func (m *Model) resolvedProcSignature(p Proc, ns string) string {
 		a[i] = m.wireType(x, ns, map[string]bool{})
 	}
 	return fmt.Sprintf("%s %s(%s)", m.wireType(p.Ret, ns, map[string]bool{}), p.Name, strings.Join(a, ", "))
-}
-func (m *Model) ReachableFromPrograms() map[string]bool {
-	seen := map[string]bool{}
-	var vt func(TypeSpec, string)
-	var visit func(string)
-	visit = func(k string) {
-		if seen[k] {
-			return
-		}
-		seen[k] = true
-		if d := m.Typedefs[k]; d != nil {
-			vt(d.Type, d.Namespace)
-		}
-		if d := m.Structs[k]; d != nil {
-			for _, f := range d.Fields {
-				vt(f.Type, d.Namespace)
-			}
-		}
-		if d := m.Unions[k]; d != nil {
-			vt(d.Discriminant.Type, d.Namespace)
-			for _, a := range d.Arms {
-				vt(a.Field.Type, d.Namespace)
-			}
-			if d.Default != nil {
-				vt(d.Default.Type, d.Namespace)
-			}
-		}
-	}
-	vt = func(t TypeSpec, ns string) {
-		if k, ok := m.lookup(ns, t.Base); ok && m.hasType(k) {
-			visit(k)
-		}
-	}
-	for _, p := range m.Programs {
-		for _, v := range p.Versions {
-			for _, pr := range v.Procs {
-				vt(pr.Ret, p.Namespace)
-				for _, a := range pr.Args {
-					vt(a, p.Namespace)
-				}
-			}
-		}
-	}
-	return seen
 }

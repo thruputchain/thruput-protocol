@@ -10,7 +10,6 @@
 //	R2  procedure numbers are permanent (no renumber, no reuse)
 //	R3  struct fields are immutable (no add, remove, or reorder)
 //	R4  enum cases are immutable (append-only, never renumbered)
-//	R5  boundary-crossing unions carry a `default:` arm
 //	R7  program deletion requires a deprecation cycle
 //	R8  program numbers are permanent and uniquely owned
 //
@@ -18,6 +17,16 @@
 // what an R1/R2/R3 failure inside an existing version means, and the remedy
 // is printed with the violation. R9 ("additive procedures are safe") is the
 // escape hatch, not a rule to enforce.
+//
+// R5 ("boundary-crossing unions carry a `default:` arm") was withdrawn. Its
+// remedy caused the failure it claimed to prevent: a `default: void` arm
+// decodes zero bytes, so when a peer meets a discriminant added after it was
+// built, it consumes nothing and then reads every following field out of the
+// sender's payload. Without the default the same message is a clean decode
+// error. Silent misalignment is strictly worse than a loud parse failure,
+// and for a union embedded in a larger message that is exactly the trade the
+// rule was asking for. Unknown discriminants are what the ONC version
+// mechanism is for.
 //
 // Usage:
 //
