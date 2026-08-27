@@ -145,11 +145,11 @@ var escapeCommandProperty = strings.NewReplacer(
 // line numbers, so each annotation anchors to its file.
 func emitAnnotations(w io.Writer, findings []Finding) {
 	for i, f := range findings {
-		if i == maxAnnotations {
+		if len(findings) > maxAnnotations && i == maxAnnotations-1 {
 			fmt.Fprintf(w, "::warning title=xdrcompat::%s\n", escapeCommandData.Replace(
 				fmt.Sprintf("%d more wire-compatibility violation(s) not annotated; "+
 					"see the step log and job summary for the full report.",
-					len(findings)-maxAnnotations)))
+					len(findings)-(maxAnnotations-1))))
 			return
 		}
 		file := f.HeadOrigin
