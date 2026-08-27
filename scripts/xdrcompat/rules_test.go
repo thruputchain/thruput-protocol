@@ -391,23 +391,64 @@ func TestAnnotationsEscapeAndAnchorToSource(t *testing.T) {
 	}
 }
 
-// GitHub drops warning annotations past ten per step. Dropping them silently
-// would make a large change look like it found exactly ten problems.
+// GitHub drops warning annotations past ten per step. The notice therefore has
+// to fit *inside* the budget: emitting ten findings and then the notice makes
+// the notice the eleventh, which is the one dropped, leaving the Files changed
+// tab looking like exactly ten findings were found. The boundary either side of
+// the cap is where that goes wrong, so all three cases are pinned here.
 func TestAnnotationsAreCappedWithOverflowNotice(t *testing.T) {
-	findings := make([]Finding, 12)
-	for i := range findings {
-		findings[i] = Finding{Rule: "R3", Subject: "struct S" + strconv.Itoa(i),
-			Detail: "layout changed", Remedy: "define a new struct", HeadOrigin: "types.x"}
+	notice := "wire-compatibility violation(s) not annotated"
+	for _, tc := range []struct {
+		total    int
+		withheld string // "" when everything fits and no notice is due
+	}{
+		{total: maxAnnotations},
+		{total: maxAnnotations + 1, withheld: "2"},
+		{total: maxAnnotations + 2, withheld: "3"},
+	} {
+		findings := make([]Finding, tc.total)
+		for i := range findings {
+			findings[i] = Finding{Rule: "R3", Subject: "struct S" + strconv.Itoa(i),
+				Detail: "layout changed", Remedy: "define a new struct", HeadOrigin: "types.x"}
+		}
+		var out strings.Builder
+		emitAnnotations(&out, findings)
+		lines := strings.Split(strings.TrimSuffix(out.String(), "\n"), "\n")
+
+		// The invariant that matters: never exceed what GitHub will render.
+		if len(lines) > maxAnnotations {
+			t.Fatalf("%d findings emitted %d annotations, over the %d GitHub renders",
+				tc.total, len(lines), maxAnnotations)
+		}
+		last := lines[len(lines)-1]
+		if tc.withheld == "" {
+			if len(lines) != tc.total || strings.Contains(out.String(), notice) {
+				t.Fatalf("%d findings fit exactly and need no notice, got %d lines: %s",
+					tc.total, len(lines), out.String())
+			}
+			continue
+		}
+		if len(lines) != maxAnnotations {
+			t.Fatalf("%d findings should fill the budget, got %d lines", tc.total, len(lines))
+		}
+		if !strings.Contains(last, tc.withheld+" more "+notice) {
+			t.Fatalf("%d findings: notice must survive and name the withheld count: %s",
+				tc.total, last)
+		}
+		// The withheld count must square with what was actually annotated.
+		if shown := len(lines) - 1; shown+mustAtoi(t, tc.withheld) != tc.total {
+			t.Fatalf("%d findings: %d shown plus %s withheld does not add up",
+				tc.total, shown, tc.withheld)
+		}
 	}
-	var out strings.Builder
-	emitAnnotations(&out, findings)
-	lines := strings.Split(strings.TrimSuffix(out.String(), "\n"), "\n")
-	if len(lines) != maxAnnotations+1 {
-		t.Fatalf("want %d annotations plus one notice, got %d", maxAnnotations, len(lines))
+}
+func mustAtoi(t *testing.T, s string) int {
+	t.Helper()
+	n, err := strconv.Atoi(s)
+	if err != nil {
+		t.Fatal(err)
 	}
-	if !strings.Contains(lines[maxAnnotations], "2 more wire-compatibility violation(s) not annotated") {
-		t.Fatalf("overflow notice must name the withheld count: %s", lines[maxAnnotations])
-	}
+	return n
 }
 
 // Findings are advisory, so the job stays green. That makes the reporting the

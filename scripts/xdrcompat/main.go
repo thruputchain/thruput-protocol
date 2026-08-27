@@ -128,7 +128,9 @@ func LoadRevision(repo, ref string) (*Model, error) {
 
 // GitHub renders at most ten warning annotations per step and silently drops
 // the rest, so an over-long run must say what it withheld rather than appear
-// to have found only ten things.
+// to have found only ten things. The notice is itself an annotation and so
+// spends one of the ten: an over-long run annotates nine findings, not ten.
+// Emitting ten and then the notice makes the notice the one GitHub drops.
 const maxAnnotations = 10
 
 // escapeCommandData escapes a GitHub Actions workflow-command message.
