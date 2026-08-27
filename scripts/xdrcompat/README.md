@@ -43,8 +43,27 @@ The tool exits 0 when clean, 1 for compatibility findings, and 2 when it cannot
 load or parse either revision. CI keeps exit 1 advisory but fails on exit 2.
 Pull requests compare their merge base with the exact PR head. Pushes compare
 the event's before/after commits; an initial push uses Git's empty tree so the
-whole pushed history is represented. Findings remain in the step log and
-`$GITHUB_STEP_SUMMARY`.
+whole pushed history is represented.
+
+## Reporting
+
+Advisory findings leave the job green, so the report has to travel to the
+reviewer rather than wait to be found. Every pull request run publishes the
+same report three ways:
+
+- a **pull request comment**, upserted through the `<!-- xdrcompat-report -->`
+  marker so repeated pushes edit one comment in place instead of stacking;
+- **warning annotations** on the Files changed tab, anchored to each finding's
+  source file, capped at the ten GitHub renders per step with a notice naming
+  how many were withheld; and
+- the **job summary**, which carries the full untruncated report.
+
+The comment needs `pull-requests: write` and a writable `GH_TOKEN`. The
+workflow deliberately leaves `GH_TOKEN` unset for fork pull requests, whose
+token is read-only, and the wrapper then skips the comment. Where the comment
+is attempted and fails, that is an operational failure and the step fails: a
+report nobody receives is the same as no checker at all, which is also why
+`continue-on-error` is never used here.
 
 The module lives here rather than at the repository root because the existing
 workflow creates a temporary root module to vet generated Go code.
@@ -56,3 +75,6 @@ go test ./...
 go vet ./...
 go run . --repo ../.. --base BASE --head HEAD
 ```
+
+`--annotate` adds the GitHub workflow-command annotations on stderr, keeping
+stdout as the plain report; `ci-wrapper.sh` passes it and CI consumes both.

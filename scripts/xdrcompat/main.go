@@ -29,6 +29,7 @@ import (
 	"encoding/json"
 	"flag"
 	"fmt"
+	"io"
 	"os"
 	"os/exec"
 	"sort"
@@ -125,15 +126,58 @@ func LoadRevision(repo, ref string) (*Model, error) {
 	return m, nil
 }
 
+// GitHub renders at most ten warning annotations per step and silently drops
+// the rest, so an over-long run must say what it withheld rather than appear
+// to have found only ten things. The notice is itself an annotation and so
+// spends one of the ten: an over-long run annotates nine findings, not ten.
+// Emitting ten and then the notice makes the notice the one GitHub drops.
+const maxAnnotations = 10
+
+// escapeCommandData escapes a GitHub Actions workflow-command message.
+var escapeCommandData = strings.NewReplacer("%", "%25", "\r", "%0D", "\n", "%0A")
+
+// escapeCommandProperty additionally escapes the separators that terminate a
+// property value inside the command header.
+var escapeCommandProperty = strings.NewReplacer(
+	"%", "%25", "\r", "%0D", "\n", "%0A", ":", "%3A", ",", "%2C")
+
+// emitAnnotations writes findings as GitHub Actions warning annotations, which
+// surface on the pull request's Files changed tab. Findings are advisory, so
+// these are warnings and never errors. The tool tracks source paths but not
+// line numbers, so each annotation anchors to its file.
+func emitAnnotations(w io.Writer, findings []Finding) {
+	for i, f := range findings {
+		if len(findings) > maxAnnotations && i == maxAnnotations-1 {
+			fmt.Fprintf(w, "::warning title=xdrcompat::%s\n", escapeCommandData.Replace(
+				fmt.Sprintf("%d more wire-compatibility violation(s) not annotated; "+
+					"see the step log and job summary for the full report.",
+					len(findings)-(maxAnnotations-1))))
+			return
+		}
+		file := f.HeadOrigin
+		if file == "" {
+			file = f.BaseOrigin
+		}
+		props := fmt.Sprintf("title=%s",
+			escapeCommandProperty.Replace(f.Rule+" "+f.Subject))
+		if file != "" {
+			props = fmt.Sprintf("file=%s,%s", escapeCommandProperty.Replace(file), props)
+		}
+		fmt.Fprintf(w, "::warning %s::%s\n", props,
+			escapeCommandData.Replace(f.Detail+"\n-> "+f.Remedy))
+	}
+}
+
 func main() {
 	var (
-		base   = flag.String("base", "", "git ref to compare against (required)")
-		head   = flag.String("head", "HEAD", "git ref under review")
-		repo   = flag.String("repo", ".", "protocol repo path")
-		format = flag.String("format", "text", "output format: text or json")
+		base     = flag.String("base", "", "git ref to compare against (required)")
+		head     = flag.String("head", "HEAD", "git ref under review")
+		repo     = flag.String("repo", ".", "protocol repo path")
+		format   = flag.String("format", "text", "output format: text or json")
+		annotate = flag.Bool("annotate", false, "also write GitHub Actions warning annotations to stderr")
 	)
 	flag.Usage = func() {
-		fmt.Fprintln(os.Stderr, "usage: xdrcompat --base REF [--head REF] [--repo DIR] [--format text|json]")
+		fmt.Fprintln(os.Stderr, "usage: xdrcompat --base REF [--head REF] [--repo DIR] [--format text|json] [--annotate]")
 		flag.PrintDefaults()
 	}
 	flag.Parse()
@@ -159,6 +203,10 @@ func main() {
 	}
 
 	findings := Check(baseModel, headModel)
+
+	if *annotate {
+		emitAnnotations(os.Stderr, findings)
+	}
 
 	if *format == "json" {
 		if findings == nil {

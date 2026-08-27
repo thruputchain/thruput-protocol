@@ -6,6 +6,7 @@ import (
 	"os/exec"
 	"path/filepath"
 	"reflect"
+	"strconv"
 	"strings"
 	"testing"
 	"time"
@@ -33,6 +34,13 @@ func fixture(t *testing.T, rule, outcome, rev string) *Model {
 		t.Fatal(e)
 	}
 	return model(t, map[string]string{p: string(b)})
+}
+
+// noPullRequestEnv blanks the variables that make the wrapper post a comment.
+// The suite itself runs inside pull request builds, and a test must never
+// write to the pull request it is running under.
+func noPullRequestEnv() []string {
+	return append(os.Environ(), "GITHUB_EVENT_NAME=", "PR_NUMBER=", "GH_TOKEN=")
 }
 func core(fs []Finding) [][4]string {
 	o := make([][4]string, len(fs))
@@ -266,6 +274,7 @@ func TestParseFailureExitsTwoAndFailsCIWrapper(t *testing.T) {
 	}
 
 	wrapper := exec.Command("bash", "ci-wrapper.sh", d, "HEAD", "HEAD")
+	wrapper.Env = noPullRequestEnv()
 	output, err = wrapper.CombinedOutput()
 	if !errors.As(err, &exitErr) || exitErr.ExitCode() != 2 || !strings.Contains(string(output), "error:") {
 		t.Fatalf("wrapper should preserve operational failure: err=%v output=%s", err, output)
@@ -289,6 +298,7 @@ func TestCIWrapperKeepsFindingsAdvisoryAndInitialPushUsesEmptyTree(t *testing.T)
 	base := git(t, d, "rev-parse", "HEAD")
 	write("program P { version P1 { hyper call(int)=1; }=1; }=1;")
 	cmd := exec.Command("bash", "ci-wrapper.sh", d, base, "HEAD")
+	cmd.Env = noPullRequestEnv()
 	output, err := cmd.CombinedOutput()
 	if err != nil || !strings.Contains(string(output), "1 wire-compatibility violation(s)") {
 		t.Fatalf("findings should be logged but advisory: err=%v output=%s", err, output)
@@ -346,5 +356,202 @@ func TestConstantCycleTerminates(t *testing.T) {
 		}
 	case <-time.After(5 * time.Second):
 		t.Fatal("constValue did not terminate on a constant cycle")
+	}
+}
+
+// An annotation whose message or title is not escaped is silently mangled or
+// truncated by the runner, so a finding can appear on the pull request with
+// the wrong text. Newlines end the command, and ':' and ',' end a property.
+func TestAnnotationsEscapeAndAnchorToSource(t *testing.T) {
+	var out strings.Builder
+	emitAnnotations(&out, []Finding{
+		{Rule: "R1", Subject: "P.P1 proc 1 (call)", Detail: "was: int\nnow: hyper",
+			Remedy: "allocate a new number", BaseOrigin: "rpc.x", HeadOrigin: "rpc.x"},
+		{Rule: "R7", Subject: "program Gone (0x2)", Detail: "deleted 50% of it",
+			Remedy: "deprecate first", BaseOrigin: "gone.x"},
+		{Rule: "R8", Subject: "number 0x1: A, B", Detail: "new owner", Remedy: "renumber"},
+	})
+	lines := strings.Split(strings.TrimSuffix(out.String(), "\n"), "\n")
+	if len(lines) != 3 {
+		t.Fatalf("one annotation per finding, on one line each:\n%s", out.String())
+	}
+	// The message ends at the newline, so newlines escape; ':' does not,
+	// because the runner splits the message off at the first '::' pair.
+	if lines[0] != "::warning file=rpc.x,title=R1 P.P1 proc 1 (call)::was: int%0Anow: hyper%0A-> allocate a new number" {
+		t.Fatalf("message escaping: %s", lines[0])
+	}
+	// A deleted declaration has no head origin; the annotation must still
+	// anchor to where the reviewer can see what was removed.
+	if !strings.HasPrefix(lines[1], "::warning file=gone.x,") || !strings.Contains(lines[1], "deleted 50%25 of it") {
+		t.Fatalf("base-origin fallback and %% escaping: %s", lines[1])
+	}
+	// Unanchored findings must omit file= rather than emit an empty path.
+	if strings.Contains(lines[2], "file=") || !strings.Contains(lines[2], "title=R8 number 0x1%3A A%2C B") {
+		t.Fatalf("property escaping without an origin: %s", lines[2])
+	}
+}
+
+// GitHub drops warning annotations past ten per step. The notice therefore has
+// to fit *inside* the budget: emitting ten findings and then the notice makes
+// the notice the eleventh, which is the one dropped, leaving the Files changed
+// tab looking like exactly ten findings were found. The boundary either side of
+// the cap is where that goes wrong, so all three cases are pinned here.
+func TestAnnotationsAreCappedWithOverflowNotice(t *testing.T) {
+	notice := "wire-compatibility violation(s) not annotated"
+	for _, tc := range []struct {
+		total    int
+		withheld string // "" when everything fits and no notice is due
+	}{
+		{total: maxAnnotations},
+		{total: maxAnnotations + 1, withheld: "2"},
+		{total: maxAnnotations + 2, withheld: "3"},
+	} {
+		findings := make([]Finding, tc.total)
+		for i := range findings {
+			findings[i] = Finding{Rule: "R3", Subject: "struct S" + strconv.Itoa(i),
+				Detail: "layout changed", Remedy: "define a new struct", HeadOrigin: "types.x"}
+		}
+		var out strings.Builder
+		emitAnnotations(&out, findings)
+		lines := strings.Split(strings.TrimSuffix(out.String(), "\n"), "\n")
+
+		// The invariant that matters: never exceed what GitHub will render.
+		if len(lines) > maxAnnotations {
+			t.Fatalf("%d findings emitted %d annotations, over the %d GitHub renders",
+				tc.total, len(lines), maxAnnotations)
+		}
+		last := lines[len(lines)-1]
+		if tc.withheld == "" {
+			if len(lines) != tc.total || strings.Contains(out.String(), notice) {
+				t.Fatalf("%d findings fit exactly and need no notice, got %d lines: %s",
+					tc.total, len(lines), out.String())
+			}
+			continue
+		}
+		if len(lines) != maxAnnotations {
+			t.Fatalf("%d findings should fill the budget, got %d lines", tc.total, len(lines))
+		}
+		if !strings.Contains(last, tc.withheld+" more "+notice) {
+			t.Fatalf("%d findings: notice must survive and name the withheld count: %s",
+				tc.total, last)
+		}
+		// The withheld count must square with what was actually annotated.
+		if shown := len(lines) - 1; shown+mustAtoi(t, tc.withheld) != tc.total {
+			t.Fatalf("%d findings: %d shown plus %s withheld does not add up",
+				tc.total, shown, tc.withheld)
+		}
+	}
+}
+func mustAtoi(t *testing.T, s string) int {
+	t.Helper()
+	n, err := strconv.Atoi(s)
+	if err != nil {
+		t.Fatal(err)
+	}
+	return n
+}
+
+// Findings are advisory, so the job stays green. That makes the reporting the
+// only thing a reviewer ever sees, and a silent reporting path is the same as
+// no checker at all.
+func TestCIWrapperReportsFindingsWhereAReviewerLooks(t *testing.T) {
+	d := t.TempDir()
+	git(t, d, "init")
+	git(t, d, "config", "user.email", "test@example.com")
+	git(t, d, "config", "user.name", "Test")
+	write := func(src string) {
+		t.Helper()
+		if err := os.WriteFile(filepath.Join(d, "wire.x"), []byte(src), 0600); err != nil {
+			t.Fatal(err)
+		}
+		git(t, d, "add", ".")
+		git(t, d, "commit", "-m", "revision")
+	}
+	write("program P { version P1 { int call(int)=1; }=1; }=1;")
+	base := git(t, d, "rev-parse", "HEAD")
+	write("program P { version P1 { hyper call(int)=1; }=1; }=1;")
+
+	summary := filepath.Join(t.TempDir(), "summary.md")
+	cmd := exec.Command("bash", "ci-wrapper.sh", d, base, "HEAD")
+	// Blank the pull request variables explicitly: this test must never post
+	// a comment just because it happens to run inside a pull request build.
+	cmd.Env = append(noPullRequestEnv(), "GITHUB_STEP_SUMMARY="+summary)
+	output, err := cmd.CombinedOutput()
+	if err != nil {
+		t.Fatalf("findings stay advisory: err=%v output=%s", err, output)
+	}
+	if !strings.Contains(string(output), "::warning file=wire.x,title=R1 P.P1 proc 1 (call)::") {
+		t.Fatalf("annotations must reach the runner:\n%s", output)
+	}
+
+	rendered, err := os.ReadFile(summary)
+	if err != nil {
+		t.Fatal(err)
+	}
+	// The marker is what lets a repeated push edit one comment in place.
+	for _, want := range []string{"<!-- xdrcompat-report -->", "advisory", "1 wire-compatibility violation(s)"} {
+		if !strings.Contains(string(rendered), want) {
+			t.Fatalf("summary is missing %q:\n%s", want, rendered)
+		}
+	}
+
+	workflow, err := os.ReadFile(filepath.Join("..", "..", ".github", "workflows", "cpp.yml"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	// Without the write permission the comment cannot be posted, and the
+	// wrapper treats that as an operational failure rather than staying quiet.
+	for _, want := range []string{"pull-requests: write", "PR_NUMBER:", "GH_TOKEN:"} {
+		if !strings.Contains(string(workflow), want) {
+			t.Fatalf("workflow is missing %q, so pull requests would go unreported", want)
+		}
+	}
+}
+
+// Only the comment is size-capped, because GitHub rejects an over-long one.
+// The job summary must stay complete: the README promises it carries the full
+// report, and the annotation overflow notice sends readers there for the
+// findings it could not annotate. Truncating both leaves nowhere to read them.
+func TestJobSummaryIsNotTruncatedWithTheComment(t *testing.T) {
+	d := t.TempDir()
+	git(t, d, "init")
+	git(t, d, "config", "user.email", "test@example.com")
+	git(t, d, "config", "user.name", "Test")
+	write := func(src string) {
+		t.Helper()
+		if err := os.WriteFile(filepath.Join(d, "wire.x"), []byte(src), 0600); err != nil {
+			t.Fatal(err)
+		}
+		git(t, d, "add", ".")
+		git(t, d, "commit", "-m", "revision")
+	}
+	// Two findings in different programs, so the second is far enough into the
+	// report to fall past a small cap.
+	write("program A { version A1 { int call(int)=1; }=1; }=1;" +
+		"program B { version B1 { int call(int)=1; }=1; }=2;")
+	base := git(t, d, "rev-parse", "HEAD")
+	write("program A { version A1 { hyper call(int)=1; }=1; }=1;" +
+		"program B { version B1 { hyper call(int)=1; }=1; }=2;")
+
+	summary := filepath.Join(t.TempDir(), "summary.md")
+	cmd := exec.Command("bash", "ci-wrapper.sh", d, base, "HEAD")
+	cmd.Env = append(noPullRequestEnv(),
+		"GITHUB_STEP_SUMMARY="+summary, "XDRCOMPAT_MAX_COMMENT_BYTES=200")
+	if output, err := cmd.CombinedOutput(); err != nil {
+		t.Fatalf("findings stay advisory: err=%v output=%s", err, output)
+	}
+
+	rendered, err := os.ReadFile(summary)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if strings.Contains(string(rendered), "truncated at") {
+		t.Fatalf("the summary must never be truncated:\n%s", rendered)
+	}
+	// Both findings have to survive, not just the one that fits the comment.
+	for _, want := range []string{"A.A1 proc 1 (call)", "B.B1 proc 1 (call)"} {
+		if !strings.Contains(string(rendered), want) {
+			t.Fatalf("summary lost %q to the comment's cap:\n%s", want, rendered)
+		}
 	}
 }
