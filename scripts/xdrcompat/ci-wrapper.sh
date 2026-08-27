@@ -16,7 +16,9 @@ trap 'rm -f "$report" "$diag" "$body" "$binary"' EXIT
 marker='<!-- xdrcompat-report -->'
 
 # GitHub rejects a comment body over 65536 bytes. Leave room for the framing.
-max_body=45000
+# Overridable so a test can drive the truncation branch without synthesising a
+# 45 KB report, and so the limit can be retuned without touching the logic.
+max_body=${XDRCOMPAT_MAX_COMMENT_BYTES:-45000}
 
 status=0
 if ! (cd "$script_dir" && go build -o "$binary" .) >"$report" 2>&1; then
@@ -39,7 +41,12 @@ case $status in
     *) headline=':x: `xdrcompat` could not run. This is an operational failure, not a finding.' ;;
 esac
 
-{
+# render LIMIT emits the report. LIMIT 0 means no truncation: the job summary
+# is the one place that carries every finding, and both the README and the
+# annotation overflow notice send readers there for the full list. Only the
+# comment is truncated, because GitHub rejects an over-long comment outright.
+render() {
+    local limit=$1
     echo "$marker"
     echo '### XDR evolution rules (advisory)'
     echo
@@ -49,10 +56,12 @@ esac
     echo
     if [[ -s $report ]]; then
         echo '```text'
-        head -c "$max_body" "$report"
-        if [[ $(wc -c <"$report") -gt $max_body ]]; then
+        if [[ $limit -gt 0 && $(wc -c <"$report") -gt $limit ]]; then
+            head -c "$limit" "$report"
             echo
-            echo "[report truncated at ${max_body} bytes; see the step log for the rest]"
+            echo "[truncated at ${limit} bytes; the job summary and step log carry the rest]"
+        else
+            cat "$report"
         fi
         echo '```'
     fi
@@ -66,11 +75,12 @@ esac
     echo '</details>'
     echo
     echo "Compared \`${base}\` with \`${head}\`. Rules and remedies: \`scripts/xdrcompat/README.md\`."
-} >"$body"
+}
 
 if [[ -n ${GITHUB_STEP_SUMMARY:-} ]]; then
-    cat "$body" >>"$GITHUB_STEP_SUMMARY"
+    render 0 >>"$GITHUB_STEP_SUMMARY"
 fi
+render "$max_body" >"$body"
 
 # A pull request comment is the only reporting path a reviewer sees without
 # leaving the pull request, so failing to post one is an operational failure

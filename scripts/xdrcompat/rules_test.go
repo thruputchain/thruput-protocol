@@ -507,3 +507,51 @@ func TestCIWrapperReportsFindingsWhereAReviewerLooks(t *testing.T) {
 		}
 	}
 }
+
+// Only the comment is size-capped, because GitHub rejects an over-long one.
+// The job summary must stay complete: the README promises it carries the full
+// report, and the annotation overflow notice sends readers there for the
+// findings it could not annotate. Truncating both leaves nowhere to read them.
+func TestJobSummaryIsNotTruncatedWithTheComment(t *testing.T) {
+	d := t.TempDir()
+	git(t, d, "init")
+	git(t, d, "config", "user.email", "test@example.com")
+	git(t, d, "config", "user.name", "Test")
+	write := func(src string) {
+		t.Helper()
+		if err := os.WriteFile(filepath.Join(d, "wire.x"), []byte(src), 0600); err != nil {
+			t.Fatal(err)
+		}
+		git(t, d, "add", ".")
+		git(t, d, "commit", "-m", "revision")
+	}
+	// Two findings in different programs, so the second is far enough into the
+	// report to fall past a small cap.
+	write("program A { version A1 { int call(int)=1; }=1; }=1;" +
+		"program B { version B1 { int call(int)=1; }=1; }=2;")
+	base := git(t, d, "rev-parse", "HEAD")
+	write("program A { version A1 { hyper call(int)=1; }=1; }=1;" +
+		"program B { version B1 { hyper call(int)=1; }=1; }=2;")
+
+	summary := filepath.Join(t.TempDir(), "summary.md")
+	cmd := exec.Command("bash", "ci-wrapper.sh", d, base, "HEAD")
+	cmd.Env = append(noPullRequestEnv(),
+		"GITHUB_STEP_SUMMARY="+summary, "XDRCOMPAT_MAX_COMMENT_BYTES=200")
+	if output, err := cmd.CombinedOutput(); err != nil {
+		t.Fatalf("findings stay advisory: err=%v output=%s", err, output)
+	}
+
+	rendered, err := os.ReadFile(summary)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if strings.Contains(string(rendered), "truncated at") {
+		t.Fatalf("the summary must never be truncated:\n%s", rendered)
+	}
+	// Both findings have to survive, not just the one that fits the comment.
+	for _, want := range []string{"A.A1 proc 1 (call)", "B.B1 proc 1 (call)"} {
+		if !strings.Contains(string(rendered), want) {
+			t.Fatalf("summary lost %q to the comment's cap:\n%s", want, rendered)
+		}
+	}
+}
