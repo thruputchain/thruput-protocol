@@ -21,3 +21,16 @@ syscall_descriptions:
       After calling this function for a particular index, calling
       `SHA256Finalize` again or `SHA256Update` with `reset = false` yields
       undefined behavior.
+
+  - name: "SHA256Copy"
+    descr: >
+      Copy the digest state at `src_index` to `dst_index`, replacing any
+      digest state already at `dst_index`.
+
+      After the copy, the two digest states are independent: updating or
+      finalizing one has no effect on the other. Finalizing `dst_index`
+      immediately after a copy yields the same digest that finalizing
+      `src_index` would have.
+
+      Calling this function with `src_index == dst_index` yields the same
+      system state as not calling it at all.
