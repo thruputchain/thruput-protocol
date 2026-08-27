@@ -221,6 +221,42 @@ struct TransactionRefPage {
   BlockHeight oldest_block;
 };
 
+/// Backend disposition of a block-explorer page query.  Distinguishes
+/// "the query ran and matched nothing" (IndexerQueryOk with an empty
+/// page) from "the indexer could not run the query at all", so a
+/// broken or still-opening node is not rendered as an empty chain.
+enum IndexerQueryOutcome {
+  IndexerQueryOk = 0,
+  /// The indexer's database is not open (still starting up, or shut
+  /// down).  Transient from the cluster's point of view: retry, or ask
+  /// a healthy node.
+  IndexerQueryNotReady = 1,
+  /// Unrecoverable backend failure (corrupt record, storage error).
+  /// Details are in the indexer's logs.
+  IndexerQueryInternalFailure = 2
+};
+
+union EventPageResult switch (IndexerQueryOutcome outcome) {
+case IndexerQueryOk:
+  EventPage page;
+default:
+  void;
+};
+
+union TransactionPageResult switch (IndexerQueryOutcome outcome) {
+case IndexerQueryOk:
+  TransactionPage page;
+default:
+  void;
+};
+
+union TransactionRefPageResult switch (IndexerQueryOutcome outcome) {
+case IndexerQueryOk:
+  TransactionRefPage page;
+default:
+  void;
+};
+
 enum IndexerBlockExplorerIntroOutcome {
   IntroSuccess = 0,
   IntroMismatchedProtocol = 1
@@ -243,18 +279,18 @@ program IndexerBlockExplorer
     // iff it matches at least one EventFilter in the request (OR
     // across filters, AND within each filter).  Supports the wallet
     // "transfers to OR from me" case in a single call.
-    EventPage get_events(EventQuery) = 3;
+    EventPageResult get_events(EventQuery) = 3;
 
     // Paginated transactions, whole-chain, in block order.
-    TransactionPage get_transactions(TransactionQuery) = 4;
+    TransactionPageResult get_transactions(TransactionQuery) = 4;
 
     // Paginated transaction refs whose root invoked address == the query
     // address (account transaction history).  Hydrate via get_transaction_info.
-    TransactionRefPage get_transactions_by_address(AddressTransactionQuery) = 5;
+    TransactionRefPageResult get_transactions_by_address(AddressTransactionQuery) = 5;
 
     // Paginated transaction refs committed at exactly the requested height.
     // Hydrate via get_transaction_info.
-    TransactionRefPage get_transactions_by_block(BlockTransactionQuery) = 6;
+    TransactionRefPageResult get_transactions_by_block(BlockTransactionQuery) = 6;
   } = 1;
 }
 = 0x4321aaaa;
