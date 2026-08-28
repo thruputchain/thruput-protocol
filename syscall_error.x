@@ -47,7 +47,16 @@ enum SyscallErrorCode {
   /// limit, not a malformed call, and does not by itself fail the transaction;
   /// a contract may use it as a stop condition (e.g. drain a queue until it
   /// returns this).
-  kSyscallErrorCodeRetrocausalQueueReadLimitReached = 10
+  kSyscallErrorCodeRetrocausalQueueReadLimitReached = 10,
+
+  /// The target of a DeleteObject is a retrocausal queue whose retained
+  /// history spans more than kMaxRetrocausalQueueBlocksPerDeletion live block
+  /// rows, so deleting it in one transaction would exceed the bounded
+  /// commit-time cleanup budget. This is a resource limit, not a malformed
+  /// call, and does not by itself fail the transaction; the contract can
+  /// consume the queue down (pruning fully-consumed block rows) in earlier
+  /// blocks and retry the delete.
+  kSyscallErrorCodeRetrocausalQueueTooLargeToDelete = 11
 };
 
 } // namespace hogd
