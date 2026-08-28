@@ -5,6 +5,7 @@
 %#include "transaction.hh"
 %#include "address_auth.hh"
 %#include "consensus.hh"
+%#include "network_config.hh"
 
 namespace hogd
 {
@@ -24,6 +25,11 @@ struct DbTip {
   /// GenesisConfiguration::default_wallet; carried forward verbatim by
   /// every subsequent commit.
   DeployedContractHash default_wallet;
+
+  /// The execution parameters in force for the block that follows this tip.
+  /// Set at genesis from GenesisConfiguration::network_config; carried forward
+  /// verbatim by every commit that does not apply a [`ConfigUpgrade`].
+  NetworkConfig network_config;
 };
 
 // Internal unique ID describing a transaction.
