@@ -14,12 +14,6 @@ struct StorageCostModelXdr {
   unsigned hyper balance_cost;
 };
 
-/// The network configuration committed to by ProposalHeader::config_hash.
-/// New consensus-critical configuration belongs in this preimage.
-struct ConfigHashPreimage {
-  StorageCostModelXdr storage_cost_model;
-};
-
 // Cost of storing a bytestring:
 // base_data_item_cost + bytestring_cost_per_byte * bytestring_len
 

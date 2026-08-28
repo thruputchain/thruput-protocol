@@ -1,6 +1,7 @@
 // clang-format off
 %#include "types.hh"
 %#include "transaction.hh"
+%#include "network_config.hh"
 %#include "storage_cost.hh"
 %#include "contract.hh"
 
@@ -10,6 +11,10 @@ namespace hogd {
 struct GenesisConfiguration {
   NetworkHash network_hash;
   StorageCostModelXdr storage_cost_model;
+
+  /// The execution parameters block 0 runs under, in canonical form. Carried
+  /// into the DbTip at genesis load and forward by every later commit.
+  NetworkConfig network_config;
   Contract root_contract;
 
   /// The contract resolved for root invocations of undeployed addresses.

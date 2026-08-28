@@ -1,6 +1,7 @@
 %#include "address_auth.hh"
 %#include "catchup.hh"
 %#include "network.hh"
+%#include "network_config.hh"
 %#include "genesis.hh"
 %#include "proposal.hh"
 %#include "rpc_types.hh"
