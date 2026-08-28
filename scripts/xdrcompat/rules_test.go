@@ -68,18 +68,22 @@ func TestOriginalRuleFixturesAreExact(t *testing.T) {
 		{"r2", [4]string{"R2", "P.P1 proc 1", "number reused: old_name -> reused", "allocate a new procedure number instead"}},
 		{"r3", [4]string{"R3", "struct Payload", "added \"int second\"", "XDR is positional; a decoder cannot skip or reorder. Define a new struct and reach it from a new procedure."}},
 		{"r4", [4]string{"R4", "enum State", "case DONE renumbered 1 -> 2", "never renumber an existing case; append a new one"}},
-		{"r5", [4]string{"R3", "union Result", "wire layout changed\n         was: union(enum;0=>int,default=>void)\n         now: union(enum;0=>int)", "union discriminants, case values, arm payloads, and default payloads are wire layout; define a new union and procedure/version"}},
+		// Not a rule of its own since R5 was withdrawn, but dropping a default
+		// arm is still a layout change, and it is the direction that stays a
+		// break: a message an old peer could decode becomes one it cannot.
+		{"default_arm_removal", [4]string{"R3", "union Result", "wire layout changed\n         was: union(enum;0=>int,default=>void)\n         now: union(enum;0=>int)", "union discriminants, case values, arm payloads, and default payloads are wire layout; define a new union and procedure/version"}},
 		{"r7", [4]string{"R7", "program P (0x1001)", "program was deleted outright", "deprecate across a release before removing; peers still call it"}},
 		{"r8", [4]string{"R8", "program number 0x1001", "new owner(s) B make the owner set: A, B", "program numbers identify a service on the wire; allocate a distinct number (two versions of one program may share it)"}},
 	}
 	for _, tc := range cases {
 		t.Run(tc.rule+" fail", func(t *testing.T) {
 			got := Check(fixture(t, tc.rule, "fail", "base"), fixture(t, tc.rule, "fail", "head"))
-			if tc.rule == "r5" { // R5 and the newly complete union-layout rule are both intentional.
+			// Removing the default changes the union's own layout and, through
+			// it, the signature of every procedure carrying the union.
+			if tc.rule == "default_arm_removal" {
 				exact(t, got,
 					[4]string{"R1", "P.P1 proc 1 (call)", "signature changed\n         was: union(enum;0=>int,default=>void) call()\n         now: union(enum;0=>int) call()", "same number with a new layout is a SILENT break. Add a new procedure number, or declare P version 2 (R6)."},
 					tc.want,
-					[4]string{"R5", "union Result", "crosses a service boundary but has no `default:` arm", "add `default: void;` so an old peer can decode and report rather than fail to parse"},
 				)
 				return
 			}
@@ -143,6 +147,41 @@ func TestUnionLayoutAndArmOrder(t *testing.T) {
 	exact(t, Check(b, h), [4]string{"R3", "union Choice", "wire layout changed\n         was: union(int;0=>int,default=>void)\n         now: union(bool;1=>hyper,default=>int)", "union discriminants, case values, arm payloads, and default payloads are wire layout; define a new union and procedure/version"})
 	b, h = pair(t, "union Choice switch (int kind) { case 0: int n; case 1: hyper h; default: void; };", "union Choice switch (int kind) { case 1: hyper h; case 0: int n; default: void; };")
 	exact(t, Check(b, h))
+}
+
+// R5 required a `default:` arm on every union crossing a service boundary. It
+// was withdrawn because the remedy caused the failure it claimed to prevent: a
+// `default: void` decodes zero bytes, so a peer meeting a discriminant added
+// after it was built consumes nothing and then reads the following fields out
+// of the sender's payload. A missing default is a clean decode error, which is
+// what should happen. Adding a default must stay a reportable layout change,
+// and a union without one must stay silent.
+func TestMissingDefaultArmIsNotAFinding(t *testing.T) {
+	boundary := "union U switch (int k) { case 0: int n; };" +
+		"program P { version P1 { U call(int)=1; }=1; }=1;"
+
+	// Newly declared and reachable from a program: the exact shape R5 fired on.
+	exact(t, Check(model(t, map[string]string{"wire.x": "program P { version P1 { int call(int)=1; }=1; }=1;"}),
+		model(t, map[string]string{"wire.x": boundary})),
+		[4]string{"R1", "P.P1 proc 1 (call)", "signature changed\n         was: int call(int)\n         now: U call(int)", "same number with a new layout is a SILENT break. Add a new procedure number, or declare P version 2 (R6)."})
+
+	// Unchanged across revisions: nothing to say about it at all.
+	b, h := pair(t, boundary, boundary)
+	exact(t, Check(b, h))
+
+	// Adding one is still a layout change, so the tool keeps reporting it and
+	// the sweep it would trigger stays visible rather than looking free.
+	withDefault := "union U switch (int k) { case 0: int n; default: void; };" +
+		"program P { version P1 { U call(int)=1; }=1; }=1;"
+	got := Check(model(t, map[string]string{"wire.x": boundary}), model(t, map[string]string{"wire.x": withDefault}))
+	if len(got) == 0 {
+		t.Fatal("adding a default arm changes the union layout and must still report")
+	}
+	for _, f := range got {
+		if f.Rule == "R5" {
+			t.Fatalf("R5 was withdrawn but still fires: %#v", f)
+		}
+	}
 }
 
 func TestProcedureQualifiersAreWireSignificant(t *testing.T) {

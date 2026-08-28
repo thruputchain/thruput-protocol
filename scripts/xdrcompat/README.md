@@ -15,9 +15,32 @@ It detects:
 - changed struct field layouts, typedef layouts, enum values (including values
   supplied by constants), and union discriminants/case values/arm/default
   payloads;
-- reachable unions that newly lack a `default:` arm; and
 - new owners joining an already-used program number. Existing collisions are
   grandfathered only for their exact owner set.
+
+## Why there is no R5
+
+R5 required every union crossing a service boundary to carry a `default:` arm,
+so that an old peer could decode and report rather than fail to parse. It was
+withdrawn: the remedy causes the failure it claims to prevent.
+
+A `default: void` arm decodes **zero bytes**. When a peer meets a discriminant
+added after it was built, it consumes the discriminant, matches the default,
+consumes nothing more, and then reads every following field out of the sender's
+arm payload. For a union embedded in a larger message that silently corrupts
+everything after it — including, in this schema, the multi-signature weight in
+`address_auth.x:PublicKeyConfig`. Without the default the same message is a
+clean decode error, which is the correct outcome. XDR cannot skip an unknown
+arm; that is the premise the whole tool rests on, and R5 contradicted it.
+
+Unknown discriminants are what the ONC version mechanism is for. Adding a
+`default:` arm remains a reportable layout change like any other, and removing
+one still breaks peers that relied on it.
+
+The hazard R5 was groping at is real but differential, and belongs in a rule
+that fires when an enum **gains** a case that some reachable union switching on
+it has no arm for. That check is sound and its remedy is correct. It is not
+implemented.
 
 Arm declaration order is ignored when union case values and payloads are
 unchanged. Namespace identity and source paths are retained to prevent

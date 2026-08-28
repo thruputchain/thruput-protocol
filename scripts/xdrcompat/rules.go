@@ -226,23 +226,6 @@ func Check(base, head *Model) []Finding {
 		}
 	}
 
-	wire := head.ReachableFromPrograms()
-	for _, k := range sortedKeys(head.Unions) {
-		u := head.Unions[k]
-		if !wire[k] || u.HasDefault {
-			continue
-		}
-		preexisting := false
-		for bk, hk := range um {
-			if hk == k && base.Unions[bk].HasDefault == false {
-				preexisting = true
-			}
-		}
-		if preexisting {
-			continue
-		}
-		out = append(out, Finding{Rule: "R5", Subject: "union " + u.Name, Detail: "crosses a service boundary but has no `default:` arm", Remedy: "add `default: void;` so an old peer can decode and report rather than fail to parse", HeadOrigin: u.Origin.Path})
-	}
 	return out
 }
 func fieldStrings(fs []Field) []string {
