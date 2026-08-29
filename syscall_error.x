@@ -47,7 +47,16 @@ enum SyscallErrorCode {
   /// limit, not a malformed call, and does not by itself fail the transaction;
   /// a contract may use it as a stop condition (e.g. drain a queue until it
   /// returns this).
-  kSyscallErrorCodeRetrocausalQueueReadLimitReached = 10
+  kSyscallErrorCodeRetrocausalQueueReadLimitReached = 10,
+
+  /// The invocation would exceed the network's cross-invoke depth bound
+  /// (kConfigParamMaxCrossInvokeDepth), which limits how many invocation
+  /// frames one transaction may hold open at once. Like the retrocausal-queue
+  /// read limit this is a resource limit, not a malformed call: the same
+  /// invocation succeeds from a shallower frame. It is reported before any
+  /// child frame runs, so the syscall is a complete no-op and the caller's
+  /// invoke outputs are left untouched.
+  kSyscallErrorCodeInvokeDepthExceeded = 11
 };
 
 } // namespace hogd

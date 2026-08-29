@@ -226,6 +226,14 @@ syscalls:
         description: >
           The invoked address is already on the stack. The invocation is
           rejected before any child frame runs and the syscall is a no-op.
+      - code: kSyscallErrorCodeInvokeDepthExceeded
+        description: >
+          The transaction already holds kConfigParamMaxCrossInvokeDepth
+          invocation frames open, so admitting another would exceed the
+          network's cross-invoke depth bound. This is a resource limit rather
+          than a malformed call -- the same invocation succeeds from a
+          shallower frame. The invocation is rejected before any child frame
+          runs and the syscall is a no-op.
   - name: "Return"
     read_only: true
     inputs:
