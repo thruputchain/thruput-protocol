@@ -19,6 +19,20 @@ typedef opaque QueueEntry<kQueueEntryMaxLen>; // #[rust(newtype)]
 /// the PR.)
 const kMaxConcurrentRcqReadsPerTx = 16384;
 
+/// Per-queue bound on how many live block rows a retrocausal queue may span
+/// for a transaction to delete it (or overwrite its type). Each live block row
+/// is an independent consensus state item, so deleting the queue expands at
+/// block close into one state-row removal per live block row; admitting an
+/// unbounded delete would let one constant-size transaction concentrate
+/// unbounded cleanup work into commit. The executor refuses DeleteObject on a
+/// larger queue with kSyscallErrorCodeRetrocausalQueueTooLargeToDelete — a
+/// handleable syscall error, so contracts can consume the queue down and
+/// retry — and hogdb enforces the same bound at delta admission. The verdict
+/// is derived from committed block-start metadata
+/// (max_live_block_num - max_fully_consumed_block_number), so it is
+/// consensus-uniform, in the same limit family as kMaxConcurrentRcqReadsPerTx.
+const kMaxRetrocausalQueueBlocksPerDeletion = 16384;
+
 /// Maximum number of entries in a single RetrocausalQueue block.
 /// Each entry is at most 256 bytes. With XDR serialization overhead (4 bytes
 /// per entry length prefix, 12 bytes framing), ramdb key overhead (73 bytes),

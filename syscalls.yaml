@@ -524,6 +524,13 @@ syscalls:
         description: >
           The storage flags are invalid or incompatible with the
           current storage state.
+      - code: kSyscallErrorCodeRetrocausalQueueTooLargeToDelete
+        description: >
+          The target is a retrocausal queue spanning more than
+          kMaxRetrocausalQueueBlocksPerDeletion live block rows, so
+          deleting it in one transaction would exceed the bounded
+          commit-time cleanup budget. Consume the queue down in
+          earlier blocks and retry.
   - name: "GetCurrentAddress"
     read_only: true
     inputs:
