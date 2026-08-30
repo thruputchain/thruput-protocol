@@ -1,6 +1,6 @@
 namespace hogd {
 
-// Error codes returned from a runtime (wasmi) invocation.
+// Error codes returned from a runtime (RV32) invocation.
 // This is the external interface to a smart contract. Normally wrapped in an
 // InvokeStatus<int32_t> (a std::expected).
 //
