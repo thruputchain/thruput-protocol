@@ -840,3 +840,23 @@ syscalls:
           - The hash computation at src_index does not exist.
           - dst_index does not already hold a hash computation and
             there are too many active hash buffers.
+  - name: "GetNetworkHash"
+    read_only: true
+    inputs:
+    outputs:
+      - name: "network_hash"
+        typename: "NetworkHash"
+    number: 34
+    description: >
+      Returns the hash of the network name, the identifier that separates
+      this network's blocks from those of every other network. It is fixed
+      for the life of the network, so it is constant across every block and
+      every invocation.
+
+      Transaction signatures already commit to this value (the signature
+      preimage is `cxs(DomainSeparator("Transaction")) || network_hash ||
+      xdr(tx)`). Exposing it to contracts lets a contract bind its own
+      off-chain signed messages to this network the same way, so a message
+      signed for one network cannot be replayed against a contract at the
+      same address on another.
+    errors:

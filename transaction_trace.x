@@ -493,6 +493,19 @@ struct SyscallSHA256CopyTrace {
   SyscallSHA256CopyOutputs *outputs;
 };
 
+struct SyscallGetNetworkHashInputs {
+  void;
+};
+
+struct SyscallGetNetworkHashOutputs {
+  NetworkHash network_hash;
+};
+
+struct SyscallGetNetworkHashTrace {
+  SyscallGetNetworkHashInputs inputs;
+  SyscallGetNetworkHashOutputs *outputs;
+};
+
 // === Main Trace Body ===
 
 union SyscallTraceBody switch (SyscallNo syscall_number)
@@ -565,6 +578,8 @@ case kConsumeAuthToken:
   SyscallConsumeAuthTokenTrace consume_auth_token;
 case kSHA256Copy:
   SyscallSHA256CopyTrace sha256_copy;
+case kGetNetworkHash:
+  SyscallGetNetworkHashTrace get_network_hash;
 default:
   void;
 };
