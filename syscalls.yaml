@@ -69,6 +69,13 @@ type_mappings:
     # does not fit in a single 32-bit syscall argument slot. It is therefore
     # passed by reference (as an offset into contract memory), not by value.
     newtype: true
+  - base_name: "TimePoint"
+    rust_name: "TimePoint"
+    rust_uses_as_ptr: false
+    # NOT primitive_type, for the same reason as BlockHeight above: TimePoint
+    # is a 64-bit value (typedef unsigned hyper), so it is passed by reference
+    # rather than in a 32-bit argument slot.
+    newtype: true
   - base_name: "TransactionStatistic"
     rust_name: "TransactionStatistic"
     rust_uses_as_ptr: false
@@ -859,4 +866,24 @@ syscalls:
       off-chain signed messages to this network the same way, so a message
       signed for one network cannot be replayed against a contract at the
       same address on another.
+    errors:
+  - name: "GetBlockTimepoint"
+    read_only: true
+    inputs:
+    outputs:
+      - name: "block_timepoint"
+        typename: "TimePoint"
+    number: 35
+    description: >
+      Returns the timepoint of the block currently executing. The value is
+      fixed by the coordinator before execution begins and is carried in the
+      block's ProposalHeader, so it is part of the block identity and is
+      identical for every invocation in the block.
+
+      Like a block height, this is consensus data rather than a trusted
+      clock: it is chosen by the proposer within whatever bounds the
+      network's validators enforce. Contracts should treat it as
+      coarse-grained wall-clock time -- suitable for expiries, vesting
+      schedules and deadlines -- and must not rely on it for fine-grained
+      ordering or as a source of randomness.
     errors:
