@@ -15,7 +15,7 @@ jobs:
           app-id: ${{ vars.PROTOCOL_SYNCHRONIZER_APP_ID }}
           private-key: ${{ secrets.PROTOCOL_SYNCHRONIZER_SECRET_KEY }}
           owner: groundhogchain
-          repositories: protocol-rs,protocol-ts
+          repositories: protocol-rs,protocol-ts,protocol-go
 
       - name: Trigger protocol-rs auto-update
         run: |
@@ -27,5 +27,11 @@ jobs:
         run: |
           gh workflow run auto-update.yml \
             --repo groundhogchain/protocol-ts
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+      - name: Trigger protocol-go auto-update
+        run: |
+          gh workflow run auto-update.yml \
+            --repo groundhogchain/protocol-go
         env:
           GH_TOKEN: ${{ steps.app-token.outputs.token }}
