@@ -22,22 +22,23 @@ namespace hogd {
 
 /// An opaque blob of executable code.
 ///
-/// This is the raw binary that will be executed as a (wasm or riscv) contract.
+/// This is the raw binary that will be executed as an RV32 contract.
 struct ContractBlob {
   opaque data<>;
 };
 
 /// The execution environment for a contract.
+///
+/// Discriminant 0 is retired. It selected the Wasmi runtime, which was
+/// removed once RV32 became the only deployable execution environment.
+/// Do not reuse the value: old encodings that carry it must fail to parse
+/// rather than silently decode as a live contract type.
 enum ContractType {
-  /// WebAssembly contract executed in the Wasmi runtime.
-  ///
-  /// This is the standard contract type for user-deployed contracts.
-  kWasmi = 0,
-
   /// Precompiled native contract implemented directly in Rust.
   ///
   /// Used for system contracts like the native HogToken.
-  /// More efficient than WASM but cannot be deployed by users.
+  /// Cheaper to invoke than a deployed RV32 contract, but users cannot
+  /// deploy new ones.
   kNative = 1,
 
   /// Mock contract for local testing.
@@ -58,13 +59,11 @@ enum ContractType {
 /// to execute their methods (entrypoints).
 ///
 /// The three contract types serve different purposes:
-/// - `kWasmi`: User-deployed contracts (most common)
+/// - `kRv32`: User-deployed contracts (most common)
 /// - `kNative`: System contracts with privileged access
 /// - `kMockTest`: Test contracts for local development
 union Contract switch (ContractType contract_type)
 {
-case kWasmi:
-  ContractBlob wasmi_contract;
 case kNative:
   /// Identifier for which native contract this is.
   ///
@@ -101,7 +100,7 @@ case kRv32:
 ///
 /// ```text
 /// Contract A address:  0x1234...
-/// Contract B hash:     0xabcd...
+/// Contract B hash:     0xabcd...   (= SHA256(XDR(Contract B)))
 /// Deployment nonce:    0x5678...
 /// Result: SHA256(0x1234... || 0x5678... || 0xabcd...) = Contract B address
 /// ```
@@ -115,10 +114,24 @@ struct ContractDeploymentHashPreimage {
   /// at different addresses.
   SHA256Hash nonce;
 
-  /// SHA-256 hash of the contract code being deployed.
+  /// SHA-256 hash of the XDR-encoded `Contract` being deployed.
   ///
-  /// For WASM contracts, this is `SHA256(wasm_blob)`.
-  /// For native contracts, this is a predefined hash.
+  /// This hashes the entire union, not the bare code blob:
+  ///
+  /// ```text
+  /// contract_hash = SHA256(XDR(Contract))
+  /// ```
+  ///
+  /// The encoding covers the 4-byte `ContractType` discriminant followed by
+  /// the selected arm, so identical code deployed under a different contract
+  /// type yields a different hash. For `kRv32` the arm is a `ContractBlob`,
+  /// which is itself a 4-byte length prefix followed by the code padded to a
+  /// 4-byte boundary -- hashing the raw code alone does not reproduce this
+  /// value.
+  ///
+  /// Native and mock contracts are hashed the same way, over a union whose
+  /// arm holds a contract identifier instead of a blob. They do not use
+  /// separately predefined hash constants.
   SHA256Hash contract_hash;
 };
 
@@ -221,16 +234,21 @@ typedef opaque ContractEntrypointID[8]; // #[rust(newtype)]
 /// This allows the system to locate and instantiate the contract code
 /// without loading the full contract from storage.
 struct DeployedContractHash {
-  /// SHA-256 hash of the deployed contract code.
+  /// SHA-256 hash of the XDR-encoded `Contract` deployed at this address.
+  ///
+  /// Computed as `SHA256(XDR(Contract))`, identically to the `contract_hash`
+  /// field of `ContractDeploymentHashPreimage`.
   SHA256Hash hash;
 
-  /// Size of the contract in bytes.
+  /// Size of the contract code in bytes.
+  ///
+  /// Always 0 for `kNative` and `kMockTest`, which carry no deployable blob.
   ///
   /// Optimization: allows computing and updating storage costs without
   /// loading the full contract from storage.
   unsigned int contract_size;
 
-  /// The type of contract (e.g., Wasm, native, etc.).
+  /// The type of contract: RV32, native, or mock.
   ///
   /// Optimization: allows the executor to determine which runtime to
   /// instantiate without a database lookup. When the contract module is
