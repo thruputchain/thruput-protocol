@@ -2,7 +2,6 @@
 %#include "rpc_types.hh"
 %#include "transaction.hh"
 %#include "exec_result.hh"
-%#include "header.hh"
 namespace hogd {
 // clang-format on
 
@@ -45,27 +44,26 @@ program ExecutorSched
     // finish_block() blocks until all running executor threads are finished,
     // and stops the executor from accepting new transactions.
     //
-    // Both open_xyz_block() methods take the same ProposalContext -- the
-    // inputs fixed before the block executes -- so the executor sees an
-    // identical view of the block whether it is proposing or validating,
-    // and contract-visible block data (e.g. the GetBlockTimepoint syscall)
-    // is served from one place. ProposalHeader is deliberately NOT the
-    // argument here: its txs/storage/events/config hashes are outputs of
-    // executing the block, so it does not exist yet at open time.
+    // Both open_xyz_block() methods take the same BlockExecutionContext, so
+    // the executor sees an identical view of the block whether it is
+    // proposing or validating, and everything a contract can observe about
+    // the current block (its height, and the GetBlockTimepoint syscall)
+    // comes from one place instead of being inferred from the parent tip.
     //
-    // The scheduler supplies the context from whichever side it is on:
-    //   - proposing:  forwarded verbatim from the coordinator's
-    //                 schedulercoord_propose_block(BlockID, ProposalContext).
-    //   - validating: rebuilt from the proposal under validation, taking
-    //                 proposer and block_timepoint from its ProposalHeader.
+    // The scheduler builds the context from whichever side it is on:
+    //   - proposing:  from the coordinator's ProposalContext, passed to
+    //                 schedulercoord_propose_block.
+    //   - validating: from the ProposalHeader of the proposal under
+    //                 validation.
     //
-    // A validator MUST take these from the proposal it is validating and
-    // never regenerate them locally: the proposer's values are the ones its
-    // execution committed to, so any divergence here diverges execution and
-    // splits consensus.
-    ExecResult executorsched_open_proposal_block(BlockID, ProposalContext) =
-    30;
-    ExecResult executorsched_open_validation_block(BlockID, ProposalContext) =
+    // A validator MUST take these values from the proposal it is validating
+    // and never regenerate them locally: the proposer's values are the ones
+    // its execution committed to, so any divergence here diverges execution
+    // and splits consensus.
+    ExecResult executorsched_open_proposal_block(BlockID,
+						 BlockExecutionContext) = 30;
+    ExecResult executorsched_open_validation_block(BlockID,
+						   BlockExecutionContext) =
     40;
     ExecResult executorsched_finish_block(BlockID) = 50;
 
