@@ -24,12 +24,12 @@ enum SchedGatewayIntroOutcome {
 // submission order. A malformed request or cardinality mismatch is an RPC or
 // protocol error; consumers must not infer partial acceptance from it.
 enum SchedGatewaySubmitOutcome {
-  // The transaction was admitted, or the same transaction body was already
-  // pending.
-  SchedGatewaySubmitAccepted = 0,
-  // This request definitely did not admit the transaction because transaction
-  // or auth validation failed against the state observed for this request.
-  SchedGatewaySubmitRejected = 1,
+  // The transaction was admitted to the mempool, or the same transaction body
+  // was already pending. This does not mean it was nominated or committed.
+  SchedGatewaySubmitAdmitted = 0,
+  // This request definitely did not admit the transaction because
+  // authentication failed against the state observed for this request.
+  SchedGatewaySubmitAuthenticationRejected = 1,
   // This request definitely did not admit the transaction because of a
   // transient admission condition; retrying it unchanged may succeed.
   SchedGatewaySubmitRetryable = 2,
