@@ -17,6 +17,30 @@ struct CoordCard {
   ServerAddress address_for_sched;
 };
 
+// The admission result for one exact SignedTransaction encoding in one
+// submission request. A rejection must not be cached or reused by
+// TransactionHash: signatures are not part of that hash.
+//
+// A successful RPC returns exactly one outcome per decoded transaction, in
+// submission order. A malformed request or cardinality mismatch is an RPC or
+// protocol error; consumers must not infer partial acceptance from it.
+enum SchedulerSubmitOutcome {
+  // The transaction was admitted, or the same transaction body was already
+  // pending.
+  SchedulerSubmitAccepted = 0,
+  // This request definitely did not admit the transaction because transaction
+  // or auth validation failed against the state observed for this request.
+  SchedulerSubmitRejected = 1,
+  // This request definitely did not admit the transaction because of a
+  // transient admission condition; retrying it unchanged may succeed.
+  SchedulerSubmitRetryable = 2,
+  // This request definitely did not admit the transaction because an internal
+  // dependency failed. An RPC failure instead makes admission indeterminate.
+  SchedulerSubmitInternalError = 3
+};
+
+typedef SchedulerSubmitOutcome SchedulerSubmitOutcomeBatch<>;
+
 enum SchedulerProposalOutcome {
   SchedulerProposalOK = 0,
   SchedulerProposalError = 1
@@ -135,6 +159,13 @@ program SchedulerCoord
     // to the network.
     void schedulercoord_submit_unvetted(ParallelSignedTransactionBatch) = 2;
     void schedulercoord_submit_vetted(ValidatorID, ParallelSignedTransactionBatch) = 3;
+
+    // Like schedulercoord_submit_unvetted, but returns the request-scoped,
+    // exact-cardinality admission outcomes described by SchedulerSubmitOutcome.
+    // A malformed batch fails at the RPC level because its transactions cannot
+    // be identified reliably.
+    SchedulerSubmitOutcomeBatch schedulercoord_submit_unvetted_with_outcomes(
+      ParallelSignedTransactionBatch) = 11;
 
     // schedulercoord_propose asks the scheduler to prepare a proposal (a
     // block proposal) on top of the given db block.
