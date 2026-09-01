@@ -14,6 +14,36 @@ namespace hogd
 // An internal unique ID describing a block.
 typedef unsigned hyper BlockID;
 
+/// The contract-visible facts about the block an executor is running.
+///
+/// Passed to both executor open-block calls so that a block looks identical
+/// to the executor whether it is being proposed or validated, and so that
+/// everything a contract can observe about "the current block" comes from
+/// one place rather than being inferred from the parent tip.
+///
+/// This is deliberately not `ProposalContext` (its `protocol` and `proposer`
+/// are scheduler concerns, and `protocol` is not recoverable from a
+/// `ProposalHeader` when validating) and not `ProposalHeader` (whose txs,
+/// storage, events and config hashes are outputs of executing the block, so
+/// they do not exist when it is opened).
+///
+/// Does not travel on network: the scheduler builds it per block, from the
+/// coordinator's `ProposalContext` when proposing and from the proposal's
+/// `ProposalHeader` when validating. A validator must take these values from
+/// the proposal it is validating rather than regenerating them, or its
+/// execution diverges from the proposer's and consensus splits.
+struct BlockExecutionContext {
+  /// Height of the block being executed -- the parent tip's height plus one.
+  /// Supplied rather than derived so that height and timepoint have a single
+  /// source; the executor is expected to check it against the tip it reads.
+  BlockHeight block_height;
+
+  /// The block's timepoint, fixed before execution begins. Unlike the
+  /// height there is no way to recover this from the parent tip: the
+  /// parent's timepoint is the previous block's.
+  TimePoint block_timepoint;
+};
+
 struct DbTip {
   BlockID id;
   StorageLongHash storage_long_hash;

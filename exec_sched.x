@@ -43,8 +43,28 @@ program ExecutorSched
     // if executor has already opened a block.
     // finish_block() blocks until all running executor threads are finished,
     // and stops the executor from accepting new transactions.
-    ExecResult executorsched_open_proposal_block(BlockID) = 30;
-    ExecResult executorsched_open_validation_block(BlockID) = 40;
+    //
+    // Both open_xyz_block() methods take the same BlockExecutionContext, so
+    // the executor sees an identical view of the block whether it is
+    // proposing or validating, and everything a contract can observe about
+    // the current block (its height, and the GetBlockTimepoint syscall)
+    // comes from one place instead of being inferred from the parent tip.
+    //
+    // The scheduler builds the context from whichever side it is on:
+    //   - proposing:  from the coordinator's ProposalContext, passed to
+    //                 schedulercoord_propose_block.
+    //   - validating: from the ProposalHeader of the proposal under
+    //                 validation.
+    //
+    // A validator MUST take these values from the proposal it is validating
+    // and never regenerate them locally: the proposer's values are the ones
+    // its execution committed to, so any divergence here diverges execution
+    // and splits consensus.
+    ExecResult executorsched_open_proposal_block(BlockID,
+						 BlockExecutionContext) = 30;
+    ExecResult executorsched_open_validation_block(BlockID,
+						   BlockExecutionContext) =
+    40;
     ExecResult executorsched_finish_block(BlockID) = 50;
 
     // Scheduler should call this to shutdown the executor.
