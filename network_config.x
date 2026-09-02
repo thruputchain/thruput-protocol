@@ -29,12 +29,13 @@ struct NetworkConfig {
   /// the executor runs out of room for it.
   unsigned int max_cross_invoke_depth;
 
-  /// Distinct contracts one transaction may attach in `contracts_to_deploy`.
+  /// Contracts one transaction may attach in `contracts_to_deploy`.
   ///
-  /// Counted after deduplication by contract hash, and counted over what is
-  /// attached rather than what a contract goes on to deploy: the executor
-  /// holds every attached contract for the whole transaction, and the ones
-  /// deployed are a subset chosen during execution.
+  /// Counted over what is attached rather than what a contract goes on to
+  /// deploy: the executor holds every attached contract for the whole
+  /// transaction, and the ones deployed are a subset chosen during execution.
+  /// Attaching the same contract twice is rejected outright, so the count is
+  /// over distinct contracts either way.
   ///
   /// Together with the per-contract blob size cap this is what bounds the
   /// transaction's final commit batch, which the executor sends to storage as
