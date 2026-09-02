@@ -5,19 +5,15 @@
 namespace hogd {
 // clang-format on
 
-/// The consensus-critical execution parameters a block executes under.
-///
-/// Every parameter is a named field, so a configuration is structurally
-/// complete: it cannot omit one, repeat one, or order them differently. The
-/// protocol blesses no value for any of them either -- a chain states all of
-/// them at genesis, so there is nothing a node can silently inherit and no way
-/// for two node versions to disagree about what is in force.
-///
-/// Adding a parameter means adding a field here and an arm to
-/// [`ConfigUpgrade`].
-struct NetworkConfig {
-  ExtensionPoint ext;
+/// The parameters a chain created before `max_new_contracts_per_tx` existed
+/// states. Field meanings are the ones documented on [`NetworkConfigV1`].
+struct NetworkConfigV0 {
+  unsigned int max_sha256_buffers;
+  unsigned int max_cross_invoke_depth;
+};
 
+/// The parameters a chain states as of `max_new_contracts_per_tx`.
+struct NetworkConfigV1 {
   /// Concurrently open incremental SHA-256 buffers permitted per invocation
   /// frame (`SHA256Update`, `SHA256Copy`, `SHA256Finalize`).
   unsigned int max_sha256_buffers;
@@ -42,6 +38,37 @@ struct NetworkConfig {
   /// a single message. A chain must set it low enough that the largest batch
   /// it admits still fits that message; hogd rejects a genesis that does not.
   unsigned int max_new_contracts_per_tx;
+};
+
+/// The consensus-critical execution parameters a block executes under.
+///
+/// Every parameter is a named field, so a configuration is structurally
+/// complete: it cannot omit one, repeat one, or order them differently. The
+/// protocol blesses no value for any of them either -- a chain states all of
+/// them at genesis, so there is nothing a node can silently inherit and no way
+/// for two node versions to disagree about what is in force.
+///
+/// Versioned as a union rather than extended in place. XDR is positional, so a
+/// field appended to a struct changes the layout of everything embedding it,
+/// and a chain created under the older layout could no longer be read. Each arm
+/// instead states the parameters in force in full, and a chain keeps the arm it
+/// was created with until an upgrade moves it.
+///
+/// The discriminant occupies the four bytes the leading `ExtensionPoint` used
+/// to, so a configuration written before this union existed decodes as `v0`
+/// byte for byte -- which is what that extension point was reserved for (see
+/// `ExtensionPoint` in types.x).
+///
+/// Adding a parameter means adding an arm here that carries the previous arm's
+/// fields plus the new one, along with a [`ConfigParamID`] and a
+/// [`ConfigUpgrade`] arm. A node that meets an arm it cannot name must fail to
+/// decode rather than guess which parameters are in force.
+union NetworkConfig switch (int v)
+{
+case 0:
+  NetworkConfigV0 v0;
+case 1:
+  NetworkConfigV1 v1;
 };
 
 /// Names one consensus-critical configuration parameter.
