@@ -5,19 +5,35 @@
 namespace hogd {
 // clang-format on
 
-/// The parameters a chain created before `max_new_contracts_per_tx` existed
-/// states. Field meanings are the ones documented on [`NetworkConfigV1`].
-struct NetworkConfigV0 {
-  unsigned int max_sha256_buffers;
-  unsigned int max_cross_invoke_depth;
+/// Names one consensus-critical configuration parameter.
+///
+/// Append-only: an id, once assigned, means that parameter forever, and a
+/// retired parameter keeps its id rather than freeing it for reuse.
+enum ConfigParamID {
+  kConfigParamMaxSHA256Buffers = 0,
+  kConfigParamMaxCrossInvokeDepth = 1,
+  kConfigParamMaxNewContractsPerTx = 2
 };
 
-/// The parameters a chain states as of `max_new_contracts_per_tx`.
-struct NetworkConfigV1 {
+/// One configuration parameter and the value in force for it.
+///
+/// Serves both uses of that pairing: `NetworkConfigV1` states a chain's
+/// configuration as a list of these, and consensus carries one per parameter
+/// being changed in `ConsensusValue::upgrades`, where everything a block does
+/// not name keeps the value it already has. Each arm carries its own type, so
+/// a future parameter need not be an `unsigned int`.
+///
+/// There is no `default` arm on purpose: a node that cannot name a parameter
+/// cannot know what value is in force for it, so an unrecognized id must fail
+/// to decode rather than decode to something the node then ignores.
+union ConfigParam switch (ConfigParamID param)
+{
+case kConfigParamMaxSHA256Buffers:
   /// Concurrently open incremental SHA-256 buffers permitted per invocation
   /// frame (`SHA256Update`, `SHA256Copy`, `SHA256Finalize`).
   unsigned int max_sha256_buffers;
 
+case kConfigParamMaxCrossInvokeDepth:
   /// Invocation frames one transaction may have open at once, counting every
   /// invoke rather than only the savepoint-pushing ones that
   /// `kMaxSavepointDepth` bounds. Each open frame holds a live contract
@@ -25,6 +41,7 @@ struct NetworkConfigV1 {
   /// the executor runs out of room for it.
   unsigned int max_cross_invoke_depth;
 
+case kConfigParamMaxNewContractsPerTx:
   /// Contracts one transaction may attach in `contracts_to_deploy`.
   ///
   /// Counted over what is attached rather than what a contract goes on to
@@ -40,62 +57,60 @@ struct NetworkConfigV1 {
   unsigned int max_new_contracts_per_tx;
 };
 
+/// The parameters a chain created before they became a list states. Field
+/// meanings are the ones documented on the matching [`ConfigParam`] arms.
+struct NetworkConfigV0 {
+  unsigned int max_sha256_buffers;
+  unsigned int max_cross_invoke_depth;
+};
+
+/// The parameters a chain states, as a list rather than a fixed set of fields.
+///
+/// A new parameter is then an id and a [`ConfigParam`] arm, with no new
+/// `NetworkConfig` version and no change to the layout of anything embedding
+/// one -- which is what a flat struct could not offer.
+///
+/// `params` MUST be strictly ascending by `param`. The encoding is hashed into
+/// `ProposalHeader::config_hash`, so two orderings of one set of parameters
+/// would be two hashes for a configuration the nodes agree on; requiring a
+/// single order makes the encoding canonical, and rules out a repeated
+/// parameter in the same stroke. A list that is unordered or repeats an id
+/// must fail validation rather than resolve to one of the values. That rule is
+/// also what bounds the list: strictly ascending ids are distinct, so a valid
+/// one cannot be longer than the number of parameters that exist.
+///
+/// A parameter absent from the list takes the value the protocol defines for
+/// it. That is what lets a chain predating a parameter keep running, and it is
+/// why adding one is still a coordinated release: nodes have to agree on the
+/// value an omission means, even though they no longer have to agree on a
+/// struct layout.
+struct NetworkConfigV1 {
+  ConfigParam params<>;
+};
+
 /// The consensus-critical execution parameters a block executes under.
 ///
-/// Every parameter is a named field, so a configuration is structurally
-/// complete: it cannot omit one, repeat one, or order them differently. The
-/// protocol blesses no value for any of them either -- a chain states all of
-/// them at genesis, so there is nothing a node can silently inherit and no way
-/// for two node versions to disagree about what is in force.
+/// The protocol blesses no value for any parameter: a chain states its
+/// configuration at genesis, so there is nothing a node silently inherits.
 ///
 /// Versioned as a union rather than extended in place. XDR is positional, so a
 /// field appended to a struct changes the layout of everything embedding it,
-/// and a chain created under the older layout could no longer be read. Each arm
-/// instead states the parameters in force in full, and a chain keeps the arm it
-/// was created with until an upgrade moves it.
-///
-/// The discriminant occupies the four bytes the leading `ExtensionPoint` used
-/// to, so a configuration written before this union existed decodes as `v0`
-/// byte for byte -- which is what that extension point was reserved for (see
+/// and a chain created under the older layout could no longer be read. The
+/// discriminant occupies the four bytes the leading `ExtensionPoint` used to,
+/// so a configuration written before this union existed decodes as `v0` byte
+/// for byte -- which is what that extension point was reserved for (see
 /// `ExtensionPoint` in types.x).
 ///
-/// Adding a parameter means adding an arm here that carries the previous arm's
-/// fields plus the new one, along with a [`ConfigParamID`] and a
-/// [`ConfigUpgrade`] arm. A node that meets an arm it cannot name must fail to
-/// decode rather than guess which parameters are in force.
+/// `v1` states its parameters as a list, so a new parameter needs an id and a
+/// [`ConfigParam`] arm rather than a new version here. A node that meets a
+/// version it cannot name must fail to decode rather than guess which
+/// parameters are in force.
 union NetworkConfig switch (int v)
 {
 case 0:
   NetworkConfigV0 v0;
 case 1:
   NetworkConfigV1 v1;
-};
-
-/// Names one consensus-critical configuration parameter.
-enum ConfigParamID {
-  kConfigParamMaxSHA256Buffers = 0,
-  kConfigParamMaxCrossInvokeDepth = 1,
-  kConfigParamMaxNewContractsPerTx = 2
-};
-
-/// A change to one network configuration parameter.
-///
-/// Consensus carries these in `ConsensusValue::upgrades`, so a block that
-/// changes several parameters carries one per parameter and everything it does
-/// not name keeps the value it already has. The encoding is 8 bytes, well
-/// inside the `Upgrade` that holds it.
-///
-/// There is no `default` arm on purpose: a node that cannot name a parameter
-/// cannot apply a change to it, so an unrecognized id must fail to decode
-/// rather than decode to something the node then ignores.
-union ConfigUpgrade switch (ConfigParamID param)
-{
-case kConfigParamMaxSHA256Buffers:
-  unsigned int max_sha256_buffers;
-case kConfigParamMaxCrossInvokeDepth:
-  unsigned int max_cross_invoke_depth;
-case kConfigParamMaxNewContractsPerTx:
-  unsigned int max_new_contracts_per_tx;
 };
 
 /// The network configuration committed to by ProposalHeader::config_hash.
