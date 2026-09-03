@@ -44,7 +44,13 @@ enum ContractTypeKind {
   Named = 14,
   U8 = 15,
   Array = 16,
-  SignedToken = 17
+  SignedToken = 17,
+  // Contract values are exactly 32 bytes, most-significant byte first.
+  // Event topics use the same bytes directly, without hashing.
+  U256 = 18,
+  // Contract values are exactly 32 bytes, most-significant byte first, in
+  // two's-complement representation. Event topics use the same bytes directly.
+  I256 = 19
 };
 
 union ContractType switch (ContractTypeKind v)
@@ -85,6 +91,10 @@ case Array:
   ContractArrayType array;
 case SignedToken:
   ContractSignedTokenPreimage signed_token_preimage;
+case U256:
+  void;
+case I256:
+  void;
 };
 
 // ---------------------------------------------------------------------------
