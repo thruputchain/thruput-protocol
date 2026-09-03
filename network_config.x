@@ -70,20 +70,29 @@ struct NetworkConfigV0 {
 /// `NetworkConfig` version and no change to the layout of anything embedding
 /// one -- which is what a flat struct could not offer.
 ///
-/// `params` MUST be strictly ascending by `param`. The encoding is hashed into
-/// `ProposalHeader::config_hash`, so two orderings of one set of parameters
-/// would be two hashes for a configuration the nodes agree on; requiring a
-/// single order makes the encoding canonical, and rules out a repeated
-/// parameter in the same stroke. A list that is unordered or repeats an id
-/// must fail validation rather than resolve to one of the values. That rule is
-/// also what bounds the list: strictly ascending ids are distinct, so a valid
-/// one cannot be longer than the number of parameters that exist.
+/// `params` MUST be a prefix of the id space: ids run 0, 1, 2, ... in order,
+/// with no gaps. The encoding is hashed into `ProposalHeader::config_hash`, so
+/// two arrangements of one set of parameters would be two hashes for a
+/// configuration the nodes agree on; permitting a single arrangement makes the
+/// encoding canonical, and settles ordering, repetition and omission in one
+/// rule. A list that is unordered, repeats an id, or skips one must fail
+/// validation rather than resolve to one of the values. The rule also bounds
+/// the list: a prefix cannot be longer than the number of parameters that
+/// exist.
+///
+/// Ascending order alone would leave a gap legal, and a gap is the one
+/// arrangement whose meaning is genuinely ambiguous -- a configuration would
+/// be declining to state a parameter it knows about, which on the wire is
+/// indistinguishable from one that predates it. Requiring a prefix removes
+/// that case: past the end is the only way to be absent.
 ///
 /// A parameter absent from the list takes the value the protocol defines for
-/// it. That is what lets a chain predating a parameter keep running, and it is
-/// why adding one is still a coordinated release: nodes have to agree on the
-/// value an omission means, even though they no longer have to agree on a
-/// struct layout.
+/// it. Because absence can only mean past the end, that value is only ever
+/// reached for a parameter newer than the configuration -- never for one it
+/// chose to skip. That is what lets a chain predating a parameter keep
+/// running, and it is why adding one is still a coordinated release: nodes
+/// have to agree on the value an omission means, even though they no longer
+/// have to agree on a struct layout.
 struct NetworkConfigV1 {
   ConfigParam params<>;
 };
