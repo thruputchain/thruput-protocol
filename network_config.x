@@ -80,19 +80,26 @@ struct NetworkConfigV0 {
 /// the list: a prefix cannot be longer than the number of parameters that
 /// exist.
 ///
-/// Ascending order alone would leave a gap legal, and a gap is the one
-/// arrangement whose meaning is genuinely ambiguous -- a configuration would
-/// be declining to state a parameter it knows about, which on the wire is
-/// indistinguishable from one that predates it. Requiring a prefix removes
-/// that case: past the end is the only way to be absent.
+/// Ascending order alone would leave interior gaps legal, and a gap is what
+/// makes the encoding ambiguous: a parameter sitting at its default value
+/// could be written down or left out, so one configuration would have several
+/// encodings and so several hashes. Requiring a prefix settles which -- below
+/// the list's length a parameter is written down, past it a parameter is not
+/// -- and makes resolving one an index rather than a search.
 ///
 /// A parameter absent from the list takes the value the protocol defines for
-/// it. Because absence can only mean past the end, that value is only ever
-/// reached for a parameter newer than the configuration -- never for one it
-/// chose to skip. That is what lets a chain predating a parameter keep
-/// running, and it is why adding one is still a coordinated release: nodes
-/// have to agree on the value an omission means, even though they no longer
-/// have to agree on a struct layout.
+/// it. Absence says nothing about why: a list may be short because the
+/// configuration predates the parameter, or because its creator declined to
+/// state one it knew about, and nothing on the wire tells those apart. Both
+/// resolve the same way, so the difference is one of intent rather than of
+/// behaviour. A creator SHOULD state every parameter it knows, so that a short
+/// list means what it appears to; a verifier cannot check that, because the
+/// encoding carries no record of what its creator knew.
+///
+/// Reading an absent parameter as its protocol-defined value is what lets a
+/// chain predating that parameter keep running, and it is why adding one is
+/// still a coordinated release: nodes have to agree on the value an omission
+/// means, even though they no longer have to agree on a struct layout.
 struct NetworkConfigV1 {
   ConfigParam params<>;
 };
