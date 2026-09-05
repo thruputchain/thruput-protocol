@@ -12,7 +12,8 @@ namespace hogd {
 enum ConfigParamID {
   kConfigParamMaxSHA256Buffers = 0,
   kConfigParamMaxCrossInvokeDepth = 1,
-  kConfigParamMaxNewContractsPerTx = 2
+  kConfigParamMaxNewContractsPerTx = 2,
+  kConfigParamMaxBytestringLen = 3
 };
 
 /// One configuration parameter and the value in force for it.
@@ -55,6 +56,16 @@ case kConfigParamMaxNewContractsPerTx:
   /// a single message. A chain must set it low enough that the largest batch
   /// it admits still fits that message; hogd rejects a genesis that does not.
   unsigned int max_new_contracts_per_tx;
+
+case kConfigParamMaxBytestringLen:
+  /// Bytes one bytestring storage item may hold, checked where a contract
+  /// writes one rather than where one is read, so that lowering it leaves
+  /// existing items readable instead of stranding state.
+  ///
+  /// `kBytestringCeilingLen` bounds this. A chain must also keep it low
+  /// enough that its own storage engine handles the largest item it thereby
+  /// admits; the ceiling does not guarantee that.
+  unsigned int max_bytestring_len;
 };
 
 /// The parameters a chain states, as a list rather than fixed fields. A new

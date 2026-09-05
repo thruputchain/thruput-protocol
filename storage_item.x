@@ -20,9 +20,19 @@ enum StorageItemType {
   kItemTypeDeleted = -1
 };
 
-const kBytestringMaxLen = 1024;
+/// The largest bytestring the wire format admits, and so the ceiling on
+/// `kConfigParamMaxBytestringLen`. Raising this is a protocol upgrade;
+/// raising the configured limit is not.
+const kBytestringCeilingLen = 65000;
+
+/// The limit in force when a configuration does not state one.
+const kDefaultMaxBytestringLen = 1024;
+
 /// An arbitrary value, stored as an opaque string of bytes.
-typedef opaque Bytestring<kBytestringMaxLen>;
+///
+/// Bounded by the ceiling, not by the limit in force: what a chain permits is
+/// enforced where a bytestring is written rather than where it is decoded.
+typedef opaque Bytestring<kBytestringCeilingLen>;
 
 /// The value at every storage key is one of the following data types.
 ///
