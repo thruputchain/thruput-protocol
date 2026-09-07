@@ -85,8 +85,25 @@ program DatabaseToExecutorInterface
     ExpectedContract get_contract(BlockID, SHA256Hash) = 202;
     ExpectedDeployment get_deployment(BlockID, ContractAddress) = 203;
 
-    // Get the db tip for the current block.
-    ExpectedDBTip get_db_tip(BlockID) = 300;
+    // Get the db tip the block executes on top of. The BlockHeight is the
+    // height the caller opened the block with; the tip it builds on is the
+    // one at that height minus one.
+    //
+    // The server answers off its committed tip alone -- no per-block
+    // snapshot state -- so this cannot race the block's own creation:
+    //   - tip height == height - 1: serve the tip;
+    //   - tip height >= height: the chain has moved past the caller's
+    //     block, so the block is dead: kRPCBadBlockID;
+    //   - tip height < height - 1: only observable mid commit-publication;
+    //     the server waits out the publication window and re-reads.
+    //
+    // The BlockID is the block being opened. Today's serving decision never
+    // consults it -- there is exactly one committed tip, and the caller-side
+    // proxy already refuses a served tip whose id equals the block it is
+    // loading for -- but it stays on the wire so a pipelined server with
+    // multiple tentative tips can select the parent chain the block was
+    // created on.
+    ExpectedDBTip get_db_tip(BlockID, BlockHeight) = 300;
 
     // Open a read-only viewing snapshot. Returns the new block ID and
     // the current committed tip. The caller must eventually call
