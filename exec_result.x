@@ -24,6 +24,13 @@ enum ExecResult {
   // returned during validation. This is determininistic, but signals a bad
   // block from a malicious proposer.
   ExecResultTxValidationFailure = 200,
+  // The transaction is malformed: a structural check rejected it before
+  // execution, on its contents alone and independent of ledger state.
+  // This error code is only returned during proposal, where the scheduler
+  // drops the transaction instead of including it in the block. The same
+  // defect during validation is ExecResultTxValidationFailure, since a
+  // malformed transaction inside a proposed block is the proposer's fault.
+  ExecResultMalformedTransaction = 201,
   // System error; network connection broke, etc.
   // Executor can recover from this error to continue execution of other
   // transactions.

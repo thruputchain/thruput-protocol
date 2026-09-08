@@ -342,13 +342,26 @@ struct IndexerInitializedProgress {
   ConsensusValueHash last_consensus_hash;
 };
 
+/// Where the indexer stands, as its pull request states it.
 enum IndexerProgressState {
+  /// No origin adopted yet. The server answers with the oldest retained
+  /// origin, or its first block; never held.
   IndexerProgressUninitialized = 0,
-  IndexerProgressInitialized = 1
+  /// Applied everything through `initialized`; asks what comes next. Answered
+  /// at once: the next block, `EventIndexerPullCaughtUp` when there is none,
+  /// or a conflict. The first pull of every connection is this, since the
+  /// caught-up reply is the indexer's readiness signal.
+  IndexerProgressInitialized = 1,
+  /// Same cursor, and already answered caught up on this connection. Asks the
+  /// server to hold the request until the next publication and answer with
+  /// it, so a block is pulled the moment it is committed rather than when the
+  /// indexer next asks. Request-only: an indexer never persists this state.
+  IndexerProgressCaughtUp = 2
 };
 
 union IndexerProgress switch (IndexerProgressState state) {
 case IndexerProgressInitialized:
+case IndexerProgressCaughtUp:
   IndexerInitializedProgress initialized;
 default:
   void;
