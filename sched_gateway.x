@@ -50,17 +50,13 @@ program SchedGateway
   {
     SchedGatewayIntroOutcome schedgateway_intro(ProtocolCommit) = 0;
 
-    // Submit a batch of wallet-originated transactions to the
-    // mempool.  Wallet clients learn about commit via
-    // getTransactionStatus / getTransactionReceipt polling.
-    void schedgateway_submit_tx_batch(ParallelSignedTransactionBatch) = 1;
-
-    // Like schedgateway_submit_tx_batch, but returns the request-scoped,
+    // Submit wallet-originated transactions and return the request-scoped,
     // exact-cardinality admission outcomes described above. A malformed batch
     // fails at the RPC level because its transactions cannot be identified
-    // reliably.
-    SchedGatewaySubmitOutcomeBatch schedgateway_submit_tx_batch_with_outcomes(
-      ParallelSignedTransactionBatch) = 5;
+    // reliably. Admission does not imply commitment; clients learn about commit
+    // via getTransactionStatus / getTransactionReceipt polling.
+    SchedGatewaySubmitOutcomeBatch schedgateway_submit_tx_batch(
+      ParallelSignedTransactionBatch) = 1;
 
     // Current committed tip.  Returns kRPCNotFound when the node
     // has no committed block yet (pre-genesis bootstrap).
