@@ -1,5 +1,7 @@
 // clang-format off
+%#include "auth_token.hh"
 %#include "contract.hh"
+%#include "hog_exec_constants.hh"
 %#include "storage_cost.hh"
 %#include "types.hh"
 
@@ -14,7 +16,13 @@ enum ConfigParamID {
   kConfigParamMaxSHA256Buffers = 0,
   kConfigParamMaxCrossInvokeDepth = 1,
   kConfigParamMaxNewContractsPerTx = 2,
-  kConfigParamMaxBytestringLen = 3
+  kConfigParamMaxBytestringLen = 3,
+  kConfigParamMaxContractSizeBytes = 4,
+  kConfigParamMaxSavepointDepth = 5,
+  kConfigParamMaxSHA256BufferBytes = 6,
+  kConfigParamMaxAuthTokenDepth = 7,
+  kConfigParamMaxRv32CodeBytes = 8,
+  kConfigParamMaxRv32MemoryBytes = 9
 };
 
 /// One configuration parameter and the value in force for it.
@@ -38,7 +46,7 @@ case kConfigParamMaxSHA256Buffers:
 case kConfigParamMaxCrossInvokeDepth:
   /// Invocation frames one transaction may have open at once, counting every
   /// invoke rather than only the savepoint-pushing ones that
-  /// `kMaxSavepointDepth` bounds. Each open frame holds a live contract
+  /// `kConfigParamMaxSavepointDepth` bounds. Each open frame holds a live contract
   /// runtime, so this is what stops a recursive call chain from growing until
   /// the executor runs out of room for it.
   unsigned int max_cross_invoke_depth;
@@ -52,10 +60,11 @@ case kConfigParamMaxNewContractsPerTx:
   /// Attaching the same contract twice is rejected outright, so the count is
   /// over distinct contracts either way.
   ///
-  /// Together with the per-contract blob size cap this is what bounds the
+  /// Together with `kConfigParamMaxContractSizeBytes` this is what bounds the
   /// transaction's final commit batch, which the executor sends to storage as
-  /// a single message. A chain must set it low enough that the largest batch
-  /// it admits still fits that message; hogd rejects a genesis that does not.
+  /// a single message. A chain must set the pair low enough that the largest
+  /// batch it admits still fits that message; hogd rejects a genesis that
+  /// does not.
   unsigned int max_new_contracts_per_tx;
 
 case kConfigParamMaxBytestringLen:
@@ -67,6 +76,75 @@ case kConfigParamMaxBytestringLen:
   /// enough that its own storage engine handles the largest item it thereby
   /// admits; the ceiling does not guarantee that.
   unsigned int max_bytestring_len;
+
+case kConfigParamMaxContractSizeBytes:
+  /// Bytes one attached contract's code blob (`ContractBlob.data`) may hold,
+  /// checked before any attached contract is verified or executed. It is
+  /// the same quantity `contract_deployment_cost_per_byte` charges for.
+  ///
+  /// `kDefaultMaxContractSizeBytes` is the value in force for a
+  /// configuration that does not state one. The wire format does not bound
+  /// `ContractBlob`, so nothing here caps what a chain may state: a chain
+  /// must keep it low enough that its own storage engine stores the largest
+  /// contract it thereby admits, that every attached contract still fits a
+  /// transaction (`kMaxBytesSignedTransaction`), and that the commit batch
+  /// `kConfigParamMaxNewContractsPerTx` bounds fits one storage message.
+  /// hogd rejects a genesis that does not.
+  unsigned int max_contract_size_bytes;
+
+case kConfigParamMaxSavepointDepth:
+  /// Storage savepoints one transaction may have open at once: one per
+  /// `TryInvoke` frame still executing, plus the one the root commit takes.
+  /// A `TryInvoke` past the limit fails as the guest would see any other
+  /// refused call. `kMaxSavepointDepth` is the value in force for a
+  /// configuration that does not state one.
+  ///
+  /// Every open savepoint is a live nested VM on one executor thread, so a
+  /// chain must keep this within what its executors' stacks hold; hogd
+  /// rejects a genesis above its build ceiling.
+  unsigned int max_savepoint_depth;
+
+case kConfigParamMaxSHA256BufferBytes:
+  /// Bytes one incremental SHA-256 buffer may absorb between resets
+  /// (`SHA256Update`), the per-buffer companion of
+  /// `kConfigParamMaxSHA256Buffers`. `kSHA256BufferMaxSize` is the value in
+  /// force for a configuration that does not state one. Only the byte count
+  /// is bounded: the hasher state is constant-size, so nothing else scales
+  /// with it.
+  unsigned int max_sha256_buffer_bytes;
+
+case kConfigParamMaxAuthTokenDepth:
+  /// Levels of `AuthTokenNode` nesting an auth token may carry, counted from
+  /// its root, checked where a token is minted or forwarded into a view.
+  /// `kAuthTokenMaxDepth` is the value in force for a configuration that
+  /// does not state one. The wire type bounds a node's payload and its
+  /// direct children (`kAuthTokenMaxLen`, `kAuthTokenMaxChildNodes`) but not
+  /// the depth, so this is what bounds a token's total size.
+  unsigned int max_auth_token_depth;
+
+case kConfigParamMaxRv32CodeBytes:
+  /// Bytes of code (`code_size` in the artifact header) an RV32 artifact may
+  /// carry to be admitted as an attached contract.
+  /// `kDefaultMaxRv32CodeBytes` is the value in force for a configuration
+  /// that does not state one.
+  ///
+  /// Checked where a contract is attached, not where a deployed one is
+  /// instantiated, so lowering it leaves deployed contracts runnable. The
+  /// artifact format itself does not bound the field; hogd rejects a genesis
+  /// above what its VM can translate.
+  unsigned int max_rv32_code_bytes;
+
+case kConfigParamMaxRv32MemoryBytes:
+  /// Bytes of guest data memory (`memory_bytes` in the artifact header) an
+  /// RV32 artifact may declare to be admitted as an attached contract.
+  /// `kDefaultMaxRv32MemoryBytes` is the value in force for a configuration
+  /// that does not state one.
+  ///
+  /// Checked at attachment like `kConfigParamMaxRv32CodeBytes`. Every
+  /// invocation provisions and seeds the declared memory outside gas, so a
+  /// chain raising this accepts that per-call cost; hogd rejects a genesis
+  /// above what its VM provisions.
+  unsigned int max_rv32_memory_bytes;
 };
 
 /// The parameters a chain states, as a list rather than fixed fields. A new
