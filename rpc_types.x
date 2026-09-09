@@ -53,7 +53,8 @@ struct DbTip {
   /// address with no deployed contract (see
   /// SystemCallHandler::resolve_runtime). Set at genesis from
   /// GenesisConfiguration::default_wallet; carried forward verbatim by
-  /// every subsequent commit.
+  /// every subsequent commit, and committed to by this tip's own
+  /// ProposalHeader::config_hash through ConfigHashPreimage.
   DeployedContractHash default_wallet;
 
   /// The execution parameters in force for the block that follows this tip.

@@ -1,4 +1,5 @@
 // clang-format off
+%#include "contract.hh"
 %#include "storage_cost.hh"
 %#include "types.hh"
 
@@ -115,6 +116,17 @@ case 0:
 struct ConfigHashPreimage {
   StorageCostModelXdr storage_cost_model;
   NetworkConfig network_config;
+
+  /// The contract a root invocation of an undeployed address resolves to, as
+  /// `GenesisConfiguration` states it and every `DbTip` carries it forward.
+  ///
+  /// It selects executing code, so a node running under a different one from
+  /// its peers executes a different chain. Nothing else commits to it: a
+  /// node's copy travels in the tip, which implementations are free to keep
+  /// outside the state the storage hash covers, and hogd does. Committing to
+  /// it here is what binds the value a node executes under to the one
+  /// consensus agreed, rather than to whatever its own storage returns.
+  DeployedContractHash default_wallet;
 };
 
 } // namespace hogd

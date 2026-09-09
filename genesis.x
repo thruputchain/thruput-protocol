@@ -18,6 +18,9 @@ struct GenesisConfiguration {
   Contract root_contract;
 
   /// The contract resolved for root invocations of undeployed addresses.
+  /// Committed to by `ProposalHeader::config_hash` through
+  /// `ConfigHashPreimage`, so a node cannot run under a different one than
+  /// the chain agreed.
   DeployedContractHash default_wallet;
 };
 
