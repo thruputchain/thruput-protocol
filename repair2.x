@@ -34,7 +34,8 @@ struct SignedRepairedTxs {
 // missing proposal structures (v2)
 
 struct MissingProposal {
-  ConsensusValue consensus_value;
+  BlockHeight block_height;
+  ConsensusValueHash value_hash;
 };
 
 struct SignedMissingProposal {
@@ -44,7 +45,7 @@ struct SignedMissingProposal {
 };
 
 struct RepairedProposal {
-  Proposal *proposal;
+  ConsensusBasis *basis;
 };
 
 struct SignedRepairedProposal {
