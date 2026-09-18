@@ -108,7 +108,11 @@ syscalls:
         typename: "SHA256Hash"
     number: 0
     description: >
-      Returns the SHA256 hash of the input buffer.
+      Returns the SHA256 hash of the input buffer. Before hashing, checks
+      that the remaining gas exceeds the syscall entry cost plus the
+      hashing cost for the input length. Insufficient gas, including
+      exact exhaustion, faults the current call frame as out of gas and
+      consumes its remaining gas without computing the hash.
     errors:
   - name: "GetMsgSender"
     read_only: true
@@ -707,17 +711,26 @@ syscalls:
         primitive_type: true
     description: >
       Updates the SHA256 hash computation at the specified index with
-      the provided buffer. If reset is true, the hash input is reset
-      before updating. The buffer must exist if reset is false.
-      Hashing is charged and checked against the remaining gas before
-      processing the input. There is no cumulative byte limit.
+      the provided buffer. If reset is true, creates or resets the hash
+      computation before updating. The buffer must exist if reset is false.
+      Before creating, resetting, or updating a hash computation, checks
+      that the remaining gas exceeds the syscall entry cost plus the
+      update cost for the input length. Insufficient gas, including
+      exact exhaustion, faults the current call frame as out of gas and
+      consumes its remaining gas without processing input or changing
+      the hash computation.
+      Each hash computation uses constant-size incremental state. There
+      is no cumulative byte limit; kConfigParamMaxSHA256BufferBytes is
+      no longer enforced. The number of active hash computations remains
+      bounded by kConfigParamMaxSHA256Buffers.
     errors:
       - code: kSyscallErrorCodeInvalidSyscallInput
         description: >
           This error will be returned if any of the following
           conditions are met:
           - The queried hash buffer does not exist and reset is false.
-          - There are too many active hash buffers.
+          - Reset would create a new hash buffer and the active-buffer
+            limit has been reached.
   - name: "SHA256Finalize"
     number: 27
     read_only: true
