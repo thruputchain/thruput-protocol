@@ -99,6 +99,7 @@ type_mappings:
 syscalls:
   - name: "SHA256"
     read_only: true
+    needs_gas: true
     inputs:
       - name: "buffer"
         span_argument: true
@@ -694,6 +695,7 @@ syscalls:
   - name: "SHA256Update"
     number: 26
     read_only: true
+    needs_gas: true
     inputs:
       - name: "index"
         typename: "uint32_t"
@@ -707,13 +709,13 @@ syscalls:
       Updates the SHA256 hash computation at the specified index with
       the provided buffer. If reset is true, the hash input is reset
       before updating. The buffer must exist if reset is false.
+      There is no cumulative byte limit.
     errors:
       - code: kSyscallErrorCodeInvalidSyscallInput
         description: >
           This error will be returned if any of the following
           conditions are met:
           - The queried hash buffer does not exist and reset is false.
-          - The buffer becomes too large.
           - There are too many active hash buffers.
   - name: "SHA256Finalize"
     number: 27

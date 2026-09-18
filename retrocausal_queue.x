@@ -32,7 +32,7 @@ const kRetrocausalQueueBlockEntriesMaxLen = 250;
 struct RetrocausalQueueBlock {
   QueueEntry entries<>; // Variable-length array of queue entries
   unsigned hyper
-    block_number; // Unique identifier and ordering for this block
+  block_number; // Unique identifier and ordering for this block
 };
 
 // This delta consumes all of the retrocausal queue entries
