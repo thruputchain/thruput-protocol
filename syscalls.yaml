@@ -109,7 +109,6 @@ syscalls:
     number: 0
     description: >
       Returns the SHA256 hash of the input buffer.
-      Checks gas before hashing; insufficient gas faults the call frame.
     errors:
   - name: "GetMsgSender"
     read_only: true
@@ -710,7 +709,6 @@ syscalls:
       Updates the SHA256 hash computation at the specified index with
       the provided buffer. If reset is true, the hash input is reset
       before updating. The buffer must exist if reset is false.
-      Checks gas before updating; insufficient gas faults the call frame.
       There is no cumulative byte limit.
     errors:
       - code: kSyscallErrorCodeInvalidSyscallInput
