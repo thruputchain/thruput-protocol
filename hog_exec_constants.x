@@ -1,8 +1,7 @@
 namespace hogd {
 
-/// Bytes one incremental SHA-256 buffer may absorb when a configuration does
-/// not state `kConfigParamMaxSHA256BufferBytes`. Consensus-critical, so
-/// frozen: every chain predating the parameter ran under it.
+/// Legacy default for `kConfigParamMaxSHA256BufferBytes`, retained for
+/// configuration hashing. Incremental SHA-256 no longer enforces a byte cap.
 const kSHA256BufferMaxSize = 4096;
 
 /// Storage savepoints one transaction may hold when a configuration does not
