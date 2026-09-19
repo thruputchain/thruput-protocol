@@ -64,10 +64,17 @@ struct TxEmittedEvent {
 /// deterministic revert, or the Fault variant when no root output was
 /// produced (e.g., non-deterministic failure).  Downstream indexers and
 /// the receipt-read paths surface this as `return_data`/`abort_data`.
+///
+/// `gas_consumed` is the gas the whole transaction consumed: the root frame,
+/// every frame it invoked, and the pre-execution validation of attached
+/// contracts. On an out-of-gas fault it is the transaction's gas limit. It
+/// is part of the leaf, so the events root commits to it and every
+/// validator's re-execution must reproduce it.
 struct TxEventLog {
   TransactionHash tx_hash; // sha256(Transaction)
   ExecResult exec_result;
   InvocationFrameOutput root_output;
+  GasAmount gas_consumed;
   TxEmittedEvent events<kMaxEventsPerTransaction>;
 };
 
