@@ -227,9 +227,10 @@ syscalls:
       - code: kSyscallErrorCodeInvalidSyscallInput
         description: >
           The invocation was rejected before any child frame ran: the contract
-          was not found, the invoke flags were invalid, or one or more of the
-          supplied auth token ids are malformed, duplicated, or not owned by
-          the current frame. The syscall is a complete no-op in this case.
+          was not found (the reserved all-zero address never resolves), the
+          invoke flags were invalid, or one or more of the supplied auth token
+          ids are malformed, duplicated, or not owned by the current frame. The
+          syscall is a complete no-op in this case.
       - code: kSyscallErrorCodeReentrance
         description: >
           The invoked address is already on the stack. The invocation is
@@ -342,9 +343,10 @@ syscalls:
     errors:
       - code: kSyscallErrorCodeInvalidSyscallInput
         description: >
-          The requested contract was not available for deployment, or the
+          The requested contract was not available for deployment, the
           contract is a special precompiled (native) contract that cannot be
-          deployed (i.e. the native token contract).
+          deployed (i.e. the native token contract), or the computed address
+          is the reserved all-zero address, where nothing may be deployed.
 
           To deploy a contract, that contract must either already exist on chain
           or must be provided in the transaction's contracts_to_deploy field.

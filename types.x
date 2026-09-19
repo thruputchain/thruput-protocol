@@ -104,6 +104,13 @@ typedef SHA256Hash ProposalHeaderHash; // #[rust(newtype)]
 /// Represents a 256-bit contract address.
 /// In the groundhog storage model, each contract is deployed at a
 /// 32-byte unique `ContractAddress`.
+///
+/// The all-zero address (`GenesisContractAddresses::kAddressNull`) is
+/// reserved as the address where nothing can ever live: no contract is
+/// deployed there (genesis included), no precompile is registered there,
+/// and invoking it fails the same way as invoking any address with no
+/// contract. Protocols and SDKs may therefore use it as a "no address"
+/// sentinel, e.g. for a cleared approval or an unset consumer.
 typedef opaque ContractAddress[32]; // #[rust(newtype)]
 
 /// Each ContractAddress owns a namespace of storage keys.

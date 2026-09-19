@@ -30,7 +30,10 @@ struct GenesisConfiguration {
 // The addresses (32 bytes) are all zeros, with the last 4 bytes equal
 // to the enum value.
 enum GenesisContractAddresses {
-  // Null address (reserved)
+  // The all-zero address, reserved at the protocol level: nothing is ever
+  // deployed here (genesis and DeployContract both refuse it), no precompile
+  // is registered here, and invoking it fails as an empty address does. See
+  // the `ContractAddress` docs in types.x.
   kAddressNull = 0,
   // Precompiled native-token contract
   kAddressNativeToken = 1,

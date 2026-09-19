@@ -67,6 +67,10 @@ conclusion of the Invoke() syscall.
 
 Returns the length of the buffer returned by the called contract (which is not accessible, if the frame has an error).
 
+Invoking an address with no contract fails before any frame runs. The all-zero
+address is reserved and never has a contract (see `ContractAddress` in
+types.x), so invoking it fails the same way.
+
 # Return 
 
 Signature: (output : [u8]) -> !
@@ -126,7 +130,8 @@ Returns the address of the newly deployed contract.
 
 Returns kContractLookupFailed if no contract with the specified hash exists,
 or kContractAlreadyDeployed if there is already a contract deployed at the
-specified address.
+specified address. Deployment to the reserved all-zero address is refused
+(see `ContractAddress` in types.x).
 
 The deployment is visible only within the current transaction's context
 (until the next block). If the call frame reverts, the deployment is reverted
