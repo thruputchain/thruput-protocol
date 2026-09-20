@@ -23,28 +23,22 @@ struct Delta {
   int128_xdr hog_delta;
 };
 
-// Most deltas one HogsTransferredChunk carries. A Delta encodes to 48 bytes,
-// so a full chunk holds 12 MiB of deltas: under x23's 16 MiB default record
-// cap with room for the call header, and a bounded allocation on the receiver
-// where the whole block used to be one record. Enforced at decode; hog_db may
-// send smaller chunks.
-const kMaxDeltasPerHogsTransferredChunk = 262144;
-
 // One slice of the native-token balance deltas a committed block finalized.
 //
 // hog_db publishes a block's deltas as a run of chunks followed by exactly one
 // HogsTransferredDone, all for the same block, after the block is committed.
-// A shard sends the run one call at a time, awaiting each reply, so it arrives
-// in order and the mempool never has a whole block outstanding. An address
-// appears in at most one chunk of a block's run (a shard holds one balance per
-// address) and every delta is nonzero. The mempool applies each chunk as it
-// arrives and treats the block's transfers as complete only at the done
-// message; nothing that gates on a block's transfers may open on a chunk.
+// hog_db chooses the chunk size; the wire bounds a chunk only by the link's
+// record cap. A shard sends the run one call at a time, awaiting each reply,
+// so it arrives in order and the mempool never has a whole block outstanding.
+// An address appears in at most one chunk of a block's run (a shard holds one
+// balance per address) and every delta is nonzero. The mempool applies each
+// chunk as it arrives and treats the block's transfers as complete only at the
+// done message; nothing that gates on a block's transfers may open on a chunk.
 struct HogsTransferredChunk {
   // The height of the block in which these transfers occurred. The scheduler
   // uses this height to update average hog ages.
   BlockHeight block;
-  Delta deltas<kMaxDeltasPerHogsTransferredChunk>;
+  Delta deltas<>;
 };
 
 // Ends a block's run of HogsTransferredChunk. Sent once per block per shard,
