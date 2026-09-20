@@ -69,18 +69,22 @@ program SchedDb
     // system.
     void scheddb_intro_shard(ShardCard) = 1;
 
-    // Procedure 2 was scheddb_hogs_transferred(HogsTransferred): a block's
-    // deltas in one unbounded record, which a block with enough distinct
-    // recipients grows past any single-record cap (hogd#2332). Retired, not
-    // reused, so a peer built against it fails to dispatch rather than
-    // misparse.
+    // Retired numbers, never to be reused, so that a peer built against one
+    // fails to dispatch rather than misparse a newer payload:
+    //   2: scheddb_hogs_transferred(HogsTransferred), a block's deltas in one
+    //      unbounded record, which a block with enough distinct recipients
+    //      grows past any single-record cap (hogd#2332).
+    //   3: scheddb_changed_addresses(BlockHeight, ContractAddressBatch),
+    //      removed in e413dc9. Its payload also opens with a block height and
+    //      a vector length, so a chunk sent on 3 would decode there as
+    //      addresses.
 
     // Deliver one chunk of a committed block's balance deltas.
-    void scheddb_hogs_transferred_chunk(HogsTransferredChunk) = 3;
+    void scheddb_hogs_transferred_chunk(HogsTransferredChunk) = 4;
 
     // Close a committed block's run of chunks. With several db shards the
     // mempool completes the block once every registered shard has sent this.
-    void scheddb_hogs_transferred_done(HogsTransferredDone) = 4;
+    void scheddb_hogs_transferred_done(HogsTransferredDone) = 5;
   }
   = 1;
 }
