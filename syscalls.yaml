@@ -62,6 +62,12 @@ type_mappings:
     rust_name: "StorageDeltaFlagSet"
     rust_uses_as_ptr: false
     primitive_type: true
+  - base_name: "GasAmount"
+    rust_name: "GasAmount"
+    rust_uses_as_ptr: false
+    # NOT primitive_type, for the same reason as BlockHeight: GasAmount is a
+    # 64-bit value (typedef unsigned hyper) and is passed by reference.
+    newtype: true
   - base_name: "BlockHeight"
     rust_name: "BlockHeight"
     rust_uses_as_ptr: false
@@ -889,3 +895,42 @@ syscalls:
       schedules and deadlines -- and must not rely on it for fine-grained
       ordering or as a source of randomness.
     errors:
+  - name: "SponsorGas"
+    inputs:
+      - name: "expected_amount"
+        typename: "GasAmount"
+    outputs:
+    number: 36
+    description: >
+      Assents to this transaction's SponsorTerm for the current frame's own
+      address, making that address responsible for the transaction's gas up
+      to the amount the term states.
+
+      Not read_only: it changes transaction-level accounting, so it fails in
+      a frame entered with the ReadOnly invoke flag.
+
+      The amount is fixed by the transaction and is not an argument. Passing
+      expected_amount states what the contract believes it is agreeing to,
+      and a mismatch is an error rather than a silent grant, so a blind
+      assent is not expressible. Attribution is always the calling frame's
+      own address, so a contract can only volunteer itself and cannot be made
+      to sponsor a transaction by another contract in the call path.
+
+      Sponsorship is one-shot per transaction. Until some sponsor assents, a
+      sponsored transaction runs under a proposer-chosen allowance and may
+      not deploy contracts, read the retrocausal queue, or use TryInvoke;
+      those restrictions lift once this call succeeds. A transaction that
+      never reaches a successful call to this syscall is dropped at proposal
+      time rather than included, because there is nobody to charge for it.
+    errors:
+      - code: kSyscallErrorCodeSponsorshipNotOffered
+        description: >
+          No SponsorTerm names this frame's address, or expected_amount does
+          not equal the amount that term states.
+      - code: kSyscallErrorCodeSponsorshipAlreadyAssented
+        description: >
+          A sponsor has already assented to this transaction.
+      - code: kSyscallErrorCodeSponsorInsufficientHogs
+        description: >
+          This frame's address cannot currently fund the amount its term
+          states.

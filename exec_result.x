@@ -31,6 +31,16 @@ enum ExecResult {
   // defect during validation is ExecResultTxValidationFailure, since a
   // malformed transaction inside a proposed block is the proposer's fault.
   ExecResultMalformedTransaction = 201,
+  // A sponsored transaction reached the end of its proposal-time allowance
+  // without any named sponsor assenting via the SponsorGas syscall. Nobody
+  // can be charged for it, so the scheduler drops it rather than including
+  // it -- deliberately not ExecResultTxDeterministicError, which is
+  // includable and would consume the submitter's Uniquifier for free.
+  //
+  // Returned only during proposal. A sponsored-but-unassented transaction
+  // found inside a proposed block is the proposer's fault and is
+  // ExecResultTxValidationFailure, as for a malformed one.
+  ExecResultSponsorshipUnmet = 202,
   // System error; network connection broke, etc.
   // Executor can recover from this error to continue execution of other
   // transactions.

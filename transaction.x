@@ -138,6 +138,65 @@ struct Uniquifier {
 };
 
 //------------------------------------------------------------------------------
+// Gas Sponsorship
+//------------------------------------------------------------------------------
+
+/// Distinct sponsors one transaction may name.
+///
+/// Bounded so the scheduler's admission-time solvency check costs a fixed
+/// number of reads; it batches them alongside the hog-age and auth-data
+/// lookups it already performs per transaction.
+const kMaxSponsorTerms = 4; // #[rust(const=u32)]
+
+/// A specific commitment asked of a specific address.
+///
+/// The submitter names both the sponsor and the exact amount, and signs both.
+/// A sponsor therefore cannot be asked for an amount it did not agree to at
+/// signing time, and the submitter cannot be sponsored by an address it did
+/// not offer -- which would otherwise let any contract in the call path
+/// create an unwanted on-chain association.
+struct SponsorTerm {
+  /// The address expected to cover `amount`. The SponsorGas syscall fails
+  /// unless the assenting frame's own address matches this.
+  ContractAddress sponsor;
+
+  /// Exactly how much gas this sponsor covers.
+  ///
+  /// Fixed at signing time rather than chosen at runtime. That is what lets
+  /// the scheduler check solvency against a known number at admission, and
+  /// what lets a validator bound its replay of the transaction without any
+  /// proposer-supplied hint.
+  GasAmount amount;
+};
+
+/// A submitter's request to have this transaction's gas covered by contracts
+/// that assent autonomously during execution.
+///
+/// Groundhog has no fee market: scheduling priority comes from age-weighted
+/// HOG held at the invoked address, so a freshly funded address cannot
+/// transact until its hogs have cycled. A sponsored transaction is scheduled
+/// against a named sponsor's hogs instead.
+///
+/// No signature is fetched from the sponsor. The sponsor's own code decides,
+/// during execution, whether to assent.
+struct SponsorshipRequest {
+  ExtensionPoint ext;
+
+  /// Sponsors and the amount asked of each. Non-empty, no duplicate
+  /// addresses.
+  ///
+  /// `Invocation::gas_limit` must not exceed the sum of these amounts, and
+  /// that sum must not exceed `kConfigParamMaxSponsoredGas`: the sum is what
+  /// bounds a validator's replay of this transaction.
+  SponsorTerm terms<kMaxSponsorTerms>;
+};
+
+/// Optional sponsorship request. Null means the transaction is self-funded:
+/// it carries its full gas limit from the start and is scheduled against the
+/// invoked address's own hogs, exactly as before this field existed.
+typedef SponsorshipRequest *OptSponsorshipRequest;
+
+//------------------------------------------------------------------------------
 // Transactions
 //------------------------------------------------------------------------------
 
@@ -151,6 +210,13 @@ struct Uniquifier {
 /// - Can deploy new contracts that will be available during execution
 /// - Must have a [`Uniquifier`] that has never before been used for this address
 struct Transaction {
+  /// Reserved for future extension; only v=0 is valid today.
+  ///
+  /// Present so that a later change can replace this struct with a union
+  /// carrying it as variant 0, rather than requiring another flag day. See
+  /// [`ExtensionPoint`] in types.x.
+  ExtensionPoint ext;
+
   /// The root contract invocation for this transaction.
   Invocation invocation;
 
@@ -170,6 +236,11 @@ struct Transaction {
   ///
   /// See [`AuthClaim`] in auth_claim.x for details.
   AuthClaim auth_claim;
+
+  /// Optional request to have this transaction's gas covered by named
+  /// sponsors that assent during execution. Null for a self-funded
+  /// transaction. See [`SponsorshipRequest`].
+  OptSponsorshipRequest sponsorship;
 };
 
 //------------------------------------------------------------------------------

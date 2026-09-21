@@ -56,7 +56,25 @@ enum SyscallErrorCode {
   /// invocation succeeds from a shallower frame. It is reported before any
   /// child frame runs, so the syscall is a complete no-op and the caller's
   /// invoke outputs are left untouched.
-  kSyscallErrorCodeInvokeDepthExceeded = 11
+  kSyscallErrorCodeInvokeDepthExceeded = 11,
+
+  /// SponsorGas was called by a frame whose address no SponsorTerm names, or
+  /// with an expected_amount that does not equal the amount that frame's term
+  /// states. A contract can only ever assent to sponsorship the submitter
+  /// offered it, for exactly the amount offered, so this reports both halves
+  /// of that check.
+  kSyscallErrorCodeSponsorshipNotOffered = 12,
+
+  /// SponsorGas was called after some sponsor had already assented to this
+  /// transaction. Sponsorship is one-shot per transaction.
+  kSyscallErrorCodeSponsorshipAlreadyAssented = 13,
+
+  /// SponsorGas was called by a frame whose address is named by a SponsorTerm
+  /// it cannot currently fund. Checked at assent rather than only at commit,
+  /// so a transaction naming one solvent and one insolvent sponsor fails
+  /// immediately instead of running to completion and failing two-phase
+  /// commit.
+  kSyscallErrorCodeSponsorInsufficientHogs = 14
 };
 
 } // namespace hogd

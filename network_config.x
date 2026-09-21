@@ -22,7 +22,8 @@ enum ConfigParamID {
   kConfigParamMaxSHA256BufferBytes = 6,
   kConfigParamMaxAuthTokenDepth = 7,
   kConfigParamMaxRv32CodeBytes = 8,
-  kConfigParamMaxRv32MemoryBytes = 9
+  kConfigParamMaxRv32MemoryBytes = 9,
+  kConfigParamMaxSponsoredGas = 10
 };
 
 /// One configuration parameter and the value in force for it.
@@ -142,6 +143,23 @@ case kConfigParamMaxRv32MemoryBytes:
   /// chain raising this accepts that per-call cost; hogd rejects a genesis
   /// above what its VM provisions.
   unsigned int max_rv32_memory_bytes;
+
+case kConfigParamMaxSponsoredGas:
+  /// Ceiling on the sum of a `SponsorshipRequest`'s term amounts, and so on
+  /// `Invocation::gas_limit` for a sponsored transaction.
+  ///
+  /// Consensus-critical because it is what bounds the work a validator does
+  /// replaying one: a sponsored transaction is replayed bounded by that sum,
+  /// and without a cap a rich sponsor could name an arbitrarily large one.
+  /// Checked structurally, before execution, so a transaction exceeding it is
+  /// malformed rather than failing partway.
+  ///
+  /// The proposer-side knobs that go with sponsorship -- how much gas a
+  /// transaction may burn before a sponsor assents, and how much of a block
+  /// the sponsored lane may take -- are deliberately NOT here. They only ever
+  /// bind on transactions a proposer drops, which never reach a block, so
+  /// they are node-local policy that proposers may tune independently.
+  unsigned hyper max_sponsored_gas;
 };
 
 /// The parameters a chain states, as a list rather than fixed fields. A new

@@ -35,7 +35,12 @@ enum SchedGatewaySubmitOutcome {
   SchedGatewaySubmitRetryable = 2,
   // This request definitely did not admit the transaction because an internal
   // dependency failed. An RPC failure instead makes admission indeterminate.
-  SchedGatewaySubmitInternalError = 3
+  SchedGatewaySubmitInternalError = 3,
+  // This request definitely did not admit the transaction because it asked
+  // for sponsorship and no address it named could fund the amount asked of
+  // it. Retrying unchanged may succeed once a sponsor is funded, or once its
+  // hogs cycle into the schedulable group.
+  SchedGatewaySubmitSponsorshipUnfunded = 4
 };
 
 typedef SchedGatewaySubmitOutcome SchedGatewaySubmitOutcomeBatch<>;
