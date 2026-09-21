@@ -902,9 +902,9 @@ syscalls:
     outputs:
     number: 36
     description: >
-      Assents to this transaction's SponsorTerm for the current frame's own
-      address, making that address responsible for the transaction's gas up
-      to the amount the term states.
+      Assents to this transaction's sponsorship request on behalf of the
+      current frame's own address, making that address responsible for the
+      transaction's gas up to the amount the request states.
 
       Not read_only: it changes transaction-level accounting, so it fails in
       a frame entered with the ReadOnly invoke flag.
@@ -925,8 +925,8 @@ syscalls:
     errors:
       - code: kSyscallErrorCodeSponsorshipNotOffered
         description: >
-          No SponsorTerm names this frame's address, or expected_amount does
-          not equal the amount that term states.
+          This frame's address is not the transaction's named sponsor, or
+          expected_amount does not equal the amount the request states.
       - code: kSyscallErrorCodeSponsorshipAlreadyAssented
         description: >
           A sponsor has already assented to this transaction.

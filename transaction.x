@@ -141,54 +141,44 @@ struct Uniquifier {
 // Gas Sponsorship
 //------------------------------------------------------------------------------
 
-/// Distinct sponsors one transaction may name.
-///
-/// Bounded so the scheduler's admission-time solvency check costs a fixed
-/// number of reads; it batches them alongside the hog-age and auth-data
-/// lookups it already performs per transaction.
-const kMaxSponsorTerms = 4; // #[rust(const=u32)]
-
-/// A specific commitment asked of a specific address.
-///
-/// The submitter names both the sponsor and the exact amount, and signs both.
-/// A sponsor therefore cannot be asked for an amount it did not agree to at
-/// signing time, and the submitter cannot be sponsored by an address it did
-/// not offer -- which would otherwise let any contract in the call path
-/// create an unwanted on-chain association.
-struct SponsorTerm {
-  /// The address expected to cover `amount`. The SponsorGas syscall fails
-  /// unless the assenting frame's own address matches this.
-  ContractAddress sponsor;
-
-  /// Exactly how much gas this sponsor covers.
-  ///
-  /// Fixed at signing time rather than chosen at runtime. That is what lets
-  /// the scheduler check solvency against a known number at admission, and
-  /// what lets a validator bound its replay of the transaction without any
-  /// proposer-supplied hint.
-  GasAmount amount;
-};
-
-/// A submitter's request to have this transaction's gas covered by contracts
-/// that assent autonomously during execution.
+/// A submitter's request to have this transaction's gas covered by a contract
+/// that assents autonomously during execution.
 ///
 /// Groundhog has no fee market: scheduling priority comes from age-weighted
 /// HOG held at the invoked address, so a freshly funded address cannot
 /// transact until its hogs have cycled. A sponsored transaction is scheduled
-/// against a named sponsor's hogs instead.
+/// against the named sponsor's hogs instead.
 ///
 /// No signature is fetched from the sponsor. The sponsor's own code decides,
 /// during execution, whether to assent.
+///
+/// The submitter names both the sponsor and the amount, and signs both. A
+/// sponsor therefore cannot be asked for an amount it did not agree to at
+/// signing time, and the submitter cannot be sponsored by an address it did
+/// not offer -- which would otherwise let any contract in the call path
+/// create an unwanted on-chain association.
 struct SponsorshipRequest {
   ExtensionPoint ext;
 
-  /// Sponsors and the amount asked of each. Non-empty, no duplicate
-  /// addresses.
+  /// The address expected to cover this transaction. The SponsorGas syscall
+  /// fails unless the assenting frame's own address matches this.
+  ContractAddress sponsor;
+
+  /// How much gas the sponsor covers. Must equal `Invocation::gas_limit`.
   ///
-  /// `Invocation::gas_limit` must not exceed the sum of these amounts, and
-  /// that sum must not exceed `kConfigParamMaxSponsoredGas`: the sum is what
-  /// bounds a validator's replay of this transaction.
-  SponsorTerm terms<kMaxSponsorTerms>;
+  /// Fixed at signing time rather than chosen at runtime, so the scheduler
+  /// checks solvency against a known number at admission.
+  ///
+  /// One sponsor, not a list: exactly one address assents, so a list would
+  /// have to be a list of alternatives, each independently covering the whole
+  /// gas limit -- which makes the per-entry amounts identical and the list a
+  /// set of interchangeable addresses.
+  ///
+  /// Redundant with `gas_limit` while it must equal it. It is kept as a
+  /// separate field because the thing that would make it independent --
+  /// a sponsor covering only part of a transaction's gas, with the submitter
+  /// funding the rest -- is a live question rather than a settled non-goal.
+  GasAmount amount;
 };
 
 /// Optional sponsorship request. Null means the transaction is self-funded:
@@ -237,8 +227,8 @@ struct Transaction {
   /// See [`AuthClaim`] in auth_claim.x for details.
   AuthClaim auth_claim;
 
-  /// Optional request to have this transaction's gas covered by named
-  /// sponsors that assent during execution. Null for a self-funded
+  /// Optional request to have this transaction's gas covered by a named
+  /// sponsor that assents during execution. Null for a self-funded
   /// transaction. See [`SponsorshipRequest`].
   OptSponsorshipRequest sponsorship;
 };
