@@ -58,22 +58,20 @@ enum SyscallErrorCode {
   /// invoke outputs are left untouched.
   kSyscallErrorCodeInvokeDepthExceeded = 11,
 
-  /// SponsorGas was called by a frame that is not this transaction's named
-  /// sponsor, or with an expected_amount that does not equal the amount the
-  /// request states. A contract can only ever assent to sponsorship the
-  /// submitter offered it, for exactly the amount offered, so this reports
-  /// both halves of that check.
-  kSyscallErrorCodeSponsorshipNotOffered = 12,
-
-  /// SponsorGas was called after some sponsor had already assented to this
-  /// transaction. Sponsorship is one-shot per transaction.
-  kSyscallErrorCodeSponsorshipAlreadyAssented = 13,
-
-  /// SponsorGas was called by this transaction's named sponsor, but that
-  /// address cannot currently fund the amount the request states. Checked at
-  /// assent rather than only at commit, so the transaction fails immediately
-  /// instead of running to completion and failing two-phase commit.
-  kSyscallErrorCodeSponsorInsufficientHogs = 14
+  /// SponsorGas did not take effect. One code rather than several, because a
+  /// contract's response is the same in every case: it is not covering this
+  /// transaction, and there is nothing it can do about that from inside the
+  /// call. The cases are
+  ///
+  ///  - no SponsorTerm names this frame's address;
+  ///  - the offered ceiling is below the amount that term asks for;
+  ///  - this address has already assented to this transaction;
+  ///  - this address cannot currently fund the amount its term asks for.
+  ///
+  /// The last is checked at assent rather than only at commit, so a
+  /// transaction whose sponsor cannot pay fails immediately instead of
+  /// running to completion and failing two-phase commit.
+  kSyscallErrorCodeSponsorshipRejected = 12
 };
 
 } // namespace hogd
