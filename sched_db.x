@@ -25,34 +25,27 @@ struct Delta {
 
 // One slice of the native-token balance deltas a committed block finalized.
 //
-// hog_db publishes a block's deltas as a run of chunks followed by exactly one
-// HogsTransferredDone, all for the same block, after the block is committed.
-// hog_db chooses the chunk size; the wire bounds a chunk only by the link's
-// record cap. A shard sends the run one call at a time, awaiting each reply,
-// so it arrives in order and the mempool never has a whole block outstanding.
-// An address appears in at most one chunk of a block's run (a shard holds one
-// balance per address) and every delta is nonzero. The mempool applies each
-// chunk as it arrives and treats the block's transfers as complete only at the
-// done message; nothing that gates on a block's transfers may open on a chunk.
+// hog_db publishes a block's deltas as a run of chunk_count chunks, all for
+// the same block, after the block is committed. hog_db chooses the chunk
+// size; the wire bounds a chunk only by the link's record cap. A shard sends
+// the run one call at a time, awaiting each reply, so it arrives in order and
+// the mempool never has a whole block outstanding. An address appears in at
+// most one chunk of a block's run (a shard holds one balance per address) and
+// every delta is nonzero. The mempool applies each chunk as it arrives and
+// treats the block's transfers as complete only once the run's last chunk is
+// applied; nothing that gates on a block's transfers may open before that.
 struct HogsTransferredChunk {
   // The height of the block in which these transfers occurred. The scheduler
   // uses this height to update average hog ages.
   BlockHeight block;
-  Delta deltas<>;
-};
-
-// Ends a block's run of HogsTransferredChunk. Sent once per block per shard,
-// after the shard's last chunk for that block, for every committed block,
-// including one that finalized no nonzero delta (chunk_count 0). The counts
-// let the receiver check the run it applied against the run the shard sent
-// before it opens the block's transfer gate; a mismatch is fail-stop, since a
-// block whose deltas are only partly applied cannot be scheduled against.
-struct HogsTransferredDone {
-  BlockHeight block;
-  // Chunks the shard sent for this block.
+  // This chunk's position in the block's run, from 0, and the run's length.
+  // Every chunk of a run carries the same chunk_count, and the chunk with
+  // chunk_index == chunk_count - 1 is the run's last. A block that finalized
+  // no nonzero delta is a run of one empty chunk, so every committed block
+  // still ends with a last chunk.
+  unsigned int chunk_index;
   unsigned int chunk_count;
-  // Deltas across those chunks.
-  unsigned hyper delta_count;
+  Delta deltas<>;
 };
 
 program SchedDb
@@ -73,12 +66,10 @@ program SchedDb
     //      a vector length, so a chunk sent on 3 would decode there as
     //      addresses.
 
-    // Deliver one chunk of a committed block's balance deltas.
+    // Deliver one chunk of a committed block's balance deltas. With several db
+    // shards the mempool completes the block once every registered shard has
+    // sent its run's last chunk.
     void scheddb_hogs_transferred_chunk(HogsTransferredChunk) = 4;
-
-    // Close a committed block's run of chunks. With several db shards the
-    // mempool completes the block once every registered shard has sent this.
-    void scheddb_hogs_transferred_done(HogsTransferredDone) = 5;
   }
   = 1;
 }
