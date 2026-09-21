@@ -27,22 +27,24 @@ struct Delta {
 //
 // hog_db publishes a block's deltas as a run of chunk_count chunks, all for
 // the same block, after the block is committed. hog_db chooses the chunk
-// size; the wire bounds a chunk only by the link's record cap. A shard sends
-// the run one call at a time, awaiting each reply, so it arrives in order and
-// the mempool never has a whole block outstanding. An address appears in at
-// most one chunk of a block's run (a shard holds one balance per address) and
-// every delta is nonzero. The mempool applies each chunk as it arrives and
-// treats the block's transfers as complete only once the run's last chunk is
-// applied; nothing that gates on a block's transfers may open before that.
+// size; the wire bounds a chunk only by the link's record cap. The chunks of
+// a run may be sent concurrently and over several connections, so they can
+// arrive in any order; hog_db starts the next block's run only after every
+// chunk of this one is acknowledged, so the mempool never has more than one
+// block's run in flight. An address appears in at most one chunk of a block's
+// run (a shard holds one balance per address) and every delta is nonzero. The
+// mempool treats the block's transfers as complete only once every chunk of
+// the run has arrived; nothing that gates on a block's transfers may open
+// before that.
 struct HogsTransferredChunk {
   // The height of the block in which these transfers occurred. The scheduler
   // uses this height to update average hog ages.
   BlockHeight block;
   // This chunk's position in the block's run, from 0, and the run's length.
-  // Every chunk of a run carries the same chunk_count, and the chunk with
-  // chunk_index == chunk_count - 1 is the run's last. A block that finalized
-  // no nonzero delta is a run of one empty chunk, so every committed block
-  // still ends with a last chunk.
+  // Every chunk of a run carries the same chunk_count, and each index in
+  // [0, chunk_count) is sent exactly once. A block that finalized no nonzero
+  // delta is a run of one empty chunk, so every committed block still sends
+  // a run.
   unsigned int chunk_index;
   unsigned int chunk_count;
   Delta deltas<>;
