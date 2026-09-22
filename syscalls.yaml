@@ -571,8 +571,8 @@ syscalls:
 
       A queue with no live entries does not exist. Inserting entries and
       then consuming all of them leaves the key absent at the end of the
-      block, exactly as fully consuming a preexisting queue does, and
-      whatever the key held before the insert.
+      block, exactly as fully consuming a preexisting queue does. The
+      value that the insert overwrote is not restored.
     errors:
       - code: kSyscallErrorCodeInvalidSyscallInput
         description: >
