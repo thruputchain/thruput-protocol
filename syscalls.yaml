@@ -561,11 +561,26 @@ syscalls:
     description: >
       Inserts an entry into the retrocausal queue at the specified
       storage key.
+
+      An insert is a write, and it converts the storage type of the key.
+      If the key holds a committed value of another type (a bytestring
+      or an NNInt), that value is destroyed and replaced by a queue
+      holding the inserted entry; the syscall does not fail. A contract
+      that must not clobber an existing value is responsible for
+      checking the type of the key first.
+
+      A queue with no live entries does not exist. Inserting entries and
+      then consuming all of them leaves the key absent at the end of the
+      block, exactly as fully consuming a preexisting queue does, and
+      whatever the key held before the insert.
     errors:
       - code: kSyscallErrorCodeInvalidSyscallInput
         description: >
-          The storage key exists but contains a different type that
-          cannot be converted to a retrocausal queue. This error will
+          The current transaction has already written a value of another
+          type (for example a bytestring) to the storage key, which
+          cannot be converted to a retrocausal queue. Note that a
+          committed value of another type is converted rather than
+          rejected; see the description above. This error will
           also be returned if the queue entry is too large,
           or if too many entries are inserted in the current transaction.
   - name: "RetrocausalQueueConsume"
@@ -586,13 +601,21 @@ syscalls:
       Consumes (or peeks at) the next entry from the retrocausal queue
       at the specified storage key. If peek is true, the entry is not
       removed from the queue.
+
+      A committed value of another type (a bytestring or an NNInt) reads
+      as an empty queue. Neither a consume nor a peek that finds no
+      entry changes the storage type of the key, so such a value is left
+      intact; only RetrocausalQueueInsert converts a key to a queue.
     errors:
       - code: kSyscallErrorCodeNoRetrocausalQueueEntry
         description: >
-          The retrocausal queue is empty and has no entries to consume.
+          The retrocausal queue is empty and has no entries to consume,
+          or the key holds a committed value that is not a retrocausal
+          queue.
       - code: kSyscallErrorCodeInvalidSyscallInput
         description: >
-          The storage key exists but contains a different type.
+          The current transaction has already written a value of another
+          type to the storage key.
       - code: kSyscallErrorCodeRetrocausalQueueReadLimitReached
         description: >
           The transaction has read the maximum number of concurrent
@@ -769,13 +792,20 @@ syscalls:
     number: 30
     description: >
       Returns the length of the retrocausal queue at the specified storage key.
+
+      As with RetrocausalQueueConsume, a committed value of another type
+      (a bytestring or an NNInt) reads as an empty queue, and this
+      syscall never changes the storage type of the key.
     errors:
       - code: kSyscallErrorCodeInvalidSyscallInput
         description: >
-          The storage key exists but contains a different type.
+          The current transaction has already written a value of another
+          type to the storage key.
       - code: kSyscallErrorCodeNoRetrocausalQueueEntry
         description: >
-          The retrocausal queue is empty and has no entries to peek.
+          The retrocausal queue is empty and has no entries to peek, or
+          the key holds a committed value that is not a retrocausal
+          queue.
       - code: kSyscallErrorCodeRetrocausalQueueReadLimitReached
         description: >
           The transaction has read the maximum number of concurrent
