@@ -608,6 +608,13 @@ syscalls:
       an empty queue, whether that value was committed in an earlier
       block or written earlier in this transaction, and the value is
       left intact. A key that holds no value at all is an empty queue.
+
+      Entries inserted by other transactions in the current block are
+      visible only when the key, as this transaction sees it, already
+      is a queue or holds nothing. Another transaction converting a
+      bytestring or NNInt key to a queue in the same block is a write
+      like any other: it becomes visible to readers at the block
+      boundary, not before.
     errors:
       - code: kSyscallErrorCodeNoRetrocausalQueueEntry
         description: >
