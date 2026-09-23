@@ -9,8 +9,8 @@ const kSHA256BufferMaxSize = 4096;
 const kMaxSavepointDepth = 1024;
 
 /// Bytes of RV32 code an attached artifact may carry when a configuration
-/// does not state `kConfigParamMaxRv32CodeBytes`. Frozen for the same reason.
-const kDefaultMaxRv32CodeBytes = 65536;
+/// does not state `kConfigParamMaxRv32CodeBytes`.
+const kDefaultMaxRv32CodeBytes = 262144;
 
 /// Bytes of RV32 guest memory an attached artifact may declare when a
 /// configuration does not state `kConfigParamMaxRv32MemoryBytes`. Frozen for
