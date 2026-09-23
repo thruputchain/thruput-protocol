@@ -26,9 +26,9 @@ enum DbConflictCode {
   /// different auth-data bases, or different contract / deployment hashes.
   kDbConflictValueMismatch = 2,
 
-  /// A nonnegative int (or balance) would go below zero given the deltas
-  /// in this block, or a newly created balance item cannot cover its own
-  /// storage cost.
+  /// A nonnegative int would go below zero given the deltas in this block.
+  /// A native HOG balance that cannot cover its debits reports
+  /// kDbConflictInsufficientFunds instead.
   kDbConflictBoundsExceeded = 3,
 
   /// Integer overflow combining deltas on a nonnegative int or balance.
@@ -44,7 +44,14 @@ enum DbConflictCode {
 
   /// A per-item capacity limit was hit: replay-cache active heights or
   /// nonces, retrocausal-queue block entries, or auth signer slots.
-  kDbConflictCapacityExceeded = 7
+  kDbConflictCapacityExceeded = 7,
+
+  /// The native HOG balance at the diagnostic's address cannot cover the
+  /// debits in this block, or a newly created balance item cannot cover
+  /// its own storage cost. Storage written under a contract's address is
+  /// charged to that contract's balance, so a deployment reports this at
+  /// the new contract's address when it holds no HOG.
+  kDbConflictInsufficientFunds = 8
 };
 
 /// How much conflict diagnostic detail try_push_new_subtransaction reports
