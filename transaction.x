@@ -274,6 +274,9 @@ struct NondeterministicProposalData {
   ///
   /// Each bit represents a binary decision point encountered during execution.
   /// The bits are consumed sequentially as the transaction re-executes.
+  ///
+  /// The wire type does not bound this; the chain's
+  /// `kConfigParamMaxNondeterministicBits` does, in bits.
   opaque nondeterministic_bits<>;
 
   /// The length of nondeterministic_bits in bits (not bytes).

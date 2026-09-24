@@ -22,7 +22,8 @@ enum ConfigParamID {
   kConfigParamMaxSHA256BufferBytes = 6,
   kConfigParamMaxAuthTokenDepth = 7,
   kConfigParamMaxRv32CodeBytes = 8,
-  kConfigParamMaxRv32MemoryBytes = 9
+  kConfigParamMaxRv32MemoryBytes = 9,
+  kConfigParamMaxNondeterministicBits = 10
 };
 
 /// One configuration parameter and the value in force for it.
@@ -142,6 +143,21 @@ case kConfigParamMaxRv32MemoryBytes:
   /// chain raising this accepts that per-call cost; hogd rejects a genesis
   /// above what its VM provisions.
   unsigned int max_rv32_memory_bytes;
+
+case kConfigParamMaxNondeterministicBits:
+  /// Nondeterministic decisions one transaction may record in
+  /// `NondeterministicProposalData.nondeterministic_bits`, counted in bits.
+  /// `kDefaultMaxNondeterministicBits` is the value in force for a
+  /// configuration that does not state one.
+  ///
+  /// Reaching the limit does not fail the transaction. Every decision past
+  /// it takes a fixed outcome and records no bit: a `TryInvoke` child is
+  /// refused as if its locks were not acquired, and a concurrent
+  /// retrocausal queue read finds no entry. The count of decisions reached
+  /// is itself deterministic, so proposer and validators agree on which
+  /// decisions those are. A validator rejects a proposal stating more bits
+  /// than this before executing it.
+  unsigned int max_nondeterministic_bits;
 };
 
 /// The parameters a chain states, as a list rather than fixed fields. A new
