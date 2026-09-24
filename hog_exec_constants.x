@@ -17,9 +17,7 @@ const kDefaultMaxRv32CodeBytes = 262144;
 /// the same reason.
 const kDefaultMaxRv32MemoryBytes = 65536;
 
-/// Nondeterministic decisions (bits) one transaction may record when a
-/// configuration does not state `kConfigParamMaxNondeterministicBits`: 1 MiB
-/// of `nondeterministic_bits`. Frozen for the same reason.
+/// Default `kConfigParamMaxNondeterministicBits`: 1 MiB of bits.
 const kDefaultMaxNondeterministicBits = 8388608;
 
 } // namespace hogd

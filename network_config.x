@@ -145,18 +145,10 @@ case kConfigParamMaxRv32MemoryBytes:
   unsigned int max_rv32_memory_bytes;
 
 case kConfigParamMaxNondeterministicBits:
-  /// Nondeterministic decisions one transaction may record in
-  /// `NondeterministicProposalData.nondeterministic_bits`, counted in bits.
-  /// `kDefaultMaxNondeterministicBits` is the value in force for a
-  /// configuration that does not state one.
-  ///
-  /// Reaching the limit does not fail the transaction. Every decision past
-  /// it takes a fixed outcome and records no bit: a `TryInvoke` child is
-  /// refused as if its locks were not acquired, and a concurrent
-  /// retrocausal queue read finds no entry. The count of decisions reached
-  /// is itself deterministic, so proposer and validators agree on which
-  /// decisions those are. A validator rejects a proposal stating more bits
-  /// than this before executing it.
+  /// Bits one transaction may record in `nondeterministic_bits`
+  /// (default `kDefaultMaxNondeterministicBits`). Past it, a `TryInvoke`
+  /// child is refused and a concurrent RCQ read finds no entry, recording
+  /// nothing.
   unsigned int max_nondeterministic_bits;
 };
 
