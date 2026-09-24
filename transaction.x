@@ -276,7 +276,11 @@ struct NondeterministicProposalData {
   /// The bits are consumed sequentially as the transaction re-executes.
   ///
   /// The wire type does not bound this; the chain's
-  /// `kConfigParamMaxNondeterministicBits` does, in bits.
+  /// `kConfigParamMaxNondeterministicBits` does, in bits. A validator rejects,
+  /// before executing, a proposal whose `nondeterministic_bit_count` exceeds
+  /// that limit, or whose length here is not exactly
+  /// ceil(`nondeterministic_bit_count` / 8) bytes with every padding bit zero,
+  /// so the byte length is bounded by the same limit.
   opaque nondeterministic_bits<>;
 
   /// The length of nondeterministic_bits in bits (not bytes).
