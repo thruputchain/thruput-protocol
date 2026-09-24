@@ -22,7 +22,8 @@ enum ConfigParamID {
   kConfigParamMaxSHA256BufferBytes = 6,
   kConfigParamMaxAuthTokenDepth = 7,
   kConfigParamMaxRv32CodeBytes = 8,
-  kConfigParamMaxRv32MemoryBytes = 9
+  kConfigParamMaxRv32MemoryBytes = 9,
+  kConfigParamMaxSponsorTerms = 10
 };
 
 /// One configuration parameter and the value in force for it.
@@ -142,6 +143,21 @@ case kConfigParamMaxRv32MemoryBytes:
   /// chain raising this accepts that per-call cost; hogd rejects a genesis
   /// above what its VM provisions.
   unsigned int max_rv32_memory_bytes;
+
+case kConfigParamMaxSponsorTerms:
+  /// Sponsors one transaction may name in `SponsorshipRequest::terms`.
+  ///
+  /// Consensus-critical because it is what bounds the per-transaction work
+  /// that naming a sponsor creates for everyone else: one solvency read at
+  /// admission and one debit at commit per term, on addresses a submitter
+  /// chooses for free. Nothing else bounds the count -- unlike the amounts,
+  /// which are bounded by the sponsors' own balances -- so without this a
+  /// transaction could name arbitrarily many.
+  ///
+  /// Checked where a transaction is checked rather than where one is decoded,
+  /// so `terms` is unbounded on the wire. This is the same split
+  /// `kConfigParamMaxNewContractsPerTx` uses for `contracts_to_deploy`.
+  unsigned int max_sponsor_terms;
 };
 
 /// The parameters a chain states, as a list rather than fixed fields. A new

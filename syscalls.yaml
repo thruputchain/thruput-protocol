@@ -62,6 +62,12 @@ type_mappings:
     rust_name: "StorageDeltaFlagSet"
     rust_uses_as_ptr: false
     primitive_type: true
+  - base_name: "GasAmount"
+    rust_name: "GasAmount"
+    rust_uses_as_ptr: false
+    # NOT primitive_type, for the same reason as BlockHeight: GasAmount is a
+    # 64-bit value (typedef unsigned hyper) and is passed by reference.
+    newtype: true
   - base_name: "BlockHeight"
     rust_name: "BlockHeight"
     rust_uses_as_ptr: false
@@ -890,3 +896,46 @@ syscalls:
       schedules and deadlines -- and must not rely on it for fine-grained
       ordering or as a source of randomness.
     errors:
+  - name: "SponsorGas"
+    inputs:
+      - name: "offered_ceiling"
+        typename: "GasAmount"
+    outputs:
+    number: 36
+    description: >
+      Assents, on behalf of the current frame's own address, to the
+      SponsorTerm this transaction asks of that address, making it
+      responsible for that term's share of the transaction's gas.
+
+      Not read_only: it changes transaction-level accounting, so it fails in
+      a frame entered with the ReadOnly invoke flag.
+
+      offered_ceiling is the most this contract is willing to cover. It must
+      be at least the term's amount; the contract is then charged the term's
+      amount, never the ceiling. Naming a ceiling rather than matching an
+      exact figure lets a contract publish a standing "up to N" policy
+      without knowing what any particular transaction asks for, while still
+      making it impossible to charge one more than it intended.
+
+      Attribution is always the calling frame's own address, so a contract
+      can only volunteer itself and cannot be made to sponsor a transaction
+      by another contract in the call path.
+
+      A transaction may name several sponsors, each asked for its own share.
+      They assent independently and in any order, each at most once. The
+      transaction's available gas is the sum of the shares that have assented
+      so far, so one that its sponsors do not all cover runs with less than
+      its full gas limit and faults if that is not enough.
+
+      Until at least one sponsor assents, a sponsored transaction runs under
+      a proposer-chosen allowance and may not deploy contracts, read the
+      retrocausal queue, or use TryInvoke; those restrictions lift on the
+      first successful assent. A transaction that reaches the end of that
+      allowance with no assent at all is dropped at proposal time rather than
+      included, because there is nobody to charge for it.
+    errors:
+      - code: kSyscallErrorCodeSponsorshipRejected
+        description: >
+          No SponsorTerm names this frame's address, or offered_ceiling is
+          below that term's amount, or this address has already assented to
+          this transaction, or it cannot currently fund that term's amount.

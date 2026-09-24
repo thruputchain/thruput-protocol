@@ -56,7 +56,22 @@ enum SyscallErrorCode {
   /// invocation succeeds from a shallower frame. It is reported before any
   /// child frame runs, so the syscall is a complete no-op and the caller's
   /// invoke outputs are left untouched.
-  kSyscallErrorCodeInvokeDepthExceeded = 11
+  kSyscallErrorCodeInvokeDepthExceeded = 11,
+
+  /// SponsorGas did not take effect. One code rather than several, because a
+  /// contract's response is the same in every case: it is not covering this
+  /// transaction, and there is nothing it can do about that from inside the
+  /// call. The cases are
+  ///
+  ///  - no SponsorTerm names this frame's address;
+  ///  - the offered ceiling is below the amount that term asks for;
+  ///  - this address has already assented to this transaction;
+  ///  - this address cannot currently fund the amount its term asks for.
+  ///
+  /// The last is checked at assent rather than only at commit, so a
+  /// transaction whose sponsor cannot pay fails immediately instead of
+  /// running to completion and failing two-phase commit.
+  kSyscallErrorCodeSponsorshipRejected = 12
 };
 
 } // namespace hogd
