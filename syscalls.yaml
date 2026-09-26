@@ -8,6 +8,12 @@
 # condition is not enforced.)
 # The actual imported syscall function has 8 arguments. The first argument
 # is the syscall number.
+#
+# Syscall ABI version 2 (syscall_abi_version in the RV32 artifact header):
+# BytestringSet, NonnegativeIntSetAdd and DeleteObject no longer take storage
+# flags; SetStorageFlags and GetStorageFlags manage them. A version 1 artifact
+# passes flags that these syscalls no longer read, so a host must reject it
+# rather than silently drop its locks.
 syscall_input_count: 7
 # A set of mappings for common types between the SDK (rust) and the syscall
 # implementation (cpp).
@@ -445,19 +451,19 @@ syscalls:
         typename: "StorageKeyContractData"
       - name: "bytestring"
         span_argument: true
-      - name: "flags"
-        typename: "StorageDeltaFlagSet"
     outputs:
     number: 15
     description: >
       Sets the bytestring value at the specified storage key.
       Note that this will overwrite any existing value at that key,
       *even if* that value has a different type.
+
+      Like every storage write, this leaves the key's storage flags
+      unchanged; see SetStorageFlags.
     errors:
       - code: kSyscallErrorCodeInvalidSyscallInput
         description: >
-          The bytestring is too long, or the input storage flags are
-          invalid.
+          The bytestring is too long.
   - name: "NonnegativeIntGet"
     read_only: true
     inputs:
@@ -510,8 +516,6 @@ syscalls:
         optional: true
       - name: "add_value"
         typename: "int128_t"
-      - name: "flags"
-        typename: "StorageDeltaFlagSet"
     outputs:
     number: 17
     description: >
@@ -519,27 +523,24 @@ syscalls:
       key. The set_value (if provided) sets the base value, and
       add_value is added as a delta. The final value must remain
       nonnegative. Will overwrite any value of that key, *even if*
-      that value has a different type.
+      that value has a different type. Leaves the key's storage flags
+      unchanged.
     errors:
       - code: kSyscallErrorCodeInvalidSyscallInput
         description: >
           The operation would always result in a negative value
-          (i.e. set_add(1, -2)), or the storage flags are invalid.
+          (i.e. set_add(1, -2)).
   - name: "DeleteObject"
     inputs:
       - name: "key"
         typename: "StorageKeyContractData"
-      - name: "flags"
-        typename: "StorageDeltaFlagSet"
     outputs:
     number: 18
     description: >
-      Deletes the object at the specified storage key.
+      Deletes the object at the specified storage key. A pending deletion
+      is a write: it leaves the key's storage flags unchanged, and
+      SetStorageFlags accepts it.
     errors:
-      - code: kSyscallErrorCodeInvalidSyscallInput
-        description: >
-          The storage flags are invalid or incompatible with the
-          current storage state.
   - name: "GetCurrentAddress"
     read_only: true
     inputs:
@@ -561,7 +562,8 @@ syscalls:
     description: >
       Inserts an entry into the retrocausal queue at the specified
       storage key. Like any storage write, this replaces a value of
-      another type at the key. A queue with no live entries does not exist.
+      another type at the key and leaves the key's storage flags unchanged.
+      A queue with no live entries does not exist.
     errors:
       - code: kSyscallErrorCodeInvalidSyscallInput
         description: >
@@ -586,7 +588,8 @@ syscalls:
       at the specified storage key. If peek is true, the entry is not
       removed from the queue. A read never changes the type of the key;
       a same-block conversion by another transaction is visible only
-      from the next block.
+      from the next block. A consume is a write, and leaves the key's
+      storage flags unchanged.
     errors:
       - code: kSyscallErrorCodeNoRetrocausalQueueEntry
         description: >
@@ -889,4 +892,48 @@ syscalls:
       coarse-grained wall-clock time -- suitable for expiries, vesting
       schedules and deadlines -- and must not rely on it for fine-grained
       ordering or as a source of randomness.
+    errors:
+  - name: "SetStorageFlags"
+    inputs:
+      - name: "key"
+        typename: "StorageKeyContractData"
+      - name: "flags"
+        typename: "StorageDeltaFlagSet"
+    outputs:
+    number: 36
+    description: >
+      Replaces the storage flags the current transaction requests for the
+      key. Writes never change a key's flags: every change the transaction
+      commits on the key carries the flags last set here, whichever write
+      produced it.
+
+      A write to the key must be pending in the current call frame's view of
+      the transaction: one made earlier in this frame, or inherited from a
+      caller or from a successful callee. A pending deletion qualifies; a
+      value that exists only in the block snapshot does not. Flags set in a
+      frame that reverts, or in a TryInvoke call that fails, are discarded
+      along with that frame's writes.
+
+      Setting None clears the request. If earlier flags already reached the
+      database through a TryInvoke call, the next push withdraws permanent
+      exclusivity and its storage refund; the ordinary exclusivity that
+      rollback needs remains until the transaction commits.
+    errors:
+      - code: kSyscallErrorCodeInvalidSyscallInput
+        description: >
+          The flags are invalid, or no write to the key is pending in the
+          current call frame's view of the transaction.
+  - name: "GetStorageFlags"
+    read_only: true
+    inputs:
+      - name: "key"
+        typename: "StorageKeyContractData"
+    outputs:
+      - name: "flags"
+        typename: "StorageDeltaFlagSet"
+    number: 37
+    description: >
+      Returns the storage flags the current transaction requests for the
+      key, as visible in the current call frame, or None if no write to the
+      key is pending.
     errors:
