@@ -519,6 +519,19 @@ struct SyscallGetBlockTimepointTrace {
   SyscallGetBlockTimepointOutputs *outputs;
 };
 
+struct SyscallGetStorageWriteFlagsInputs {
+  StorageKeyContractData key;
+};
+
+struct SyscallGetStorageWriteFlagsOutputs {
+  StorageDeltaFlagSet flags;
+};
+
+struct SyscallGetStorageWriteFlagsTrace {
+  SyscallGetStorageWriteFlagsInputs inputs;
+  SyscallGetStorageWriteFlagsOutputs *outputs;
+};
+
 // === Main Trace Body ===
 
 union SyscallTraceBody switch (SyscallNo syscall_number)
@@ -595,6 +608,8 @@ case kGetNetworkHash:
   SyscallGetNetworkHashTrace get_network_hash;
 case kGetBlockTimepoint:
   SyscallGetBlockTimepointTrace get_block_timepoint;
+case kGetStorageWriteFlags:
+  SyscallGetStorageWriteFlagsTrace get_storage_write_flags;
 default:
   void;
 };

@@ -890,3 +890,24 @@ syscalls:
       schedules and deadlines -- and must not rely on it for fine-grained
       ordering or as a source of randomness.
     errors:
+
+  - name: "GetStorageWriteFlags"
+    read_only: true
+    inputs:
+      - name: "key"
+        typename: "StorageKeyContractData"
+    outputs:
+      - name: "flags"
+        typename: "StorageDeltaFlagSet"
+    number: 36
+    description: >
+      Returns the flags of the visible pending write at this key in the
+      current transaction, including a deletion or a write of another
+      item type. Returns StorageDeltaFlags::None if no write is visible. Does not load the
+      snapshot or acquire a database lock. Successful child writes are
+      visible; reverted child writes are discarded.
+
+      Writes still replace flags. A caller may explicitly preserve selected
+      flags when composing writes; read them again after any intervening
+      call that could modify the key.
+    errors:
