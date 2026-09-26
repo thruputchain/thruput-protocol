@@ -8,12 +8,6 @@
 # condition is not enforced.)
 # The actual imported syscall function has 8 arguments. The first argument
 # is the syscall number.
-#
-# Syscall ABI version 2 (syscall_abi_version in the RV32 artifact header):
-# BytestringSet, NonnegativeIntSetAdd and DeleteObject no longer take storage
-# flags; SetStorageFlags, GetStorageFlags and ClearStorageFlags manage them. A
-# version 1 artifact passes flags that these syscalls no longer read, so a host
-# must reject it rather than silently drop its locks.
 syscall_input_count: 7
 # A set of mappings for common types between the SDK (rust) and the syscall
 # implementation (cpp).
@@ -457,9 +451,6 @@ syscalls:
       Sets the bytestring value at the specified storage key.
       Note that this will overwrite any existing value at that key,
       *even if* that value has a different type.
-
-      Like every storage write, this leaves the key's storage flags
-      unchanged; see SetStorageFlags.
     errors:
       - code: kSyscallErrorCodeInvalidSyscallInput
         description: >
@@ -523,8 +514,7 @@ syscalls:
       key. The set_value (if provided) sets the base value, and
       add_value is added as a delta. The final value must remain
       nonnegative. Will overwrite any value of that key, *even if*
-      that value has a different type. Leaves the key's storage flags
-      unchanged.
+      that value has a different type.
     errors:
       - code: kSyscallErrorCodeInvalidSyscallInput
         description: >
@@ -537,9 +527,7 @@ syscalls:
     outputs:
     number: 18
     description: >
-      Deletes the object at the specified storage key. A pending deletion
-      is a write: it leaves the key's storage flags unchanged, and
-      SetStorageFlags accepts it.
+      Deletes the object at the specified storage key.
     errors:
   - name: "GetCurrentAddress"
     read_only: true
@@ -562,8 +550,7 @@ syscalls:
     description: >
       Inserts an entry into the retrocausal queue at the specified
       storage key. Like any storage write, this replaces a value of
-      another type at the key and leaves the key's storage flags unchanged.
-      A queue with no live entries does not exist.
+      another type at the key. A queue with no live entries does not exist.
     errors:
       - code: kSyscallErrorCodeInvalidSyscallInput
         description: >
@@ -588,8 +575,7 @@ syscalls:
       at the specified storage key. If peek is true, the entry is not
       removed from the queue. A read never changes the type of the key;
       a same-block conversion by another transaction is visible only
-      from the next block. A consume is a write, and leaves the key's
-      storage flags unchanged.
+      from the next block.
     errors:
       - code: kSyscallErrorCodeNoRetrocausalQueueEntry
         description: >
@@ -929,8 +915,9 @@ syscalls:
     number: 37
     description: >
       Returns the storage flags the current transaction requests for the
-      key, as visible in the current call frame, or None if no write to the
-      key is pending.
+      key, as visible in the current call frame. A key with no pending write
+      has no flags, so it reads as StorageDeltaFlags::None, the same as a
+      pending write without flags.
     errors:
   - name: "ClearStorageFlags"
     inputs:
@@ -939,13 +926,9 @@ syscalls:
     outputs:
     number: 38
     description: >
-      Clears every storage flag the current transaction requests for the key.
-      Does nothing if no write to the key is pending, since such a key has no
-      flags.
-
-      If the flags already reached the database through a TryInvoke call, the
-      next push withdraws permanent exclusivity and its storage refund; the
-      ordinary exclusivity that rollback needs remains until the transaction
-      commits. As with SetStorageFlags, a clear made in a frame that reverts,
-      or in a TryInvoke call that fails, is discarded with that frame.
+      Clears every storage flag the current transaction requests for the key,
+      including flags set by a TryInvoke call that returned. Does nothing if
+      no write to the key is pending, since such a key has no flags. As with
+      SetStorageFlags, a clear made in a frame that reverts, or in a TryInvoke
+      call that fails, is discarded with that frame.
     errors:
