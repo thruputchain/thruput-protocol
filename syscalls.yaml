@@ -897,8 +897,7 @@ syscalls:
       the transaction: one made earlier in this frame, or inherited from a
       caller or from a successful callee. A pending deletion qualifies; a
       value that exists only in the block snapshot does not. Flags set in a
-      frame that reverts, or in a TryInvoke call that fails, are discarded
-      along with that frame's writes.
+      frame that aborts are discarded along with that frame's writes.
     errors:
       - code: kSyscallErrorCodeInvalidSyscallInput
         description: >
@@ -927,8 +926,7 @@ syscalls:
     number: 38
     description: >
       Clears every storage flag the current transaction requests for the key,
-      including flags set by a TryInvoke call that returned. Does nothing if
-      no write to the key is pending, since such a key has no flags. As with
-      SetStorageFlags, a clear made in a frame that reverts, or in a TryInvoke
-      call that fails, is discarded with that frame.
+      as visible in the current call frame. Does nothing if no write to the
+      key is pending, since such a key has no flags. As with SetStorageFlags,
+      a clear made in a frame that aborts is discarded with that frame.
     errors:
