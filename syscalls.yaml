@@ -11,9 +11,9 @@
 #
 # Syscall ABI version 2 (syscall_abi_version in the RV32 artifact header):
 # BytestringSet, NonnegativeIntSetAdd and DeleteObject no longer take storage
-# flags; SetStorageFlags and GetStorageFlags manage them. A version 1 artifact
-# passes flags that these syscalls no longer read, so a host must reject it
-# rather than silently drop its locks.
+# flags; SetStorageFlags, GetStorageFlags and ClearStorageFlags manage them. A
+# version 1 artifact passes flags that these syscalls no longer read, so a host
+# must reject it rather than silently drop its locks.
 syscall_input_count: 7
 # A set of mappings for common types between the SDK (rust) and the syscall
 # implementation (cpp).
@@ -902,10 +902,10 @@ syscalls:
     outputs:
     number: 36
     description: >
-      Replaces the storage flags the current transaction requests for the
-      key. Writes never change a key's flags: every change the transaction
-      commits on the key carries the flags last set here, whichever write
-      produced it.
+      Adds flags (a bitwise OR) to the storage flags the current transaction
+      requests for the key. Writes never change a key's flags: every change
+      the transaction commits on the key carries the flags accumulated here,
+      whichever write produced it. ClearStorageFlags removes them.
 
       A write to the key must be pending in the current call frame's view of
       the transaction: one made earlier in this frame, or inherited from a
@@ -913,11 +913,6 @@ syscalls:
       value that exists only in the block snapshot does not. Flags set in a
       frame that reverts, or in a TryInvoke call that fails, are discarded
       along with that frame's writes.
-
-      Setting None clears the request. If earlier flags already reached the
-      database through a TryInvoke call, the next push withdraws permanent
-      exclusivity and its storage refund; the ordinary exclusivity that
-      rollback needs remains until the transaction commits.
     errors:
       - code: kSyscallErrorCodeInvalidSyscallInput
         description: >
@@ -936,4 +931,21 @@ syscalls:
       Returns the storage flags the current transaction requests for the
       key, as visible in the current call frame, or None if no write to the
       key is pending.
+    errors:
+  - name: "ClearStorageFlags"
+    inputs:
+      - name: "key"
+        typename: "StorageKeyContractData"
+    outputs:
+    number: 38
+    description: >
+      Clears every storage flag the current transaction requests for the key.
+      Does nothing if no write to the key is pending, since such a key has no
+      flags.
+
+      If the flags already reached the database through a TryInvoke call, the
+      next push withdraws permanent exclusivity and its storage refund; the
+      ordinary exclusivity that rollback needs remains until the transaction
+      commits. As with SetStorageFlags, a clear made in a frame that reverts,
+      or in a TryInvoke call that fails, is discarded with that frame.
     errors:

@@ -543,6 +543,19 @@ struct SyscallGetStorageFlagsTrace {
   SyscallGetStorageFlagsOutputs *outputs;
 };
 
+struct SyscallClearStorageFlagsInputs {
+  StorageKeyContractData key;
+};
+
+struct SyscallClearStorageFlagsOutputs {
+  void;
+};
+
+struct SyscallClearStorageFlagsTrace {
+  SyscallClearStorageFlagsInputs inputs;
+  SyscallClearStorageFlagsOutputs *outputs;
+};
+
 // === Main Trace Body ===
 
 union SyscallTraceBody switch (SyscallNo syscall_number)
@@ -623,6 +636,8 @@ case kSetStorageFlags:
   SyscallSetStorageFlagsTrace set_storage_flags;
 case kGetStorageFlags:
   SyscallGetStorageFlagsTrace get_storage_flags;
+case kClearStorageFlags:
+  SyscallClearStorageFlagsTrace clear_storage_flags;
 default:
   void;
 };
