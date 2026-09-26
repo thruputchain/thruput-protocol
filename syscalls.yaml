@@ -448,21 +448,11 @@ syscalls:
       - name: "flags"
         typename: "StorageDeltaFlagSet"
     outputs:
-      - name: "prior_flags"
-        typename: "StorageDeltaFlagSet"
     number: 15
     description: >
       Sets the bytestring value at the specified storage key.
       Note that this will overwrite any existing value at that key,
       *even if* that value has a different type.
-
-      A write replaces the key's pending write in this transaction, flags
-      included; flags are never merged across writes. prior_flags returns
-      the flags of the write this call replaced: the most recent successful
-      write to the key earlier in the transaction that is visible to the
-      current call frame (writes in reverted frames are not visible), or
-      None if there is none. A caller that must keep an earlier lock
-      reissues its write with flags | prior_flags.
     errors:
       - code: kSyscallErrorCodeInvalidSyscallInput
         description: >
@@ -523,8 +513,6 @@ syscalls:
       - name: "flags"
         typename: "StorageDeltaFlagSet"
     outputs:
-      - name: "prior_flags"
-        typename: "StorageDeltaFlagSet"
     number: 17
     description: >
       Sets or modifies a nonnegative integer at the specified storage
@@ -532,10 +520,6 @@ syscalls:
       add_value is added as a delta. The final value must remain
       nonnegative. Will overwrite any value of that key, *even if*
       that value has a different type.
-
-      As with BytestringSet, the write replaces the key's pending write,
-      flags included, and prior_flags returns the flags of the write it
-      replaced (None if there is none).
     errors:
       - code: kSyscallErrorCodeInvalidSyscallInput
         description: >
@@ -548,15 +532,9 @@ syscalls:
       - name: "flags"
         typename: "StorageDeltaFlagSet"
     outputs:
-      - name: "prior_flags"
-        typename: "StorageDeltaFlagSet"
     number: 18
     description: >
       Deletes the object at the specified storage key.
-
-      As with BytestringSet, the deletion replaces the key's pending write,
-      flags included, and prior_flags returns the flags of the write it
-      replaced (None if there is none).
     errors:
       - code: kSyscallErrorCodeInvalidSyscallInput
         description: >
