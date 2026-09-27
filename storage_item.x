@@ -265,7 +265,10 @@ enum StorageDeltaFlags {
 };
 
 /// A bitset of StorageDeltaFlags values.
-typedef int StorageDeltaFlagSet;
+///
+/// Unsigned because it holds bits, not a number, even though
+/// StorageDeltaFlags, like every XDR enum, is a signed int.
+typedef unsigned int StorageDeltaFlagSet;
 
 /// The combined unit of storage modification sent to the database from the executor.
 /// A delta with a set of flags, applied to a specific entry in the database.
