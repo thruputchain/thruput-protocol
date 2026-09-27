@@ -225,7 +225,6 @@ struct SyscallBytestringGetTrace {
 struct SyscallBytestringSetInputs {
   StorageKeyContractData key;
   opaque bytestring<>;
-  StorageDeltaFlagSet flags;
 };
 
 struct SyscallBytestringSetOutputs {
@@ -256,7 +255,6 @@ struct SyscallNonnegativeIntSetAddInputs {
   StorageKeyContractData key;
   int128_xdr *set_value;
   int128_xdr add_value;
-  StorageDeltaFlagSet flags;
 };
 
 struct SyscallNonnegativeIntSetAddOutputs {
@@ -270,7 +268,6 @@ struct SyscallNonnegativeIntSetAddTrace {
 
 struct SyscallDeleteObjectInputs {
   StorageKeyContractData key;
-  int flags;
 };
 
 struct SyscallDeleteObjectOutputs {
@@ -519,6 +516,46 @@ struct SyscallGetBlockTimepointTrace {
   SyscallGetBlockTimepointOutputs *outputs;
 };
 
+struct SyscallSetStorageFlagsInputs {
+  StorageKeyContractData key;
+  StorageDeltaFlagSet flags;
+};
+
+struct SyscallSetStorageFlagsOutputs {
+  void;
+};
+
+struct SyscallSetStorageFlagsTrace {
+  SyscallSetStorageFlagsInputs inputs;
+  SyscallSetStorageFlagsOutputs *outputs;
+};
+
+struct SyscallGetStorageFlagsInputs {
+  StorageKeyContractData key;
+};
+
+struct SyscallGetStorageFlagsOutputs {
+  StorageDeltaFlagSet flags;
+};
+
+struct SyscallGetStorageFlagsTrace {
+  SyscallGetStorageFlagsInputs inputs;
+  SyscallGetStorageFlagsOutputs *outputs;
+};
+
+struct SyscallClearStorageFlagsInputs {
+  StorageKeyContractData key;
+};
+
+struct SyscallClearStorageFlagsOutputs {
+  void;
+};
+
+struct SyscallClearStorageFlagsTrace {
+  SyscallClearStorageFlagsInputs inputs;
+  SyscallClearStorageFlagsOutputs *outputs;
+};
+
 // === Main Trace Body ===
 
 union SyscallTraceBody switch (SyscallNo syscall_number)
@@ -595,6 +632,12 @@ case kGetNetworkHash:
   SyscallGetNetworkHashTrace get_network_hash;
 case kGetBlockTimepoint:
   SyscallGetBlockTimepointTrace get_block_timepoint;
+case kSetStorageFlags:
+  SyscallSetStorageFlagsTrace set_storage_flags;
+case kGetStorageFlags:
+  SyscallGetStorageFlagsTrace get_storage_flags;
+case kClearStorageFlags:
+  SyscallClearStorageFlagsTrace clear_storage_flags;
 default:
   void;
 };
