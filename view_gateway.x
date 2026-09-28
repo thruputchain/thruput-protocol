@@ -58,6 +58,55 @@ enum ViewGatewayIntroOutcome {
   ViewGatewayIntroMismatchedProtocol = 1
 };
 
+const kMaxViewBatchCalls = 16; // #[rust(const=u32)]
+const kMaxViewBatchCalldataBytes = 65536; // #[rust(const=u32)]
+const kMaxViewBatchGas = 160000000; // #[rust(const=u64)]
+const kMaxViewBatchResponseBytes = 1048576; // #[rust(const=u32)]
+const kMaxViewBatchBudgetMillis = 30000; // #[rust(const=u32)]
+
+// Independent simulations against one committed snapshot. Calls do not see
+// each other's simulated writes. Gas and calldata limits apply to the sum.
+struct ViewGatewayBatchQuery {
+  TransactionViewQuery calls<kMaxViewBatchCalls>;
+  BlockHeight *min_height;
+  // Remaining work budget from receipt, including scheduling and retries.
+  // Must be in 1..=kMaxViewBatchBudgetMillis. Running calls remain gas-bounded.
+  unsigned int budget_millis;
+};
+
+struct ViewGatewayBatchPayload {
+  BlockHeight height;
+  TransactionViewResult results<kMaxViewBatchCalls>;
+};
+
+struct ViewGatewayHeightUnavailable {
+  BlockHeight requested;
+  BlockHeight observed;
+};
+
+enum ViewGatewayBatchOutcome {
+  ViewGatewayBatchOk = 0,
+  ViewGatewayBatchInvalidRequest = 1,
+  ViewGatewayBatchHeightUnavailable = 2,
+  ViewGatewayBatchAbandoned = 3,
+  ViewGatewayBatchDeadlineExceeded = 4,
+  ViewGatewayBatchResponseTooLarge = 5,
+  ViewGatewayBatchInternalError = 6
+};
+
+// Success contains exactly one ordered result per input call, all from height.
+// Contract aborts and faults are per-call results. Other failures discard the
+// whole attempt; abandoned batches retry as a group, never one call at a time.
+union ViewGatewayBatchResult switch (ViewGatewayBatchOutcome outcome)
+{
+case ViewGatewayBatchOk:
+  ViewGatewayBatchPayload payload;
+case ViewGatewayBatchHeightUnavailable:
+  ViewGatewayHeightUnavailable height_unavailable;
+default:
+  void;
+};
+
 // Executor-owned read-only invocation service used by public RPC gateways.
 program ViewGateway
 {
@@ -65,6 +114,7 @@ program ViewGateway
   {
     ViewGatewayIntroOutcome viewgateway_intro(ProtocolCommit) = 0;
     ViewGatewayResult viewgateway_view(TransactionViewQuery) = 1;
+    ViewGatewayBatchResult viewgateway_view_batch(ViewGatewayBatchQuery) = 2;
   } = 1;
 }
 = 0x56475759;
