@@ -372,6 +372,7 @@ syscalls:
     errors:
   - name: "VerifySignature"
     needs_context: false
+    needs_gas: true
     read_only: true
     inputs:
       - name: "scheme"
