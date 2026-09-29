@@ -26,7 +26,15 @@ enum ViewGatewayOutcome {
   ViewGatewayAbandoned = 1,
 
   // Server-side invariant failure or unavailable execution dependency.
-  ViewGatewayInternalError = 2
+  ViewGatewayInternalError = 2,
+
+  // The request was rejected before any frame output existed: forwarded
+  // tokens without a parent address or deeper than the network allows, an
+  // invocation the executor would not admit, or a root frame that failed on a
+  // syscall error before it returned, aborted, or faulted. Deterministic for
+  // the same request against the same state, so retrying does not help. The
+  // error_code arm carries the SyscallErrorCode the executor reported.
+  ViewGatewayInvalidInput = 3
 };
 
 union ViewGatewayResult switch (ViewGatewayOutcome outcome)
@@ -37,6 +45,8 @@ case ViewGatewayAbandoned:
   void;
 case ViewGatewayInternalError:
   void;
+case ViewGatewayInvalidInput:
+  SyscallErrorCode error_code;
 default:
   void;
 };
