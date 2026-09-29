@@ -112,6 +112,37 @@ struct GenesisCeremonyCommit {
   ProposalTxs proposal_txs;
 };
 
+enum SchedulerTransactionStatus {
+  SchedulerTransactionNotFound = 0,
+  SchedulerTransactionPending = 1,
+  SchedulerTransactionSucceeded = 2,
+  SchedulerTransactionRetry = 3,
+  SchedulerTransactionDropped = 4
+};
+
+enum SchedulerTransactionErrorSource {
+  SchedulerTransactionErrorNone = 0,
+  SchedulerTransactionErrorAuth = 1,
+  SchedulerTransactionErrorScheduler = 2,
+  SchedulerTransactionErrorExecutor = 3
+};
+
+enum SchedulerErrorCode {
+  SchedulerErrorCapacity = 1,
+  SchedulerErrorHogAgeUnavailable = 2,
+  SchedulerErrorExpired = 3,
+  SchedulerErrorInsufficientHogs = 4
+};
+
+struct SchedulerTransactionOutcome {
+  SchedulerTransactionStatus status;
+  // Identifies the enum represented by error_code. None always has code 0.
+  SchedulerTransactionErrorSource error_source;
+  int error_code;
+};
+
+typedef SchedulerTransactionOutcome SchedulerTransactionOutcomeBatch<>;
+
 union GenesisCeremonyResult switch (GenesisCeremonyOutcome outcome)
 {
 case GenesisCeremonyCommitted:
@@ -163,6 +194,9 @@ program SchedulerCoord
 
     // Returns transactions from the mempool that have not yet been committed in a block.
     OptSignedTransactionBatch schedcoord_lookup_transactions(TransactionHashBatch) = 100;
+
+    // Returns one pending or recent outcome per input hash (same order).
+    SchedulerTransactionOutcomeBatch schedcoord_lookup_transaction_outcomes(TransactionHashBatch) = 101;
   }
   = 1;
 }
