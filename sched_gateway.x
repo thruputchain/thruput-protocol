@@ -16,6 +16,22 @@ enum SchedGatewayIntroOutcome {
   SchedGatewayIntroMismatchedProtocol = 1
 };
 
+enum SchedGatewayLookupOutcome {
+  SchedGatewayLookupSuccess = 0,
+  SchedGatewayLookupNotFound = 1,
+  SchedGatewayLookupDropped = 2,
+};
+
+union SchedGatewayLookupResult switch (SchedGatewayLookupOutcome outcome)
+{
+case SchedGatewayLookupSuccess:
+  SignedTransaction tx;
+default:
+  void;
+};
+
+typedef SchedGatewayLookupResult SchedGatewayLookupResultBatch<>;
+
 // The admission result for one exact SignedTransaction encoding in one
 // gateway submission request. A rejection must not be cached or reused by
 // TransactionHash: signatures are not part of that hash.
@@ -63,8 +79,8 @@ program SchedGateway
     ExpectedDBTip schedgateway_get_tip(void) = 2;
 
     // Lookup in-flight (not-yet-committed) transactions by hash.
-    // Returns one OptSignedTransaction per input hash (same order).
-    OptSignedTransactionBatch schedgateway_lookup_tx(TransactionHashBatch) = 3;
+    // Returns one SchedGatewayLookupResult per input hash (same order).
+    SchedGatewayLookupResultBatch schedgateway_lookup_tx(TransactionHashBatch) = 3;
 
     // Number of transactions currently pending in the mempool.
     PendingTxCount schedgateway_pending_tx_count(void) = 4;
