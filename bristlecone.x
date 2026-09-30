@@ -85,7 +85,7 @@ struct BristleconeNote {
 struct BristleconeEnvelope {
   BristleconeNote note;
   // The sending party's signature over the XDR encoding of the note.
-  BristleconeSignature signature;
+  Signature signature;
 };
 
 typedef BristleconeEnvelope BristleconeEnvelopes<>;
