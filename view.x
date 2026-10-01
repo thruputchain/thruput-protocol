@@ -27,12 +27,6 @@ struct TransactionViewResult {
   // The result of the invocation
   InvocationFrameOutput output;
 
-  // Gas the invocation consumed: the root frame and every frame it invoked.
-  // On an out-of-gas fault it is the invocation's gas limit. A view attaches
-  // no contracts, so this matches the gas_consumed a transaction with no
-  // attached contracts making the same invocation against the same state
-  // would commit in its TxEventLog. A transaction that attaches contracts
-  // also pays for their validation, which this does not include.
   GasAmount gas_consumed;
 
   TxEmittedEvent events<>;
