@@ -78,7 +78,7 @@ case 0:
 };
 
 /// Represents a 256-bit SHA-256 hash.
-typedef opaque SHA256Hash[32]; // #[rust(newtype)]
+typedef opaque SHA256Hash[32]; // #[rust(newtype)] #[rust(no_debug)]
 
 /// SHA-256 of the XDR-encoded `ConsensusValue`; the canonical block identity.
 typedef SHA256Hash ConsensusValueHash; // #[rust(newtype)]
@@ -104,7 +104,7 @@ typedef SHA256Hash ProposalHeaderHash; // #[rust(newtype)]
 /// Represents a 256-bit contract address.
 /// In the groundhog storage model, each contract is deployed at a
 /// 32-byte unique `ContractAddress`.
-typedef opaque ContractAddress[32]; // #[rust(newtype)]
+typedef opaque ContractAddress[32]; // #[rust(newtype)] #[rust(no_debug)]
 
 /// Each ContractAddress owns a namespace of storage keys.
 ///

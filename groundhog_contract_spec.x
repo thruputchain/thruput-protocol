@@ -10,6 +10,50 @@ namespace hogd {
 typedef string ContractSpecString<>;
 
 // ---------------------------------------------------------------------------
+// Spec ids
+// ---------------------------------------------------------------------------
+
+/// The identity of a user-defined type or event.
+///
+/// Every spec-named item — a `#[contract_type]`, a `#[contract_exception]`, a
+/// `#[derive(Event)]` — is named by one of these, and every reference to one
+/// resolves through it. A bare identifier cannot tell two of them apart: two
+/// crates, two modules of one crate, or two major versions of one crate may
+/// each declare a `Transfer`, and a spec naming both could not say which is
+/// which.
+///
+/// The segments are carried apart rather than joined into
+/// `CRATE@MAJOR::module::path::Name`, because the joined form cannot be split
+/// back. `name = "..."` on a spec-named item substitutes its value verbatim —
+/// a value carrying `::` spells its own segments and nothing rejects it — so
+/// the boundary between the module path and the declared name is not
+/// recoverable from the string. Consumers that need a display name or a
+/// target-language identifier read `declared` directly; how an id is shortened
+/// for display stays each codegen's business.
+struct ContractSpecId {
+  // Declaring crate, as Cargo names the package (`CARGO_PKG_NAME`, so
+  // hyphenated). This is the spelling event signatures already hash and the
+  // spelling RPC reports as an exception's crate.
+  ContractSpecString crate_name;
+  // Identity version: the leftmost non-zero component of the declaring
+  // crate's semver ("0.1" before 1.0, "1" after), or of the item's own
+  // `version = "..."` where it pins one. Semver-compatible releases share an
+  // id; only a breaking release changes it.
+  ContractSpecString major;
+  // `module_path!()` at the declaration, verbatim -- so it leads with the
+  // crate as a Rust ident (underscored), unlike `crate_name` above. Kept
+  // whole because that is the one string the compiler hands the macro; the
+  // generator splits nothing to fill this in. Compiler-generated, so a
+  // consumer that wants the segments apart can split it safely, which is not
+  // true of `declared`.
+  ContractSpecString module_path;
+  // The declared name. Substituted verbatim from `name = "..."` where an item
+  // pins one, so it may itself contain `::` -- which is why it has its own
+  // field rather than being the last `::` separated segment of a joined id.
+  ContractSpecString declared;
+};
+
+// ---------------------------------------------------------------------------
 // ContractType (Rust: ContractType) — recursive union
 // ---------------------------------------------------------------------------
 
@@ -84,7 +128,7 @@ case Vector:
 case Tuple:
   ContractType tuple<>;
 case Named:
-  ContractSpecString named;
+  ContractSpecId named;
 case U8:
   void;
 case Array:
@@ -141,7 +185,7 @@ struct ContractSpecInterface {
 // ---------------------------------------------------------------------------
 
 struct ContractStructDef {
-  ContractSpecString name;
+  ContractSpecId name;
   ContractField fields<>;
 };
 
@@ -151,7 +195,7 @@ struct ContractEnumVariant {
 };
 
 struct ContractEnumDef {
-  ContractSpecString name;
+  ContractSpecId name;
   ContractEnumVariant variants<>;
 };
 
@@ -180,7 +224,7 @@ struct ContractUnionCase {
 };
 
 struct ContractUnionDef {
-  ContractSpecString name;
+  ContractSpecId name;
   ContractUnionCase cases<>;
 };
 
@@ -212,7 +256,7 @@ case TypeDefUnion:
 /// XDR-encoded and sha256-hashed; payload fields are XDR-encoded in order
 /// to form the event data.
 struct ContractEventDef {
-  ContractSpecString name;
+  ContractSpecId name;
   Topic signature;          // topic 0
   ContractField topics<>;   // topics 1.. ; at most kMaxTopics-1 entries
   ContractField fields<>;   // payload, XDR-encoded in order

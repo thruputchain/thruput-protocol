@@ -51,6 +51,9 @@ enum InvokeFlag {
 ///
 /// Multiple flags can be combined using bitwise OR. For example:
 /// `ReadOnly | TryInvoke`
-typedef int InvokeFlagSet;
+///
+/// Unsigned because it holds bits, not a number, even though InvokeFlag,
+/// like every XDR enum, is a signed int.
+typedef unsigned int InvokeFlagSet;
 
 } // namespace hogd

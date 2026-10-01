@@ -445,8 +445,6 @@ syscalls:
         typename: "StorageKeyContractData"
       - name: "bytestring"
         span_argument: true
-      - name: "flags"
-        typename: "StorageDeltaFlagSet"
     outputs:
     number: 15
     description: >
@@ -456,8 +454,7 @@ syscalls:
     errors:
       - code: kSyscallErrorCodeInvalidSyscallInput
         description: >
-          The bytestring is too long, or the input storage flags are
-          invalid.
+          The bytestring is too long.
   - name: "NonnegativeIntGet"
     read_only: true
     inputs:
@@ -510,8 +507,6 @@ syscalls:
         optional: true
       - name: "add_value"
         typename: "int128_t"
-      - name: "flags"
-        typename: "StorageDeltaFlagSet"
     outputs:
     number: 17
     description: >
@@ -524,22 +519,16 @@ syscalls:
       - code: kSyscallErrorCodeInvalidSyscallInput
         description: >
           The operation would always result in a negative value
-          (i.e. set_add(1, -2)), or the storage flags are invalid.
+          (i.e. set_add(1, -2)).
   - name: "DeleteObject"
     inputs:
       - name: "key"
         typename: "StorageKeyContractData"
-      - name: "flags"
-        typename: "StorageDeltaFlagSet"
     outputs:
     number: 18
     description: >
       Deletes the object at the specified storage key.
     errors:
-      - code: kSyscallErrorCodeInvalidSyscallInput
-        description: >
-          The storage flags are invalid or incompatible with the
-          current storage state.
   - name: "GetCurrentAddress"
     read_only: true
     inputs:
@@ -560,14 +549,13 @@ syscalls:
     number: 20
     description: >
       Inserts an entry into the retrocausal queue at the specified
-      storage key.
+      storage key. Like any storage write, this replaces a value of
+      another type at the key. A queue with no live entries does not exist.
     errors:
       - code: kSyscallErrorCodeInvalidSyscallInput
         description: >
-          The storage key exists but contains a different type that
-          cannot be converted to a retrocausal queue. This error will
-          also be returned if the queue entry is too large,
-          or if too many entries are inserted in the current transaction.
+          The queue entry is too large, or too many entries are inserted
+          in the current transaction.
   - name: "RetrocausalQueueConsume"
     inputs:
       - name: "key"
@@ -585,7 +573,9 @@ syscalls:
     description: >
       Consumes (or peeks at) the next entry from the retrocausal queue
       at the specified storage key. If peek is true, the entry is not
-      removed from the queue.
+      removed from the queue. A read never changes the type of the key;
+      a same-block conversion by another transaction is visible only
+      from the next block.
     errors:
       - code: kSyscallErrorCodeNoRetrocausalQueueEntry
         description: >
@@ -888,4 +878,55 @@ syscalls:
       coarse-grained wall-clock time -- suitable for expiries, vesting
       schedules and deadlines -- and must not rely on it for fine-grained
       ordering or as a source of randomness.
+    errors:
+  - name: "SetStorageFlags"
+    inputs:
+      - name: "key"
+        typename: "StorageKeyContractData"
+      - name: "flags"
+        typename: "StorageDeltaFlagSet"
+    outputs:
+    number: 36
+    description: >
+      Adds flags (a bitwise OR) to the storage flags the current transaction
+      requests for the key. Writes never change a key's flags: every change
+      the transaction commits on the key carries the flags accumulated here,
+      whichever write produced it. ClearStorageFlags removes them.
+
+      A write to the key must be pending in the current call frame's view of
+      the transaction: one made earlier in this frame, or inherited from a
+      caller or from a successful callee. A pending deletion qualifies; a
+      value that exists only in the block snapshot does not. Flags set in a
+      frame that aborts are discarded along with that frame's writes.
+    errors:
+      - code: kSyscallErrorCodeInvalidSyscallInput
+        description: >
+          The flags are invalid, or no write to the key is pending in the
+          current call frame's view of the transaction.
+  - name: "GetStorageFlags"
+    read_only: true
+    inputs:
+      - name: "key"
+        typename: "StorageKeyContractData"
+    outputs:
+      - name: "flags"
+        typename: "StorageDeltaFlagSet"
+    number: 37
+    description: >
+      Returns the storage flags the current transaction requests for the
+      key, as visible in the current call frame. A key with no pending write
+      has no flags, so it reads as StorageDeltaFlags::None, the same as a
+      pending write without flags.
+    errors:
+  - name: "ClearStorageFlags"
+    inputs:
+      - name: "key"
+        typename: "StorageKeyContractData"
+    outputs:
+    number: 38
+    description: >
+      Clears every storage flag the current transaction requests for the key,
+      as visible in the current call frame. Does nothing if no write to the
+      key is pending, since such a key has no flags. As with SetStorageFlags,
+      a clear made in a frame that aborts is discarded with that frame.
     errors:

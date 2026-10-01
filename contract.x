@@ -21,9 +21,9 @@ namespace hogd {
 //------------------------------------------------------------------------------
 
 /// The largest contract code blob a chain admits when its configuration does
-/// not state `kConfigParamMaxContractSizeBytes`. Consensus-critical, so
-/// frozen: every chain predating the parameter ran under it.
-const kDefaultMaxContractSizeBytes = 262144;
+/// not state `kConfigParamMaxContractSizeBytes`. Includes the artifact header,
+/// code, and initial memory.
+const kDefaultMaxContractSizeBytes = 524288;
 
 /// An opaque blob of executable code.
 ///
