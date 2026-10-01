@@ -11,10 +11,12 @@ namespace hogd
 /// Successful view payload returned by ViewGateway1::viewgateway_view.
 ///
 /// The height is the committed snapshot height used for the full view
-/// execution, not a post-execution tip sample.
+/// execution, not a post-execution tip sample. gas_consumed is
+/// TransactionViewResult::gas_consumed for that execution.
 struct ViewGatewayPayload {
   BlockHeight height;
   InvocationFrameOutput output;
+  GasAmount gas_consumed;
   TxEmittedEvent events<>;
 };
 
