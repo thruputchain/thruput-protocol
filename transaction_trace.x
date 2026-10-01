@@ -556,6 +556,19 @@ struct SyscallClearStorageFlagsTrace {
   SyscallClearStorageFlagsOutputs *outputs;
 };
 
+struct SyscallGetAddressAuthDataInputs {
+  void;
+};
+
+struct SyscallGetAddressAuthDataOutputs {
+  AddressAuthData auth_data;
+};
+
+struct SyscallGetAddressAuthDataTrace {
+  SyscallGetAddressAuthDataInputs inputs;
+  SyscallGetAddressAuthDataOutputs *outputs;
+};
+
 // === Main Trace Body ===
 
 union SyscallTraceBody switch (SyscallNo syscall_number)
@@ -638,6 +651,8 @@ case kGetStorageFlags:
   SyscallGetStorageFlagsTrace get_storage_flags;
 case kClearStorageFlags:
   SyscallClearStorageFlagsTrace clear_storage_flags;
+case kGetAddressAuthData:
+  SyscallGetAddressAuthDataTrace get_address_auth_data;
 default:
   void;
 };

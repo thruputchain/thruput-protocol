@@ -930,3 +930,43 @@ syscalls:
       key is pending, since such a key has no flags. As with SetStorageFlags,
       a clear made in a frame that aborts is discarded with that frame.
     errors:
+  - name: "GetAddressAuthData"
+    read_only: true
+    inputs:
+    outputs:
+      - name: "buffer"
+        span_argument: true
+      - name: "written_len"
+        typename: "RuntimeMemoryLength"
+        primitive_type: true
+    number: 39
+    description: >
+      Returns the executing contract's own AddressAuthData: the kMaxSigners
+      public-key slots with their weights, the required weight, and the
+      height at which the row was last written. The output is the XDR
+      encoding of AddressAuthData (address_auth.x), copied into the
+      caller-supplied buffer; written_len is the full encoded length, so a
+      value larger than the buffer means the output was truncated and the
+      call should be repeated with a buffer of at least that size. The
+      encoding is at most 936 bytes (every slot occupied).
+
+      The value is the current call frame's view of the transaction: the
+      row committed in the block snapshot with every
+      ChangePublicKeyRegistration and WriteAddressRequiredWeight pending
+      in this transaction applied on top, the same way storage reads see
+      this transaction's own writes. While such a write is pending,
+      last_written_height reads as the executing block height, which is
+      what the row will carry once the block commits. Transactions are
+      admitted against committed state only, so a key registered earlier
+      in the same transaction is reported here but cannot authorize a
+      transaction until the block carrying the registration has landed.
+
+      An address with no auth data row (a pubkey account that has never
+      changed its registration, or a freshly deployed contract) reads as
+      an all-empty registration: every slot unoccupied, required_weight 0
+      and last_written_height 0. This is not an error.
+
+      Gas: priced as a storage read. Every call pays the storage access
+      cost; the transaction's first read of this row also pays the
+      database load cost, as the first touch of any storage key does.
+    errors:
