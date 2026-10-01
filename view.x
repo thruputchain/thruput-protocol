@@ -27,6 +27,8 @@ struct TransactionViewResult {
   // The result of the invocation
   InvocationFrameOutput output;
 
+  GasAmount gas_consumed;
+
   TxEmittedEvent events<>;
 };
 
