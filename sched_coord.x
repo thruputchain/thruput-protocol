@@ -112,6 +112,72 @@ struct GenesisCeremonyCommit {
   ProposalTxs proposal_txs;
 };
 
+enum SchedulerTransactionStatus {
+  // The transaction is not pending and has no retained outcome. Note that the
+  // tx *may* have existed at some point in the past, but has since been dropped
+  // altogether from the mempool since the bounded queue filled. This not-found
+  // status does not necessarily mean the tx has never existed at all.
+  SchedulerTransactionNotFound = 0,
+  // The transaction is currently pending in the mempool.
+  SchedulerTransactionPending = 1,
+  // The transaction was successfully committed in a block. This status does
+  // *not* mean that the tx was successfully included in a proposed block or a
+  // verified block--the block needs to go on to actually be committed.
+  SchedulerTransactionSucceeded = 2,
+  // Processing failed for a retryable reason; the transaction may be
+  // resubmitted. Note that it is the responsibility of the wallet owner to
+  // resubmit the tx--the mempool will not retry the tx on its own.
+  SchedulerTransactionRetry = 3,
+  // Processing failed permanently; the transaction should not be resubmitted
+  // because the error is irrecoverable (e.g., failed authentication). The tx
+  // needs to be modified in some way before it can be successfully processed.
+  SchedulerTransactionDropped = 4
+};
+
+enum SchedulerTransactionErrorSource {
+  // There is no error to report.
+  SchedulerTransactionErrorNone = 0,
+
+  // The error was triggered by the authentication subsystem (hog-auth).
+  SchedulerTransactionErrorAuth = 1,
+  // The error was triggered by the mempool (hog-mempool).
+  SchedulerTransactionErrorScheduler = 2,
+  // The error was triggered by an executor (hog-exec).
+  SchedulerTransactionErrorExecutor = 3
+};
+
+enum SchedulerErrorCode {
+  // The mempool had no capacity to admit the transaction.
+  SchedulerErrorCapacity = 1,
+  // The scheduler could not obtain the account's average hog age.
+  SchedulerErrorHogAgeUnavailable = 2,
+  // The transaction's expiry block height is earlier than the current block.
+  SchedulerErrorExpired = 3,
+  // The transaction's gas limit exceeds all hogs available to the account.
+  SchedulerErrorInsufficientHogs = 4
+};
+
+struct SchedulerTransactionOutcome {
+  // The tx status. If the status is an error, then [error_source] and
+  // [error_code] are filled in below. If the status is not an error, then
+  // [error_source] and [error_code] have unspecified values.
+  SchedulerTransactionStatus status;
+
+  // Identifies the enum represented by [error_code] below.
+  //
+  // - None ([SchedulerTransactionErrorNone]): there was no error and
+  //   [error_code] has an unspecified value.
+  //
+  // - Auth, Scheduler, and Executor: [error_code] is an [AuthErrorCode],
+  //   [SchedulerErrorCode], or [ExecResult], respectively.
+  SchedulerTransactionErrorSource error_source;
+
+  // The actual error.
+  int error_code;
+};
+
+typedef SchedulerTransactionOutcome SchedulerTransactionOutcomeBatch<>;
+
 union GenesisCeremonyResult switch (GenesisCeremonyOutcome outcome)
 {
 case GenesisCeremonyCommitted:
@@ -163,6 +229,9 @@ program SchedulerCoord
 
     // Returns transactions from the mempool that have not yet been committed in a block.
     OptSignedTransactionBatch schedcoord_lookup_transactions(TransactionHashBatch) = 100;
+
+    // Returns one pending or recent outcome per input hash (same order).
+    SchedulerTransactionOutcomeBatch schedcoord_lookup_transaction_outcomes(TransactionHashBatch) = 101;
   }
   = 1;
 }
