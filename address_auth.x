@@ -110,4 +110,44 @@ struct AddressAuthData {
   BlockHeight last_written_height;
 };
 
+//------------------------------------------------------------------------------
+// Address Authorization Summary
+//------------------------------------------------------------------------------
+
+/// What `GetAddressAuthSummary` reports about one occupied key slot: the
+/// key's scheme and weight, without the key itself.
+struct PublicKeyConfigSummary {
+  /// The scheme of the registered key. The key's bytes are read through
+  /// `GetAddressPublicKey`.
+  CryptographicScheme scheme;
+
+  /// The weight of this key in multi-signature calculations, as in
+  /// `PublicKeyConfig`.
+  Weight max_weight;
+};
+
+/// Optional `PublicKeyConfigSummary`, used in the `public_keys` array.
+///
+/// A null value indicates that key slot is unoccupied.
+typedef PublicKeyConfigSummary *PublicKeyConfigSummaryOpt;  // #[rust(newtype)]
+
+/// `AddressAuthData` without the keys: what a contract reads back through
+/// `GetAddressAuthSummary`.
+///
+/// Its encoding is bounded (264 bytes) whatever key schemes are in use,
+/// where a full `AddressAuthData` grows with the largest scheme's key size.
+/// The keys themselves are read one slot at a time through
+/// `GetAddressPublicKey`.
+struct AddressAuthSummary {
+  /// One entry per `AddressAuthData.public_keys` slot, null where that slot
+  /// is unoccupied.
+  PublicKeyConfigSummaryOpt public_keys[kMaxSigners];
+
+  /// `AddressAuthData.required_weight`.
+  Weight required_weight;
+
+  /// `AddressAuthData.last_written_height`.
+  BlockHeight last_written_height;
+};
+
 } // namespace hogd

@@ -930,7 +930,7 @@ syscalls:
       key is pending, since such a key has no flags. As with SetStorageFlags,
       a clear made in a frame that aborts is discarded with that frame.
     errors:
-  - name: "GetAddressAuthData"
+  - name: "GetAddressAuthSummary"
     read_only: true
     inputs:
     outputs:
@@ -941,14 +941,20 @@ syscalls:
         primitive_type: true
     number: 39
     description: >
-      Returns the executing contract's own AddressAuthData: the kMaxSigners
-      public-key slots with their weights, the required weight, and the
-      height at which the row was last written. The output is the XDR
-      encoding of AddressAuthData (address_auth.x), copied into the
-      caller-supplied buffer; written_len is the full encoded length, so a
-      value larger than the buffer means the output was truncated and the
-      call should be repeated with a buffer of at least that size. The
-      encoding is at most 936 bytes (every slot occupied).
+      Returns a summary of the executing address's own registration (the
+      AddressAuthData behind ChangePublicKeyRegistration and
+      WriteAddressRequiredWeight) without the keys themselves: for each of
+      the kMaxSigners slots, whether it is occupied and, if so, the key's
+      scheme and weight; plus the required weight and the height at which
+      the row was last written. The output is the XDR encoding of
+      AddressAuthSummary (address_auth.x), copied into the caller-supplied
+      buffer; written_len is the full encoded length, so a value larger
+      than the buffer means the output was truncated and the call should
+      be repeated with a buffer of at least that size. The encoding is at
+      most 264 bytes whatever key schemes are in use, which is why the
+      keys are left out: GetAddressPublicKey reads one key at a time, so a
+      scheme with large keys never forces a contract to receive the whole
+      table.
 
       The value is the current call frame's view of the transaction: the
       row committed in the block snapshot with every
@@ -967,6 +973,46 @@ syscalls:
       and last_written_height 0. This is not an error.
 
       Gas: priced as a storage read. Every call pays the storage access
-      cost; the transaction's first read of this row also pays the
-      database load cost, as the first touch of any storage key does.
+      cost; the transaction's first read of the registration also pays
+      the database load cost, as the first touch of any storage key does.
     errors:
+  - name: "GetAddressPublicKey"
+    read_only: true
+    inputs:
+      - name: "key_index"
+        typename: "uint32_t"
+        primitive_type: true
+    outputs:
+      - name: "key"
+        span_argument: true
+      - name: "written_len"
+        typename: "RuntimeMemoryLength"
+        primitive_type: true
+    number: 40
+    description: >
+      Returns the public key registered in slot key_index of the executing
+      address's own registration, as the raw bytes of that key's scheme
+      (32 bytes for Ed25519), copied into the caller-supplied buffer;
+      written_len is the full key length, so a value larger than the
+      buffer means the key was truncated. The slot's scheme and weight are
+      not repeated here: GetAddressAuthSummary reports them for every
+      slot, and is how a contract finds the occupied slots without probing
+      each one. The key comes from the same view of the registration that
+      GetAddressAuthSummary reports: the committed row with this
+      transaction's pending registration changes applied.
+
+      Gas: priced like BytestringGet. Every call that reaches the
+      registration pays the storage access cost plus the per-block copy
+      cost on the bytes copied, and the transaction's first read of the
+      registration also pays the database load cost; an unoccupied slot
+      pays the access and any load, since the row must be read to tell.
+      A key_index that is not below kMaxSigners pays only the syscall
+      base cost.
+    errors:
+      - code: kSyscallErrorCodeInvalidSyscallInput
+        description: >
+          key_index is not below kMaxSigners.
+      - code: kSyscallErrorCodeStorageKeyNotExist
+        description: >
+          Slot key_index is unoccupied, which includes every slot of an
+          address with no registration row.
