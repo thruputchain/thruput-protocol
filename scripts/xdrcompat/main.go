@@ -101,8 +101,16 @@ func readBlobs(repo string, specs []string) ([]string, error) {
 	return contents, nil
 }
 
+// excludedFiles are parallel variants that redeclare names from the file they
+// supersede: discovery2.x declares program Discovery under a second number,
+// and multiplex2.x redeclares multiplex.x's enum and union. The parser
+// rejects such redeclarations as ambiguous, so these files are left out of
+// the model, as they are left out of goxdr in CI, and are not checked.
+var excludedFiles = map[string]bool{"discovery2.x": true, "multiplex2.x": true}
+
 // LoadRevision parses the production interface set: .x files at the protocol
-// repository root. Tool fixtures and other nested test data are never protocol.
+// repository root, less excludedFiles. Tool fixtures and other nested test
+// data are never protocol.
 func LoadRevision(repo, ref string) (*Model, error) {
 	listing, err := gitOutput(repo, "ls-tree", "-r", "--name-only", ref)
 	if err != nil {
@@ -111,7 +119,7 @@ func LoadRevision(repo, ref string) (*Model, error) {
 
 	var paths []string
 	for _, p := range strings.Split(listing, "\n") {
-		if strings.HasSuffix(p, ".x") && !strings.Contains(p, "/") {
+		if strings.HasSuffix(p, ".x") && !strings.Contains(p, "/") && !excludedFiles[p] {
 			paths = append(paths, p)
 		}
 	}

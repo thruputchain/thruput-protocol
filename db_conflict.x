@@ -51,7 +51,13 @@ enum DbConflictCode {
   /// its own storage cost. Storage written under a contract's address is
   /// charged to that contract's balance, so a deployment reports this at
   /// the new contract's address when it holds no HOG.
-  InsufficientFunds = 8
+  InsufficientFunds = 8,
+
+  /// An auth-data change would register a public key in a slot while
+  /// another slot of the same address already holds that key, whether
+  /// committed or set by the same change. The table would count one
+  /// key's weight twice, so the change is refused.
+  DuplicateSigner = 9
 };
 
 /// How much conflict diagnostic detail try_push_new_subtransaction reports
