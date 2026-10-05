@@ -68,6 +68,9 @@ program SchedGateway
 
     // Number of transactions currently pending in the mempool.
     PendingTxCount schedgateway_pending_tx_count(void) = 4;
+
+    // Returns one pending or recent outcome per input hash (same order).
+    SchedulerTransactionOutcomeBatch schedgateway_lookup_transaction_outcomes(TransactionHashBatch) = 5;
   } = 1;
 }
 = 0x7ee7aaaa;
