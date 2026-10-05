@@ -167,10 +167,26 @@ struct ContractField {
   ContractType ty;
 };
 
+/// Author-declared effects of the whole invocation, including nested calls.
+/// These declarations are not compiler or runtime guarantees. They do not
+/// select an execution path, change entrypoint IDs, or guarantee success.
+/// Application effects include storage deltas, events, transfers and deployment.
+enum ContractMethodEffect {
+  // No declaration; never assume read-only.
+  EffectUnknown = 0,
+  // Arguments and constants only: no state or execution-context reads or effects.
+  EffectPure = 1,
+  // May read state and execution context; no application effects.
+  EffectReadOnly = 2,
+  // May produce application effects; need not change state on every invocation.
+  EffectStateChanging = 3
+};
+
 struct ContractSpecMethod {
   ContractSpecString name;
   ContractField args<>;
   ContractType return_type;
+  ContractMethodEffect effect;
 };
 
 struct ContractSpecInterface {
