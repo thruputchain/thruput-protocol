@@ -7,6 +7,10 @@
 
 namespace hogd {
 
+// An XDR-encoded AuthToken, left opaque so hogd decodes it under the chain's
+// max_auth_token_depth, as it does a token MintAuthToken mints.
+typedef opaque SerializedAuthToken<>;
+
 struct TransactionViewQuery {
   // The invocation to be queried
   Invocation invocation;
@@ -14,7 +18,7 @@ struct TransactionViewQuery {
   // Context around the invocation
   ContractAddress *parent_address;
   AuthClaim auth_claim;
-  AuthToken forwarded_tokens<>;
+  SerializedAuthToken forwarded_tokens<>;
   InvokeFlagSet invoke_flags;
 
   // Intentionally not putting newly deployed contracts here, at least for now.
