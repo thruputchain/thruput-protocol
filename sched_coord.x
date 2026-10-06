@@ -178,7 +178,9 @@ struct SchedulerTransactionOutcome {
   // For [SchedulerTransactionSucceeded], the committed block height.
   // For [SchedulerTransactionRetry] or [SchedulerTransactionDropped], the
   // proposal height for an executor failure, or the current chain height for
-  // an admission/scheduler failure. Unspecified for pending/not-found outcomes.
+  // an admission/scheduler failure.
+  // For [SchedulerTransactionPending], the current chain height at lookup.
+  // Unspecified for [SchedulerTransactionNotFound].
   // Zero is a valid height.
   BlockHeight height;
 };
