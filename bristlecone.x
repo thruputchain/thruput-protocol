@@ -45,11 +45,15 @@ enum BristleconeVoteType {
 };
 
 struct BristleconeSafeVote {
+  // The hash of the sender's quorum set (BristleconeQuorumSet) for this vote.
+  BristleconeQuorumSetHash qset_hash;
   BristleconeSafeStatement statement;
   BristleconeVoteType vote;
 };
 
 struct BristleconeTimelyVote {
+  // The hash of the sender's quorum set (BristleconeQuorumSet) for this vote.
+  BristleconeQuorumSetHash qset_hash;
   BristleconeTimelyStatement statement;
   BristleconeVoteType vote;
 };
@@ -75,8 +79,6 @@ case BRISTLECONE_TIMELY_VOTE:
 struct BristleconeNote {
   // The sending party.
   ValidatorID party;
-  // The hash of the sender's quorum set (BristleconeQuorumSet).
-  BristleconeQuorumSetHash qset_hash;
   // The slot the content applies to.
   BristleconeSlot slot;
   BristleconeContent content;
