@@ -172,8 +172,6 @@ struct ContractField {
 /// select an execution path, change entrypoint IDs, or guarantee success.
 /// Application effects include storage deltas, events, transfers and deployment.
 enum ContractMethodEffect {
-  // No declaration; never assume read-only.
-  EffectUnknown = 0,
   // Arguments and constants only: no state or execution-context reads or effects.
   EffectPure = 1,
   // May read state and execution context; no application effects.
@@ -186,7 +184,8 @@ struct ContractSpecMethod {
   ContractSpecString name;
   ContractField args<>;
   ContractType return_type;
-  ContractMethodEffect effect;
+  // Absent when unannotated; never assume read-only from absence.
+  ContractMethodEffect *effect;
 };
 
 struct ContractSpecInterface {
