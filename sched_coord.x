@@ -175,9 +175,12 @@ struct SchedulerTransactionOutcome {
   // The actual error.
   int error_code;
 
-  // The committed block height when [status] is [SchedulerTransactionSucceeded].
-  // Unspecified for every other status; zero is a valid block height.
-  BlockHeight committed_height;
+  // For [SchedulerTransactionSucceeded], the committed block height.
+  // For [SchedulerTransactionRetry] or [SchedulerTransactionDropped], the
+  // proposal height for an executor failure, or the current chain height for
+  // an admission/scheduler failure. Unspecified for pending/not-found outcomes.
+  // Zero is a valid height.
+  BlockHeight height;
 };
 
 typedef SchedulerTransactionOutcome SchedulerTransactionOutcomeBatch<>;
