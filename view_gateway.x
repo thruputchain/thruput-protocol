@@ -58,25 +58,27 @@ enum ViewGatewayIntroOutcome {
   ViewGatewayIntroMismatchedProtocol = 1
 };
 
-const kMaxViewBatchCalls = 16; // #[rust(const=u32)]
-const kMaxViewBatchCalldataBytes = 65536; // #[rust(const=u32)]
-const kMaxViewBatchGas = 160000000; // #[rust(const=u64)]
-const kMaxViewBatchResponseBytes = 1048576; // #[rust(const=u32)]
-const kMaxViewBatchBudgetMillis = 30000; // #[rust(const=u32)]
-
 // Independent simulations against one committed snapshot. Calls do not see
-// each other's simulated writes. Gas and calldata limits apply to the sum.
+// each other's simulated writes. The trusted gateway applies operator request
+// limits before dispatch. RPC message-size limits also bound decoding.
 struct ViewGatewayBatchQuery {
-  TransactionViewQuery calls<kMaxViewBatchCalls>;
+  TransactionViewQuery calls<>;
+  // Freshness floor only: reject an older snapshot without waiting or
+  // requesting a refresh. Snapshot maintenance is shared across requests.
   BlockHeight *min_height;
   // Remaining work budget from receipt, including scheduling and retries.
-  // Must be in 1..=kMaxViewBatchBudgetMillis. Running calls remain gas-bounded.
+  // Must be positive. Running calls remain gas-bounded.
   unsigned int budget_millis;
+  // Maximum sum of declared call gas limits in each attempt. Must be positive.
+  GasAmount max_gas;
+  // Maximum XDR-encoded ViewGatewayBatchResult, including events.
+  // Must be positive; enforced while constructing the result.
+  unsigned int max_response_bytes;
 };
 
 struct ViewGatewayBatchPayload {
   BlockHeight height;
-  TransactionViewResult results<kMaxViewBatchCalls>;
+  TransactionViewResult results<>;
 };
 
 struct ViewGatewayHeightUnavailable {
