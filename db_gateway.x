@@ -1,7 +1,9 @@
 // clang-format off
 
 %#include "network.hh"
+%#include "network_config.hh"
 %#include "rpc_types.hh"
+%#include "storage_cost.hh"
 %#include "storage_item.hh"
 %#include "types.hh"
 
@@ -47,6 +49,30 @@ default:
   void;
 };
 
+/// Network-supplied execution and storage rules read at one committed tip.
+/// `tip.network_config` preserves the parameters explicitly stated by the chain.
+/// `effective_config` states every parameter understood by the serving runtime,
+/// resolving omitted values through the same rules used by execution. It is a
+/// resolved reading, not a replacement for the hashed network configuration.
+/// The rules apply to execution following `tip`; they are not a promise about
+/// the block in which a subsequently submitted transaction will be included.
+/// Storage prices are integer native-HOG base units (10^7 units per HOG).
+struct DbGatewayConfig {
+  DbTip tip;
+  NetworkConfig effective_config;
+  StorageCostModelXdr storage_cost_model;
+};
+
+/// No committed tip: kRPCNotFound. Unreadable rules: kRPCUnrecoverable.
+/// A missing reading must never be represented as zero prices or empty rules.
+union DbGatewayConfigResult switch (RPCError error)
+{
+case kRPCNone:
+  DbGatewayConfig config;
+default:
+  void;
+};
+
 enum DbGatewayIntroOutcome {
   DbGatewayIntroSuccess = 0,
   DbGatewayIntroMismatchedProtocol = 1
@@ -67,6 +93,7 @@ program DbGateway
   {
     DbGatewayIntroOutcome dbgateway_intro(ProtocolCommit) = 0;
     DbGatewayResult dbgateway_get_items(AddressAndKeyBatch) = 1;
+    DbGatewayConfigResult dbgateway_get_config(void) = 2;
   } = 1;
 }
 = 0x44424757;
