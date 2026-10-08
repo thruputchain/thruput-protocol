@@ -69,8 +69,6 @@ struct ViewGatewayBatchQuery {
   // Remaining work budget from receipt, including scheduling and retries.
   // Must be positive. Running calls remain gas-bounded.
   unsigned int budget_millis;
-  // Maximum sum of declared call gas limits in each attempt. Must be positive.
-  GasAmount max_gas;
   // Maximum XDR-encoded ViewGatewayBatchResult, including events.
   // Must be positive; enforced while constructing the result.
   unsigned int max_response_bytes;
