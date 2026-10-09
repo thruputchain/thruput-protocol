@@ -45,6 +45,10 @@ call frame. Writes at most as many bytes as the contract-allocated bytestring
 holds; the returned length is the full calldata length, so a returned length
 greater than the buffer size indicates the calldata was truncated.
 
+Also returns the number N of auth tokens supplied to the invocation. Auth token
+ids are local to each call frame, and the supplied tokens are the current
+frame's ids 0..N-1, in the order the caller listed them.
+
 Does not return additional errors.
 
 # Log 

@@ -137,7 +137,8 @@ syscalls:
     description: >
       Returns the length of the calldata supplied to the invocation
       associated with the current call frame.
-      Also returns the number of auth tokens supplied to the invocation.
+      Also returns the number N of auth tokens supplied to the invocation,
+      which are the current frame's auth token ids 0..N-1.
     errors:
   - name: "GetCalldata"
     read_only: true
@@ -148,22 +149,17 @@ syscalls:
       - name: "written_len"
         typename: "RuntimeMemoryLength"
         primitive_type: true
-      - name: "auth_token_list"
-        span_argument: true
-      - name: "auth_token_written_len"
-        typename: "RuntimeMemoryLength"
+      - name: "auth_token_count"
+        typename: "uint32_t"
     number: 3
     description: >
       Returns the calldata supplied to the invocation associated with
       the current call frame.
-      Also returns the auth tokens supplied to the invocation.
-      The auth token list is passed as a span, which should be
-      interpreted as a [u32] slice.
+      Also returns the number N of auth tokens supplied to the invocation.
+      Auth token ids are local to each call frame, and the supplied tokens
+      are the current frame's ids 0..N-1, in the order the caller listed
+      them.
     errors:
-      - code: kSyscallErrorCodeInvalidSyscallInput
-        description: >
-          The auth token list output span byte length is not a multiple of the
-          size of a u32.
   - name: "ConsoleLog"
     needs_context: false
     # Logging is for debugging only.

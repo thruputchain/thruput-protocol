@@ -60,7 +60,7 @@ struct SyscallGetCalldataInputs {
 
 struct SyscallGetCalldataOutputs {
   opaque calldata<>;
-  unsigned int auth_tokens<>;
+  unsigned int auth_token_count;
 };
 
 struct SyscallGetCalldataTrace {
