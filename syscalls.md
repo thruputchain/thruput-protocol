@@ -84,9 +84,13 @@ terminates with a negative exit code (to revert the call frame).
 
 # GetReturnedBuffer
 
- Signature: () -> [u8]
+ Signature: () -> ([u8], u32, u32)
 
 Loads the bytestring returned by the most recent child callframe.
+
+Also returns the auth tokens that child returned, as a `(start, count)` pair:
+they join the current frame under the consecutive ids `start..start+count-1`,
+in the order the child listed them.
 
 Returns error kNoReturnBufferAvailable if the most recent child callframe does
 not exist or exited in an error state.

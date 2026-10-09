@@ -117,7 +117,8 @@ struct SyscallGetReturnedBufferInputs {
 
 struct SyscallGetReturnedBufferOutputs {
   ReturnBuffer buffer;
-  opaque returned_auth_tokens<>;
+  unsigned int returned_auth_token_start;
+  unsigned int returned_auth_token_count;
 };
 
 struct SyscallGetReturnedBufferTrace {
