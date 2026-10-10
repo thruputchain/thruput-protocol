@@ -24,7 +24,8 @@ enum ConfigParamID {
   kConfigParamMaxRv32CodeBytes = 8,
   kConfigParamMaxRv32MemoryBytes = 9,
   kConfigParamMaxAuthTokens = 10,
-  kConfigParamMaxCalldataLen = 11
+  kConfigParamMaxCalldataLen = 11,
+  kConfigParamMaxReturnBufferLen = 12
 };
 
 /// One configuration parameter and the value in force for it.
@@ -168,15 +169,27 @@ case kConfigParamMaxCalldataLen:
   ///
   /// Checked before the bytes are copied, so an oversized call is refused
   /// rather than materialized. `Calldata` is `opaque<>`, so the wire type
-  /// bounds neither form and this is what bounds them in execution;
-  /// `kMaxReturnBufferLen` bounds the other direction and is fixed by the
-  /// wire type instead.
+  /// bounds neither form and this is what bounds them in execution.
+  /// `kConfigParamMaxReturnBufferLen` bounds the other direction.
   ///
   /// The executor holds a frame's calldata for the life of that frame and
   /// every open frame holds its own, so a chain must keep this within what
   /// `kConfigParamMaxCrossInvokeDepth` frames of it leave room for. No value
   /// was in force before this parameter.
   unsigned int max_calldata_len;
+
+case kConfigParamMaxReturnBufferLen:
+  /// Bytes one invocation frame may return, whether to a calling frame or,
+  /// from the root frame, into `TxEventLog::root_output`.
+  /// `kMaxReturnBufferLen` is the value in force for a configuration that
+  /// does not state one, and `kReturnBufferCeilingLen` is the ceiling the
+  /// wire type admits.
+  ///
+  /// Checked where the Return syscall writes a buffer, which is the only
+  /// place one is built: a root frame's buffer is committed to by the events
+  /// root, so what a chain states here it stores and serves for every
+  /// transaction, and raising it raises what every indexer retains.
+  unsigned int max_return_buffer_len;
 };
 
 /// The parameters a chain states, as a list rather than fixed fields. A new

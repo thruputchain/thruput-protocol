@@ -44,17 +44,27 @@ namespace hogd
 /// encoding is planned but not yet enabled.
 typedef opaque Calldata<>;
 
-/// Maximum size of data that can be returned from a contract invocation.
+/// The largest return buffer the wire format admits, and so the ceiling on
+/// `kConfigParamMaxReturnBufferLen`. Raising this is a protocol upgrade;
+/// raising the configured limit is not.
+const kReturnBufferCeilingLen = 65000; // #[rust(const=u32)]
+
+/// The limit in force when a configuration does not state one.
 ///
-/// Return values larger than this will cause the invocation to revert
-/// with a deterministic error (equivalent to wasm `unreachable`).
+/// Return values larger than the limit in force cause the invocation to
+/// revert with a deterministic error (equivalent to wasm `unreachable`).
 const kMaxReturnBufferLen = 1024; // #[rust(const=u32)]
 
 /// Opaque encoded return value from a contract invocation.
 ///
 /// Like Calldata, contracts can encode return values arbitrarily, but the
 /// SDK default uses XDR serialization per RFC 4506 (<https://datatracker.ietf.org/doc/html/rfc4506>).
-typedef opaque ReturnBuffer<kMaxReturnBufferLen>;
+///
+/// Bounded by the ceiling, not by the limit in force: what a chain permits is
+/// enforced where the Return syscall writes one rather than where one is
+/// decoded. No peer supplies one, so nothing decodes a buffer the local
+/// executor did not just build.
+typedef opaque ReturnBuffer<kReturnBufferCeilingLen>;
 
 //------------------------------------------------------------------------------
 // Invocations
