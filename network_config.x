@@ -22,7 +22,9 @@ enum ConfigParamID {
   kConfigParamMaxSHA256BufferBytes = 6,
   kConfigParamMaxAuthTokenDepth = 7,
   kConfigParamMaxRv32CodeBytes = 8,
-  kConfigParamMaxRv32MemoryBytes = 9
+  kConfigParamMaxRv32MemoryBytes = 9,
+  kConfigParamMaxAuthTokens = 10,
+  kConfigParamMaxCalldataLen = 11
 };
 
 /// One configuration parameter and the value in force for it.
@@ -142,6 +144,39 @@ case kConfigParamMaxRv32MemoryBytes:
   /// chain raising this accepts that per-call cost; hogd rejects a genesis
   /// above what its VM provisions.
   unsigned int max_rv32_memory_bytes;
+
+case kConfigParamMaxAuthTokens:
+  /// Auth token ids one call may carry in a list: `Invoke`'s
+  /// `owned_auth_token_ids_list` and `Return`'s `returned_auth_token_ids`,
+  /// each read as a `[u32]` span.
+  ///
+  /// Checked against the span's length before the ids are read, so a list
+  /// past the bound is refused without being copied and what a rejected call
+  /// costs does not scale with the memory that held it. The ids in a list are
+  /// distinct and owned by the frame naming them, so this bounds what one
+  /// frame hands another in a single call rather than what a frame may hold.
+  ///
+  /// Neither wire type bounds its list, and no value was in force before this
+  /// parameter: a list was limited only by the memory holding it. A
+  /// configuration omitting this one is not continuing an older rule.
+  unsigned int max_auth_tokens;
+
+case kConfigParamMaxCalldataLen:
+  /// Bytes of calldata one invocation may be given, whether a transaction
+  /// supplies it in `Invocation::calldata` or a contract supplies it in
+  /// `Invoke`'s `calldata` span.
+  ///
+  /// Checked before the bytes are copied, so an oversized call is refused
+  /// rather than materialized. `Calldata` is `opaque<>`, so the wire type
+  /// bounds neither form and this is what bounds them in execution;
+  /// `kMaxReturnBufferLen` bounds the other direction and is fixed by the
+  /// wire type instead.
+  ///
+  /// The executor holds a frame's calldata for the life of that frame and
+  /// every open frame holds its own, so a chain must keep this within what
+  /// `kConfigParamMaxCrossInvokeDepth` frames of it leave room for. No value
+  /// was in force before this parameter.
+  unsigned int max_calldata_len;
 };
 
 /// The parameters a chain states, as a list rather than fixed fields. A new
