@@ -282,4 +282,40 @@ struct FlaggedStorageDelta {
   StorageDeltaFlagSet flags;
 };
 
+/// Storage output is what one [`FlaggedStorageDelta`] costs against
+/// `kConfigParamMaxSubtransactionOutputBytes`. It is a count of the values a
+/// delta carries, fixed here rather than read off any encoding of the delta,
+/// so a node computes the same figure however its storage link frames
+/// deltas. A delta's storage output is `kStorageOutputBytesPerDelta` plus, by
+/// arm:
+///
+///   - `kDeltaTypeBytestringSet`: the bytestring's length in bytes.
+///   - `kDeltaTypeRetrocausalQueue`: for each entry in
+///     `insert.added_entries` and in `consume.current_block_consumed`,
+///     `kStorageOutputBytesPerQueueEntry` plus the entry's length in bytes.
+///     `observed_concurrent_entries` are not counted, and neither is a delta
+///     a validator adds only to carry them, for a queue the transaction did
+///     not otherwise modify: a validator rebuilds both from the proposal's
+///     recorded observations, which a proposer's batch does not carry, so
+///     counting them would give the two different figures for the same
+///     transaction. `kMaxConcurrentRcqReadsPerTx` bounds them instead.
+///   - `kDeltaTypeAuthDataChange`: `kStorageOutputBytesPerAuthSigner` for
+///     each entry in `auth_data_change_signers`.
+///   - every other arm: nothing further.
+///
+/// The per-delta charge covers the storage key, the flags and every
+/// fixed-size value an arm carries.
+const kStorageOutputBytesPerDelta = 128;
+
+/// Storage output charged for each retrocausal queue entry a delta inserts
+/// or consumes, on top of the entry's own length.
+const kStorageOutputBytesPerQueueEntry = 8;
+
+/// Storage output charged for each signer an auth data change states.
+const kStorageOutputBytesPerAuthSigner = 64;
+
+/// The value of `kConfigParamMaxSubtransactionOutputBytes` in force when a
+/// configuration does not state one.
+const kDefaultMaxSubtransactionOutputBytes = 8388608;
+
 } // namespace hogd

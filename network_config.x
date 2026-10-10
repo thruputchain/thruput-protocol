@@ -22,7 +22,8 @@ enum ConfigParamID {
   kConfigParamMaxSHA256BufferBytes = 6,
   kConfigParamMaxAuthTokenDepth = 7,
   kConfigParamMaxRv32CodeBytes = 8,
-  kConfigParamMaxRv32MemoryBytes = 9
+  kConfigParamMaxRv32MemoryBytes = 9,
+  kConfigParamMaxSubtransactionOutputBytes = 10
 };
 
 /// One configuration parameter and the value in force for it.
@@ -142,6 +143,29 @@ case kConfigParamMaxRv32MemoryBytes:
   /// chain raising this accepts that per-call cost; hogd rejects a genesis
   /// above what its VM provisions.
   unsigned int max_rv32_memory_bytes;
+
+case kConfigParamMaxSubtransactionOutputBytes:
+  /// Storage output (see `kStorageOutputBytesPerDelta`) one subtransaction
+  /// may carry to storage, summed over its deltas. A transaction writes one
+  /// subtransaction at its root commit, holding everything the transaction
+  /// writes (including the replay-cache and deployment records the executor
+  /// adds), and in a proposal one more for each successful `TryInvoke`
+  /// frame's lock probe, holding that frame's writes.
+  ///
+  /// A root commit over the limit fails the transaction deterministically,
+  /// as a fault in the root frame does: it is included, its body's effects
+  /// are discarded, and its replay-cache record still commits. A `TryInvoke`
+  /// lock probe over the limit fails that frame as a lock conflict does.
+  /// `kDefaultMaxSubtransactionOutputBytes` is the value in force for a
+  /// configuration that does not state one.
+  ///
+  /// Storage output is defined apart from any encoding of the deltas, so
+  /// nothing here ties it to what a node's storage link can carry. A chain
+  /// must keep it low enough that its nodes can send the largest
+  /// subtransaction it admits, together with a validator's rebuilt
+  /// observations, to storage in one message; hogd rejects a genesis that
+  /// does not.
+  unsigned int max_subtransaction_output_bytes;
 };
 
 /// The parameters a chain states, as a list rather than fixed fields. A new
