@@ -22,7 +22,8 @@ enum ConfigParamID {
   kConfigParamMaxSHA256BufferBytes = 6,
   kConfigParamMaxAuthTokenDepth = 7,
   kConfigParamMaxRv32CodeBytes = 8,
-  kConfigParamMaxRv32MemoryBytes = 9
+  kConfigParamMaxRv32MemoryBytes = 9,
+  kConfigParamMaxNondeterministicBits = 10
 };
 
 /// One configuration parameter and the value in force for it.
@@ -142,6 +143,13 @@ case kConfigParamMaxRv32MemoryBytes:
   /// chain raising this accepts that per-call cost; hogd rejects a genesis
   /// above what its VM provisions.
   unsigned int max_rv32_memory_bytes;
+
+case kConfigParamMaxNondeterministicBits:
+  /// Bits one transaction may record in `nondeterministic_bits`
+  /// (default `kDefaultMaxNondeterministicBits`). Past it, a `TryInvoke`
+  /// child is refused and a concurrent RCQ read finds no entry, recording
+  /// nothing.
+  unsigned int max_nondeterministic_bits;
 };
 
 /// The parameters a chain states, as a list rather than fixed fields. A new

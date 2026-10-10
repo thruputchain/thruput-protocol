@@ -17,4 +17,7 @@ const kDefaultMaxRv32CodeBytes = 262144;
 /// the same reason.
 const kDefaultMaxRv32MemoryBytes = 65536;
 
+/// Default `kConfigParamMaxNondeterministicBits`: 1 MiB of bits.
+const kDefaultMaxNondeterministicBits = 8388608;
+
 } // namespace hogd
