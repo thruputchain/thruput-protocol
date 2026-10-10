@@ -44,13 +44,6 @@ namespace hogd
 /// encoding is planned but not yet enabled.
 typedef opaque Calldata<>;
 
-/// The limit in force on a return buffer when a configuration does not
-/// state `kConfigParamMaxReturnBufferLen`.
-///
-/// Return values larger than the limit in force cause the invocation to
-/// revert with a deterministic error (equivalent to wasm `unreachable`).
-const kMaxReturnBufferLen = 1024; // #[rust(const=u32)]
-
 /// Opaque encoded return value from a contract invocation.
 ///
 /// Like Calldata, contracts can encode return values arbitrarily, but the
