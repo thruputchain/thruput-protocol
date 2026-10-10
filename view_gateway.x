@@ -58,11 +58,14 @@ enum ViewGatewayIntroOutcome {
   ViewGatewayIntroMismatchedProtocol = 1
 };
 
-// Independent simulations against one committed snapshot. Calls do not see
-// each other's simulated writes. The trusted gateway applies operator request
-// limits before dispatch. RPC message-size limits also bound decoding.
+// Sequential calls in one private execution context over a committed snapshot.
+// Successful writes are visible to later calls, but never persist. The caller
+// is the parent of every supplied invocation; nested calls use normal rules.
+// This does not validate a transaction envelope or prove authorization.
+// The trusted gateway applies operator request limits before dispatch.
 struct ViewGatewayBatchQuery {
-  TransactionViewQuery calls<>;
+  ContractAddress caller;
+  Invocation calls<>;
   // Freshness floor only: reject an older snapshot without waiting or
   // requesting a refresh. Snapshot maintenance is shared across requests.
   BlockHeight *min_height;
@@ -74,9 +77,63 @@ struct ViewGatewayBatchQuery {
   unsigned int max_response_bytes;
 };
 
+struct ViewBatchReturnedCall {
+  ReturnBuffer return_buffer;
+  GasAmount gas_consumed;
+  // Only this call's events, including successful nested calls, in order.
+  TxEmittedEvent events<>;
+};
+
+struct ViewBatchAbortedCall {
+  ReturnBuffer abort_buffer;
+  GasAmount gas_consumed;
+};
+
+enum ViewBatchCallStatus {
+  ViewBatchCallReturned = 0,
+  ViewBatchCallAborted = 1,
+  ViewBatchCallFaulted = 2,
+  ViewBatchCallRejected = 3,
+  ViewBatchCallNotExecuted = 4
+};
+
+// Reverted frames have no surviving events. Rejection precedes frame execution;
+// it has an error code rather than fabricated output or gas. NotExecuted is
+// reserved for the suffix after the first failed call.
+union ViewBatchCallResult switch (ViewBatchCallStatus status)
+{
+case ViewBatchCallReturned:
+  ViewBatchReturnedCall returned;
+case ViewBatchCallAborted:
+  ViewBatchAbortedCall aborted;
+case ViewBatchCallFaulted:
+  GasAmount gas_consumed;
+case ViewBatchCallRejected:
+  SyscallErrorCode error_code;
+case ViewBatchCallNotExecuted:
+  void;
+};
+
+enum ViewBatchExecutionStatus {
+  ViewBatchExecutionSucceeded = 0,
+  ViewBatchExecutionFailed = 1
+};
+
+union ViewBatchExecutionOutcome switch (ViewBatchExecutionStatus status)
+{
+case ViewBatchExecutionSucceeded:
+  void;
+case ViewBatchExecutionFailed:
+  unsigned int failed_call_index;
+};
+
 struct ViewGatewayBatchPayload {
+  // Starting committed height H; all calls share the view execution context.
   BlockHeight height;
-  TransactionViewResult results<>;
+  ViewBatchExecutionOutcome execution;
+  // Sum of call gas, excluding discarded attempts. Must not overflow.
+  GasAmount gas_consumed;
+  ViewBatchCallResult results<>;
 };
 
 struct ViewGatewayHeightUnavailable {
@@ -94,9 +151,15 @@ enum ViewGatewayBatchOutcome {
   ViewGatewayBatchInternalError = 6
 };
 
-// Success contains exactly one ordered result per input call, all from height.
-// Contract aborts and faults are per-call results. Other failures discard the
-// whole attempt; abandoned batches retry as a group, never one call at a time.
+// Ok means simulation completed, not that every call succeeded. The payload
+// contains exactly one result per input. Success requires all Returned; failure
+// requires a Returned prefix, one Aborted/Faulted/Rejected at failed_call_index,
+// then a NotExecuted suffix. Earlier returns/events are diagnostics on failure,
+// not successful whole-sequence effects. No writes persist in either case.
+// Infrastructure failures discard the whole attempt; abandoned batches retry
+// from call zero with fresh private state, never one call at a time.
+// This replaces the independent-call wire contract. Peers must pass the exact
+// protocol-identity handshake; never reinterpret an older batch response.
 union ViewGatewayBatchResult switch (ViewGatewayBatchOutcome outcome)
 {
 case ViewGatewayBatchOk:
