@@ -20,7 +20,9 @@ struct CopyableInvokeInputs {
 
 struct CopyableInvokeOutputs {
   RuntimeMemoryLength return_buffer_len;
-  RuntimeMemoryLength returned_auth_token_len;
+  // The number of auth tokens the child returned. GetReturnedBuffer reports
+  // which of the current frame's ids they took.
+  unsigned int returned_auth_token_count;
   // The outcome of the child frame. Only meaningful when the Invoke syscall
   // returns kSyscallErrorCodeNone (i.e. a child frame actually ran):
   //   Return -> child returned normally; return_buffer_len bytes available

@@ -45,6 +45,10 @@ call frame. Writes at most as many bytes as the contract-allocated bytestring
 holds; the returned length is the full calldata length, so a returned length
 greater than the buffer size indicates the calldata was truncated.
 
+Also returns the number N of auth tokens supplied to the invocation. Auth token
+ids are local to each call frame, and the supplied tokens are the current
+frame's ids 0..N-1, in the order the caller listed them.
+
 Does not return additional errors.
 
 # Log 
@@ -80,9 +84,13 @@ terminates with a negative exit code (to revert the call frame).
 
 # GetReturnedBuffer
 
- Signature: () -> [u8]
+ Signature: () -> ([u8], u32, u32)
 
 Loads the bytestring returned by the most recent child callframe.
+
+Also returns the auth tokens that child returned, as a `(start, count)` pair:
+they join the current frame under the consecutive ids `start..start+count-1`,
+in the order the child listed them.
 
 Returns error kNoReturnBufferAvailable if the most recent child callframe does
 not exist or exited in an error state.
