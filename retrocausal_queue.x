@@ -88,5 +88,13 @@ struct RetrocausalQueueDelta {
   // hold a full transaction's worth. Capping it at the per-block size would make
   // that rebuild overflow and crash the validator instead of cleanly rejecting.
   QueueEntry observed_concurrent_entries<kMaxConcurrentRcqReadsPerTx>;
+  // Set when the transaction deleted or overwrote the key before using it as
+  // a queue, so the queue starts empty and every past-block entry of a
+  // committed queue at the key is consumed. The executor leaves the past-block
+  // position to HogDb, which knows the committed queue: consume, if present,
+  // must carry a zero past_block_consume, and HogDb resolves it to cover the
+  // whole committed queue. A committed queue with live entries makes this
+  // delta the block's consumer, exactly as if consume were set.
+  bool replace;
 };
 }
