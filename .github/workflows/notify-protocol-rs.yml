@@ -15,7 +15,7 @@ jobs:
           app-id: ${{ vars.PROTOCOL_SYNCHRONIZER_APP_ID }}
           private-key: ${{ secrets.PROTOCOL_SYNCHRONIZER_SECRET_KEY }}
           owner: groundhogchain
-          repositories: protocol-rs,protocol-ts,protocol-go
+          repositories: protocol-rs,protocol-go
 
       - name: Trigger protocol-rs auto-update
         run: |
@@ -23,15 +23,28 @@ jobs:
             --repo groundhogchain/protocol-rs
         env:
           GH_TOKEN: ${{ steps.app-token.outputs.token }}
-      - name: Trigger protocol-ts auto-update
-        run: |
-          gh workflow run auto-update.yml \
-            --repo groundhogchain/protocol-ts
-        env:
-          GH_TOKEN: ${{ steps.app-token.outputs.token }}
       - name: Trigger protocol-go auto-update
         run: |
           gh workflow run auto-update.yml \
             --repo groundhogchain/protocol-go
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+
+  dispatch-ts:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Generate TypeScript consumer app token
+        id: app-token
+        uses: actions/create-github-app-token@v3
+        with:
+          app-id: ${{ vars.PROTOCOL_SYNCHRONIZER_APP_ID }}
+          private-key: ${{ secrets.PROTOCOL_SYNCHRONIZER_SECRET_KEY }}
+          owner: thruputchain
+          repositories: thruput-protocol-ts
+
+      - name: Trigger TypeScript protocol auto-update
+        run: |
+          gh workflow run auto-update.yml \
+            --repo thruputchain/thruput-protocol-ts
         env:
           GH_TOKEN: ${{ steps.app-token.outputs.token }}
