@@ -2,10 +2,11 @@ name: Notify consumers
 
 on:
   push:
-    branches: [main]
+    branches: [qualification/private-app-dispatch-5292764]
 
 jobs:
   dispatch:
+    if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     steps:
       - name: Generate app token
@@ -45,6 +46,7 @@ jobs:
       - name: Trigger TypeScript protocol auto-update
         run: |
           gh workflow run auto-update.yml \
-            --repo thruputchain/thruput-protocol-ts
+            --repo thruputchain/thruput-protocol-ts \
+            --ref qualification/private-app-updater-5292764-base
         env:
           GH_TOKEN: ${{ steps.app-token.outputs.token }}
