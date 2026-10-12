@@ -37,8 +37,8 @@ jobs:
         id: app-token
         uses: actions/create-github-app-token@v3
         with:
-          app-id: ${{ vars.PROTOCOL_SYNCHRONIZER_APP_ID }}
-          private-key: ${{ secrets.PROTOCOL_SYNCHRONIZER_SECRET_KEY }}
+          app-id: ${{ vars.THRUPUT_PROTOCOL_SYNCHRONIZER_APP_ID }}
+          private-key: ${{ secrets.THRUPUT_PROTOCOL_SYNCHRONIZER_SECRET_KEY }}
           owner: thruputchain
           repositories: thruput-protocol-ts
 
