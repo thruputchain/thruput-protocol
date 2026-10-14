@@ -10,3 +10,6 @@ Include as a submodule in other repositories.
 
 Format with `./scripts/format.sh`
 
+The [text-encoding specification](docs/text-encoding.md) defines the target
+base58/StrKey representations without changing binary serialization. Check its
+public cross-language vectors with `python3 scripts/text_encoding_vectors.py`.

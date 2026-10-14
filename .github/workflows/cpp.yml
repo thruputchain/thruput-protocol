@@ -24,6 +24,8 @@ jobs:
         fetch-depth: 0
     - name: gcc version check
       run: gcc --version
+    - name: check public text encoding vectors
+      run: python3 scripts/text_encoding_vectors.py
     - name: clang version check
       run: clang --version
     - name: install emacs
