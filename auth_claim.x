@@ -24,7 +24,8 @@ namespace hogd {
 // The authentication model supports two claim types:
 // - Source address auth data: the transaction is signed by the keys in the source address's auth data.
 //   and the account stores per-key weights and a minimum threshold
-// - Pubkey signature: a standalone public key signs the transaction
+// - Pubkey signature: a standalone public key signs the transaction. The claim
+//   names the key by its hash; the key itself is attached to the signatures.
 //
 // Auth claims reference AddressAuthData stored at each contract address,
 // which defines the available keys and their weights.
@@ -76,12 +77,19 @@ enum AuthClaimType {
 
   /// Requires a signature from a specific public key.
   ///
-  /// Used for accounts identified by a pubkey preimage (pubkey + nonce).
+  /// Used for accounts identified by a pubkey preimage (pubkey hash + nonce).
   kPubkeySignature = 1
 };
 
+/// The preimage of a standalone-pubkey account's address:
+/// `sha256(cxs(DomainSeparator("PubkeyAccount")) || cxs(PubkeyAccountPreimage))`.
+///
+/// It names the key by its [`PublicKeyHash`] rather than holding the key, so
+/// that the auth claim contracts read stays small whatever the scheme. The
+/// key itself travels with the signatures, as
+/// [`SignedTransaction::pubkey_claim_key`] in transaction.x.
 struct PubkeyAccountPreimage {
-  PublicKey pubkey;
+  PublicKeyHash pubkey_hash;
   unsigned hyper nonce;
 };
 
