@@ -54,7 +54,7 @@ def vectors():
     ]
     valid = []
     for name, data in cases:
-        item = {"name": name, "bytes": list(data), "base58": base58(data)}
+        item = {"name": name, "bytes": list(data), "base58": base58(data), "hex": "0x" + data.hex()}
         if len(data) == 32:
             item["strkey"] = {
                 "publicKey": strkey(data, 6 << 3),

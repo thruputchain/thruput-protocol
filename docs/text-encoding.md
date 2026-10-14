@@ -40,18 +40,45 @@ Use the Bitcoin/Solana alphabet, without a checksum or prefix:
   also be valid base58: decode it only as base58 and enforce the field's byte
   length. Do not reject valid base58 merely because it resembles unprefixed hex.
 
-Use base58 for Thruput RPC, CLI JSON, dApp/wallet messages, persisted Thruput byte
-strings, and default human output. This includes network hashes, transaction and
-block hashes, signatures, code, calldata, return data, storage bytes, and topics.
+Use base58 for typed addresses, public keys, hashes, and signatures in RPC,
+CLI JSON, dApp/wallet messages, persisted records, and default human output.
+Keep opaque payloads in existing `0x`-prefixed lowercase hex. A byte's role,
+not the length or contents of a value, determines its encoding. There is no
+base58/base64 conversion of bulk payloads in this migration.
+
+## Field classification
+
+| Field or value | Machine encoding | Reason |
+| --- | --- | --- |
+| Address, public key, validator ID | Base58 | Typed identity |
+| Transaction, block, network, config, code, and storage hashes | Base58 | Typed digest, including the 2048-byte `StorageLongHash` |
+| Standalone signature | Base58 | Typed cryptographic value |
+| Serialized signed transaction or authorization envelope | Hex | Complete opaque binary payload; embedded keys/signatures are not separately recoded |
+| Contract code, calldata, return/abort buffers, storage bytes, raw events | Hex | Opaque payload, even if only 32 bytes long |
+| Raw event topics and topic filters | Hex | `event.x` defines each topic as an arbitrary leading 32-byte chunk of serialized event data |
+| Contract-data storage keys | Hex | `types.x` defines arbitrary 32-byte keys, not a mandatory digest algorithm |
+| Diagnostic serialized storage keys | Hex | XDR union payload, not an address or hash |
+| Entrypoint/method selectors | Hex | Fixed ABI selector bytes, not a public key or digest field |
+| Pagination cursors | Existing hex, passed back verbatim | Opaque server-authored continuation payload |
+| Numeric nonces, amounts, counters, and enum tags | Existing numeric format | Not byte strings |
+| Serialized nonce/preimage buffers | Hex | Opaque bytes, unless the schema explicitly declares a digest |
+| Explicit Ed25519 seed import/export | Base58 or S StrKey | Secret handling is explicit; never ordinary diagnostic output |
+
+Raw topics use one encoding for every slot, including a signature-hash topic or
+an indexed address: RPC cannot assume the event schema from its contents. A
+schema-aware decoded event field uses its declared type (for example, a decoded
+address uses base58), while its raw topic remains hex. Do not convert raw topics
+by inspecting their contents or position.
+
 Numbers retain their existing JSON number/decimal-string rules. External
 identifiers (Git SHAs, checksums required by external formats) retain their own
-formats. Pagination cursors remain opaque bytes: changing their outer encoding
-does not authorize clients to inspect or rebuild their contents.
+formats. Typed values decoded from CXS use their declared semantic type; raw
+CXS/XDR buffers remain hex. No binary layouts or hashing inputs change.
 
-Payload limits are specified by each field/API, in decoded bytes. They must not
-be silently reduced as part of this migration. Test encoder/decoder performance
-at realistic transaction/code sizes before enabling base58 for large payloads;
-ordinary repeated-division implementations have quadratic conversion cost.
+Payload limits remain expressed in decoded bytes and must not be reduced as part
+of this migration. Hex payload support is canonical, not a compatibility fallback.
+Reject old hex only on fields moving to base58. Existing payload parsing behavior
+is preserved; tightening hex parsers is outside this migration.
 
 ## Stellar input and display
 
@@ -65,11 +92,12 @@ and canonical encoding, not just the leading character.
 | Thruput address (including wallets and tokens) | Base58 | C StrKey |
 | Ed25519 public key | Base58 | G StrKey |
 | Other public-key schemes | Base58 | Base58 |
-| Any hash, signature, or opaque bytes | Base58 | Base58 |
+| Any hash or standalone signature | Base58 | Base58 |
+| Opaque payload, raw topic, storage key, selector, or cursor | Hex | Hex |
 | Ed25519 seed, explicitly exported | Base58 | Explicit S export supported |
 
 Only human-facing typed parsers accept StrKey in addition to base58. Machine
-fields remain base58. A G key is not a wallet address; C/G conversion must not
+fields retain the base58/hex split above. A G key is not a wallet address; C/G conversion must not
 derive accounts. A 32-byte byte array is not automatically a key or address.
 T and X are signer types, not transaction-hash display formats.
 
@@ -84,6 +112,17 @@ never truncate it to G. This format work does not enable a new bridge route.
 Use it unchanged in each language's tests. `scripts/text_encoding_vectors.py`
 checks it with an independent integer-based base58 and stdlib CRC/base32 oracle.
 The script also checks published Stellar vectors; it is not a production codec.
+The base58 cases test the codec itself, including empty and arbitrary bytes;
+they do not imply all byte fields use base58. Each vector also supplies its
+canonical hex payload representation so consumers can test both boundaries.
+
+## Verification
+
+The agent runs unit, mock-RPC, schema, formatting, type, and build checks. Adam
+runs real-node integration and smoke tests locally: this cloud-agent has not
+reliably reached devnode readiness. Supply exact commands, fixtures, dependency
+versions, and expected outcomes. Keep implementation readiness separate from
+real-node acceptance until the local results are recorded.
 
 Bindings generated from this repository preserve binary types. Text helpers
 owned by a binding runtime/generator must be changed in that source, not in
