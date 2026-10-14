@@ -4,34 +4,55 @@ on:
   push:
     branches: [main]
 
+# Dispatch uses only scoped App installation tokens.
+permissions: {}
+
 jobs:
   dispatch:
     runs-on: ubuntu-latest
     steps:
       - name: Generate app token
         id: app-token
-        uses: actions/create-github-app-token@v3
+        uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3.2.0
         with:
           app-id: ${{ vars.PROTOCOL_SYNCHRONIZER_APP_ID }}
           private-key: ${{ secrets.PROTOCOL_SYNCHRONIZER_SECRET_KEY }}
-          owner: groundhogchain
-          repositories: protocol-rs,protocol-ts,protocol-go
+          owner: thruputchain
+          repositories: thruput-protocol-rs,thruput-protocol-go
+          permission-actions: write
 
       - name: Trigger protocol-rs auto-update
         run: |
           gh workflow run auto-update.yml \
-            --repo groundhogchain/protocol-rs
-        env:
-          GH_TOKEN: ${{ steps.app-token.outputs.token }}
-      - name: Trigger protocol-ts auto-update
-        run: |
-          gh workflow run auto-update.yml \
-            --repo groundhogchain/protocol-ts
+            --repo thruputchain/thruput-protocol-rs \
+            --ref main
         env:
           GH_TOKEN: ${{ steps.app-token.outputs.token }}
       - name: Trigger protocol-go auto-update
         run: |
           gh workflow run auto-update.yml \
-            --repo groundhogchain/protocol-go
+            --repo thruputchain/thruput-protocol-go \
+            --ref main
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+
+  dispatch-ts:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Generate TypeScript consumer app token
+        id: app-token
+        uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3.2.0
+        with:
+          app-id: ${{ vars.THRUPUT_PROTOCOL_SYNCHRONIZER_APP_ID }}
+          private-key: ${{ secrets.THRUPUT_PROTOCOL_SYNCHRONIZER_SECRET_KEY }}
+          owner: thruputchain
+          repositories: thruput-protocol-ts
+          permission-actions: write
+
+      - name: Trigger TypeScript protocol auto-update
+        run: |
+          gh workflow run auto-update.yml \
+            --repo thruputchain/thruput-protocol-ts \
+            --ref main
         env:
           GH_TOKEN: ${{ steps.app-token.outputs.token }}

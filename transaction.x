@@ -231,6 +231,15 @@ struct SignedTransaction {
   /// These signatures must satisfy the auth_claim in the transaction.
   /// The signatures are over the [`Transaction`] object.
   DecoratedSignature signatures<>;
+
+  /// The public key a `kPubkeySignature` auth claim names by hash.
+  ///
+  /// Present exactly when the auth claim is `kPubkeySignature`, and then its
+  /// [`PublicKeyHash`] must equal the claim's `pubkey_preimage.pubkey_hash`.
+  /// It sits outside the signed [`Transaction`] because the claim already
+  /// commits to it by hash; keeping it out of the claim keeps the claim that
+  /// contracts read the same size for every scheme.
+  PublicKey *pubkey_claim_key;
 };
 
 //------------------------------------------------------------------------------

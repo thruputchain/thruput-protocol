@@ -37,16 +37,34 @@ typedef opaque Ed25519PublicKey[32]; // #[rust(newtype)]
 /// Represents a 64-byte Ed25519 secret key.
 typedef opaque Ed25519SecretKey[64]; // #[rust(newtype)]
 
+/// Represents an ML-DSA-65 (FIPS 204) signature.
+///
+/// Not every byte string of this length is a well-formed signature;
+/// verification rejects malformed ones like any other invalid signature.
+typedef opaque MlDsa65Signature[3309]; // #[rust(newtype)]
+/// Represents an ML-DSA-65 (FIPS 204) public key.
+typedef opaque MlDsa65PublicKey[1952]; // #[rust(newtype)]
+
 /// Represents the cryptographic scheme used for a signature or public key.
 enum CryptographicScheme {
-  Ed25519 = 0
+  Ed25519 = 0,
+
+  /// ML-DSA-65 (FIPS 204), pure ML-DSA (not HashML-DSA) with an empty
+  /// context string.
+  MlDsa65 = 1
 };
 
 /// Union of a Signature type over the various cryptographic schemes.
+///
+/// The ML-DSA arms of Signature and PublicKey are boxed in C++ (heap
+/// allocated), so that Ed25519 signatures and keys, which are most of them,
+/// do not each take the size of the largest ML-DSA value in memory.
 union Signature switch (CryptographicScheme scheme)
 {
 case Ed25519:
   Ed25519Signature ed25519;
+case MlDsa65:
+  MlDsa65Signature mldsa65; // #[cpp(box)]
 };
 
 /// Union of a PublicKey type over the various cryptographic schemes.
@@ -54,9 +72,20 @@ union PublicKey switch (CryptographicScheme scheme)
 {
 case Ed25519:
   Ed25519PublicKey ed25519;
+case MlDsa65:
+  MlDsa65PublicKey mldsa65; // #[cpp(box)]
 };
 
+/// SHA-256 hash committing to a [`PublicKey`], scheme included:
+/// `sha256(cxs(DomainSeparator("PublicKey")) || cxs(PublicKey))`.
+///
+/// A fixed-size stand-in for public keys of any scheme, so that types
+/// exposed to contracts do not grow with the largest key.
+typedef opaque PublicKeyHash[32]; // #[rust(newtype)]
+
 /// Union of a SecretKey type over the various cryptographic schemes.
+///
+/// There is no ML-DSA variant: nodes never sign with ML-DSA.
 union SecretKey switch (CryptographicScheme scheme)
 {
 case Ed25519:
