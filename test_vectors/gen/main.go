@@ -114,6 +114,26 @@ func cxsUint(b []byte, v uint64) []byte {
 	}
 }
 
+// cxsInt encodes a signed integer: one byte for -31..31 (a negative v as
+// 0x20 | (^(-v) & 0x1f)); otherwise the same headers as cxsUint, followed by
+// the shortest two's complement little-endian form that holds v.
+func cxsInt(b []byte, v int64) []byte {
+	switch {
+	case v >= 0 && v <= 31:
+		return append(b, byte(v))
+	case v < 0 && v >= -31:
+		return append(b, byte(^(-v))&0x1f|0x20)
+	case v >= -1<<7 && v < 1<<7:
+		return append(b, 0x3f, byte(v))
+	case v >= -1<<15 && v < 1<<15:
+		return binary.LittleEndian.AppendUint16(append(b, 0x7f), uint16(v))
+	case v >= -1<<31 && v < 1<<31:
+		return binary.LittleEndian.AppendUint32(append(b, 0xbf), uint32(v))
+	default:
+		return binary.LittleEndian.AppendUint64(append(b, 0xff), uint64(v))
+	}
+}
+
 func cxsOpaqueVar(b, data []byte) []byte {
 	return append(cxsUint(b, uint64(len(data))), data...)
 }
@@ -313,6 +333,32 @@ var placeholderCall = WalletCall{
 	Calldata: []byte{},
 }
 
+// erc20Transfer is sdk_entrypoint_derivation("ERC20", "0.1.x", "transfer"),
+// the first 8 bytes of sha256("ERC20::0.1::transfer"). The native token
+// implements the ERC20 interface (itc_erc20::ERC20 in hogd), and hogd's
+// contract_trait_test pins this entrypoint as 0x63285b3523f9dc3f.
+var erc20Transfer = func() [8]byte {
+	h := sha256.Sum256([]byte("ERC20::0.1::transfer"))
+	var e [8]byte
+	copy(e[:], h[:8])
+	return e
+}()
+
+// transferCall is a native token transfer(receiver, amount) call. The ERC20
+// Amount is an i128, which travels as the CXS tuple (int64 high bits, uint64
+// low bits), as hogd's make_amount builds it.
+func transferCall(receiver [32]byte, amount uint64) WalletCall {
+	calldata := append([]byte(nil), receiver[:]...)
+	calldata = cxsInt(calldata, 0)
+	calldata = cxsUint(calldata, amount)
+	return WalletCall{
+		Target:     nativeTokenAddress,
+		Entrypoint: erc20Transfer,
+		GasLimit:   1_000_000,
+		Calldata:   calldata,
+	}
+}
+
 // ---------------------------------------------------------------------------
 // Keys.
 
@@ -492,20 +538,35 @@ type KeyOut struct {
 	Accounts       []AccountOut `json:"accounts"`
 }
 
+type WalletCallOut struct {
+	Target     hexBytes     `json:"target"`
+	Entrypoint hexBytes     `json:"entrypoint"`
+	GasLimit   u64String    `json:"gas_limit"`
+	Calldata   hexBytes     `json:"calldata"`
+	Transfer   *TransferOut `json:"transfer,omitempty"`
+}
+
+type TransferOut struct {
+	Receiver hexBytes `json:"receiver"`
+	Amount   string   `json:"amount"`
+}
+
 type TxFieldsOut struct {
-	InvokedAddress    hexBytes   `json:"invoked_address"`
-	Entrypoint        hexBytes   `json:"entrypoint"`
-	GasLimit          u64String  `json:"gas_limit"`
-	Calldata          hexBytes   `json:"calldata"`
-	BlockExpiryHeight string     `json:"block_expiry_height"`
-	UniquifierNonce   u64String  `json:"uniquifier_nonce"`
-	AuthClaimType     string     `json:"auth_claim_type"`
-	PubkeyHash        hexBytes   `json:"pubkey_hash,omitempty"`
-	AccountNonce      *u64String `json:"account_nonce,omitempty"`
+	InvokedAddress    hexBytes        `json:"invoked_address"`
+	Entrypoint        hexBytes        `json:"entrypoint"`
+	GasLimit          u64String       `json:"gas_limit"`
+	Calldata          hexBytes        `json:"calldata"`
+	BlockExpiryHeight string          `json:"block_expiry_height"`
+	UniquifierNonce   u64String       `json:"uniquifier_nonce"`
+	AuthClaimType     string          `json:"auth_claim_type"`
+	PubkeyHash        hexBytes        `json:"pubkey_hash,omitempty"`
+	AccountNonce      *u64String      `json:"account_nonce,omitempty"`
+	WalletCalls       []WalletCallOut `json:"wallet_calls"`
 }
 
 type SigningOut struct {
 	Name                    string      `json:"name"`
+	Description             string      `json:"description"`
 	Key                     string      `json:"key"`
 	Network                 string      `json:"network"`
 	NetworkHash             hexBytes    `json:"network_hash"`
@@ -592,6 +653,7 @@ func main() {
 			"kDefaultNewAddressKeyID":           kDefaultNewAddressKeyID,
 			"default_wallet_execute_entrypoint": hexBytes(defaultWalletExecute[:]),
 			"native_token_address":              hexBytes(nativeTokenAddress[:]),
+			"erc20_transfer_entrypoint":         hexBytes(erc20Transfer[:]),
 		},
 	}
 	for n, h := range networks {
@@ -620,13 +682,13 @@ func main() {
 	}
 
 	// A default-wallet `execute` from the key's nonce-0 account.
-	makeTx := func(k keyDef, uniquifierNonce uint64) Transaction {
+	makeTx := func(k keyDef, uniquifierNonce uint64, calls ...WalletCall) Transaction {
 		h := k.signer.PublicKey().Hash()
 		return Transaction{
 			InvokedAddress:    pubkeyAccountAddress(h, 0),
 			Entrypoint:        defaultWalletExecute,
 			GasLimit:          10_000_000,
-			Calldata:          executeCalldata([]WalletCall{placeholderCall}),
+			Calldata:          executeCalldata(calls),
 			BlockExpiryHeight: 1000,
 			UniquifierNonce:   uniquifierNonce,
 			AuthClaim:         AuthClaim{Type: claimPubkeySignature, PubkeyHash: h, Nonce: 0},
@@ -655,16 +717,10 @@ func main() {
 		stx     SignedTransaction
 	}
 	bases := map[string]base{}
-	for i, k := range keys {
-		netName := "devnode"
-		if i%2 == 1 {
-			netName = "test"
-		}
+	addSigning := func(name, desc string, k keyDef, netName string, tx Transaction, calls []WalletCall, transfers map[int]TransferOut) {
 		net := networks[netName]
-		tx := makeTx(k, uint64(i+1))
 		s := sign(k, tx, net)
-		mustValid(k.name, s, net)
-		name := "sign_" + k.name
+		mustValid(name, s, net)
 		bases[name] = base{k, netName, s}
 		txh := tx.Hash()
 		an := u64String(0)
@@ -674,8 +730,17 @@ func main() {
 		if k.scheme == schemeMlDsa65 {
 			kind = "ML-DSA-65 deterministic (FIPS 204 Algorithm 2, rnd = 0^32), pure, empty context"
 		}
+		var callsOut []WalletCallOut
+		for i, c := range calls {
+			co := WalletCallOut{Target: c.Target[:], Entrypoint: c.Entrypoint[:],
+				GasLimit: u64String(c.GasLimit), Calldata: c.Calldata}
+			if t, ok := transfers[i]; ok {
+				co.Transfer = &t
+			}
+			callsOut = append(callsOut, co)
+		}
 		o.Signing = append(o.Signing, SigningOut{
-			Name: name, Key: k.name, Network: netName, NetworkHash: net[:],
+			Name: name, Description: desc, Key: k.name, Network: netName, NetworkHash: net[:],
 			Transaction: TxFieldsOut{
 				InvokedAddress: tx.InvokedAddress[:], Entrypoint: tx.Entrypoint[:],
 				GasLimit: u64String(tx.GasLimit), Calldata: tx.Calldata,
@@ -683,11 +748,48 @@ func main() {
 				UniquifierNonce:   u64String(tx.UniquifierNonce),
 				AuthClaimType:     "kPubkeySignature",
 				PubkeyHash:        tx.AuthClaim.PubkeyHash[:], AccountNonce: &an,
+				WalletCalls: callsOut,
 			},
 			TransactionXdr: tx.XDR(), SigningPreimage: tx.SigningPreimage(net),
 			TransactionHash: txh[:], Signature: s.Signatures[0].Signature.Sig,
 			SignatureKind: kind, SignedTransactionXdr: stxXdr, SignedTransactionSha256: stxHash[:],
 		})
+	}
+	for i, k := range keys {
+		netName := "devnode"
+		if i%2 == 1 {
+			netName = "test"
+		}
+		calls := []WalletCall{placeholderCall}
+		addSigning("sign_"+k.name,
+			"Default wallet execute with one placeholder call (see README); auth does not depend on the call.",
+			k, netName, makeTx(k, uint64(i+1), calls...), calls, nil)
+	}
+
+	// Real native token transfers on the devnode: the bootstrap account
+	// funds the first ML-DSA account, and that account pays some back.
+	{
+		boot, ml := byName["ed25519_devnode_bootstrap_0"], byName["mldsa65_seed_00..1f"]
+		bootAddr := pubkeyAccountAddress(boot.signer.PublicKey().Hash(), 0)
+		mlAddr := pubkeyAccountAddress(ml.signer.PublicKey().Hash(), 0)
+		for _, t := range []struct {
+			from      keyDef
+			to        [32]byte
+			toName    string
+			amount    uint64
+			uniquifer uint64
+		}{
+			{boot, mlAddr, "mldsa65_seed_00..1f", 100_000_000, 101},
+			{ml, bootAddr, "ed25519_devnode_bootstrap_0", 1_000, 102},
+		} {
+			call := transferCall(t.to, t.amount)
+			amount := strconv.FormatUint(t.amount, 10)
+			addSigning("transfer_"+t.from.name,
+				"Default wallet execute with one native token transfer of "+amount+
+					" raw HOG units to the nonce-0 account of "+t.toName+".",
+				t.from, "devnode", makeTx(t.from, t.uniquifer, call), []WalletCall{call},
+				map[int]TransferOut{0: {Receiver: t.to[:], Amount: amount}})
+		}
 	}
 
 	// Re-signing: a second valid ML-DSA signature over the same transaction.

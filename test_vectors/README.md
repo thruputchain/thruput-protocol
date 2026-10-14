@@ -93,6 +93,9 @@ gas, heights) are decimal strings.
   `execute` entrypoint, the first 8 bytes of
   `sha256("DefaultWallet::0.1::execute")` (method id `0xc3edb11fdd6d5d58`).
 - `constants.native_token_address`: `genesis_contract_address(kAddressNativeToken)`.
+- `constants.erc20_transfer_entrypoint`: the native token's `transfer`
+  entrypoint, the first 8 bytes of `sha256("ERC20::0.1::transfer")`. hogd's
+  `contract_trait_test.cc` pins it as `0x63285b3523f9dc3f`.
 
 **`keys[]`**: two Ed25519 keys and two ML-DSA-65 keys.
 
@@ -113,10 +116,22 @@ gas, heights) are decimal strings.
 - `accounts[]`: for nonces `"0"`, `"1"` and `"18446744073709551615"`:
   `nonce`, `pubkey_account_preimage_cxs` and the 32-byte `address`.
 
-**`signing[]`**: one valid end-to-end vector per key. Each is a default
-wallet `execute` sent from the key's nonce-0 account.
+**`signing[]`**: valid end-to-end vectors, each a default wallet `execute`
+sent from the key's nonce-0 account. There are two kinds:
 
-- `name`, `key`: the vector's and the key's names.
+- `sign_<key>`: one per key, with a single placeholder call (see
+  `wallet_calls` below).
+- `transfer_<key>`: two native token transfers on the devnode network.
+  Bootstrap account 0 (which a devnode with bootstrap accounts funds with
+  1,000,000,000 raw HOG units) sends 100,000,000 to the nonce-0 account of
+  `mldsa65_seed_00..1f`, and that account sends 1,000 back. Submit them in
+  that order: the second spends what the first sends. Their uniquifiers
+  (nonce 101 and 102, expiry height 1000) only work below height 1000.
+
+Fields:
+
+- `name`, `description`, `key`: the vector's name, what it does, and the
+  key's name.
 - `network`, `network_hash`: which network the transaction is signed for.
   The first key of each scheme uses `devnode` (all zeros); the second uses
   `test`.
@@ -126,10 +141,23 @@ wallet `execute` sent from the key's nonce-0 account.
   (`kPubkeySignature`), `pubkey_hash` and `account_nonce`. The claim's
   `PubkeyAccountPreimage` is `{pubkey_hash, account_nonce}`.
   `contracts_to_deploy` is always empty. `calldata` is the CXS encoding of
-  `execute([WalletCall])`, with a single placeholder call: target the native
-  token, entrypoint all zeros, `gas_limit` 100000, empty calldata. Auth is
-  checked before execution, so nothing here depends on the call. A vector
-  for a real transfer is left to the SDKs.
+  `execute(calls: Vec<WalletCall>)`: a CXS count, then for each call its
+  `target` (32 bytes), `entrypoint` (8 bytes), CXS `gas_limit`, and CXS
+  length-prefixed `calldata`.
+- `transaction.wallet_calls[]`: those calls, decoded: `target`,
+  `entrypoint`, `gas_limit` and `calldata`.
+  - In the `sign_` vectors the call is a placeholder: target the native
+    token, entrypoint all zeros, `gas_limit` 100000, empty calldata. Auth is
+    checked before execution, so nothing in those vectors depends on it.
+  - In the `transfer_` vectors the call is the native token's
+    `transfer(receiver, amount)`, with `gas_limit` 1000000, and `transfer`
+    holds its `receiver` and `amount` (decimal). The calldata is `receiver`
+    (32 bytes) followed by the ERC20 `Amount`, an i128. That travels as the
+    CXS tuple (int64 high bits, uint64 low bits), as hogd's `make_amount`
+    builds it. For 1000 that is `00 7f e8 03`. A signed CXS integer from −31
+    to 31 is one byte, a negative `v` as `0x20 | (~(−v) & 0x1f)`; beyond
+    that, it is the unsigned headers followed by the shortest two's
+    complement little-endian form.
 - `transaction_xdr`: `xdr(Transaction)`.
 - `signing_preimage`: the exact bytes signed.
 - `transaction_hash`: `sha256(transaction_xdr)`.

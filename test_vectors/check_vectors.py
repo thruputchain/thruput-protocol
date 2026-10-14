@@ -54,6 +54,15 @@ def cxs_uint(v):
     raise ValueError(v)
 
 
+def cxs_int(v):
+    if -31 <= v <= 31:
+        return bytes([v]) if v >= 0 else bytes([0x20 | (~(-v) & 0x1F)])
+    for header, size in ((0x3F, 1), (0x7F, 2), (0xBF, 4), (0xFF, 8)):
+        if -(1 << (8 * size - 1)) <= v < 1 << (8 * size - 1):
+            return bytes([header]) + v.to_bytes(size, "little", signed=True)
+    raise ValueError(v)
+
+
 def cxs_domain_separator(name):
     # ExtensionPoint discriminant 0, then opaque<256>.
     raw = name.encode("utf-8")
@@ -345,10 +354,27 @@ def main():
             eq(f"{s['name']} mldsa-native deterministic signature",
                h(s["signature"]), h(ORACLE.ask("S", h(k_seed[s["key"]]), msg)))
         eq(f"{s['name']} verdict", check_auth(stx, network), (0, "valid"))
-        # The calldata is execute([one WalletCall]) in CXS.
-        cd = h(f["calldata"])
-        eq("calldata", cd, cxs_uint(1) + h(v["constants"]["native_token_address"]) + bytes(8)
-           + cxs_uint(100_000) + cxs_uint(0))
+        # The calldata is CXS execute(calls: Vec<WalletCall>).
+        calls = f["wallet_calls"]
+        want_cd = cxs_uint(len(calls))
+        for c in calls:
+            inner = h(c["calldata"])
+            if "transfer" in c:
+                # ERC20 transfer(receiver, amount: i128), the i128 as the
+                # CXS tuple (int64 high, uint64 low).
+                amount = int(c["transfer"]["amount"])
+                eq("transfer target", h(c["target"]), h(v["constants"]["native_token_address"]))
+                eq("transfer entrypoint", h(c["entrypoint"]), sha256(b"ERC20::0.1::transfer")[:8])
+                eq("transfer entrypoint constant", h(c["entrypoint"]),
+                   h(v["constants"]["erc20_transfer_entrypoint"]))
+                eq("transfer calldata", inner, h(c["transfer"]["receiver"])
+                   + cxs_int(amount >> 64) + cxs_uint(amount & (2**64 - 1)))
+            else:
+                eq("placeholder call", (h(c["target"]), h(c["entrypoint"]), inner),
+                   (h(v["constants"]["native_token_address"]), bytes(8), b""))
+            want_cd += h(c["target"]) + h(c["entrypoint"]) + cxs_uint(int(c["gas_limit"]))
+            want_cd += cxs_uint(len(inner)) + inner
+        eq(f"{s['name']} calldata", h(f["calldata"]), want_cd)
         signing[s["name"]] = s
         n += 1
 
