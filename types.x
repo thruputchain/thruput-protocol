@@ -56,15 +56,15 @@ enum CryptographicScheme {
 
 /// Union of a Signature type over the various cryptographic schemes.
 ///
-/// The ML-DSA arms of Signature and PublicKey are boxed in C++ (heap
-/// allocated), so that Ed25519 signatures and keys, which are most of them,
-/// do not each take the size of the largest ML-DSA value in memory.
+/// The ML-DSA arms of Signature and PublicKey are boxed (heap allocated) in
+/// both C++ and Rust, so that Ed25519 signatures and keys, which are most of
+/// them, do not each take the size of the largest ML-DSA value in memory.
 union Signature switch (CryptographicScheme scheme)
 {
 case Ed25519:
   Ed25519Signature ed25519;
 case MlDsa65:
-  MlDsa65Signature mldsa65; // #[cpp(box)]
+  MlDsa65Signature mldsa65; // #[rust(box_ptr)], #[cpp(box)]
 };
 
 /// Union of a PublicKey type over the various cryptographic schemes.
@@ -73,7 +73,7 @@ union PublicKey switch (CryptographicScheme scheme)
 case Ed25519:
   Ed25519PublicKey ed25519;
 case MlDsa65:
-  MlDsa65PublicKey mldsa65; // #[cpp(box)]
+  MlDsa65PublicKey mldsa65; // #[rust(box_ptr)], #[cpp(box)]
 };
 
 /// SHA-256 hash committing to a [`PublicKey`], scheme included:
