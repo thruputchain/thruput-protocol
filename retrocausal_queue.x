@@ -89,15 +89,15 @@ case kRcqNoConsume:
 case kRcqReplace:
   void;
 case kRcqConsume:
-  RetrocausalQueueConsumeDelta delta;
+  RetrocausalQueueConsumeDelta delta; // #[cpp(box)]
 case kRcqReplaceConsume:
   QueueEntry current_block_consumed<kRetrocausalQueueBlockEntriesMaxLen>;
 };
 
 struct RetrocausalQueueDelta {
   // This version of the retrocausal queue is single-consumer multi-producer.
-  // Boxed so the delta keeps the size of the pointer it replaced.
-  RetrocausalQueueConsume consume; // #[cpp(box)]
+  // The status is inline; the consume delta itself is boxed.
+  RetrocausalQueueConsume consume;
   RetrocausalQueueInsertDelta insert;
   // Concurrent entries observed (e.g. via peek) but not consumed.
   // HogDb validates that each entry was actually inserted by a concurrent
