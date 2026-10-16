@@ -271,9 +271,9 @@ program IndexerBlockExplorer
     IndexerBlockExplorerIntroOutcome indexer_block_explorer_intro(ProtocolCommit) = 0;
     TxInfoResult get_transaction_info(TransactionHash) = 1;
 
-    // The canonical consensus value for a retained, indexed height. Unknown,
-    // future, and unavailable heights return BlockNotFound; backend failures
-    // remain RPC errors.
+    // The canonical consensus value for a retained, indexed height. Heights
+    // outside ready indexed coverage return BlockNotFound. An index that is
+    // not ready or has an internal failure returns an x23 SYSTEM_ERR, not a miss.
     BlockLookupResult get_block_by_height(BlockHeight) = 2;
 
     // Paginated, filtered events query.  A candidate event matches
