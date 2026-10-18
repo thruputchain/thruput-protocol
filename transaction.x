@@ -195,26 +195,44 @@ struct DecoratedSignature {
   Signature signature;
 };
 
-/// Hash of a transaction, used as its unique identifier network-wide.
+/// Hash of a transaction body, the identifier users, events and indexers
+/// know a transaction by.
 ///
 /// This is the SHA-256 hash of the XDR-encoded [`Transaction`] -- the same
 /// object the signatures are over. It deliberately covers neither the
 /// signatures wrapped around it by [`SignedTransaction`] nor the
 /// nondeterministic data attached to it by [`ProposedTransaction`]:
 ///
-///  - Excluding the signatures makes the identifier stable under signature
-///    malleability, so a third party cannot change the identity of an
-///    in-flight transaction by re-encoding its signatures.
+///  - Excluding the signatures keeps the identifier fixed however the body
+///    is signed, so a submitter can look up its transaction without knowing
+///    which signing a block carried.
 ///  - Excluding the proposal data keeps the identifier computable by the
 ///    submitter at signing time. Nondeterministic proposal data does not
 ///    exist until a proposer has executed the transaction, so an identifier
 ///    covering it could not be used to look up one's own transaction.
 ///
-/// Uniqueness across blocks therefore rests on replay protection -- the
+/// Proposals do not name transactions by this hash: they commit to each
+/// transaction's exact signed encoding by [`SignedTransactionHash`].
+///
+/// Uniqueness across blocks rests on replay protection -- the
 /// [`Uniquifier`] every [`Transaction`] carries -- rather than on anything
 /// in the preimage: two distinct commits can never share a hash, because
 /// the same [`Transaction`] cannot commit twice.
 typedef SHA256Hash TransactionHash;
+
+/// Hash of one exact signed encoding of a transaction.
+///
+/// This is the SHA-256 hash of the canonical XDR of a [`SignedTransaction`]:
+/// the [`Transaction`], its signatures and its `pubkey_claim_key`. Two
+/// signings of one body share a [`TransactionHash`] but not a
+/// [`SignedTransactionHash`].
+///
+/// Proposals name their transactions by this hash, so every validator
+/// executes the encoding the proposer chose rather than whichever signing of
+/// the body it happens to hold. A validator that holds a different signing
+/// treats the transaction as missing and fetches the proposer's. It is not a
+/// lookup key for users: re-signing a body changes it.
+typedef SHA256Hash SignedTransactionHash;
 
 /// A transaction with cryptographic signatures.
 ///
@@ -260,6 +278,9 @@ typedef OptSignedTransaction OptSignedTransactionBatch<>;
 
 /// A batch of transaction hashes.
 typedef TransactionHash TransactionHashBatch<>;
+
+/// A batch of signed transaction hashes.
+typedef SignedTransactionHash SignedTransactionHashBatch<>;
 
 //------------------------------------------------------------------------------
 // Proposed Transactions and Nondeterministic Data
