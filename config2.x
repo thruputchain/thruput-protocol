@@ -28,6 +28,12 @@ struct CoordinatorConsensusConfig {
   unsigned hyper pipeline_length;
   /// The time a slot is given to resolve before it is deemed late.
   Milliseconds timeout_msec;
+  /// How early each epoch's leader election starts: the election for epoch
+  /// e starts once the first slot of epoch e - election_lookahead is
+  /// confirmed (or its timer expires). 1 starts it while the previous epoch
+  /// runs; larger values give the election vote more time, from an older
+  /// view of which parties are live. Must be positive.
+  unsigned hyper election_lookahead;
 };
 
 /// The basis and block pools of a coordinator. Each keeps the values of
