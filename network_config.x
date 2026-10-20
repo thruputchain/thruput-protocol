@@ -25,7 +25,8 @@ enum ConfigParamID {
   kConfigParamMaxRv32MemoryBytes = 9,
   kConfigParamMaxAuthTokens = 10,
   kConfigParamMaxCalldataLen = 11,
-  kConfigParamMaxReturnBufferLen = 12
+  kConfigParamMaxReturnBufferLen = 12,
+  kConfigParamMaxTxGas = 13
 };
 
 /// One configuration parameter and the value in force for it.
@@ -193,6 +194,23 @@ case kConfigParamMaxReturnBufferLen:
   /// configuration omitting this one is continuing an older rule rather than
   /// lifting it. The executor states the value it continues at.
   unsigned int max_return_buffer_len;
+
+case kConfigParamMaxTxGas:
+  /// Gas one transaction may budget: the most a root `Invocation::gas_limit`
+  /// may state.
+  ///
+  /// Checked before any attached contract is verified or any body runs, so
+  /// a transaction over the bound is refused outright rather than clamped:
+  /// the budget a transaction signs is the one it executes under or none.
+  /// Subinvocations are already capped at their caller's remaining gas, so
+  /// bounding the root bounds every frame.
+  ///
+  /// Hog availability bounded a transaction's budget before this parameter,
+  /// and nothing else did, so a configuration omitting this one continues
+  /// that rule: the value in force is the largest `GasAmount`, which no
+  /// budget exceeds. A `GasAmount` rather than an `unsigned int` so that a
+  /// chain may state any budget a transaction can.
+  GasAmount max_tx_gas;
 };
 
 /// The parameters a chain states, as a list rather than fixed fields. A new
