@@ -206,8 +206,9 @@ struct BlockTransactionQuery {
   IterationOrder order;
   /// Empty on the initial call. Non-empty to continue at the same height;
   /// `order` is ignored when a cursor is supplied because the cursor carries it.
-  /// Malformed, stale, or height-mismatched cursors produce an empty page with
-  /// an empty cursor.
+  /// Malformed, wrong-block, or height-mismatched cursors return
+  /// IndexerQueryInvalidCursor. A valid continuation whose block is not yet
+  /// indexed returns IndexerQueryHistoryUnavailable.
   PaginationCursor cursor;
   /// Clamped server-side to [1, 200]; 0 means server default (50).
   unsigned int limit;
@@ -234,7 +235,16 @@ enum IndexerQueryOutcome {
   IndexerQueryNotReady = 1,
   /// Unrecoverable backend failure (corrupt record, storage error).
   /// Details are in the indexer's logs.
-  IndexerQueryInternalFailure = 2
+  IndexerQueryInternalFailure = 2,
+  /// The supplied continuation is malformed, unsupported, or inconsistent
+  /// with the query or its indexed block identity/position. Not exhaustion.
+  /// No automatic restart is implied. Cursor validation depends on the method;
+  /// this outcome does not promise query binding for every cursor format.
+  IndexerQueryInvalidCursor = 3,
+  /// The indexer cannot serve the history required by a continuation: its
+  /// serving watermark is below the cursor's saved bound, or its target block
+  /// is not yet indexed. Preserve the cursor; do not silently narrow the walk.
+  IndexerQueryHistoryUnavailable = 4
 };
 
 union EventPageResult switch (IndexerQueryOutcome outcome) {
