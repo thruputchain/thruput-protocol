@@ -37,6 +37,13 @@ struct BristleconeTimelyStatement {
   bool timely;
 };
 
+// The statement of a leader vote: this party leads the epoch whose last slot
+// is the note's slot. Each epoch's leader is elected by one federated vote,
+// keyed by the epoch's last slot.
+struct BristleconeLeaderStatement {
+  ValidatorID leader;
+};
+
 // The federated-voting phase of a vote: the sender votes for the statement,
 // or accepts it.
 enum BristleconeVoteType {
@@ -58,11 +65,20 @@ struct BristleconeTimelyVote {
   BristleconeVoteType vote;
 };
 
-// The three kinds of envelope: a proposal, a SAFE vote, and a TIMELY vote.
+struct BristleconeLeaderVote {
+  // The hash of the sender's quorum set (BristleconeQuorumSet) for this vote.
+  BristleconeQuorumSetHash qset_hash;
+  BristleconeLeaderStatement statement;
+  BristleconeVoteType vote;
+};
+
+// The four kinds of envelope: a proposal, a SAFE vote, a TIMELY vote, and a
+// leader vote.
 enum BristleconeContentType {
   BRISTLECONE_PROPOSAL = 0,
   BRISTLECONE_SAFE_VOTE = 1,
-  BRISTLECONE_TIMELY_VOTE = 2
+  BRISTLECONE_TIMELY_VOTE = 2,
+  BRISTLECONE_LEADER_VOTE = 3
 };
 
 union BristleconeContent switch (BristleconeContentType content_type)
@@ -73,13 +89,16 @@ case BRISTLECONE_SAFE_VOTE:
   BristleconeSafeVote safe_vote;
 case BRISTLECONE_TIMELY_VOTE:
   BristleconeTimelyVote timely_vote;
+case BRISTLECONE_LEADER_VOTE:
+  BristleconeLeaderVote leader_vote;
 };
 
 // The signed payload of an envelope.
 struct BristleconeNote {
   // The sending party.
   ValidatorID party;
-  // The slot the content applies to.
+  // The slot the content applies to; for a leader vote, the last slot of the
+  // epoch whose leader is voted on.
   BristleconeSlot slot;
   BristleconeContent content;
 };
