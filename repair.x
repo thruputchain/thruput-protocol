@@ -12,7 +12,7 @@ namespace hogd {
 // missing transactions (v1)
 
 struct MissingTransactions {
-  TransactionHash transaction_hashes<>;
+  SignedTransactionHash signed_tx_hashes<>;
   ConsensusValue consensus_value;
 };
 

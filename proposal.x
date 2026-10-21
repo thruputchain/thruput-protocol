@@ -11,15 +11,19 @@ namespace hogd {
 /// Transaction-side payload for a proposal.
 ///
 /// This is the payload a `ConsensusValue` commits to through
-/// `ProposalTxsHash`. The signed transaction bodies travel separately, since
-/// nodes usually already hold them from transaction dissemination.
+/// `ProposalTxsHash`. The signed transactions travel separately, since nodes
+/// usually already hold them from transaction dissemination. Because the
+/// payload names each transaction by its [`SignedTransactionHash`], a node
+/// that holds a different signing of a body treats that transaction as
+/// missing and fetches the proposer's encoding.
 ///
 /// Travels on network.
 struct ProposalTxs {
   ExtensionPoint ext;
 
-  /// Hashes of the block's transactions, in execution order.
-  ParallelTransactionHashBatch hash;
+  /// Signed hashes of the block's transactions, in execution order: the
+  /// exact encodings the block executes.
+  ParallelSignedTransactionHashBatch signed_hash;
 
   /// Nondeterministic choices captured by the proposer, replayed by
   /// validators so re-execution reproduces the header outputs exactly.
