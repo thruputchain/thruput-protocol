@@ -1,4 +1,5 @@
 %#include "auth_card.hh"
+%#include "rpc_types.hh"
 %#include "sched_db.hh"
 %#include "transaction.hh"
 %#include "types.hh"
@@ -8,33 +9,73 @@ namespace hogd {
 enum AuthErrorCode {
   kAuthSuccess = 0,
   kAuthFailed = 1,
-  // The query is for a block height that is not the most recent committed block height.
-  // This can happen if a query is made for an old block height,
-  // or if (concurrent with the query) a block commits and updates to the auth data begin to stream in.
-  // The verification can be retried in either case.
-  // TODO(geoff): We could switch this around, to retry at the higher block height.
+  // The requested parent state is no longer available in the single-version
+  // backend, including when a DB commit races verification. Retrying must use
+  // a context opened against the new parent, never silently change the parent
+  // of an existing context.
   kAuthStaleBlockHeight = 2,
   // Either an internal auth error or forwarded from an internal DB error
-  kAuthInternal = 3
+  kAuthInternal = 3,
+  // The verification context is unknown, closing, closed, or abandoned.
+  kAuthBadBlockID = 4
 };
 
 typedef AuthErrorCode AuthErrorCodeBatch<>;
 
 program AuthMempool {
   version AuthMempool1 {
+    // Block IDs are the scheduler's IDs, shared with DB and executor.
+    // Every verification in a context uses the parent's end-of-block auth
+    // state. Changes made by this block affect its children, not its own
+    // verification. A context never switches to a newer parent implicitly.
+    //
+    // Initially only the committed DB tip is a supported parent. Several
+    // candidate blocks may share it; advancing the tip makes their old parent
+    // state unavailable. The selected block may still complete commit below.
+    // Supporting closed, uncommitted parents requires DB multiversion reads.
+    //
+    // Retired procedures: 2 and 3 verified by BlockHeight. Use new numbers
+    // because a height and a BlockID have different meanings despite both
+    // occupying eight bytes on the wire.
 
-    // Verify a list of transactions.  This version returns a result for each transaction.
-    // The BlockHeight is the height of the most recently committed block,
-    // i.e. the block height of the block that produced the snapshot auth data against which
-    // the transactions are to be verified.
-    AuthErrorCodeBatch authmempool_verify_transactions(BlockHeight, SignedTransactionBatch) = 2;
+    // Open a context: first argument is the parent ID, second is the new ID.
+    // The caller must allocate a fresh ID, including after commit or abandon.
+    // Returns kRPCBadBlockID for an unavailable parent or an existing context.
+    RPCError authmempool_open_block(BlockID, BlockID) = 10;
 
-    // Verify a batch of transactions.  This version returns a single result for the batch,
-    // i.e. are all correct or is there at least one invalid transaction?
-    // This version should be called when validating a proposal, in which if even one
-    // transaction is invalid then the whole block can be rejected.
-    // This version can use batch verification to speed up the verification.
-    AuthErrorCode authmempool_verify_batch(BlockHeight, SignedTransactionBatch) = 3;
+    // Verify transactions against the open context identified by BlockID.
+    // Returns one result per input transaction, in input order. A context
+    // error is returned for every input; an empty input returns an empty list.
+    AuthErrorCodeBatch authmempool_verify_transactions(BlockID, SignedTransactionBatch) = 20;
+
+    // Verify a proposal's transactions, returning success only if all pass.
+    // The context must be open even for an empty batch. This may use batch
+    // signature verification.
+    AuthErrorCode authmempool_verify_batch(BlockID, SignedTransactionBatch) = 21;
+
+    // Stop accepting verification and wait for accepted requests to finish.
+    // Retain the context for commit or abandon. Does not wait for DB commit
+    // or key-change notifications, and does not certify that all requests
+    // passed: the caller must check their individual results.
+    RPCError authmempool_close_block(BlockID) = 30;
+
+    // Called for the finalized block after close. The scheduler must also
+    // issue DB commit independently; this call may overlap it. Wait until
+    // the matching block's complete DB update run has been applied locally,
+    // then retire the context. The DB stream remains the authority for
+    // committed auth data; this call does not apply the changes again.
+    // Completion does not wait for the mempool's key-change callback to be
+    // acknowledged. If a different block commits at the expected height,
+    // return kRPCBadBlockID instead of waiting for this candidate.
+    RPCError authmempool_commit_block(BlockID) = 31;
+
+    // Discard an open or closed context. Reject new verification and drain
+    // accepted requests before releasing it. Never changes committed state.
+    RPCError authmempool_abandon_block(BlockID) = 40;
+
+    // Lifecycle calls return kRPCBadBlockID for unknown IDs or invalid state
+    // transitions. Close and abandon do not require the parent to remain
+    // readable, so stale contexts can still be drained and released.
   }
   = 1;
 }
@@ -55,7 +96,10 @@ typedef KeyChange KeyChangeBatch<>;
 // of several heights in flight at once, so the chunks of different heights
 // can interleave. The auth server treats a height's changes as complete only
 // once every chunk of its run has arrived, and applies heights in order.
+// The block ID must agree across the entire run and identifies the candidate
+// selected by DB commit. Notifications remain committed-only.
 struct KeyChangeChunk {
+  BlockID block_id;
   // The height of the block that made these changes.
   BlockHeight height;
   // This chunk's position in the height's run, from 0, and the run's length.
@@ -70,16 +114,17 @@ struct KeyChangeChunk {
 
 program AuthDB {
   version AuthDB1 {
-    // Retired number, never to be reused, so that a peer built against it
+    // Retired numbers, never to be reused, so that a peer built against them
     // fails to dispatch rather than misparse a newer payload:
     //   1: authdb_forward_key_changes(BlockHeight, KeyChangeBatch), a block's
     //      auth-data changes in one unbounded record, which a block that
     //      changes enough accounts' auth data grows past any single-record
     //      cap (hogd#3146).
+    //   2: authdb_forward_key_changes_chunk without a BlockID.
 
     // Deliver one chunk of a committed block's auth-data changes to the auth
     // server.
-    void authdb_forward_key_changes_chunk(KeyChangeChunk) = 2;
+    void authdb_forward_key_changes_chunk(KeyChangeChunk) = 3;
   }
   = 1;
 }
@@ -104,9 +149,17 @@ enum DBAuthIntroOutcome {
   kIntroFailure = 1
 };
 
+// Identifies the committed state available for opening auth contexts and for
+// the existing height-based DB lookups. At height -1 the DB is uninitialized;
+// block_id is ignored and no auth context can be opened.
+struct DBAuthTip {
+  BlockID block_id;
+  BlockHeight height;
+};
+
 union DBAuthIntroResult switch (DBAuthIntroOutcome outcome) {
 case kIntroSuccess:
-  BlockHeight current_height;
+  DBAuthTip tip;
 default:
   void;
 };
@@ -122,9 +175,11 @@ program DBAuth {
     // Get the auth data for a batch of addresses.
     DBAuthResultBatch authdb_get_auth_data_batch(BlockHeight, ContractAddressBatch) = 1;
 
-    // Introduce an auth server to a db shard,
-    // and subscribe to updates to auth data
-    DBAuthIntroResult dbauth_intro(AuthCard) = 2;
+    // Introduce an auth server and subscribe to committed auth updates.
+    // The returned tip and subsequent update runs must leave no gap. Updates
+    // may race the reply; a late reply must not overwrite a newer applied tip.
+    // Retired procedure 2 returned only a height, without the committed ID.
+    DBAuthIntroResult dbauth_intro(AuthCard) = 3;
   }
   = 1;
 }
