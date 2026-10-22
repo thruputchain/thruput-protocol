@@ -46,15 +46,16 @@ struct KeyChange {
 };
 typedef KeyChange KeyChangeBatch<>;
 
-// A committed block's auth-data changes reach the auth server as a run of
-// chunks, each a KeyChangeChunk, because the one-record form grew with the
-// number of accounts whose auth data a block changed (hogd#3146). hog_db
-// chooses the chunk size; the wire bounds a chunk only by the link's record
-// cap. The chunks of a run may be sent concurrently and over several
-// connections, so they can arrive in any order, and hog_db may have the runs
-// of several heights in flight at once, so the chunks of different heights
-// can interleave. The auth server treats a height's changes as complete only
-// once every chunk of its run has arrived, and applies heights in order.
+// A committed block's auth-data changes travel as a run of chunks, each a
+// KeyChangeChunk, from hog_db to the auth server and on from the auth server
+// to the mempool, because the one-record form grew with the number of
+// accounts whose auth data a block changed (hogd#3146). The sender chooses
+// the chunk size; the wire bounds a chunk only by the link's record cap. The
+// chunks of a run may be sent concurrently and over several connections, so
+// they can arrive in any order, and a sender may have the runs of several
+// heights in flight at once, so the chunks of different heights can
+// interleave. A receiver treats a height's changes as complete only once
+// every chunk of its run has arrived, and applies heights in order.
 struct KeyChangeChunk {
   // The height of the block that made these changes.
   BlockHeight height;
@@ -62,7 +63,7 @@ struct KeyChangeChunk {
   // Every chunk of a run carries the same chunk_count, and each index in
   // [0, chunk_count) is sent exactly once. A block that changed no auth data
   // is a run of one empty chunk, so every committed block still sends a run
-  // and the auth server's height advances with every block.
+  // and each receiver's height advances with every block.
   unsigned int chunk_index;
   unsigned int chunk_count;
   KeyChange changes<>;
@@ -151,8 +152,16 @@ default:
 program MempoolAuth {
   version MempoolAuth1 {
     IntroAuthResult mempoolauth_intro_auth(AuthCard) = 0;
-    // Forward updated key changes from the auth server to the mempool.
-    void mempoolauth_auth_data_changed(BlockHeight, KeyChangeBatch) = 1;
+
+    // Retired number, never to be reused, so that a peer built against it
+    // fails to dispatch rather than misparse a newer payload:
+    //   1: mempoolauth_auth_data_changed(BlockHeight, KeyChangeBatch), a
+    //      block's auth-data changes in one unbounded record (hogd#3146).
+
+    // Deliver one chunk of a committed block's auth-data changes from the auth
+    // server to the mempool. The auth server sends a height's run only after
+    // it has applied the whole height itself.
+    void mempoolauth_auth_data_changed_chunk(KeyChangeChunk) = 2;
   }
   = 1;
 } = 0x8aa87aaa;
