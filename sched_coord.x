@@ -151,12 +151,12 @@ enum SchedulerTransactionErrorSource {
 enum SchedulerErrorCode {
   // The mempool had no capacity to admit the transaction.
   SchedulerErrorCapacity = 1,
-  // The scheduler could not obtain the account's average hog age.
-  SchedulerErrorHogAgeUnavailable = 2,
+  // The scheduler could not obtain the account's average native-token age.
+  SchedulerErrorNativeTokenAgeUnavailable = 2,
   // The transaction's expiry block height is earlier than the current block.
   SchedulerErrorExpired = 3,
-  // The transaction's gas limit exceeds all hogs available to the account.
-  SchedulerErrorInsufficientHogs = 4
+  // The transaction's gas limit exceeds the account's available native tokens.
+  SchedulerErrorInsufficientNativeTokens = 4
 };
 
 struct SchedulerTransactionOutcome {

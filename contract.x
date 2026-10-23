@@ -45,7 +45,7 @@ struct ContractBlob {
 enum ContractType {
   /// Precompiled native contract implemented directly in Rust.
   ///
-  /// Used for system contracts like the native HogToken.
+  /// Used for system contracts like the native token.
   /// Cheaper to invoke than a deployed RV32 contract, but users cannot
   /// deploy new ones.
   kNative = 1,

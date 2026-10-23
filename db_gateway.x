@@ -19,7 +19,7 @@ typedef AddressAndKey AddressAndKeyBatch<>;
 /// The success case carries the WireStorageItem; kRPCNotFound is the
 /// legitimate outcome for an item that does not exist in the committed
 /// snapshot (e.g., a balance item for an address that has never received
-/// hogs); other errors indicate server-side failures.  Defined locally
+/// native tokens); other errors indicate server-side failures.  Defined locally
 /// rather than reusing `ExpectedStorageItem` from executor_to_db_rpc so
 /// this program has no cross-dependency on the executor-side RPC.
 union DbGatewayItemResult switch (RPCError error)
@@ -56,7 +56,7 @@ default:
 /// resolved reading, not a replacement for the hashed network configuration.
 /// The rules apply to execution following `tip`; they are not a promise about
 /// the block in which a subsequently submitted transaction will be included.
-/// Storage prices are integer native-HOG base units (10^7 units per HOG).
+/// Storage prices are integer native-token base units (10^7 per token).
 struct DbGatewayConfig {
   DbTip tip;
   NetworkConfig effective_config;

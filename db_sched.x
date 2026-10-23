@@ -15,28 +15,28 @@ enum DbSchedResult {
   DbSchedResultInvalidParentId = 2
 };
 
-const kHogAgeGroupToSchedule = 0;
-const kHogAgeGroupAlreadyScheduled = 1;
-const kHogAgeGroupReceived = 2;
-const kHogAgeNumGroups = 3;
+const kNativeTokenAgeGroupToSchedule = 0;
+const kNativeTokenAgeGroupAlreadyScheduled = 1;
+const kNativeTokenAgeGroupReceived = 2;
+const kNativeTokenAgeNumGroups = 3;
 
-struct HogAge {
+struct NativeTokenAge {
   ContractAddress address;
-  uint128_xdr num_hogs[kHogAgeNumGroups];
-  BlockHeight average_ages[kHogAgeNumGroups];
+  uint128_xdr num_native_tokens[kNativeTokenAgeNumGroups];
+  BlockHeight average_ages[kNativeTokenAgeNumGroups];
 };
 
-typedef HogAge HogAgeBatch<>;
+typedef NativeTokenAge NativeTokenAgeBatch<>;
 
-union HogAgeResult switch (DbSchedResult result)
+union NativeTokenAgeResult switch (DbSchedResult result)
 {
 case DbSchedResultOK:
-  HogAge hog_age;
+  NativeTokenAge native_token_age;
 default:
   void;
 };
 
-typedef HogAgeResult HogAgeResults<>;
+typedef NativeTokenAgeResult NativeTokenAgeResults<>;
 
 union DbAddressAuthDataBatchResult switch (DbSchedResult result)
 {
@@ -81,8 +81,9 @@ program DbSched
     DbAddressAuthDataBatchResult dbsched_get_address_auth_data(
       BlockID, ContractAddressBatch) = 1;
 
-    HogAgeResults dbsched_get_hog_ages(ContractAddressBatch) = 2;
-    DbSchedResult dbsched_write_hog_ages(HogAgeBatch) = 3;
+    NativeTokenAgeResults dbsched_get_native_token_ages(
+      ContractAddressBatch) = 2;
+    DbSchedResult dbsched_write_native_token_ages(NativeTokenAgeBatch) = 3;
 
     // Examples of valid call sequences to the db:
     //
