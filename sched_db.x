@@ -20,7 +20,7 @@ struct ShardCard {
 
 struct Delta {
   ContractAddress address;
-  int128_xdr hog_delta;
+  int128_xdr native_token_delta;
 };
 
 // One slice of the native-token balance deltas a committed block finalized.
@@ -36,9 +36,9 @@ struct Delta {
 // mempool treats the block's transfers as complete only once every chunk of
 // the run has arrived; nothing that gates on a block's transfers may open
 // before that.
-struct HogsTransferredChunk {
+struct NativeTokensTransferredChunk {
   // The height of the block in which these transfers occurred. The scheduler
-  // uses this height to update average hog ages.
+  // uses this height to update average native-token ages.
   BlockHeight block;
   // This chunk's position in the block's run, from 0, and the run's length.
   // Every chunk of a run carries the same chunk_count, and each index in
@@ -60,7 +60,7 @@ program SchedDb
 
     // Retired numbers, never to be reused, so that a peer built against one
     // fails to dispatch rather than misparse a newer payload:
-    //   2: scheddb_hogs_transferred(HogsTransferred), a block's deltas in one
+    //   2: the unchunked form of procedure 4, a block's deltas in one
     //      unbounded record, which a block with enough distinct recipients
     //      grows past any single-record cap (hogd#2332).
     //   3: scheddb_changed_addresses(BlockHeight, ContractAddressBatch),
@@ -71,7 +71,8 @@ program SchedDb
     // Deliver one chunk of a committed block's balance deltas. With several db
     // shards the mempool completes the block once every registered shard has
     // sent its run's last chunk.
-    void scheddb_hogs_transferred_chunk(HogsTransferredChunk) = 4;
+    void scheddb_native_tokens_transferred_chunk(
+      NativeTokensTransferredChunk) = 4;
   }
   = 1;
 }

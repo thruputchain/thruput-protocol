@@ -152,7 +152,7 @@ enum StorageKeyType {
 
   /// Native token balance.
   ///
-  /// Stores the free balance of the native HOG token for this address.
+  /// Stores the free balance of the native token for this address.
   FreeNativeTokenBalance = 1,
 
   /// Address authorization data.
@@ -194,9 +194,9 @@ case ReplayCache:
   // TODO(geoff): add other key types
 };
 
-const kTotalHogSupply = 62'500'000'000; // #[rust(const=u64)]
-const kHogDivisibility = 10'000'000;    // #[rust(const=u32)]
-// Each hog token is divisible into 10^7 units
+const kTotalNativeTokenSupply = 62'500'000'000; // #[rust(const=u64)]
+const kNativeTokenDivisibility = 10'000'000;    // #[rust(const=u32)]
+// Each native token is divisible into 10^7 base units
 
 /// In the global storage, every item is indexed by a unique [contract address + storage key] pair.
 struct AddressAndKey {
