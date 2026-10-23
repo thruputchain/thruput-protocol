@@ -27,7 +27,7 @@ enum DbConflictCode {
   ValueMismatch = 2,
 
   /// A nonnegative int would go below zero given the deltas in this block.
-  /// A native HOG balance that cannot cover its debits reports
+  /// A native-token balance that cannot cover its debits reports
   /// InsufficientFunds instead.
   BoundsExceeded = 3,
 
@@ -46,11 +46,11 @@ enum DbConflictCode {
   /// nonces, retrocausal-queue block entries, or auth signer slots.
   CapacityExceeded = 7,
 
-  /// The native HOG balance at the diagnostic's address cannot cover the
+  /// The native-token balance at the diagnostic's address cannot cover the
   /// debits in this block, or a newly created balance item cannot cover
   /// its own storage cost. Storage written under a contract's address is
   /// charged to that contract's balance, so a deployment reports this at
-  /// the new contract's address when it holds no HOG.
+  /// the new contract's address when it holds no native tokens.
   InsufficientFunds = 8,
 
   /// An auth-data change would register a public key in a slot while
