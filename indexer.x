@@ -449,6 +449,76 @@ default:
   IndexerFailureMessage diagnostic;
 };
 
+/// One committed transaction as the chunked pull delivers it: the event log
+/// and body that `IndexerCommittedBlockPayload` carries at the same position
+/// of its two batches.
+struct EventIndexerBlockPair {
+  TxEventLog event_log;
+  ProposedTransaction tx_body;
+};
+
+typedef EventIndexerBlockPair EventIndexerBlockPairBatch<>;
+
+/// Bytes of serialized pairs the server puts in a chunked pull reply. A reply
+/// carries at least one pair whenever any remain, so a single pair larger than
+/// this is still delivered whole; every pair fits in one x23 record.
+const kEventIndexerInlinePairBytes = 16777216;
+
+/// A committed block whose pairs may not fit in one reply. The block is its
+/// header plus `pair_count` pairs, in order; this reply carries the first
+/// `first_pairs.size()` of them, and `event_indexer_pull_block_pairs` returns
+/// the rest. Reassembled, it is exactly the `IndexerCommittedBlock`
+/// `event_indexer_pull_next` would return.
+struct EventIndexerChunkedBlock {
+  IndexerOutboxOrigin origin;
+  unsigned int format_version;
+  ConsensusValue consensus_value;
+  IndexerCommittedBlockIdentity identity;
+  unsigned int pair_count;
+  EventIndexerBlockPairBatch first_pairs;
+};
+
+/// Outcomes as for `event_indexer_pull_next`.
+union EventIndexerChunkedPullResult switch (EventIndexerPullOutcome outcome) {
+case EventIndexerPullBlock:
+  EventIndexerChunkedBlock chunked_block;
+case EventIndexerPullCaughtUp:
+  IndexerOutboxOrigin origin;
+default:
+  IndexerFailureMessage diagnostic;
+};
+
+/// Asks for the pairs of the committed block at `block_height` whose identity
+/// is `identity`, starting at index `first_pair`.
+struct EventIndexerBlockPairsRequest {
+  ProtocolCommit protocol;
+  BlockHeight block_height;
+  IndexerCommittedBlockIdentity identity;
+  unsigned int first_pair;
+};
+
+enum EventIndexerBlockPairsOutcome {
+  EventIndexerBlockPairsFound = 0,
+  EventIndexerBlockPairsNotReady = 1,
+  EventIndexerBlockPairsMismatchedProtocol = 2,
+  /// No committed block at `block_height` has `identity`. The outbox never
+  /// rewrites a committed block, so a client that pulled this identity from
+  /// this server has a conflicting view of it.
+  EventIndexerBlockPairsUnknownBlock = 3,
+  /// `first_pair` is not below the block's pair count.
+  EventIndexerBlockPairsInvalidRange = 4,
+  EventIndexerBlockPairsInternalFailure = 5
+};
+
+/// `pairs` starts at `first_pair` and holds at least one pair, up to
+/// `kEventIndexerInlinePairBytes` of them as for a chunked pull reply.
+union EventIndexerBlockPairsResult switch (EventIndexerBlockPairsOutcome outcome) {
+case EventIndexerBlockPairsFound:
+  EventIndexerBlockPairBatch pairs;
+default:
+  IndexerFailureMessage diagnostic;
+};
+
 struct IndexerTxFailureNotice {
   TransactionHash tx_hash;
   TxFailureDiagnostic diagnostic;
@@ -459,6 +529,13 @@ typedef IndexerTxFailureNotice IndexerTxFailureNoticeBatch<256>;
 // The indexer pulls durable blocks and best-effort diagnostics from the event
 // server. Diagnostics use a separate bounded reply so they never reduce the
 // maximum committed-block reply size.
+//
+// event_indexer_pull_next returns a whole block in one reply, so it cannot
+// return a block whose reply would exceed the x23 record limit; it answers
+// such a block with EventIndexerPullInternalFailure. The chunked pair of
+// procedures has no block size limit: event_indexer_pull_next_chunked takes
+// the same request and answers with the same progress semantics, including
+// parking, and event_indexer_pull_block_pairs returns the remaining pairs.
 program EventIndexer
 {
   version EventIndexer1
@@ -466,6 +543,10 @@ program EventIndexer
     EventIndexerPullResult event_indexer_pull_next(
       EventIndexerPullRequest) = 10;
     IndexerTxFailureNoticeBatch event_indexer_pull_tx_failures(void) = 11;
+    EventIndexerChunkedPullResult event_indexer_pull_next_chunked(
+      EventIndexerPullRequest) = 12;
+    EventIndexerBlockPairsResult event_indexer_pull_block_pairs(
+      EventIndexerBlockPairsRequest) = 13;
   } = 1;
 }
 = 0x4321aaac;
