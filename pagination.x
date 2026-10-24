@@ -37,6 +37,13 @@ case AnchorAtHeight:
 /// implementation detail and may change between versions; the first
 /// byte is a format-version tag so stale cursors fail cleanly rather
 /// than being silently misinterpreted.
-typedef opaque PaginationCursor<>;
+///
+/// The bound must stay in sync with `hogd::cursor::kMaxCursorBytes`.
+/// It is the server's own cursor-format cap: encoded cursors are far
+/// smaller, and a client only ever echoes back a cursor the server
+/// authored.  Declaring it here rejects an oversized cursor during XDR
+/// deserialization, before an owning buffer is materialized, rather
+/// than after the fact in `cursor::decode`.
+typedef opaque PaginationCursor<256>;
 
 } // namespace hogd
