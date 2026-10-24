@@ -51,8 +51,9 @@ struct ProposalHeader {
   /// The height of this block.
   BlockHeight block_height;
 
-  /// The Merkle root hash of the set of the block's
-  /// [`SignedTransactionHash`]es.
+  /// The Merkle root hash of the set of the block's [`TransactionHash`]es.
+  /// Body hashes, not the [`SignedTransactionHash`]es `ProposalTxs` names
+  /// the transactions by, so one body appears in the set once.
   TxsHash txs_hash;
 
   /// The hash of the storage contents after this block is applied.
