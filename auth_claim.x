@@ -27,8 +27,9 @@ namespace hogd {
 // - Pubkey signature: a standalone public key signs the transaction. The claim
 //   names the key by its hash; the key itself is attached to the signatures.
 //
-// Auth claims reference AddressAuthData stored at each contract address,
-// which defines the available keys and their weights.
+// Source address claims reference AddressAuthData stored at the source
+// address, which defines the available keys and their weights. Pubkey claims
+// are for addresses with no AddressAuthData.
 //==============================================================================
 
 //------------------------------------------------------------------------------
@@ -45,12 +46,13 @@ typedef unsigned int Weight; // uint32_t
 ///
 /// Each bit position corresponds to a key ID (bit 0 = key 0, bit 1 = key 1, etc.).
 /// Used to specify which keys are acceptable for satisfying an auth claim.
+/// Only bits below `kMaxSigners` may be set; a bitmap with a higher bit set
+/// is `kAuthMalformed`.
 typedef unsigned int BitMap;
 
 /// Identifier for a public key within an address's key set.
 ///
-/// Valid range is 0-31 (must fit in one byte for CXS encoding).
-/// This is why `kMaxSigners` is constrained to be <= 31.
+/// Valid range is 0 to `kMaxSigners - 1` (0-20).
 typedef unsigned int KeyID;
 
 //------------------------------------------------------------------------------
@@ -60,7 +62,7 @@ typedef unsigned int KeyID;
 /// Maximum number of signers that can be configured on an address.
 ///
 /// This matches Stellar's `MAX_SIGNERS` (20) plus 1 for the primary key.
-/// Must be <= 31 to fit in the `BitMap` representation.
+/// Must be <= 32 so that every key ID has a bit in a [`BitMap`].
 const kMaxSigners = 21; // #[rust(const=u32)]
 
 //------------------------------------------------------------------------------
@@ -70,8 +72,9 @@ const kMaxSigners = 21; // #[rust(const=u32)]
 /// Discriminator for the different types of authorization claims.
 enum AuthClaimType {
   /// Requires a set of signatures from the source address's auth data.
-  /// The runtime checks whether there are sufficient signatures associated with the address
-  /// to satisfy the address auth data's required weight.
+  /// The runtime checks whether the signing keys' weights sum to at least the
+  /// larger of the auth data's required weight and the claim's own
+  /// `required_weight`.
   // TODO(geoff): consider surfacing the data about which keys signed in a syscall.
   kSourceAddressAuthData = 0,
 
@@ -98,7 +101,10 @@ struct PubkeyAccountPreimage {
 union AuthClaim switch (AuthClaimType claim_type) {
 case kSourceAddressAuthData:
   /// The transaction is signed by the keys in the source address's auth data.
-  /// The bitmap specifies which are allowed to be used to sign the transaction.
+  /// The bitmap specifies which are allowed to be used to sign the transaction,
+  /// and the signatures must be listed in strictly increasing `public_key_id`
+  /// order. `required_weight` can only raise the auth data's threshold: the
+  /// signing weight must reach the larger of the two.
   struct {
     BitMap allowed_keys;
     Weight required_weight;

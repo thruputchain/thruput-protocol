@@ -11,10 +11,11 @@ namespace hogd {
 /// Inputs fixed before executing a candidate block.
 ///
 /// Supplied by the coordinator when it asks the scheduler to build a proposal;
-/// the parent block is identified by the surrounding RPC. Both fields are
-/// copied into the resulting `ProposalHeader`.
+/// the parent block is identified by the surrounding RPC. `proposer` and
+/// `block_timepoint` are copied into the resulting [`ProposalHeader`].
 struct ProposalContext {
-  // Network protocol version.
+  /// Network protocol version. `ProposalHeader` has no protocol field; the
+  /// block's version is `ConsensusValue::protocol`.
   Protocol protocol;
 
   /// Block proposer. Nodes missing block data fetch it from the proposer.
@@ -39,7 +40,8 @@ struct ProposalHeader {
   /// those of other networks.
   NetworkHash network_hash;
 
-  /// The hash of the post-block network configuration.
+  /// The hash of the post-block [`ConfigHashPreimage`]: the storage cost
+  /// model, network configuration and default wallet.
   ConfigHash config_hash;
 
   /// Block proposer. Nodes missing block data fetch it from the proposer.

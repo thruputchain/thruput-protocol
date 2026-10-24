@@ -1,13 +1,13 @@
 ---
 # The number of u32 arguments to a syscall.
-# (The wasm32 syscall ABI passes each argument slot as a 32-bit value / i32.
+# (The riscv32 syscall ABI passes each argument slot in a 32-bit register.
 # The native mock entrypoint in test_ffi keeps u64 slots so it can carry host
 # pointers, but value slots are still validated against the 32-bit constraint.)
 # Syscalls that need fewer than this many arguments pad the argument list
 # with arbitrary values (in the SDK, this defaults to 0, although that
 # condition is not enforced.)
-# The actual imported syscall function has 8 arguments. The first argument
-# is the syscall number.
+# The syscall itself is an `ecall` taking 8 register arguments (a0..a7). The
+# first argument is the syscall number.
 syscall_input_count: 7
 # A set of mappings for common types between the SDK (rust) and the syscall
 # implementation (cpp).
@@ -18,9 +18,11 @@ syscall_input_count: 7
 # primitive_type: true means that the type can be passed by value as a single
 # 32-bit argument slot to the syscall. Such a type MUST be at most 32 bits
 # wide; wider types (e.g. BlockHeight, a 64-bit value) are passed by reference
-# (as an offset into contract memory) instead.
-# rust_uses_as_ptr: true means that the type is by calling .as_ptr() on
-# the type in the sdk.
+# (as an offset into contract memory) instead. The uint64_t and int64_t
+# mappings below carry the flag but are only used as outputs, which are always
+# passed by reference; using one as an input would fail that width check.
+# rust_uses_as_ptr: true means that the SDK passes the type by calling
+# .as_ptr() on it.
 type_mappings:
   - base_name: "uint32_t"  # The cpp name, which is used in this spec
     rust_name: "u32"
@@ -91,11 +93,15 @@ type_mappings:
 # field)
 #
 # All contracts can return a SyscallErrorCode::kSyscallErrorCodeFault if
-# any of the pointers passed to them are out of wasm memory bounds.
+# any of the pointers passed to them are out of contract memory bounds.
 #
 # Any attempt at making a syscall can return a
 # SyscallErrorCode::kSyscallErrorCodeNoSyscall if the syscall number is
 # not supported.
+#
+# Every syscall not marked read_only returns
+# SyscallErrorCode::kSyscallErrorCodeInvalidSyscallInput, without effect,
+# when called from a read-only frame.
 syscalls:
   - name: "SHA256"
     read_only: true
@@ -155,6 +161,11 @@ syscalls:
     description: >
       Returns the calldata supplied to the invocation associated with
       the current call frame.
+
+      written_len is the full length of the calldata, not the number of bytes
+      copied: at most buffer.len() bytes are written, and a written_len
+      greater than buffer.len() means the output was truncated.
+
       Also returns the number N of auth tokens supplied to the invocation.
       Auth token ids are local to each call frame, and the supplied tokens
       are the current frame's ids 0..N-1, in the order the caller listed
@@ -207,15 +218,9 @@ syscalls:
       all of the remaining gas in the current frame.
       Any unused gas will be returned to the caller.
 
-      Note that the entrypoint_id is passed as a u64,
-      but that u64 is derived from a ContractEntrypointID ([u8, 8]),
-      as the little-endian interpretation of the entrypoint id.
-      This is a minor optimization that lets the entrypoint id be passed
-      to the syscall directly as one of the u64 arguments, instead of
-      as an offset into linear memory.
-      (and, if the compiler is able to find this optimization,
-      the entrypoint id can in principle be passed as a wasm stack argument,
-      without an i64.store into linear memory).
+      The entrypoint is the entrypoint_id field of inputs, a u64 holding the
+      big-endian interpretation of the ContractEntrypointID ([u8; 8]) bytes
+      (ContractEntrypointID::into_u64 in the Rust bindings).
 
       The list of auth tokens is passed as a span, which should be
       interpreted as a [u32] slice.
@@ -223,9 +228,11 @@ syscalls:
       - code: kSyscallErrorCodeInvalidSyscallInput
         description: >
           The invocation was rejected before any child frame ran: the contract
-          was not found, the invoke flags were invalid, or one or more of the
-          supplied auth token ids are malformed, duplicated, or not owned by
-          the current frame. The syscall is a complete no-op in this case.
+          was not found, the invoke flags were invalid, the calldata is longer
+          than kConfigParamMaxCalldataLen, more auth token ids were supplied
+          than kConfigParamMaxAuthTokens, or one or more of the supplied auth
+          token ids are malformed, duplicated, or not owned by the current
+          frame. The syscall is a complete no-op in this case.
       - code: kSyscallErrorCodeReentrance
         description: >
           The invoked address is already on the stack. The invocation is
@@ -255,12 +262,14 @@ syscalls:
       Returns data from the current call frame and optionally marks
       the frame for revert. The return buffer will be available to
       the caller via GetReturnedBuffer. Immediately terminates
-      execution of the current wasm invocation.
+      execution of the current invocation.
 
-      If the supplied buffer is too large, the syscall does not return
-      an error, but instead reverts the entire invocation with a
-      deterministic error (equivalent to a wasm `unreachable`
-      instruction).
+      The syscall never returns an error. Instead, the frame faults with a
+      deterministic error (equivalent to Exit) if the buffer is longer than
+      kConfigParamMaxReturnBufferLen, if auth tokens are returned from a
+      frame marked for revert, or if the returned auth token id list is
+      longer than kConfigParamMaxAuthTokens, malformed, duplicated, or
+      names tokens the current frame does not own.
     errors:
   - name: "GetReturnedBuffer"
     read_only: true
@@ -277,8 +286,14 @@ syscalls:
         typename: "uint32_t"
     number: 7
     description: >
-      Returns the return buffer from the most recent successful
-      subcall invocation.
+      Returns the return buffer from the most recent subcall invocation
+      that ended with Return, including a Return that marked the frame for
+      revert.
+
+      written_len is the full length of the return buffer, not the number
+      of bytes copied: at most buffer.len() bytes are written, and a
+      written_len greater than buffer.len() means the output was truncated.
+
       Also returns the auth tokens that subcall returned, as the
       current frame's auth token ids start..start+count-1. The returned
       tokens join the frame under consecutive new ids, in the order the
@@ -287,7 +302,8 @@ syscalls:
       - code: kSyscallErrorCodeNoReturnBufferAvailable
         description: >
           No return buffer is available. Either the most recent subcall
-          failed, or there have been no subcalls within this call frame.
+          faulted (for example by trapping or calling Exit), or there have
+          been no subcalls within this call frame.
   - name: "Exit"
     read_only: true
     needs_context: false
@@ -299,7 +315,7 @@ syscalls:
       Terminates execution of the current call frame immediately.
       The current call frame reverts, returning a deterministic error
       to the caller (with no return buffer available).
-      Equivalent to the `unreachable` instruction in wasm.
+      Equivalent to a guest trap.
     errors:
   - name: "GetDeployAddress"
     read_only: true
@@ -319,6 +335,8 @@ syscalls:
       Computes the address that would be deployed for a contract with
       the given deployer address, nonce, and contract hash. This is a
       pure computation and does not actually deploy the contract.
+      If caller_address is omitted, the current contract's address is
+      used, giving the address DeployContract would use.
     errors:
   - name: "DeployContract"
     inputs:
@@ -426,6 +444,10 @@ syscalls:
     number: 14
     description: >
       Retrieves the bytestring stored at the specified key.
+
+      written_len is the full length of the bytestring, not the number of bytes
+      copied: at most bytestring.len() bytes are written, and a written_len
+      greater than bytestring.len() means the output was truncated.
     errors:
       - code: kSyscallErrorCodeStorageKeyNotExist
         description: >
@@ -470,18 +492,21 @@ syscalls:
       Retrieves the nonnegative integer value at the specified storage
       key.
 
-      If force_load_from_snapshot is true, then the current_set
-      returned will never be nullopt. If the snapshot value is not an
-      NNInt, or the previous write on that key was not an NNInt, then
-      we return a kInvalidSyscallInput error. If the snapshot value
-      does not exist, or has been deleted by the prior write, then we
-      return a kStorageKeyNotExist error.
+      current_set_opt reports whether current_set holds a value; when it is
+      false, current_set carries no information and should be ignored.
 
-      If force_load_from_snapshot is false, then we ignore everything
-      about the prior state of the item unless the prior write on that
-      key is an NNInt write (in which case we return the parameters of
-      that write). If the prior write is not an NNInt, or was a
-      deletion, then we return (nullopt, 0).
+      If force_load_from_snapshot is true, then current_set_opt is always
+      true on success. If the snapshot value is not an NNInt, or the
+      previous write on that key was not an NNInt, then the syscall returns
+      kSyscallErrorCodeInvalidSyscallInput. If the snapshot value does not
+      exist, or has been deleted by the prior write, then it returns
+      kSyscallErrorCodeStorageKeyNotExist.
+
+      If force_load_from_snapshot is false, then the prior state of the
+      item is ignored unless the prior write on that key is an NNInt write
+      (in which case the parameters of that write are returned). If the
+      prior write is not an NNInt, or was a deletion, then current_set_opt
+      is false and current_add is 0.
     errors:
       - code: kSyscallErrorCodeStorageKeyNotExist
         description: >
@@ -571,6 +596,12 @@ syscalls:
       removed from the queue. A read never changes the type of the key;
       a same-block conversion by another transaction is visible only
       from the next block.
+
+      written_len is the full length of the entry, not the number of bytes
+      copied: at most queue_entry.len() bytes are written, and a written_len
+      greater than queue_entry.len() means the output was truncated.
+      A consumed entry is removed even if it was truncated, so size
+      queue_entry with RetrocausalQueuePeekLen first.
     errors:
       - code: kSyscallErrorCodeNoRetrocausalQueueEntry
         description: >
@@ -663,9 +694,11 @@ syscalls:
     errors:
       - code: kSyscallErrorCodeInvalidSyscallInput
         description: >
-          The event data exceeds the maximum allowed length (kMaxEventLength),
-          or topics are not supplied in a continuous sequence (e.g., topic0
-          and topic2 provided without topic1).
+          The serialized event (32 bytes per supplied topic plus the data)
+          is longer than kMaxEventLength, the transaction has already emitted
+          kMaxEventsPerTransaction events, or topics are not supplied in a
+          continuous sequence (e.g., topic0 and topic2 provided without
+          topic1).
   - name: "GetAuthClaim"
     read_only: true
     inputs:
@@ -697,7 +730,7 @@ syscalls:
       There is no cumulative byte limit.
     errors:
       - code: kSyscallErrorCodeInvalidSyscallInput
-        description: >
+        description: |
           This error will be returned if any of the following
           conditions are met:
           - The queried hash buffer does not exist and reset is false.
@@ -753,7 +786,9 @@ syscalls:
         primitive_type: true
     number: 30
     description: >
-      Returns the length of the retrocausal queue at the specified storage key.
+      Returns the byte length of the next entry in the retrocausal queue at
+      the specified storage key, without consuming it: the queue_entry
+      buffer size RetrocausalQueueConsume needs to read that entry whole.
     errors:
       - code: kSyscallErrorCodeInvalidSyscallInput
         description: >
@@ -805,6 +840,11 @@ syscalls:
     description: >
       Consumes an authentication token for the current contract address.
       Returns any nested tokens unwrapped by the token.
+
+      auth_payload_written_len is the full length of the token's payload,
+      not the number of bytes copied: at most auth_payload.len() bytes are
+      written, and a larger value means the payload was truncated. The token
+      is consumed either way, so a truncated payload cannot be read again.
     errors:
       - code: kSyscallErrorCodeInvalidSyscallInput
         description: >
@@ -828,7 +868,7 @@ syscalls:
       nothing.
     errors:
       - code: kSyscallErrorCodeInvalidSyscallInput
-        description: >
+        description: |
           This error will be returned if any of the following
           conditions are met:
           - The hash computation at src_index does not exist.
