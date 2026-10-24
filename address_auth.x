@@ -60,12 +60,6 @@ typedef PublicKeyConfig *PublicKeyConfigOpt;  // #[rust(newtype)]
 /// weight unless the change writes a threshold of its own.
 const kDefaultNewAddressRequiredWeight = 1;
 
-/// Unused. [`AddressAuthData`] has no accepted-keys bitmap; the bitmap lives in
-/// the `kSourceAddressAuthData` [`AuthClaim`] as `allowed_keys`, which may set
-/// only bits below `kMaxSigners`, so this value would be rejected there as
-/// `kAuthMalformed`.
-const kDefaultNewAddressAcceptedKeys = 0xFFFFFFFF;
-
 /// The key ID a `kPubkeySignature` claim's single signature must carry.
 ///
 /// Nothing is installed under it: an address authorized by a pubkey claim has
