@@ -2,11 +2,30 @@
 
 XDR protocol files and other common definitions that must be shared between languages.
 
-![phil, PC: https://www.indystar.com/story/entertainment/2025/02/03/how-accurate-is-punxsutawney-phil-prognosticator-staten-island-chuck-mojave-max-lander-lil-noaa-rank/78188106007/](https://github.com/groundhogchain/phild/blob/main/phil.webp?raw=true)
+## Contents
 
-# Usage
+- `*.x`: XDR types and RPC programs (RFC 4506 and RFC 5531).
+- `syscalls.yaml`: the contract syscall interface. `generate_syscalls_doc.py`
+  validates it and renders `syscalls_generated.md` and `syscalls_docs.json`
+  from it.
+- `syscalls.md`: conventions that hold across all syscalls.
 
-Include as a submodule in other repositories.
+## Usage
 
-Format with `./scripts/format.sh`
+Include as a submodule in other repositories. hogd does, as do
+thruput-protocol-rs, thruput-protocol-go and thruput-protocol-ts, which generate
+bindings from it. Every push to `main` dispatches their auto-update workflows
+(`.github/workflows/notify-protocol-rs.yml`).
 
+## Formatting
+
+`./scripts/xdrformat` reindents every tracked `.x` file with Emacs
+(`scripts/reindent.el`, `scripts/xdr-mode.el`). `./scripts/xdrformat --check`
+fails if that changes anything; CI runs it.
+
+## Checks
+
+CI also compiles the `.x` files with goxdr, lints `syscalls.yaml`, and runs
+`scripts/xdrcompat`, which compares a change with its base and comments on the
+pull request with any wire-compatibility violation. That check is advisory; see
+`scripts/xdrcompat/README.md` for its rules.
