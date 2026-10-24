@@ -148,47 +148,6 @@ struct ContractDeploymentHashPreimage {
 // Contract Interfaces and Entrypoint Derivation
 //------------------------------------------------------------------------------
 
-/// Valid identifier string following RFC 4506.
-///
-/// Must be a letter followed by an optional sequence of letters, digits,
-/// or underscores. Cannot be an XDR keyword (e.g., `"struct"`, `"union"`, `"enum"`).
-///
-/// # Examples
-///
-/// - `"transfer"`
-/// - `"approve"`
-/// - `"get_balance"`
-typedef string Identifier<>;
-
-/// Semantic version string following semver.org specification.
-///
-/// Format: `MAJOR.MINOR.PATCH[-PRERELEASE][+BUILD]`
-///
-/// # Examples
-///
-/// - `"0.1.3"`
-/// - `"1.0.0"`
-/// - `"2.1.4-alpha"`
-/// - `"1.0.0-alpha+001"`
-typedef string SemVer<>;
-
-/// Name and version of a contract interface.
-///
-/// Not referenced by any other protocol type, and not hashed as an XDR
-/// object: the default SDK scheme (see [`ContractEntrypointID`]) hashes the
-/// interface name and the compatibility prefix of its version as text.
-struct ContractInterfaceIDPreimage {
-  /// Name of the contract interface.
-  ///
-  /// Should be descriptive and unique (e.g., `"ERC20"`, `"Governance"`, `"Oracle"`).
-  Identifier name;
-
-  /// Semantic version of the interface.
-  ///
-  /// Allows evolving interfaces while maintaining compatibility.
-  SemVer vers;
-};
-
 /// 8-byte identifier for a contract method (entrypoint).
 ///
 /// Entrypoint IDs uniquely identify which method to invoke on a contract.
@@ -246,16 +205,6 @@ struct DeployedContractHash {
   /// instantiate without a database lookup. When the contract module is
   /// already cached, this avoids loading the contract bytecode entirely.
   ContractType contract_type;
-};
-
-/// Metadata associated with an address.
-///
-/// Currently only stores information about the deployed contract, if any.
-/// Not stored in state: storage key type `Metadata` holds the bare
-/// [`DeployedContractHash`].
-struct AddressMetadata {
-  /// Information about the contract deployed at this address.
-  DeployedContractHash deployed_contract;
 };
 
 } // namespace hogd
