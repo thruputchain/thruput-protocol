@@ -1,6 +1,7 @@
 // Thruput contract specification AST
 //
-// Excluded from goxdr in CI; intended as the canonical .x source for future Rust codegen.
+// Excluded from goxdr in CI. protocol-rs generates its thruput-spec crate from
+// this file, and the SDK's contract-spec crate re-exports those types.
 
 %#include "event.hh"
 
@@ -69,7 +70,6 @@ struct ContractVectorType {
   unsigned int max_len;
 };
 
-/// Mirrors #[repr(i32)] enum ContractType in sdk_rs/thruput-contract-spec/src/model.rs
 enum ContractTypeKind {
   Void = 0,
   Bool = 1,
@@ -214,8 +214,8 @@ struct ContractEnumDef {
   ContractEnumVariant variants<>;
 };
 
-/// Mirrors #[repr(i32)] enum ContractUnionCaseType in sdk_rs/thruput-contract-spec/src/model.rs
-/// (goxdr requires enum tags unique across the namespace; names prefixed for uniqueness.)
+/// Case names carry a `UnionCase` prefix because enum tags share one namespace,
+/// and ContractTypeKind already has `Void` and `Tuple`.
 enum ContractUnionCaseKind {
   UnionCaseVoid = 0,
   UnionCaseTuple = 1,
