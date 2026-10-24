@@ -69,7 +69,7 @@ struct ContractVectorType {
   unsigned int max_len;
 };
 
-/// Mirrors #[repr(i32)] enum ContractType in sdk_rs/groundhog-contract-spec/src/model.rs
+/// Mirrors #[repr(i32)] enum ContractType in sdk_rs/thruput-contract-spec/src/model.rs
 enum ContractTypeKind {
   Void = 0,
   Bool = 1,
@@ -214,7 +214,7 @@ struct ContractEnumDef {
   ContractEnumVariant variants<>;
 };
 
-/// Mirrors #[repr(i32)] enum ContractUnionCaseType in sdk_rs/groundhog-contract-spec/src/model.rs
+/// Mirrors #[repr(i32)] enum ContractUnionCaseType in sdk_rs/thruput-contract-spec/src/model.rs
 /// (goxdr requires enum tags unique across the namespace; names prefixed for uniqueness.)
 enum ContractUnionCaseKind {
   UnionCaseVoid = 0,
