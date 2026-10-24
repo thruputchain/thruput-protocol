@@ -87,15 +87,12 @@ program DbSched
 
     // Examples of valid call sequences to the db:
     //
-    // dbsched_create_snapshot | dbsched_open_snapshot
-    //   ... calls to executor
-    // dbsched_commit_snapshot
-    //
-    // dbsched_create_snapshot | dbsched_open_snapshot
+    // dbsched_create_snapshot
     //   ... calls to executor
     // dbsched_close_snapshot
+    // dbsched_commit_snapshot
     //
-    // dbsched_create_snapshot | dbsched_open_snapshot
+    // dbsched_create_snapshot
     //   ... calls to executor
     // dbsched_abandon_snapshot
 
@@ -116,7 +113,7 @@ program DbSched
 
     // Call to close a block. This indicates that no more transactions
     // will be added to this block. The block must have been previously opened
-    // with open_database_snapshot().
+    // with dbsched_create_snapshot().
     // A block cannot have a child opened before it is closed.
     // Error if the block has been pruned or contains an item in an invalid
     // state (due to e.g. a block validation failure).
