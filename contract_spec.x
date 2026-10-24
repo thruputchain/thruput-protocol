@@ -1,4 +1,4 @@
-// Groundhog contract specification AST
+// Thruput contract specification AST
 //
 // Excluded from goxdr in CI; intended as the canonical .x source for future Rust codegen.
 
