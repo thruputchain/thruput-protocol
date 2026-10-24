@@ -57,10 +57,11 @@ typedef IdentifiedEvent IdentifiedEventBatch<>;
 
 typedef TxInfo TxInfoBatch<>;
 
-/// Max contracts per filter and max filters per query.  Matches Soroban
-/// getEvents' limit of 5; designed to be low enough that the merge-walk
-/// stays cheap even on degenerate inputs.
+/// Max contracts per filter.  Matches Soroban getEvents' limit of 5;
+/// designed to be low enough that the merge-walk stays cheap even on
+/// degenerate inputs.
 const kMaxContractAddressesPerEventFilter = 5;
+/// Max filters per query, chosen like `kMaxContractAddressesPerEventFilter`.
 const kMaxEventFiltersPerQuery = 5;
 
 typedef ContractAddress ContractAddressList<kMaxContractAddressesPerEventFilter>;
@@ -82,11 +83,12 @@ struct EventTopicFilter {
 };
 
 /// A single event-filter predicate: events must be emitted by one of
-/// `contract_addresses` AND match the topic constraints.  Required
-/// non-empty contract_addresses — the indexer has no topic-indexed
-/// column family and can't efficiently serve "any contract" scans.
-/// (When such an index is added, the gateway relaxes the non-empty
-/// check; the XDR stays the same.)
+/// `contract_addresses` AND match the topic constraints.  The indexer has
+/// no topic-indexed column family and can't efficiently serve "any
+/// contract" scans, so a query with no filters, or with any filter whose
+/// contract_addresses is empty, matches nothing: it returns an empty page,
+/// or IndexerQueryInvalidCursor if it carries a cursor.  (When such an
+/// index is added, the indexer can relax this; the XDR stays the same.)
 struct EventFilter {
   ContractAddressList contract_addresses;
   EventTopicFilter topics;
@@ -219,7 +221,11 @@ struct BlockTransactionQuery {
 struct TransactionRefPage {
   TransactionRefBatch refs;
   PaginationCursor cursor;
+  /// Highest block the indexer serves.
   BlockHeight latest_block;
+  /// Lowest block the query covers: 1 (the first indexed block) for
+  /// get_transactions_by_block, and the indexer's oldest retained block
+  /// (today always 0) for get_transactions_by_address.
   BlockHeight oldest_block;
 };
 
@@ -229,9 +235,11 @@ struct TransactionRefPage {
 /// broken or still-opening node is not rendered as an empty chain.
 enum IndexerQueryOutcome {
   IndexerQueryOk = 0,
-  /// The indexer's database is not open (still starting up, or shut
-  /// down).  Transient from the cluster's point of view: retry, or ask
-  /// a healthy node.
+  /// The indexer cannot serve the query yet: its database is not open
+  /// (still starting up, or shut down), or, for block queries, no block
+  /// is indexed yet or the block projection is still being built.
+  /// Transient from the cluster's point of view: retry, or ask a healthy
+  /// node.
   IndexerQueryNotReady = 1,
   /// Unrecoverable backend failure (corrupt record, storage error).
   /// Details are in the indexer's logs.

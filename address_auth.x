@@ -55,18 +55,15 @@ typedef PublicKeyConfig *PublicKeyConfigOpt;  // #[rust(newtype)]
 
 /// Default required weight for a newly initialized address.
 ///
-/// When an address is first created (e.g., from a public key hash),
-/// the auth data is initialized with these defaults.
+/// An address has no [`AddressAuthData`] until a change registers a key or
+/// writes a threshold for it. The row that change creates requires this
+/// weight unless the change writes a threshold of its own.
 const kDefaultNewAddressRequiredWeight = 1;
 
-/// Default accepted keys bitmap for a newly initialized address.
+/// The key ID a `kPubkeySignature` claim's single signature must carry.
 ///
-/// `0xFFFFFFFF` means all key slots are initially acceptable.
-const kDefaultNewAddressAcceptedKeys = 0xFFFFFFFF;
-
-/// Default key ID for the initial key of a newly initialized address.
-///
-/// The public key used to derive the address is installed as key 0.
+/// Nothing is installed under it: an address authorized by a pubkey claim has
+/// no [`AddressAuthData`] at all.
 const kDefaultNewAddressKeyID = 0;
 
 //------------------------------------------------------------------------------
@@ -80,10 +77,11 @@ const kDefaultNewAddressKeyID = 0;
 /// - The set of public keys and their weights
 /// - The minimum weight threshold required to authorize a transaction
 ///
-/// When a transaction is submitted, its `AuthClaims` are verified against
-/// this data to determine if the transaction is properly authorized.
+/// When a transaction is submitted with a `kSourceAddressAuthData`
+/// [`AuthClaim`], the claim is verified against this data to determine if the
+/// transaction is properly authorized.
 ///
-/// This is the type stored at storage key `AddressAuthData`.
+/// This is the type stored at storage key type `AuthData`.
 ///
 /// # TODO
 ///

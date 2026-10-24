@@ -43,7 +43,7 @@ struct ContractBlob {
 /// Do not reuse the value: old encodings that carry it must fail to parse
 /// rather than silently decode as a live contract type.
 enum ContractType {
-  /// Precompiled native contract implemented directly in Rust.
+  /// Precompiled native contract implemented natively by the node.
   ///
   /// Used for system contracts like the native token.
   /// Cheaper to invoke than a deployed RV32 contract, but users cannot
@@ -148,90 +148,32 @@ struct ContractDeploymentHashPreimage {
 // Contract Interfaces and Entrypoint Derivation
 //------------------------------------------------------------------------------
 
-/// Valid identifier string following RFC 4506.
-///
-/// Must be a letter followed by an optional sequence of letters, digits,
-/// or underscores. Cannot be an XDR keyword (e.g., `"struct"`, `"union"`, `"enum"`).
-///
-/// # Examples
-///
-/// - `"transfer"`
-/// - `"approve"`
-/// - `"get_balance"`
-typedef string Identifier<>;
-
-/// Semantic version string following semver.org specification.
-///
-/// Format: `MAJOR.MINOR.PATCH[-PRERELEASE][+BUILD]`
-///
-/// # Examples
-///
-/// - `"0.1.3"`
-/// - `"1.0.0"`
-/// - `"2.1.4-alpha"`
-/// - `"1.0.0-alpha+001"`
-typedef string SemVer<>;
-
-/// Hash preimage for deriving contract interface identifiers.
-///
-/// Contract entrypoints can be arbitrary 8 byte identifiers (the [`ContractEntrypointID`] type).
-///  By default, the SDK
-/// for Groundhog contracts follows the following scheme for allocating those
-/// identifiers, although this scheme is not a strict requirement.
-///
-/// Contract interfaces define a set of methods (entrypoints) with a name
-/// and version. The first 6 bytes of `SHA256(ContractInterfaceIDPreimage)`
-/// serve as a namespace prefix for all methods in that interface.
-///
-/// This allows:
-/// - Interface versioning (same methods, different versions)
-/// - Collision resistance (different interfaces, same method names)
-/// - Stable method IDs across implementations
-///
-/// # Example
-///
-/// An interface `"ERC20"` version `"1.0.0"` will have a unique 6-byte
-/// prefix, and all methods (`transfer`, `approve`, etc.) will share that prefix.
-struct ContractInterfaceIDPreimage {
-  /// Name of the contract interface.
-  ///
-  /// Should be descriptive and unique (e.g., `"ERC20"`, `"Governance"`, `"Oracle"`).
-  Identifier name;
-
-  /// Semantic version of the interface.
-  ///
-  /// Allows evolving interfaces while maintaining compatibility.
-  SemVer vers;
-};
-
 /// 8-byte identifier for a contract method (entrypoint).
 ///
 /// Entrypoint IDs uniquely identify which method to invoke on a contract.
-/// By default, the SDK computes these as follows.
+/// A contract may use any 8 bytes; the protocol attaches no meaning to them.
+/// By default, the SDK derives them from the interface name, the major
+/// version of the interface, and the method name:
 ///
 /// ```text
-/// Bytes 0-5: SHA256(ContractInterfaceIDPreimage)[0..6]
-/// Bytes 6-7: Method-specific ID chosen by interface author
+/// SHA256(name || "::" || major || "::" || method)[0..8]
 /// ```
 ///
-/// This two-level scheme provides:
-/// 1. Interface-level namespace (6 bytes) - prevents collisions between interfaces
-/// 2. Method-level identifier (2 bytes) - identifies specific method within interface
-///
-/// By default, the SDK lexicographically sorts method names and allocates the
-/// last 2 bytes based on that order (first method gets 0x0000, second gets 0x0001, etc.).
+/// `major` is the semver compatibility prefix of the interface version: the
+/// leading components up to and including the first nonzero one (`"1"` for
+/// `"1.4.2"`, `"0.2"` for `"0.2.7"`, `"0.0.3"` for `"0.0.3"`). Versions that
+/// share it therefore share entrypoint IDs, and the `"::"` separators keep
+/// distinct (name, major, method) triples from concatenating to the same
+/// preimage.
 ///
 /// # Example
 ///
-/// For `"ERC20"` v1.0.0 interface:
+/// For an `"ERC20"` interface at version `"1.0.0"`, `transfer` is
+/// `SHA256("ERC20::1::transfer")[0..8]`.
 ///
-/// ```text
-/// SHA256("ERC20" || "1.0.0")[0..6] = 0xabcdef012345 (6-byte prefix)
-///
-/// Methods sorted lexicographically:
-/// approve  -> method ID = 0x0000 -> Full entrypoint = 0xabcdef0123450000
-/// transfer -> method ID = 0x0001 -> Full entrypoint = 0xabcdef0123450001
-/// ```
+/// Interface IDs use the same prefix under a domain tag,
+/// `SHA256("groundhog-interface::" || name || "::" || major)[0..8]`, so they
+/// never coincide with an entrypoint ID.
 typedef opaque ContractEntrypointID[8]; // #[rust(newtype)]
 
 //------------------------------------------------------------------------------
@@ -263,15 +205,6 @@ struct DeployedContractHash {
   /// instantiate without a database lookup. When the contract module is
   /// already cached, this avoids loading the contract bytecode entirely.
   ContractType contract_type;
-};
-
-/// Metadata associated with an address.
-///
-/// Currently only stores information about the deployed contract, if any.
-/// This is the type stored at storage key `AddressMetadata`.
-struct AddressMetadata {
-  /// Information about the contract deployed at this address.
-  DeployedContractHash deployed_contract;
 };
 
 } // namespace hogd
