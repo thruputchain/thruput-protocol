@@ -6,6 +6,7 @@
 %#include "storage_item.hh"
 %#include "rpc_types.hh"
 %#include "db_conflict.hh"
+%#include "hog_exec_constants.hh"
 
 namespace hogd
 {
@@ -22,6 +23,19 @@ default:
 typedef FlaggedStorageDelta StorageDeltaBatch<>;
 
 typedef Contract NewContractBatch<>;
+
+/// How a successful try_push_new_subtransaction folds the subtransaction
+/// stack. Entries run down the stack from the new subtransaction: the first
+/// counts the new subtransaction and those directly below it, each later one
+/// the next run of subtransactions below that. Each run becomes one
+/// subtransaction holding the latest version of every change made in it, so
+/// popping it reverts the whole run; the states between its members are
+/// gone. A run of 0 or 1 changes nothing. The runs must lie within the
+/// stack, and nothing is folded when the push fails.
+///
+/// The executor folds every run it will never pop part of: each open frame's
+/// subtransactions, with the pushing frame's folded into its parent's.
+typedef unsigned int SubtransactionFoldRuns<kMaxSavepointDepth>;
 
 /// Result of try_push_new_subtransaction. On kRPCStorageWriteFailed —
 /// the nondeterministic transaction failure — carries the conflict
@@ -47,8 +61,10 @@ program DatabaseToExecutorInterface
     // The root transaction, and any subtransactions, should finish
     // by calling this method with any deltas created during the (sub)
     // transaction.
+    //
+    // On success the stack is then folded as SubtransactionFoldRuns says.
     TryPushSubtransactionResult try_push_new_subtransaction(
-      BlockID, TransactionID, StorageDeltaBatch) = 0;
+      BlockID, TransactionID, StorageDeltaBatch, SubtransactionFoldRuns) = 0;
     // We don't need a try_reserve_deltas method; use
     // try_push_new_subtransaction instead.
     RPCError commit_transaction(BlockID, TransactionID, NewContractBatch) = 1;
