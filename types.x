@@ -43,7 +43,7 @@ typedef opaque Ed25519SecretKey[64]; // #[rust(newtype)] #[rust(no_debug)]
 /// verification rejects malformed ones like any other invalid signature.
 typedef opaque MlDsa65Signature[3309]; // #[rust(newtype)]
 /// Represents an ML-DSA-65 (FIPS 204) public key.
-typedef opaque MlDsa65PublicKey[1952]; // #[rust(newtype)]
+typedef opaque MlDsa65PublicKey[1952]; // #[rust(newtype)] #[rust(no_debug)]
 
 /// Represents the cryptographic scheme used for a signature or public key.
 enum CryptographicScheme {
