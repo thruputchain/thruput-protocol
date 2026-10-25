@@ -35,7 +35,7 @@ typedef opaque Ed25519Signature[64]; // #[rust(newtype)]
 /// Represents a 256-bit Ed25519 public key.
 typedef opaque Ed25519PublicKey[32]; // #[rust(newtype)]
 /// Represents a 64-byte Ed25519 secret key.
-typedef opaque Ed25519SecretKey[64]; // #[rust(newtype)]
+typedef opaque Ed25519SecretKey[64]; // #[rust(newtype)] #[rust(no_debug)]
 
 /// Represents an ML-DSA-65 (FIPS 204) signature.
 ///
