@@ -101,11 +101,15 @@ case kConfigParamMaxContractSizeBytes:
   unsigned int max_contract_size_bytes;
 
 case kConfigParamMaxSavepointDepth:
-  /// Storage savepoints one transaction may hold at once: one per successful
-  /// `TryInvoke` whose writes are still held (finished siblings included),
-  /// plus the one the root commit takes. A `TryInvoke` whose child would go
-  /// past the limit still runs, then fails deterministically, as one that
-  /// loses a lock conflict does, and its writes are discarded.
+  /// Storage savepoints one transaction may hold at once, plus the one the
+  /// root commit takes. A successful `TryInvoke` takes a savepoint, then
+  /// folds the savepoints its caller's call tree holds into one, and those of
+  /// every other open frame into one each; finished calls hold none of their
+  /// own. A frame holds more than one only after plain (non-`TryInvoke`)
+  /// children that took savepoints commit into it, until the next successful
+  /// `TryInvoke` below it. A `TryInvoke` whose child would go past the limit
+  /// still runs, then fails deterministically, as one that loses a lock
+  /// conflict does, and its writes are discarded.
   /// `kMaxSavepointDepth` (1024) is the value in force for a configuration
   /// that does not state one.
   ///
