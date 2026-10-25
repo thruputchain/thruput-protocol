@@ -20,8 +20,8 @@ typedef AddressAndKey AddressAndKeyBatch<>;
 /// legitimate outcome for an item that does not exist in the committed
 /// snapshot (e.g., a balance item for an address that has never received
 /// native tokens); other errors indicate server-side failures.  Defined locally
-/// rather than reusing `ExpectedStorageItem` from executor_to_db_rpc so
-/// this program has no cross-dependency on the executor-side RPC.
+/// rather than reusing hogd's internal executor-side `ExpectedStorageItem`, so
+/// this program has no cross-dependency on that RPC.
 union DbGatewayItemResult switch (RPCError error)
 {
 case kRPCNone:
