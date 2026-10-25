@@ -151,6 +151,13 @@ default:
 
 program MempoolAuth {
   version MempoolAuth1 {
+    // Register an auth server with the mempool. The mempool serves the
+    // coordinator only once an auth server has registered, so an auth server
+    // registers only after it has subscribed to the db's auth-data changes
+    // (dbauth_intro), finding the db shards with mempoolauth_get_auth_info.
+    // Otherwise a block could commit before the subscription, and its changes
+    // would never reach the mempool (hogd#1927). The result repeats what
+    // mempoolauth_get_auth_info returned.
     IntroAuthResult mempoolauth_intro_auth(AuthCard) = 0;
 
     // Retired number, never to be reused, so that a peer built against it
@@ -162,6 +169,11 @@ program MempoolAuth {
     // server to the mempool. The auth server sends a height's run only after
     // it has applied the whole height itself.
     void mempoolauth_auth_data_changed_chunk(KeyChangeChunk) = 2;
+
+    // Return the db shards and the network hash, which an auth server needs
+    // to subscribe to the db before it registers. Unlike
+    // mempoolauth_intro_auth, this does not register the auth server.
+    IntroAuthResult mempoolauth_get_auth_info(ProtocolCommit) = 3;
   }
   = 1;
 } = 0x8aa87aaa;
