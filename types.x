@@ -43,7 +43,9 @@ typedef opaque Ed25519SecretKey[64]; // #[rust(newtype)] #[rust(no_debug)]
 /// verification rejects malformed ones like any other invalid signature.
 typedef opaque MlDsa65Signature[3309]; // #[rust(newtype)]
 /// Represents an ML-DSA-65 (FIPS 204) public key.
-typedef opaque MlDsa65PublicKey[1952]; // #[rust(newtype)] #[rust(no_debug)]
+typedef opaque MlDsa65PublicKey[1952]; // #[rust(newtype)]
+/// Represents a 4032-byte ML-DSA-65 (FIPS 204) secret key.
+typedef opaque MlDsa65SecretKey[4032]; // #[rust(newtype)] #[rust(no_debug)]
 
 /// Represents the cryptographic scheme used for a signature or public key.
 enum CryptographicScheme {
@@ -56,9 +58,10 @@ enum CryptographicScheme {
 
 /// Union of a Signature type over the various cryptographic schemes.
 ///
-/// The ML-DSA arms of Signature and PublicKey are boxed (heap allocated) in
-/// both C++ and Rust, so that Ed25519 signatures and keys, which are most of
-/// them, do not each take the size of the largest ML-DSA value in memory.
+/// The ML-DSA arms of Signature, PublicKey and SecretKey are boxed (heap
+/// allocated) in both C++ and Rust, so that Ed25519 signatures and keys, which
+/// are most of them, do not each take the size of the largest ML-DSA value in
+/// memory.
 union Signature switch (CryptographicScheme scheme)
 {
 case Ed25519:
@@ -84,12 +87,12 @@ case MlDsa65:
 typedef opaque PublicKeyHash[32]; // #[rust(newtype)]
 
 /// Union of a SecretKey type over the various cryptographic schemes.
-///
-/// There is no ML-DSA variant: nodes never sign with ML-DSA.
 union SecretKey switch (CryptographicScheme scheme)
 {
 case Ed25519:
   Ed25519SecretKey ed25519;
+case MlDsa65:
+  MlDsa65SecretKey mldsa65; // #[rust(box_ptr)], #[cpp(box)]
 };
 
 /// An ExtensionPoint is a struct that can be embedded as the first
