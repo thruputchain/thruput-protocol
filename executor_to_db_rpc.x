@@ -24,18 +24,23 @@ typedef FlaggedStorageDelta StorageDeltaBatch<>;
 
 typedef Contract NewContractBatch<>;
 
-/// How a successful try_push_new_subtransaction folds the subtransaction
-/// stack. Entries run down the stack from the new subtransaction: the first
-/// counts the new subtransaction and those directly below it, each later one
-/// the next run of subtransactions below that. Each run becomes one
-/// subtransaction holding the latest version of every change made in it, so
-/// popping it reverts the whole run; the states between its members are
-/// gone. A run of 0 or 1 changes nothing. The runs must lie within the
-/// stack, and nothing is folded when the push fails.
+/// Names one subtransaction for the life of its transaction. Each push
+/// carries a new one, greater than every id on the transaction's stack.
+typedef unsigned int SubtransactionID;
+
+/// Subtransactions whose start a successful try_push_new_subtransaction stops
+/// keeping as a rollback point. Each listed subtransaction is merged into the
+/// one directly below it, which keeps its own id and then holds the latest
+/// version of every change made in either; popping it reverts both, and the
+/// state between them is gone. The list may name the pushed subtransaction
+/// itself, but not the bottom one of the stack (reverting past it stays
+/// possible), an id not on the stack, or an id twice. Nothing is merged when
+/// the push fails.
 ///
-/// The executor folds every run it will never pop part of: each open frame's
-/// subtransactions, with the pushing frame's folded into its parent's.
-typedef unsigned int SubtransactionFoldRuns<kMaxSavepointDepth>;
+/// The executor lists every start that no open frame can revert to anymore:
+/// of each open frame's subtransactions all but the oldest, with the pushing
+/// frame's counted as its parent's.
+typedef SubtransactionID SubtransactionMerges<kMaxSavepointDepth>;
 
 /// Result of try_push_new_subtransaction. On kRPCStorageWriteFailed —
 /// the nondeterministic transaction failure — carries the conflict
@@ -54,17 +59,19 @@ program DatabaseToExecutorInterface
 {
   version DatabaseToExecutorInterfaceV1
   {
-    // Subtransactions do not need their own unique IDs; every write from a
-    // transaction must always be applied to the top-level subtransaction.
+    // Every write from a transaction is applied to its top-level
+    // subtransaction; ids only name subtransactions for merging.
     //
-    // Create a new subtransaction on top of the current (sub)transaction.
-    // The root transaction, and any subtransactions, should finish
-    // by calling this method with any deltas created during the (sub)
+    // Create a new subtransaction, with the given id, on top of the current
+    // (sub)transaction. The root transaction, and any subtransactions, should
+    // finish by calling this method with any deltas created during the (sub)
     // transaction.
     //
-    // On success the stack is then folded as SubtransactionFoldRuns says.
+    // On success, the subtransactions SubtransactionMerges lists are then
+    // merged into those below them.
     TryPushSubtransactionResult try_push_new_subtransaction(
-      BlockID, TransactionID, StorageDeltaBatch, SubtransactionFoldRuns) = 0;
+      BlockID, TransactionID, StorageDeltaBatch, SubtransactionID,
+      SubtransactionMerges) = 0;
     // We don't need a try_reserve_deltas method; use
     // try_push_new_subtransaction instead.
     RPCError commit_transaction(BlockID, TransactionID, NewContractBatch) = 1;
