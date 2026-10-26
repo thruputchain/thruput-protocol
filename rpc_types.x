@@ -72,7 +72,7 @@ typedef unsigned hyper TransactionID;
 // These are some of the error codes I suspect we will need, but these
 // are not organized in any particular manner.
 //
-// TODO(geoff): This probably should get moved to a different file?
+// TODO: This probably should get moved to a different file?
 enum RPCError {
   kRPCNone = 0,
   // Lookup on an item in the database that does not exist.

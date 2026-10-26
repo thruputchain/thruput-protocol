@@ -12,7 +12,7 @@ enum AuthErrorCode {
   // This can happen if a query is made for an old block height,
   // or if (concurrent with the query) a block commits and updates to the auth data begin to stream in.
   // The verification can be retried in either case.
-  // TODO(geoff): We could switch this around, to retry at the higher block height.
+  // TODO: We could switch this around, to retry at the higher block height.
   kAuthStaleBlockHeight = 2,
   // Either an internal auth error or forwarded from an internal DB error
   kAuthInternal = 3
@@ -47,9 +47,9 @@ struct KeyChange {
 typedef KeyChange KeyChangeBatch<>;
 
 // A committed block's auth-data changes travel as a run of chunks, each a
-// KeyChangeChunk, from hog_db to the auth server and on from the auth server
+// KeyChangeChunk, from the db to the auth server and on from the auth server
 // to the mempool, because the one-record form grew with the number of
-// accounts whose auth data a block changed (hogd#3146). The sender chooses
+// accounts whose auth data a block changed. The sender chooses
 // the chunk size; the wire bounds a chunk only by the link's record cap. The
 // chunks of a run may be sent concurrently and over several connections, so
 // they can arrive in any order, and a sender may have the runs of several
@@ -76,7 +76,7 @@ program AuthDB {
     //   1: authdb_forward_key_changes(BlockHeight, KeyChangeBatch), a block's
     //      auth-data changes in one unbounded record, which a block that
     //      changes enough accounts' auth data grows past any single-record
-    //      cap (hogd#3146).
+    //      cap.
 
     // Deliver one chunk of a committed block's auth-data changes to the auth
     // server.
@@ -156,14 +156,14 @@ program MempoolAuth {
     // registers only after it has subscribed to the db's auth-data changes
     // (dbauth_intro), finding the db shards with mempoolauth_get_auth_info.
     // Otherwise a block could commit before the subscription, and its changes
-    // would never reach the mempool (hogd#1927). The result repeats what
+    // would never reach the mempool. The result repeats what
     // mempoolauth_get_auth_info returned.
     IntroAuthResult mempoolauth_intro_auth(AuthCard) = 0;
 
     // Retired number, never to be reused, so that a peer built against it
     // fails to dispatch rather than misparse a newer payload:
     //   1: mempoolauth_auth_data_changed(BlockHeight, KeyChangeBatch), a
-    //      block's auth-data changes in one unbounded record (hogd#3146).
+    //      block's auth-data changes in one unbounded record.
 
     // Deliver one chunk of a committed block's auth-data changes from the auth
     // server to the mempool. The auth server sends a height's run only after

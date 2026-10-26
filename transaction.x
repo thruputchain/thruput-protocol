@@ -11,14 +11,14 @@ namespace hogd
 //==============================================================================
 // Transactions and Invocations
 //
-// This module defines the transaction model for Groundhog. Transactions are
+// This module defines the transaction model for Thruput. Transactions are
 // the fundamental unit of state modification in the system.
 //
 // Key concepts:
 // - Each transaction invokes a contract method with specified parameters
 // - Transactions include authorization claims and signatures
 // - Transactions can deploy new contracts
-// - Groundhog executes transactions in parallel, using two-phase commit for conflict resolution
+// - Thruput executes transactions in parallel, using two-phase commit for conflict resolution
 // - Proposers attach nondeterministic data to ensure deterministic re-execution
 //
 // Transaction lifecycle:
@@ -141,7 +141,7 @@ struct Uniquifier {
 // Transactions
 //------------------------------------------------------------------------------
 
-/// A complete transaction that can be executed on the Groundhog blockchain.
+/// A complete transaction that can be executed on the Thruput blockchain.
 ///
 /// Transactions are the fundamental unit of state modification. Each transaction:
 /// - Invokes a single contract method (which may make subinvocations)
@@ -291,7 +291,7 @@ typedef SignedTransactionHash SignedTransactionHashBatch<>;
 
 /// Nondeterministic data captured during transaction execution by the proposer.
 ///
-/// Groundhog executes transactions in parallel, which introduces nondeterminism
+/// Thruput executes transactions in parallel, which introduces nondeterminism
 /// (e.g., from two-phase commit conflict resolution). To ensure validators can deterministically
 /// re-execute transactions, the proposer captures all nondeterministic decisions
 /// and includes them in the block proposal.
@@ -318,7 +318,7 @@ struct NondeterministicProposalData {
 
   /// Sequence of retrocausal queue entries observed during execution.
   ///
-  /// TODO(geoff): Update this documentation once retrocausal queue handling
+  /// TODO: Update this documentation once retrocausal queue handling
   /// is finalized. This field captures the queue entries consumed during
   /// execution to ensure deterministic replay.
   QueueEntry observed_queue_entry_sequence<kMaxConcurrentRcqReadsPerTx>;

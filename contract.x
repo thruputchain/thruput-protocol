@@ -6,7 +6,7 @@ namespace hogd {
 //==============================================================================
 // Contracts and Contract Deployment
 //
-// This module defines the contract abstraction in Groundhog. Contracts are
+// This module defines the contract abstraction in Thruput. Contracts are
 // code that can be deployed to addresses and invoked to execute logic.
 //
 // Key concepts:
@@ -63,7 +63,7 @@ enum ContractType {
 
 /// A contract that can be deployed to an address and invoked.
 ///
-/// Contracts are the fundamental unit of code execution in Groundhog.
+/// Contracts are the fundamental unit of code execution in Thruput.
 /// Once deployed to a `ContractAddress`, they can be invoked by transactions
 /// to execute their methods (entrypoints).
 ///
@@ -101,7 +101,7 @@ case kRv32:
 /// Under XDR encoding, this struct serializes as the concatenation of its
 /// fields: `deployer_address || nonce || contract_hash`.
 ///
-/// This is Groundhog's analogue of Ethereum's `CREATE2` opcode, allowing
+/// This is Thruput's analogue of Ethereum's `CREATE2` opcode, allowing
 /// deterministic address derivation. The deployer controls the nonce to
 /// create addresses at will.
 ///
