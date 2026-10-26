@@ -557,6 +557,32 @@ struct SyscallClearStorageFlagsTrace {
   SyscallClearStorageFlagsOutputs *outputs;
 };
 
+struct SyscallGetAddressAuthSummaryInputs {
+  void;
+};
+
+struct SyscallGetAddressAuthSummaryOutputs {
+  AddressAuthSummary summary;
+};
+
+struct SyscallGetAddressAuthSummaryTrace {
+  SyscallGetAddressAuthSummaryInputs inputs;
+  SyscallGetAddressAuthSummaryOutputs *outputs;
+};
+
+struct SyscallGetAddressPublicKeyInputs {
+  unsigned int key_index;
+};
+
+struct SyscallGetAddressPublicKeyOutputs {
+  PublicKey key;
+};
+
+struct SyscallGetAddressPublicKeyTrace {
+  SyscallGetAddressPublicKeyInputs inputs;
+  SyscallGetAddressPublicKeyOutputs *outputs;
+};
+
 // === Main Trace Body ===
 
 union SyscallTraceBody switch (SyscallNo syscall_number)
@@ -639,6 +665,10 @@ case kGetStorageFlags:
   SyscallGetStorageFlagsTrace get_storage_flags;
 case kClearStorageFlags:
   SyscallClearStorageFlagsTrace clear_storage_flags;
+case kGetAddressAuthSummary:
+  SyscallGetAddressAuthSummaryTrace get_address_auth_summary;
+case kGetAddressPublicKey:
+  SyscallGetAddressPublicKeyTrace get_address_public_key;
 default:
   void;
 };
