@@ -59,7 +59,21 @@ struct RetrocausalQueueMetadata {
 };
 
 struct RetrocausalQueueConsumeDelta {
+  // Where past-block consumption ends after this delta. This is a position:
+  // HogDb prunes the block rows between the snapshot cursor and this one, and
+  // persists it as the queue's new consume_state so the next reader knows
+  // which block and offset to start from.
   RetrocausalQueuePastBlockConsumeDelta past_block_consume;
+  // How many past-block entries this delta consumed: the entries strictly
+  // between the snapshot's consume_state and past_block_consume. This is
+  // accounting, not position. HogDb subtracts it from live_entries and uses
+  // it for storage-cost accounting, so it must never have to re-derive the
+  // count from the cursor by reading and decoding every block row in between.
+  // The executor already counts each past-block entry as it consumes it, and
+  // a delete-then-recreate that consumes to the tail sets this to the
+  // snapshot's live_entries. Zero when only current-block entries were
+  // consumed.
+  unsigned hyper past_block_consumed_count;
   QueueEntry current_block_consumed<kRetrocausalQueueBlockEntriesMaxLen>;
 };
 
