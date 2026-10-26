@@ -26,7 +26,7 @@ typedef unsigned hyper TimePoint; // #[rust(newtype)]
 /// and should not be directly used by most contracts.
 typedef unsigned int RuntimeMemoryLength; // uint32_t
 
-// TODO(geoff): consider using a smaller type for GasAmount
+// TODO: consider using a smaller type for GasAmount
 /// Represents a quantity of gas.  Alias of u64.
 typedef unsigned hyper GasAmount; // uint64_t
 
@@ -120,7 +120,7 @@ typedef SHA256Hash NetworkHash; // #[rust(newtype)]
 /// SHA-256 of the XDR-encoded ConfigHashPreimage.
 typedef SHA256Hash ConfigHash; // #[rust(newtype)]
 
-/// Hash of the groundhog database contents.
+/// Hash of the Thruput database contents.
 /// Format is a 2048-byte LtHash16 hash.
 typedef opaque StorageLongHash[2048]; // #[rust(newtype)]
 
@@ -134,7 +134,7 @@ typedef SHA256Hash EventsHash; // #[rust(newtype)]
 typedef SHA256Hash ProposalHeaderHash; // #[rust(newtype)]
 
 /// Represents a 256-bit contract address.
-/// In the groundhog storage model, each contract is deployed at a
+/// In the Thruput storage model, each contract is deployed at a
 /// 32-byte unique `ContractAddress`.
 typedef opaque ContractAddress[32]; // #[rust(newtype)] #[rust(no_debug)]
 
@@ -194,7 +194,7 @@ case Metadata:
   void;
 case ReplayCache:
   void;
-  // TODO(geoff): add other key types
+  // TODO: add other key types
 };
 
 const kNativeTokenDivisibility = 10'000'000; // #[rust(const=u32)]

@@ -78,7 +78,7 @@ enum DbGatewayIntroOutcome {
   DbGatewayIntroMismatchedProtocol = 1
 };
 
-// API exposed from the Db (hog_db) for the public RPC Gateway.
+// API exposed from the Db for the public RPC Gateway.
 //
 // Reads are always against the latest committed snapshot at the time
 // the RPC is served; no BlockID argument is accepted in v1.  A future

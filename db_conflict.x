@@ -174,7 +174,7 @@ case TxFailureContractRejected:
 
 /// Best-effort diagnostic for a transaction the proposer excluded from a
 /// proposal: the executing block height of the failed attempt plus why it
-/// failed -- the first conflicting storage op hog_db reported during
+/// failed -- the first conflicting storage op the database reported during
 /// two-phase commit, or the first contract attachment the executor refused.
 /// Fixed-size by construction; the wire and caches carry exactly one
 /// diagnostic per failure to bound memory end to end.

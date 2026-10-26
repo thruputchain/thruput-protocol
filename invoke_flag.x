@@ -14,7 +14,7 @@ enum InvokeFlag {
 
   /// Enable early conflict detection for parallel execution.
   ///
-  /// Groundhog executes transactions in parallel without observing other
+  /// Thruput executes transactions in parallel without observing other
   /// transactions' writes. After execution, a two-phase commit process commits writes
   /// to the database. If there's a conflict, the entire transaction aborts.
   ///
@@ -38,7 +38,7 @@ enum InvokeFlag {
   /// Similar to Ethereum's DELEGATECALL: the invoked code runs with the
   /// caller's storage and address context, allowing library-like code reuse.
   ///
-  /// TODO(geoff): This flag is not yet implemented. When implementing, provide
+  /// TODO: This flag is not yet implemented. When implementing, provide
   /// a comprehensive specification of what changes and what doesn't change in
   /// a delegatecall frame. For example, GetMsgSender and GetCurrentAddress
   /// should NOT change (they return the original caller and current address),
