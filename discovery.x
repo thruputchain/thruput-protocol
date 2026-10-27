@@ -5,44 +5,44 @@
 
 namespace hogd {
 
-struct QuorumSetSnapshot {
+struct BristleconeQuorumSetSnapshot {
   TimePoint timestamp;
-  SCPQuorumSet quorum_set;
+  BristleconeQuorumSet quorum_set;
 };
 
-struct SignedQuorumSetSnapshot {
+struct BristleconeSignedQuorumSetSnapshot {
   ValidatorPublicInfo signer;
   Signature signature;
-  QuorumSetSnapshot quorum_set_snapshot;
+  BristleconeQuorumSetSnapshot quorum_set_snapshot;
 };
 
-struct ValidatorInfoSnapshot {
+struct BristleconeValidatorInfoSnapshot {
   TimePoint timestamp;
   ValidatorPublicInfo validator;
 };
 
-struct SignedValidatorInfoSnapshot {
+struct BristleconeSignedValidatorInfoSnapshot {
   ValidatorPublicInfo signer;
   Signature signature;
-  ValidatorInfoSnapshot validator_snapshot;
+  BristleconeValidatorInfoSnapshot validator_snapshot;
 };
 
-struct KnownQuorumSets {
-  SignedQuorumSetSnapshot quorum_set_snapshots<>;
-  SignedValidatorInfoSnapshot validator_snapshots<>;
+struct BristleconeKnownQuorumSets {
+  BristleconeSignedQuorumSetSnapshot quorum_set_snapshots<>;
+  BristleconeSignedValidatorInfoSnapshot validator_snapshots<>;
 };
 
 program Discovery
 {
-  version Discovery1
+  version Discovery2
   {
 
     void discovery_null(void) = 0;
 
-    KnownQuorumSets discovery_update_quorums(KnownQuorumSets) = 10;
+    BristleconeKnownQuorumSets discovery_update_quorums(BristleconeKnownQuorumSets) = 10;
   }
-  = 1;
+  = 2;
 }
-= 0x3eef0505;
+= 0x3eef0707;
 
 } // namespace hogd
