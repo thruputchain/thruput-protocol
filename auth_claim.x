@@ -13,8 +13,8 @@ namespace hogd {
 // 1. A user constructs a Transaction, which includes an AuthClaim.
 // 2. Signatures are added to create a SignedTransaction
 // 3. Thruput verifies that signatures match the AuthClaim (before execution)
-// 4. During execution, contracts can read the AuthClaim and relevant compressed metadata,
-// (such as which keys were used to authorize the transaction), but not the actual signatures.
+// 4. During execution, contracts can read the AuthClaim (GetAuthClaim), but not
+// the signatures or which keys produced them.
 //
 // This design ensures transaction behavior depends only on the AuthClaim
 // (which are included in what gets signed), not on the signature bytes themselves.

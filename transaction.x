@@ -316,11 +316,18 @@ struct NondeterministicProposalData {
   /// this field tracks the exact bit count to avoid trailing garbage bits.
   unsigned int nondeterministic_bit_count;
 
-  /// Sequence of retrocausal queue entries observed during execution.
+  /// Retrocausal queue entries inserted by concurrent transactions in the same
+  /// block that this transaction observed, so validators replay the same reads.
   ///
-  /// TODO: Update this documentation once retrocausal queue handling
-  /// is finalized. This field captures the queue entries consumed during
-  /// execution to ensure deterministic replay.
+  /// An entry is recorded when a peek or consume reads a concurrent entry.
+  /// Reads of entries from past blocks or inserted by this transaction itself
+  /// record nothing. Entries appear in the order they were first observed
+  /// during execution, interleaved across queues; within one queue they are
+  /// that queue's concurrent entries in index order, starting at 0. Each
+  /// (queue, index) is recorded once however many times it is read, so
+  /// repeated peeks, or a peek followed by a consume, add a single entry.
+  /// Whether each concurrent read found an entry is recorded separately, one
+  /// bit per read, in nondeterministic_bits.
   QueueEntry observed_queue_entry_sequence<kMaxConcurrentRcqReadsPerTx>;
 };
 
