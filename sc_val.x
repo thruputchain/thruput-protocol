@@ -32,11 +32,11 @@ enum SCValType {
   SCV_VOID = 1,
   // SCV_ERROR = 2,
 
-  // 32 bits is the smallest type in WASM or XDR; no need for u8/u16.
+  // 32 bits is the smallest integer type in XDR; no need for u8/u16.
   SCV_U32 = 3,
   SCV_I32 = 4,
 
-  // 64 bits is naturally supported by both WASM and XDR also.
+  // 64 bits is natively supported by XDR as well.
   SCV_U64 = 5,
   SCV_I64 = 6,
 

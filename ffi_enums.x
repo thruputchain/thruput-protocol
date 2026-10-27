@@ -1,6 +1,6 @@
 namespace hogd {
 
-// Error codes returned from a runtime (wasmi) invocation.
+// Error codes returned from a contract invocation.
 // This is the external interface to a smart contract. Normally wrapped in an
 // InvokeStatus<int32_t> (a std::expected).
 //
@@ -11,10 +11,9 @@ namespace hogd {
 // {InvokeErrorCode::None, code} back as a
 // {HostFnErrorCode::NoneOrRecoverable, code}).
 //
-// This value is generated as either the returned value from the selected
-// WebAssembly exported function that was run, the code caused by a host
-// function returning HostFnErrorCode::Exit, or 0, if invocation ends because a
-// host function returns HostFnErrorCode::Return.
+// This value is either the value returned by the contract's entry point, the
+// code caused by a host function returning HostFnErrorCode::Exit, or 0, if
+// invocation ends because a host function returns HostFnErrorCode::Return.
 enum InvokeErrorCode {
   // A call frame can only succeed if this code is returned.
   // All others revert the call frame.

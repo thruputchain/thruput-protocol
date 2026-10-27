@@ -251,23 +251,31 @@ def generate_markdown(yaml_data: Dict[str, Any], output_path: Path) -> List[str]
     """Generate markdown documentation from YAML data."""
     validation_issues = []
     
-    # Header text (from original syscalls.md)
-    header = """All syscalls can return error kFault if a user-supplied argument points to an
-invalid contract memory address.
+    # The conventions that hold across all syscalls are written by hand in
+    # syscalls.md, next to the YAML; they head the generated reference.
+    conventions = (output_path.parent / 'syscalls.md').read_text().strip()
+    header = (
+        "<!-- Generated from syscalls.yaml by generate_syscalls_doc.py; do not edit. -->\n\n"
+        + conventions + "\n\n"
+    )
 
-All syscalls that return a bytespan of non-static size (a [u8], as written
-here) take as one of their arguments a contract-allocated bytespan, in which
-the output argument should be written, AND return a RuntimeMemoryLength
-variable, which describes how much of the contract-supplied bytespan was
-overwritten. We do not change any of the remaining elements of the bytespan.
-
-"""
-    
     lines = [header]
     syscalls = yaml_data.get('syscalls', [])
     
     # Sort by number to ensure correct order
     syscalls_sorted = sorted(syscalls, key=lambda s: s.get('number', -1))
+
+    # Syscall numbers are the ABI and names are the generated identifiers, so
+    # both must be unique.
+    for key in ('number', 'name'):
+        seen = {}
+        for syscall in syscalls_sorted:
+            value = syscall.get(key)
+            if value in seen:
+                validation_issues.append(
+                    f"Duplicate syscall {key} {value!r}: {seen[value]} and {syscall.get('name')}")
+            else:
+                seen[value] = syscall.get('name')
     
     for syscall in syscalls_sorted:
         number = syscall.get('number', -1)
