@@ -101,12 +101,17 @@ func readBlobs(repo string, specs []string) ([]string, error) {
 	return contents, nil
 }
 
-// excludedFiles are parallel variants that redeclare names from the file they
-// supersede: discovery2.x declares program Discovery under a second number,
-// and multiplex2.x redeclares multiplex.x's enum and union. The parser
-// rejects such redeclarations as ambiguous, so these files are left out of
-// the model, as they are left out of goxdr in CI, and are not checked.
-var excludedFiles = map[string]bool{"discovery2.x": true, "multiplex2.x": true}
+// excludedFiles are deprecated variants whose names the current file
+// redeclares: discovery.x declares program Discovery under a second number
+// to discovery_deprecated.x, and multiplex.x redeclares
+// multiplex_deprecated.x's enum and union. The parser rejects such
+// redeclarations as ambiguous, so the deprecated files are left out of the
+// model and are not checked. discovery2.x and multiplex2.x are the current
+// files' names before the rename, so revisions from before it still load.
+var excludedFiles = map[string]bool{
+	"discovery_deprecated.x": true, "multiplex_deprecated.x": true,
+	"discovery2.x": true, "multiplex2.x": true,
+}
 
 // LoadRevision parses the production interface set: .x files at the protocol
 // repository root, less excludedFiles. Tool fixtures and other nested test
