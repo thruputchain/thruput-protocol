@@ -38,8 +38,8 @@ struct ContractBlob {
 
 /// The execution environment for a contract.
 ///
-/// Discriminant 0 is retired. It selected the Wasmi runtime, which was
-/// removed once RV32 became the only deployable execution environment.
+/// Discriminant 0 is retired. It selected an earlier contract runtime, which
+/// was removed once RV32 became the only deployable execution environment.
 /// Do not reuse the value: old encodings that carry it must fail to parse
 /// rather than silently decode as a live contract type.
 enum ContractType {

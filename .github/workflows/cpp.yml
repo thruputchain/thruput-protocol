@@ -83,3 +83,7 @@ jobs:
         go vet -composites=false generated.go
     - name: lint yaml
       run: yamllint -s syscalls.yaml
+    - name: validate syscalls.yaml
+      run: |
+        sudo apt-get install python3-yaml
+        python3 generate_syscalls_doc.py
