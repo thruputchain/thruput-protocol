@@ -26,17 +26,11 @@ enum InvokeErrorCode {
   // Signals a serious system issue or a serious bug in our code and should be
   // diagnosed ASAP.
   Unrecoverable = 3,
-  // Discovered during validation that proposer submitted bad data.
-  // If a block contains a transaction with this error, the block does not need
-  // to be discarded.  The transaction that causes this error is discarded,
-  // and the block proposer should be penalized (via whatever out of band
-  // mechanism),
-  // but the rest of the block can still be processed.
-  // Note that this is different from the case of a block proposal with
-  // conflicting transactions;
-  // those errors are discovered _after_ executing the transactions in a block,
-  // and require
-  // discarding the entire block.
+  // Discovered during validation that the proposer submitted bad data.
+  // The transaction is aborted and consumes nothing, and execution continues
+  // with the rest of the batch, but the block fails validation and is
+  // rejected, as it is for any transaction whose result is not OK, a
+  // deterministic error or a root frame revert.
   ValidationFailure = 4,
   // The transaction was aborted due to an external reason (such as the current
   // block being discarded),

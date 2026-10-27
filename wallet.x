@@ -25,7 +25,9 @@ struct WalletAck {
   WalletTransactionAck transaction_acks<>;
 };
 
-// Wallet is an API for wallets submitting transactions to chuckd.
+// Legacy: wallets submitted transactions to chuckd, the v1 coordinator, through
+// this program. Transactions are now submitted through the RPC gateway, which
+// forwards them to the scheduler with SchedGateway (sched_gateway.x).
 program Wallet
 {
   version Wallet1
