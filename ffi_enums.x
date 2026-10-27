@@ -49,37 +49,36 @@ enum InvokeErrorCode {
 // normal usage pattern is to wrap them within HostFnStatus<int32_t>, where the
 // int32 is the more detailed error code.
 //
-// In WebAssembly, a host function is defined as a function that can be
-// called outside of WebAssembly. We import one of these functions to provide
-// access to our table of system call handlers.
+// A host function is one the contract runtime provides to the contract; system
+// calls are made through host functions.
 //
 // When a HostFnStatus<int32_t> (a wrapper around std::expected) has an int32_t
 // value, (and a HostFnErrorCode::NoneOrRecoverable), that int32_t is passed to
-// WebAssembly as a handleable error code, as the return result from the host
-// function. The WebAssembly bytecode (the smart contract) itself never sees the
-// HostFnErrorCode. Other HostFnErrorCodes terminate the WebAssembly runtime
-// (returning to the caller), and are handled by the WebAssembly runtime.
+// the contract as a handleable error code, as the return result from the host
+// function. The contract itself never sees the HostFnErrorCode. Other
+// HostFnErrorCodes terminate the contract (returning to the caller), and are
+// handled by the contract runtime.
 enum HostFnErrorCode {
   NoneOrRecoverable = 0,
-  // Insufficient gas to continue WebAssembly execution.
+  // Insufficient gas to continue contract execution.
   //
-  // Result: the WebAssembly runtime immediately returns an
+  // Result: the contract runtime immediately returns an
   // InvokeErrorCode::OutOfGas.
   OutOfGas = 1,
   // Unrecoverable (nondeterministic) error, such as a malloc error.
   // The only course of action is to abort the entire transaction.
   //
-  // Result: the WebAssembly runtime immediately returns an
+  // Result: the contract runtime immediately returns an
   // InvokeErrorCode::Unrecoverable
   // Signals a serious system issue or a serious bug in our code and should be
   // diagnosed ASAP.
   Unrecoverable = 2,
-  // Return from a WebAssembly invocation to the caller.  Registers a byte
+  // Return from a contract invocation to the caller.  Registers a byte
   // buffer to be passed back to the caller.
   //
   // Result: Runtime immediately returns an {InvokeErrorCode::None, 0}.
   Return = 3,
-  // Return from a WebAssembly invocation to the caller, with some (int32_t)
+  // Return from a contract invocation to the caller, with some (int32_t)
   // error code.
   //
   // Result: Runtime immediately returns an {InvokeErrorCode::None, code}.
@@ -90,14 +89,14 @@ enum HostFnErrorCode {
   // Validation fails because a proposer submitted bad nondeterministic
   // proposal data.
   //
-  // Result: the WebAssembly runtime immediately returns an
+  // Result: the contract runtime immediately returns an
   // InvokeErrorCode::ValidationFailure
   ValidationFailure = 5,
   // The transaction was aborted due to an external reason (such as the current
   // block being discarded), but this is not the result of a totally
   // unrecoverable error. This is to be expected during normal system operation.
   //
-  // Result: the WebAssembly runtime immediately returns an
+  // Result: the contract runtime immediately returns an
   // InvokeErrorCode::Abandon
   Abandon = 6
 };
