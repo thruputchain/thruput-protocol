@@ -36,18 +36,16 @@ namespace hogd
 
 /// Opaque encoded call arguments passed to a contract invocation.
 ///
-/// Contracts can encode calldata arbitrarily, but the SDK default uses
-/// XDR serialization per RFC 4506 (<https://datatracker.ietf.org/doc/html/rfc4506>).
-/// The SDK typically encodes a tuple or struct of the method's parameters.
-///
-/// Note: "TXS" refers to "traditional XDR serialization". A more compact
-/// encoding is planned but not yet enabled.
+/// Contracts can encode calldata arbitrarily, but the SDKs encode a tuple or
+/// struct of the method's parameters in CXS (compact XDR serialization), a
+/// variant of RFC 4506 XDR without 4-byte padding and with variable-length
+/// integers, lengths and discriminants.
 typedef opaque Calldata<>;
 
 /// Opaque encoded return value from a contract invocation.
 ///
 /// Like Calldata, contracts can encode return values arbitrarily, but the
-/// SDK default uses XDR serialization per RFC 4506 (<https://datatracker.ietf.org/doc/html/rfc4506>).
+/// SDKs use CXS.
 ///
 /// Unbounded here, as `Calldata` is: what a chain permits is stated by
 /// `kConfigParamMaxReturnBufferLen` and enforced where the Return syscall
