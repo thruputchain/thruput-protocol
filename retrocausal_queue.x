@@ -65,10 +65,37 @@ struct RetrocausalQueueInsertDelta {
   QueueEntry added_entries<kRetrocausalQueueBlockEntriesMaxLen>;
 };
 
+// How an RCQ delta consumes. kRcqNoConsume and kRcqConsume encode exactly like
+// an absent and a present RetrocausalQueueConsumeDelta pointer.
+//
+// The replace statuses are for a transaction that deleted or overwrote the
+// key before using it as a queue: the queue starts empty and every entry of a
+// committed queue at the key is consumed. The executor leaves that consume to
+// HogDb, which knows the committed queue, so a replace names no past-block
+// position. kRcqReplace makes the delta the block's consumer only when the
+// committed queue still has live entries; kRcqReplaceConsume always does, and
+// carries the current-block entries consumed (as current_block_consumed).
+enum RetrocausalQueueConsumeStatus {
+  kRcqNoConsume = 0,
+  kRcqConsume = 1,
+  kRcqReplace = 2,
+  kRcqReplaceConsume = 3
+};
+
+union RetrocausalQueueConsume switch (RetrocausalQueueConsumeStatus status) {
+case kRcqNoConsume:
+case kRcqReplace:
+  void;
+case kRcqConsume:
+  RetrocausalQueueConsumeDelta delta; // #[cpp(box)]
+case kRcqReplaceConsume:
+  QueueEntry current_block_consumed<kRetrocausalQueueBlockEntriesMaxLen>;
+};
+
 struct RetrocausalQueueDelta {
-  // set to null if no entries are consumed.
   // This version of the retrocausal queue is single-consumer multi-producer.
-  RetrocausalQueueConsumeDelta *consume;
+  // The status is inline; the consume delta itself is boxed.
+  RetrocausalQueueConsume consume;
   RetrocausalQueueInsertDelta insert;
   // Concurrent entries observed (e.g. via peek) but not consumed.
   // The db validates that each entry was actually inserted by a concurrent
