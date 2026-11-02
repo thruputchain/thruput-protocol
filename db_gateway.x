@@ -73,6 +73,17 @@ default:
   void;
 };
 
+/// Complete canonical XDR Contract bytes, keyed by SHA256 of these bytes.
+/// A miss means unavailable here, not proof that the hash never existed.
+/// Content availability is not proof of deployment or transaction commitment.
+union DbGatewayContractResult switch (RPCError error)
+{
+case kRPCNone:
+  opaque contract_xdr<>;
+default:
+  void;
+};
+
 enum DbGatewayIntroOutcome {
   DbGatewayIntroSuccess = 0,
   DbGatewayIntroMismatchedProtocol = 1
@@ -84,7 +95,7 @@ enum DbGatewayIntroOutcome {
 // the RPC is served; no BlockID argument is accepted in v1.  A future
 // method variant can add historical reads without breaking this shape.
 //
-// Batch is the only read form exposed; callers that want a single
+// Batch is the only storage-item read form exposed; callers that want a single
 // item pass a one-element batch.  The gateway aggregates concurrent
 // reads into batches itself, so a singular form would be redundant.
 program DbGateway
@@ -94,6 +105,7 @@ program DbGateway
     DbGatewayIntroOutcome dbgateway_intro(ProtocolCommit) = 0;
     DbGatewayResult dbgateway_get_items(AddressAndKeyBatch) = 1;
     DbGatewayConfigResult dbgateway_get_config(void) = 2;
+    DbGatewayContractResult dbgateway_get_contract(SHA256Hash) = 3;
   } = 1;
 }
 = 0x44424757;
