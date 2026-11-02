@@ -62,7 +62,8 @@ program SchedGateway
     // has no committed block yet (pre-genesis bootstrap).
     ExpectedDBTip schedgateway_get_tip(void) = 2;
 
-    // Lookup in-flight (not-yet-committed) transactions by hash.
+    // Lookup in-flight (not-yet-committed) transactions by TransactionHash, returning
+    // whichever signing of each body is cached.
     // Returns one OptSignedTransaction per input hash (same order).
     OptSignedTransactionBatch schedgateway_lookup_tx(TransactionHashBatch) = 3;
 

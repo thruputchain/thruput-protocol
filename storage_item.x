@@ -39,7 +39,7 @@ typedef opaque Bytestring<kBytestringCeilingLen>;
 /// [`StorageDelta`]s are modifications that are applied to these StorageItem objects.
 ///
 /// Contracts do not generally directly load these values, but can access them via the typed
-/// system call interface provided by the Groundhog runtime.
+/// system call interface provided by the Thruput runtime.
 /// For example, a contract can call `BytestringGet`, which will return either a Bytestring value or
 /// an error if the storage key does not exist or contains a different type.
 union StorageItem switch (StorageItemType type)
@@ -52,7 +52,7 @@ case kItemTypeNonnegativeInt:
   ///
   /// This can be stored at any [`StorageKey`] of type `ContractData`.
   /// This type is also used to store the free native token balance at
-  /// storage key `FreeNativeTokenBalance`.
+  /// storage key type `FreeNativeTokenBalance`.
   int128_xdr nnint;
 case kItemTypeRetrocausalQueue:
   /// A retrocausal multi-producer, single-consumer queue.
@@ -63,19 +63,19 @@ case kItemTypeReplayCacheData:
   /// A set of [`Uniquifier`]s that have been used by the current address.
   /// Transactions can only insert a Uniquifier, not read the whole set.
   ///
-  /// This is the type stored at storage key `ReplayCache`.
+  /// This is the type stored at storage key type `ReplayCache`.
   /// It cannot be stored at any other storage key.
   Uniquifier active_uniquifiers<>;
 case kItemTypeAuthData:
   /// The authorization data for the current address.
   ///
-  /// This is the type stored at storage key `AddressAuthData`.
+  /// This is the type stored at storage key type `AuthData`.
   /// It cannot be stored at any other storage key.
   AddressAuthData auth_data;
 case kItemTypeDeployedContractHash:
   /// The hash of the deployed contract for the current address.
   ///
-  /// This is the type stored at storage key `AddressMetadata`.
+  /// This is the type stored at storage key type `Metadata`.
   /// It cannot be stored at any other storage key.
   DeployedContractHash deployed_contract_hash;
 };
@@ -166,7 +166,7 @@ case kDeltaTypeNonnegativeIntSetAdd:
   ///     to the value of the item at the start of the block (if it is a nonnegative integer) or 0 otherwise.
   ///     If that implicit set_value is not the same as the supplied `set_value`, the deltas will conflict.
   ///   - At the end of a block, the value will be `set_value` plus the sum of all `add_values` supplied by this
-  ///     delta and other deltas from the same block.  Groundhog maintains the property that this expression
+  ///     delta and other deltas from the same block.  Thruput maintains the property that this expression
   ///     does not overflow a 128-bit integer, and that that value is always at least `min(set_value, 0)`.
   NonnegativeInt128SetAddArgs nnint;
 case kDeltaTypeNonnegativeIntAdd:
@@ -195,7 +195,7 @@ case kDeltaTypeRetrocausalQueue:
   ///
   /// Conflicts:
   ///   - Insertions do not conflict with each other.
-  ///     TODO(geoff): we may impose limits on the number of entries that can be inserted in one block.
+  ///     TODO: we may impose limits on the number of entries that can be inserted in one block.
   ///   - Consuming entries conflicts with other consumption deltas in the same block.
   RetrocausalQueueDelta retrocausal_queue;
 case kDeltaTypeAuthDataChange:
@@ -273,7 +273,7 @@ typedef unsigned int StorageDeltaFlagSet;
 /// The combined unit of storage modification sent to the database from the executor.
 /// A delta with a set of flags, applied to a specific entry in the database.
 struct FlaggedStorageDelta {
-  // TODO(geoff): The addrkey field is likely repetitive when sending
+  // TODO: The addrkey field is likely repetitive when sending
   // many deltas to the database.
   // possibly we can readjust this data structure, if raw bandwidth becomes
   // important.

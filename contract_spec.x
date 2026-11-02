@@ -1,6 +1,7 @@
-// Groundhog contract specification AST
+// Thruput contract specification AST
 //
-// Excluded from goxdr in CI; intended as the canonical .x source for future Rust codegen.
+// Excluded from goxdr in CI. protocol-rs generates its thruput-spec crate from
+// this file, and the SDK's contract-spec crate re-exports those types.
 
 %#include "event.hh"
 
@@ -57,19 +58,27 @@ struct ContractSpecId {
 // ContractType (Rust: ContractType) — recursive union
 // ---------------------------------------------------------------------------
 
-% union ContractType;
+// Forward declaration for C++, where x23 generates XDR unions as structs.
+% struct ContractType;
 
 struct ContractArrayType {
-  ContractType element; // #[rust(box_ptr)]
+  ContractType element; // #[rust(box_ptr)], #[cpp(box)]
   unsigned int len;
 };
 
 struct ContractVectorType {
-  ContractType element; // #[rust(box_ptr)]
+  ContractType element; // #[rust(box_ptr)], #[cpp(box)]
   unsigned int max_len;
 };
 
-/// Mirrors #[repr(i32)] enum ContractType in sdk_rs/groundhog-contract-spec/src/model.rs
+// ---------------------------------------------------------------------------
+// SignedTokenPreimage (Rust: SignedTokenPreimage)
+// ---------------------------------------------------------------------------
+
+struct ContractSignedTokenPreimage {
+  ContractType *preimage_type; // #[rust(box_ptr)], #[cpp(box)]
+};
+
 enum ContractTypeKind {
   Void = 0,
   Bool = 1,
@@ -142,14 +151,6 @@ case I256:
 };
 
 // ---------------------------------------------------------------------------
-// SignedTokenPreimage (Rust: SignedTokenPreimage)
-// ---------------------------------------------------------------------------
-
-struct ContractSignedTokenPreimage {
-  ContractType *preimage_type; // #[rust(box_ptr)], #[cpp(box)]
-};
-
-// ---------------------------------------------------------------------------
 // Exception type wrapper (carries selector metadata alongside the type)
 // ---------------------------------------------------------------------------
 
@@ -214,8 +215,8 @@ struct ContractEnumDef {
   ContractEnumVariant variants<>;
 };
 
-/// Mirrors #[repr(i32)] enum ContractUnionCaseType in sdk_rs/groundhog-contract-spec/src/model.rs
-/// (goxdr requires enum tags unique across the namespace; names prefixed for uniqueness.)
+/// Case names carry a `UnionCase` prefix because enum tags share one namespace,
+/// and ContractTypeKind already has `Void` and `Tuple`.
 enum ContractUnionCaseKind {
   UnionCaseVoid = 0,
   UnionCaseTuple = 1,

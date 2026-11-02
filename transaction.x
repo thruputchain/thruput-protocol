@@ -11,14 +11,14 @@ namespace hogd
 //==============================================================================
 // Transactions and Invocations
 //
-// This module defines the transaction model for Groundhog. Transactions are
+// This module defines the transaction model for Thruput. Transactions are
 // the fundamental unit of state modification in the system.
 //
 // Key concepts:
 // - Each transaction invokes a contract method with specified parameters
 // - Transactions include authorization claims and signatures
 // - Transactions can deploy new contracts
-// - Groundhog executes transactions in parallel, using two-phase commit for conflict resolution
+// - Thruput executes transactions in parallel, using two-phase commit for conflict resolution
 // - Proposers attach nondeterministic data to ensure deterministic re-execution
 //
 // Transaction lifecycle:
@@ -36,18 +36,16 @@ namespace hogd
 
 /// Opaque encoded call arguments passed to a contract invocation.
 ///
-/// Contracts can encode calldata arbitrarily, but the SDK default uses
-/// XDR serialization per RFC 4506 (<https://datatracker.ietf.org/doc/html/rfc4506>).
-/// The SDK typically encodes a tuple or struct of the method's parameters.
-///
-/// Note: "TXS" refers to "traditional XDR serialization". A more compact
-/// encoding is planned but not yet enabled.
+/// Contracts can encode calldata arbitrarily, but the SDKs encode a tuple or
+/// struct of the method's parameters in CXS (compact XDR serialization), a
+/// variant of RFC 4506 XDR without 4-byte padding and with variable-length
+/// integers, lengths and discriminants.
 typedef opaque Calldata<>;
 
 /// Opaque encoded return value from a contract invocation.
 ///
 /// Like Calldata, contracts can encode return values arbitrarily, but the
-/// SDK default uses XDR serialization per RFC 4506 (<https://datatracker.ietf.org/doc/html/rfc4506>).
+/// SDKs use CXS.
 ///
 /// Unbounded here, as `Calldata` is: what a chain permits is stated by
 /// `kConfigParamMaxReturnBufferLen` and enforced where the Return syscall
@@ -141,7 +139,7 @@ struct Uniquifier {
 // Transactions
 //------------------------------------------------------------------------------
 
-/// A complete transaction that can be executed on the Groundhog blockchain.
+/// A complete transaction that can be executed on the Thruput blockchain.
 ///
 /// Transactions are the fundamental unit of state modification. Each transaction:
 /// - Invokes a single contract method (which may make subinvocations)
@@ -157,13 +155,12 @@ struct Transaction {
   /// Uniqueness and replay protection data.
   Uniquifier uniquifier;
 
-  /// New contracts to deploy before execution begins.
+  /// Contracts made available for deployment during this transaction.
   ///
-  /// These contracts become available on-chain before the root invocation
-  /// executes, allowing the transaction to deploy and immediately use contracts.
-  /// Contracts already deployed on-chain do not need to be included here.
-  ///
-  /// Deployed via the DeployContract syscall during transaction execution.
+  /// Attaching a contract does not deploy it: nothing reaches the chain
+  /// unless a frame deploys it with the DeployContract syscall, which can then
+  /// be invoked for the rest of the transaction. Contracts whose code is
+  /// already on-chain do not need to be included here.
   Contract contracts_to_deploy<>;
 
   /// Authorization claim specifying required signatures.
@@ -185,8 +182,9 @@ struct DecoratedSignature {
   /// The KeyID of the public key that created this signature.
   ///
   /// This is matched against the auth claims to determine if the signature
-  /// satisfies the transaction's authorization requirements. See [`AuthClaim`]
-  /// in auth_claim.x for details on how keys are registered and weighted.
+  /// satisfies the transaction's authorization requirements. Keys are
+  /// registered and weighted in [`AddressAuthData`] (address_auth.x); see
+  /// [`AuthClaim`] in auth_claim.x for how a claim selects them.
   unsigned int public_key_id; // uint32_t
 
   /// The cryptographic signature itself.
@@ -195,33 +193,54 @@ struct DecoratedSignature {
   Signature signature;
 };
 
-/// Hash of a transaction, used as its unique identifier network-wide.
+/// Hash of a transaction body, the identifier users, events and indexers
+/// know a transaction by.
 ///
 /// This is the SHA-256 hash of the XDR-encoded [`Transaction`] -- the same
-/// object the signatures are over. It deliberately covers neither the
+/// encoding the signatures cover (see [`SignedTransaction`]). It deliberately covers neither the
 /// signatures wrapped around it by [`SignedTransaction`] nor the
 /// nondeterministic data attached to it by [`ProposedTransaction`]:
 ///
-///  - Excluding the signatures makes the identifier stable under signature
-///    malleability, so a third party cannot change the identity of an
-///    in-flight transaction by re-encoding its signatures.
+///  - Excluding the signatures keeps the identifier fixed however the body
+///    is signed, so a submitter can look up its transaction without knowing
+///    which signing a block carried.
 ///  - Excluding the proposal data keeps the identifier computable by the
 ///    submitter at signing time. Nondeterministic proposal data does not
 ///    exist until a proposer has executed the transaction, so an identifier
 ///    covering it could not be used to look up one's own transaction.
 ///
-/// Uniqueness across blocks therefore rests on replay protection -- the
+/// Proposals do not name transactions by this hash: they commit to each
+/// transaction's exact signed encoding by [`SignedTransactionHash`].
+///
+/// Uniqueness across blocks rests on replay protection -- the
 /// [`Uniquifier`] every [`Transaction`] carries -- rather than on anything
 /// in the preimage: two distinct commits can never share a hash, because
 /// the same [`Transaction`] cannot commit twice.
 typedef SHA256Hash TransactionHash;
 
+/// Hash of one exact signed encoding of a transaction.
+///
+/// This is the SHA-256 hash of the canonical XDR of a [`SignedTransaction`]:
+/// the [`Transaction`], its signatures and its `pubkey_claim_key`. Two
+/// signings of one body share a [`TransactionHash`] but not a
+/// [`SignedTransactionHash`].
+///
+/// Proposals name their transactions by this hash, so every validator
+/// executes the encoding the proposer chose rather than whichever signing of
+/// the body it happens to hold. A validator that holds a different signing
+/// treats the transaction as missing and fetches the proposer's. It is not a
+/// lookup key for users: re-signing a body changes it.
+typedef SHA256Hash SignedTransactionHash;
+
 /// A transaction with cryptographic signatures.
 ///
 /// This is the form in which transactions are transmitted and stored.
-/// Before execution, the signatures are verified against the auth claims.
+/// Before execution, the signatures are verified against the auth claim.
 ///
-/// The signatures are over the [`Transaction`] object.
+/// Each signature is over
+/// `cxs(DomainSeparator("Transaction")) || network_hash || xdr(tx)`: the
+/// domain separator keeps it from being reinterpreted as a signature over
+/// another object, and the network hash binds it to one network.
 struct SignedTransaction {
   /// The transaction to execute.
   Transaction tx;
@@ -229,7 +248,7 @@ struct SignedTransaction {
   /// Signatures that authorize this transaction.
   ///
   /// These signatures must satisfy the auth_claim in the transaction.
-  /// The signatures are over the [`Transaction`] object.
+  /// See [`SignedTransaction`] for the message they sign.
   DecoratedSignature signatures<>;
 
   /// The public key a `kPubkeySignature` auth claim names by hash.
@@ -261,13 +280,16 @@ typedef OptSignedTransaction OptSignedTransactionBatch<>;
 /// A batch of transaction hashes.
 typedef TransactionHash TransactionHashBatch<>;
 
+/// A batch of signed transaction hashes.
+typedef SignedTransactionHash SignedTransactionHashBatch<>;
+
 //------------------------------------------------------------------------------
 // Proposed Transactions and Nondeterministic Data
 //------------------------------------------------------------------------------
 
 /// Nondeterministic data captured during transaction execution by the proposer.
 ///
-/// Groundhog executes transactions in parallel, which introduces nondeterminism
+/// Thruput executes transactions in parallel, which introduces nondeterminism
 /// (e.g., from two-phase commit conflict resolution). To ensure validators can deterministically
 /// re-execute transactions, the proposer captures all nondeterministic decisions
 /// and includes them in the block proposal.
@@ -278,7 +300,8 @@ struct NondeterministicProposalData {
   /// A bitstring of nondeterministic decisions made during execution.
   ///
   /// This includes:
-  /// - Two-phase commit conflict resolution results from try_invoke frames (one boolean per frame)
+  /// - Two-phase commit conflict resolution results from try_invoke frames (one boolean
+  ///   per try_invoke frame that succeeds and attempts lock acquisition)
   /// - Other nondeterministic outcomes that must be consistent across validators
   ///
   /// Each bit represents a binary decision point encountered during execution.
@@ -291,11 +314,18 @@ struct NondeterministicProposalData {
   /// this field tracks the exact bit count to avoid trailing garbage bits.
   unsigned int nondeterministic_bit_count;
 
-  /// Sequence of retrocausal queue entries observed during execution.
+  /// Retrocausal queue entries inserted by concurrent transactions in the same
+  /// block that this transaction observed, so validators replay the same reads.
   ///
-  /// TODO(geoff): Update this documentation once retrocausal queue handling
-  /// is finalized. This field captures the queue entries consumed during
-  /// execution to ensure deterministic replay.
+  /// An entry is recorded when a peek or consume reads a concurrent entry.
+  /// Reads of entries from past blocks or inserted by this transaction itself
+  /// record nothing. Entries appear in the order they were first observed
+  /// during execution, interleaved across queues; within one queue they are
+  /// that queue's concurrent entries in index order, starting at 0. Each
+  /// (queue, index) is recorded once however many times it is read, so
+  /// repeated peeks, or a peek followed by a consume, add a single entry.
+  /// Whether each concurrent read found an entry is recorded separately, one
+  /// bit per read, in nondeterministic_bits.
   QueueEntry observed_queue_entry_sequence<kMaxConcurrentRcqReadsPerTx>;
 };
 

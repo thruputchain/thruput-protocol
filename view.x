@@ -7,8 +7,8 @@
 
 namespace hogd {
 
-// An XDR-encoded AuthToken, left opaque so hogd decodes it under the chain's
-// max_auth_token_depth, as it does a token MintAuthToken mints.
+// An XDR-encoded AuthToken, left opaque so the node decodes it under the
+// chain's max_auth_token_depth, as it does a token MintAuthToken mints.
 typedef opaque SerializedAuthToken<>;
 
 struct TransactionViewQuery {

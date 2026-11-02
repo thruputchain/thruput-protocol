@@ -60,7 +60,7 @@ program EventSched
     EventBlockResult eventsched_close_block(BlockID, BlockHeight) = 30;
     // Called after finalization. Durably publishes the event/indexer record;
     // the record becomes pullable as soon as this call succeeds, even if the
-    // local HogDB commit running alongside it has not completed yet.
+    // local database commit running alongside it has not completed yet.
     RPCError eventsched_commit_block(BlockID, ConsensusValue) = 31;
     RPCError eventsched_abandon_block(BlockID) = 40;
   } = 1;

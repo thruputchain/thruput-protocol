@@ -58,8 +58,9 @@ struct DbTip {
   DeployedContractHash default_wallet;
 
   /// The execution parameters in force for the block that follows this tip.
-  /// Set at genesis from GenesisConfiguration::network_config; carried forward
-  /// verbatim by every commit that does not apply a [`ConfigUpgrade`].
+  /// Set at genesis from GenesisConfiguration::network_config and carried
+  /// forward verbatim by every commit: no mechanism changes it after genesis
+  /// yet (see [`ConfigParam`]).
   NetworkConfig network_config;
 };
 
@@ -71,7 +72,7 @@ typedef unsigned hyper TransactionID;
 // These are some of the error codes I suspect we will need, but these
 // are not organized in any particular manner.
 //
-// TODO(geoff): This probably should get moved to a different file?
+// TODO: This probably should get moved to a different file?
 enum RPCError {
   kRPCNone = 0,
   // Lookup on an item in the database that does not exist.

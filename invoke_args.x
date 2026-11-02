@@ -13,8 +13,8 @@ struct CopyableInvokeInputs {
   // and copying sizeof() bytes of guest memory, which is only a
   // host-layout-independent decode when every byte is a named field. Naming
   // the tail keeps std::has_unique_object_representations_v true, which the
-  // by-reference syscall input path in hogd static_asserts. Ignored by the
-  // host; not part of the invoke semantics (issue #3854).
+  // host's by-reference syscall input path static_asserts. Ignored by the
+  // host; not part of the invoke semantics.
   unsigned reserved;
 };
 

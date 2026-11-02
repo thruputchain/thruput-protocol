@@ -46,7 +46,7 @@ enum SchedulerValidationOutcome {
   SchedulerValidationUnknownParentBlock = 6,
   // Proposal batch metadata is malformed or fails to decode (e.g.
   // segment token/byte counts are inconsistent, XDR deserialization
-  // fails, or tx_hashes/tx_nondeterministic counts do not match).
+  // fails, or signed_hash/nondeterministic_data counts do not match).
   SchedulerValidationMalformed = 7
 };
 
@@ -60,7 +60,9 @@ union SchedulerValidationResult switch (SchedulerValidationOutcome outcome)
 case SchedulerValidationOK:
   SchedulerValidationBlock block;
 case SchedulerValidationMissingTxs:
-  TransactionHash missing_tx_hashes<>;
+  // The proposal's transactions this mempool does not hold in the proposed
+  // encoding, including bodies it holds under a different signing.
+  SignedTransactionHash missing_signed_tx_hashes<>;
 
 // Error cases
 case SchedulerValidationDbFailed:
@@ -138,23 +140,23 @@ enum SchedulerTransactionErrorSource {
   // There is no error to report.
   SchedulerTransactionErrorNone = 0,
 
-  // The error was triggered by the authentication subsystem (hog-auth).
+  // The error was triggered by the authentication subsystem.
   SchedulerTransactionErrorAuth = 1,
-  // The error was triggered by the mempool (hog-mempool).
+  // The error was triggered by the mempool.
   SchedulerTransactionErrorScheduler = 2,
-  // The error was triggered by an executor (hog-exec).
+  // The error was triggered by an executor.
   SchedulerTransactionErrorExecutor = 3
 };
 
 enum SchedulerErrorCode {
   // The mempool had no capacity to admit the transaction.
   SchedulerErrorCapacity = 1,
-  // The scheduler could not obtain the account's average hog age.
-  SchedulerErrorHogAgeUnavailable = 2,
+  // The scheduler could not obtain the account's average native-token age.
+  SchedulerErrorNativeTokenAgeUnavailable = 2,
   // The transaction's expiry block height is earlier than the current block.
   SchedulerErrorExpired = 3,
-  // The transaction's gas limit exceeds all hogs available to the account.
-  SchedulerErrorInsufficientHogs = 4
+  // The transaction's gas limit exceeds the account's available native tokens.
+  SchedulerErrorInsufficientNativeTokens = 4
 };
 
 struct SchedulerTransactionOutcome {
@@ -236,8 +238,9 @@ program SchedulerCoord
     GenesisCeremonyResult schedulercoord_commit_genesis_ceremony(
       GenesisCeremonyRequest) = 10;
 
-    // Returns transactions from the mempool that have not yet been committed in a block.
-    OptSignedTransactionBatch schedcoord_lookup_transactions(TransactionHashBatch) = 100;
+    // Returns transactions from the mempool that have not yet been committed in a block,
+    // by their exact signed encoding.
+    OptSignedTransactionBatch schedcoord_lookup_transactions(SignedTransactionHashBatch) = 100;
 
     // Returns one pending or recent outcome per input hash (same order).
     SchedulerTransactionOutcomeBatch schedcoord_lookup_transaction_outcomes(TransactionHashBatch) = 101;

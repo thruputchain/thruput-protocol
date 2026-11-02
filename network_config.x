@@ -1,7 +1,6 @@
 // clang-format off
 %#include "auth_token.hh"
 %#include "contract.hh"
-%#include "hog_exec_constants.hh"
 %#include "storage_cost.hh"
 %#include "types.hh"
 
@@ -25,16 +24,18 @@ enum ConfigParamID {
   kConfigParamMaxRv32MemoryBytes = 9,
   kConfigParamMaxAuthTokens = 10,
   kConfigParamMaxCalldataLen = 11,
-  kConfigParamMaxReturnBufferLen = 12
+  kConfigParamMaxReturnBufferLen = 12,
+  kConfigParamMaxTxGas = 13
 };
 
 /// One configuration parameter and the value in force for it.
 ///
 /// Serves both uses of that pairing: `NetworkConfigV0` states a chain's
-/// configuration as a list of these, and consensus carries one per parameter
-/// being changed in `ConsensusValue::upgrades`, where everything a block does
-/// not name keeps the value it already has. Each arm carries its own type, so
-/// a future parameter need not be an `unsigned int`.
+/// configuration as a list of these, and is meant to carry one per parameter
+/// being changed by a consensus upgrade, where everything a block does not
+/// name keeps the value it already has. No upgrade mechanism exists yet:
+/// `ConsensusValue::upgrades` is opaque, and the node leaves it empty. Each arm
+/// carries its own type, so a future parameter need not be an `unsigned int`.
 ///
 /// There is no `default` arm on purpose: a node that cannot name a parameter
 /// cannot know what value is in force for it, so an unrecognized id must fail
@@ -43,7 +44,8 @@ union ConfigParam switch (ConfigParamID param)
 {
 case kConfigParamMaxSHA256Buffers:
   /// Concurrently open incremental SHA-256 buffers permitted per invocation
-  /// frame (`SHA256Update`, `SHA256Copy`, `SHA256Finalize`).
+  /// frame (`SHA256Update`, `SHA256Copy`, `SHA256Finalize`). 32 is the value
+  /// in force for a configuration that does not state one.
   unsigned int max_sha256_buffers;
 
 case kConfigParamMaxCrossInvokeDepth:
@@ -51,7 +53,8 @@ case kConfigParamMaxCrossInvokeDepth:
   /// invoke rather than only the savepoint-pushing ones that
   /// `kConfigParamMaxSavepointDepth` bounds. Each open frame holds a live contract
   /// runtime, so this is what stops a recursive call chain from growing until
-  /// the executor runs out of room for it.
+  /// the executor runs out of room for it. 16 is the value in force for a
+  /// configuration that does not state one.
   unsigned int max_cross_invoke_depth;
 
 case kConfigParamMaxNewContractsPerTx:
@@ -61,13 +64,14 @@ case kConfigParamMaxNewContractsPerTx:
   /// deploy: the executor holds every attached contract for the whole
   /// transaction, and the ones deployed are a subset chosen during execution.
   /// Attaching the same contract twice is rejected outright, so the count is
-  /// over distinct contracts either way.
+  /// over distinct contracts either way. 4 is the value in force for a
+  /// configuration that does not state one.
   ///
   /// Together with `kConfigParamMaxContractSizeBytes` this is what bounds the
   /// transaction's final commit batch, which the executor sends to storage as
   /// a single message. A chain must set the pair low enough that the largest
-  /// batch it admits still fits that message; hogd rejects a genesis that
-  /// does not.
+  /// batch it admits still fits that message; the node rejects a genesis
+  /// that does not.
   unsigned int max_new_contracts_per_tx;
 
 case kConfigParamMaxBytestringLen:
@@ -92,19 +96,21 @@ case kConfigParamMaxContractSizeBytes:
   /// contract it thereby admits, that every attached contract still fits a
   /// transaction (`kMaxBytesSignedTransaction`), and that the commit batch
   /// `kConfigParamMaxNewContractsPerTx` bounds fits one storage message.
-  /// hogd rejects a genesis that does not.
+  /// The node rejects a genesis that does not.
   unsigned int max_contract_size_bytes;
 
 case kConfigParamMaxSavepointDepth:
-  /// Storage savepoints one transaction may have open at once: one per
-  /// `TryInvoke` frame still executing, plus the one the root commit takes.
-  /// A `TryInvoke` past the limit fails as the guest would see any other
-  /// refused call. `kMaxSavepointDepth` is the value in force for a
-  /// configuration that does not state one.
+  /// Storage savepoints one transaction may hold at once: one per successful
+  /// `TryInvoke` whose writes are still held (finished siblings included),
+  /// plus the one the root commit takes. A `TryInvoke` whose child would go
+  /// past the limit still runs, then fails deterministically, as one that
+  /// loses a lock conflict does, and its writes are discarded.
+  /// 1024 is the value in force for a configuration that does not state
+  /// one.
   ///
   /// Every open savepoint is a live nested VM on one executor thread, so a
-  /// chain must keep this within what its executors' stacks hold; hogd
-  /// rejects a genesis above its build ceiling.
+  /// chain must keep this within what its executors' stacks hold; the
+  /// node rejects a genesis above its build ceiling.
   unsigned int max_savepoint_depth;
 
 case kConfigParamMaxSHA256BufferBytes:
@@ -125,25 +131,25 @@ case kConfigParamMaxAuthTokenDepth:
 case kConfigParamMaxRv32CodeBytes:
   /// Bytes of code (`code_size` in the artifact header) an RV32 artifact may
   /// carry to be admitted as an attached contract.
-  /// `kDefaultMaxRv32CodeBytes` is the value in force for a configuration
-  /// that does not state one.
+  /// 262144 is the value in force for a configuration that does not state
+  /// one.
   ///
   /// Checked where a contract is attached, not where a deployed one is
   /// instantiated, so lowering it leaves deployed contracts runnable. The
-  /// artifact format itself does not bound the field; hogd rejects a genesis
-  /// above what its VM can translate.
+  /// artifact format itself does not bound the field; the node rejects a
+  /// genesis above what its VM can translate.
   unsigned int max_rv32_code_bytes;
 
 case kConfigParamMaxRv32MemoryBytes:
   /// Bytes of guest data memory (`memory_bytes` in the artifact header) an
   /// RV32 artifact may declare to be admitted as an attached contract.
-  /// `kDefaultMaxRv32MemoryBytes` is the value in force for a configuration
-  /// that does not state one.
+  /// 65536 is the value in force for a configuration that does not state
+  /// one.
   ///
   /// Checked at attachment like `kConfigParamMaxRv32CodeBytes`. Every
   /// invocation provisions and seeds the declared memory outside gas, so a
-  /// chain raising this accepts that per-call cost; hogd rejects a genesis
-  /// above what its VM provisions.
+  /// chain raising this accepts that per-call cost; the node rejects a
+  /// genesis above what its VM provisions.
   unsigned int max_rv32_memory_bytes;
 
 case kConfigParamMaxAuthTokens:
@@ -159,7 +165,8 @@ case kConfigParamMaxAuthTokens:
   ///
   /// Neither wire type bounds its list, and no value was in force before this
   /// parameter: a list was limited only by the memory holding it. A
-  /// configuration omitting this one is not continuing an older rule.
+  /// configuration omitting this one is not continuing an older rule: the
+  /// value in force is 64.
   unsigned int max_auth_tokens;
 
 case kConfigParamMaxCalldataLen:
@@ -176,7 +183,8 @@ case kConfigParamMaxCalldataLen:
   /// The executor holds a frame's calldata for the life of that frame and
   /// every open frame holds its own, so a chain must keep this within what
   /// `kConfigParamMaxCrossInvokeDepth` frames of it leave room for. No value
-  /// was in force before this parameter.
+  /// was in force before this parameter; for a configuration that does not
+  /// state one, the value in force is 65536.
   unsigned int max_calldata_len;
 
 case kConfigParamMaxReturnBufferLen:
@@ -191,8 +199,26 @@ case kConfigParamMaxReturnBufferLen:
   ///
   /// `ReturnBuffer` bounded itself at 1024 bytes before this parameter, so a
   /// configuration omitting this one is continuing an older rule rather than
-  /// lifting it. The executor states the value it continues at.
+  /// lifting it: the value in force for a configuration that does not state
+  /// one is 1024.
   unsigned int max_return_buffer_len;
+
+case kConfigParamMaxTxGas:
+  /// Gas one transaction may budget: the most a root `Invocation::gas_limit`
+  /// may state.
+  ///
+  /// Checked before any attached contract is verified or any body runs, so
+  /// a transaction over the bound is refused outright rather than clamped:
+  /// the budget a transaction signs is the one it executes under or none.
+  /// Subinvocations are already capped at their caller's remaining gas, so
+  /// bounding the root bounds every frame.
+  ///
+  /// Native-token availability bounded a transaction's budget before this
+  /// parameter, and nothing else did. A configuration omitting this one does
+  /// not continue that rule: the value in force is `1,000,000,000`. A
+  /// `GasAmount` rather than an `unsigned int` so that a chain may state any
+  /// budget a transaction can.
+  GasAmount max_tx_gas;
 };
 
 /// The parameters a chain states, as a list rather than fixed fields. A new
@@ -223,8 +249,9 @@ struct NetworkConfigV0 {
 
 /// The consensus-critical execution parameters a block executes under.
 ///
-/// The protocol blesses no value for any parameter: a chain states its
-/// configuration at genesis, so there is nothing a node silently inherits.
+/// A chain states its configuration at genesis. A parameter the
+/// configuration does not state takes the value its [`ConfigParam`] arm
+/// documents (see [`NetworkConfigV0`]).
 ///
 /// One version, because `v0` states its parameters as a list: a new parameter
 /// is an id and a [`ConfigParam`] arm, not a new arm here. The discriminant is
@@ -249,7 +276,7 @@ struct ConfigHashPreimage {
   /// It selects executing code, so a node running under a different one from
   /// its peers executes a different chain. Nothing else commits to it: a
   /// node's copy travels in the tip, which implementations are free to keep
-  /// outside the state the storage hash covers, and hogd does. Committing to
+  /// outside the state the storage hash covers, and some do. Committing to
   /// it here is what binds the value a node executes under to the one
   /// consensus agreed, rather than to whatever its own storage returns.
   DeployedContractHash default_wallet;

@@ -78,7 +78,7 @@ program DatabaseToExecutorInterface
 							      unsigned int) =
     102;
 
-    // TODO(geoff) consider whether we want to combine these or not.
+    // TODO: consider whether we want to combine these or not.
     // Tradeoff is messages vs maybe sending redundant contracts.
     // Perhaps the sender could cache whether it expects the client to have
     // the contract, and optionally send accordingly.

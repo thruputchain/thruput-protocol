@@ -54,9 +54,9 @@ contribute distinct versions.
 
 The loader examines only `.x` files at the protocol repository root. Nested
 tool fixtures and other non-production files are excluded, and so are
-`discovery2.x` and `multiplex2.x`: each redeclares names from the file it
-supersedes, which the parser rejects as ambiguous, so neither is checked for
-wire compatibility. CI excludes the same two files from goxdr. The parser covers
+`discovery_deprecated.x` and `multiplex_deprecated.x`: `discovery.x` and
+`multiplex.x` redeclare their names, which the parser rejects as ambiguous, so
+the deprecated files are not checked for wire compatibility. The parser covers
 the XDR syntax used by this repository, including its anonymous inline
 aggregates; it is not a general-purpose implementation of every rpcgen dialect
 or preprocessor. The checker evaluates schema-level wire compatibility. It

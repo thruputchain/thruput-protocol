@@ -1,4 +1,4 @@
-%#include "discovery.hh"
+%#include "validator.hh"
 %#include "proposal.hh"
 %#include "consensus.hh"
 %#include "parallel.hh"
