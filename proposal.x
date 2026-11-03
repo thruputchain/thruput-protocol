@@ -32,9 +32,14 @@ struct ProposalTxs {
 
 /// Compatibility commitment over `ProposalTxs`.
 ///
-/// This is not SHA-256 of the complete canonical XDR. It XORs the hash of a
-/// base value with empty batches, the hashes of each raw batch segment, and
-/// the XDR hash of each batch index with its raw bytes removed.
+/// This is not SHA-256 of the complete canonical XDR, so that batch segments
+/// can hash in parallel. It is the SHA-256, in order, of
+/// `cxs(DomainSeparator("ProposalTxs"))`, the hash of a base value with empty
+/// batches, and the hashes of `signed_hash` and `nondeterministic_data`. A
+/// batch hashes as the SHA-256, in order, of
+/// `cxs(DomainSeparator("ParallelBatch"))`, the XDR hash of the batch index
+/// with its raw bytes removed, and the hash of each raw batch segment.
+/// Combining in order, rather than by XOR, binds each segment to its position.
 typedef SHA256Hash ProposalTxsHash; // #[rust(newtype)]
 
 /// A candidate block: header plus the transaction metadata needed to
