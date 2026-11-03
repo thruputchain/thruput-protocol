@@ -138,7 +138,7 @@ struct EventPage {
 
 /// `get_transactions` request.  Whole-chain walk in `order` from `anchor`.
 /// There is no address filter here — use `get_transactions_by_address` for
-/// per-account (root invoked address) transaction history.
+/// root-target and entered-address transaction history.
 struct TransactionQuery {
   IterationOrder order;
   BlockAnchor anchor;
@@ -188,8 +188,8 @@ struct TransactionRef {
 typedef TransactionRef TransactionRefBatch<>;
 
 /// `get_transactions_by_address` request.  Walked in `order` from `anchor`,
-/// returning transactions whose ROOT invocation targets `address` (i.e. the
-/// account's transaction history).
+/// returning transactions whose root targets `address` or whose committed
+/// invoked_addresses contains it. Each transaction appears once.
 struct AddressTransactionQuery {
   ContractAddress address;
   IterationOrder order;
@@ -226,6 +226,24 @@ struct TransactionRefPage {
   /// Lowest block the query covers: 1 (the first indexed block) for
   /// get_transactions_by_block, and the indexer's oldest retained block
   /// (today always 0) for get_transactions_by_address.
+  BlockHeight oldest_block;
+};
+
+/// Relationship evidence for the queried address, not a per-call result.
+/// At least one flag is true. A root target need not have entered execution.
+struct AddressTransactionRef {
+  TransactionHash tx_hash;
+  BlockHeight height;
+  bool is_root_target;
+  bool was_invoked;
+};
+
+struct AddressTransactionRefPage {
+  AddressTransactionRef refs<>;
+  PaginationCursor cursor;
+  /// Inclusive upper coverage bound, pinned for the duration of a cursor walk.
+  BlockHeight latest_block;
+  /// Inclusive lower bound of contiguous, complete retained address history.
   BlockHeight oldest_block;
 };
 
@@ -276,6 +294,13 @@ default:
   void;
 };
 
+union AddressTransactionRefPageResult switch (IndexerQueryOutcome outcome) {
+case IndexerQueryOk:
+  AddressTransactionRefPage page;
+default:
+  void;
+};
+
 enum IndexerBlockExplorerIntroOutcome {
   IntroSuccess = 0,
   IntroMismatchedProtocol = 1
@@ -303,9 +328,9 @@ program IndexerBlockExplorer
     // Paginated transactions, whole-chain, in block order.
     TransactionPageResult get_transactions(TransactionQuery) = 4;
 
-    // Paginated transaction refs whose root invoked address == the query
-    // address (account transaction history).  Hydrate via get_transaction_info.
-    TransactionRefPageResult get_transactions_by_address(AddressTransactionQuery) = 5;
+    // Root-target or entered-address membership, deduplicated per transaction.
+    // Hydrate via get_transaction_info; membership does not imply call success.
+    AddressTransactionRefPageResult get_transactions_by_address(AddressTransactionQuery) = 5;
 
     // Paginated transaction refs committed at exactly the requested height.
     // Hydrate via get_transaction_info.

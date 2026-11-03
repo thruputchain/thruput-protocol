@@ -56,7 +56,12 @@ enum SyscallErrorCode {
   /// invocation succeeds from a shallower frame. It is reported before any
   /// child frame runs, so the syscall is a complete no-op and the caller's
   /// invoke outputs are left untouched.
-  kSyscallErrorCodeInvokeDepthExceeded = 11
+  kSyscallErrorCodeInvokeDepthExceeded = 11,
+
+  /// Entering a new address would exceed kMaxInvokedAddressesPerTransaction.
+  /// Rejected before frame entry, leaving invoke outputs untouched. Calls to
+  /// already-entered addresses remain eligible. Rollback does not reset the set.
+  kSyscallErrorCodeInvokedAddressLimitExceeded = 12
 };
 
 } // namespace hogd

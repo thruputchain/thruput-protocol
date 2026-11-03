@@ -19,6 +19,10 @@ const kMaxEventLength = 1024; // #[rust(const=u32)]
 /// This keeps a single TxEventLog well below the RPC transport message limit.
 const kMaxEventsPerTransaction = 1000; // #[rust(const=u32)]
 
+/// Maximum distinct addresses whose invocation frames may run in one transaction.
+/// This bound applies across all frames, including frames whose effects roll back.
+const kMaxInvokedAddressesPerTransaction = 1024; // #[rust(const=u32)]
+
 /// Maximum number of topics that can be attached to an event.
 /// Topics enable efficient indexing and filtering of events.
 const kMaxTopics = 3;
@@ -75,6 +79,13 @@ struct TxEventLog {
   ExecResult exec_result;
   InvocationFrameOutput root_output;
   GasAmount gas_consumed;
+  /// Addresses whose runtime invocation began after successful frame admission.
+  /// Strictly increasing by unsigned raw address bytes, without duplicates.
+  /// Includes entered frames even when their effects were discarded. Excludes
+  /// targets rejected before entry; the root target is not implicitly included.
+  /// Like the other fields, this is reproduced by validator execution and bound
+  /// by the events commitment. It does not establish individual call outcomes.
+  ContractAddress invoked_addresses<kMaxInvokedAddressesPerTransaction>;
   TxEmittedEvent events<kMaxEventsPerTransaction>;
 };
 
