@@ -36,6 +36,39 @@ struct ContractBlob {
   opaque data<>;
 };
 
+/// What an RV32 artifact extension carries. Values are permanent: a value is
+/// never reused.
+enum Rv32ArtifactExtensionKind {
+  /// The body is an `Rv32ContractSpecExtension`.
+  kRv32ExtensionContractSpec = 1
+};
+
+/// One extension in a v6 RV32 artifact: data after initial memory that the
+/// runtime never loads into guest memory.
+///
+/// `kind` is an `Rv32ArtifactExtensionKind`, typed as `unsigned int` so a
+/// decoder accepts kinds it does not know. Zero is reserved. The chain stores
+/// `body` without interpreting it.
+struct Rv32ArtifactExtension {
+  unsigned int kind;
+  opaque body<>;
+};
+
+/// The extension list that ends a v6 RV32 artifact, running from the end of
+/// initial memory exactly to the end of the artifact.
+///
+/// Kinds are strictly ascending, so there is at most one extension of each
+/// kind and exactly one encoding of any set of extensions. The chain checks
+/// only this framing; adding a kind needs no runtime change.
+typedef Rv32ArtifactExtension Rv32ArtifactExtensions<>;
+
+/// The body of a `kRv32ExtensionContractSpec` extension.
+struct Rv32ContractSpecExtension {
+  /// Schema of `spec`. 1: `spec` is an XDR `ContractSpec` (contract_spec.x).
+  unsigned int schema_version;
+  opaque spec<>;
+};
+
 /// The execution environment for a contract.
 ///
 /// Discriminant 0 is retired. It selected an earlier contract runtime, which
