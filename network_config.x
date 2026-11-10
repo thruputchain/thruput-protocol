@@ -25,7 +25,9 @@ enum ConfigParamID {
   kConfigParamMaxAuthTokens = 10,
   kConfigParamMaxCalldataLen = 11,
   kConfigParamMaxReturnBufferLen = 12,
-  kConfigParamMaxTxGas = 13
+  kConfigParamMaxTxGas = 13,
+  kConfigParamMinRv32ArtifactVersion = 14,
+  kConfigParamMaxRv32ArtifactVersion = 15
 };
 
 /// One configuration parameter and the value in force for it.
@@ -219,6 +221,35 @@ case kConfigParamMaxTxGas:
   /// `GasAmount` rather than an `unsigned int` so that a chain may state any
   /// budget a transaction can.
   GasAmount max_tx_gas;
+
+case kConfigParamMinRv32ArtifactVersion:
+  /// Lowest RV32 artifact format version (`format_version` in the artifact
+  /// header) admitted as an attached contract. 5 is the value in force for a
+  /// configuration that does not state one, which is the oldest format
+  /// admitted before this parameter.
+  ///
+  /// Checked where a contract is attached, like
+  /// `kConfigParamMaxRv32CodeBytes`, not where a deployed one is
+  /// instantiated: raising it stops new deployments in an old format and
+  /// leaves contracts already deployed in one runnable. Retiring a format
+  /// from execution is a separate decision about stored contracts.
+  ///
+  /// A node admits only formats it can read, so the node rejects a genesis
+  /// whose range reaches below the oldest format its build reads, or whose
+  /// minimum exceeds `kConfigParamMaxRv32ArtifactVersion`.
+  unsigned int min_rv32_artifact_version;
+
+case kConfigParamMaxRv32ArtifactVersion:
+  /// Highest RV32 artifact format version admitted as an attached contract,
+  /// checked with `kConfigParamMinRv32ArtifactVersion` and inclusive like it.
+  /// 6 is the value in force for a configuration that does not state one,
+  /// which is the newest format admitted before this parameter.
+  ///
+  /// This is what activates a format: a node whose build reads a newer
+  /// format still refuses it until the chain's configuration admits it, so
+  /// nodes on different builds agree on which contracts attach. The node
+  /// rejects a genesis above the newest format its build reads.
+  unsigned int max_rv32_artifact_version;
 };
 
 /// The parameters a chain states, as a list rather than fixed fields. A new
