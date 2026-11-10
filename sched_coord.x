@@ -79,9 +79,8 @@ enum SchedulerCommitOutcome {
   SchedulerCommitBlockNotFound = 1,
   SchedulerCommitInvalidConsensusValue = 2,
   SchedulerConcurrentCommit = 3,
-  // The value's upgrades are not ones this node can apply: one is malformed,
-  // the list is out of canonical order, or this build cannot execute under
-  // the configuration that results. The block is not committed.
+  // The value's upgrades are ones this node cannot apply (see
+  // schedulercoord_check_upgrades). The block is not committed.
   //
   // The coordinator commits only what consensus externalized, so this is not
   // a bad proposal to skip: the chain has moved to rules this node cannot
@@ -89,19 +88,27 @@ enum SchedulerCommitOutcome {
   SchedulerCommitUnsupportedUpgrades = 4
 };
 
+struct SchedulerCheckUpgradesRequest {
+  // The parent of the block that would carry the upgrades, as for
+  // schedulercoord_validate_block. The upgrades are judged against the
+  // configuration this block leaves in force.
+  BlockID parent;
+
+  // As they would appear in `ConsensusValue::upgrades`.
+  Upgrade upgrades<6>;
+};
+
 enum SchedulerCheckUpgradesOutcome {
-  // Every upgrade is well formed, the list is in canonical order, and this
-  // build can execute under the configuration that results from applying
-  // them to the one the named block leaves in force. An empty list is OK.
+  // This node can decode every upgrade and can execute under the
+  // configuration that results from applying them. An empty list is OK.
   SchedulerCheckUpgradesOK = 0,
-  // The scheduler does not hold the block the upgrades would follow.
+  // The scheduler does not hold the parent block.
   SchedulerCheckUpgradesUnknownParentBlock = 1,
-  // An upgrade is not exactly one encoded `ConsensusUpgrade`, or the list is
-  // not in the order `Upgrades` requires.
+  // The scheduler cannot decode an upgrade, or the list is not one it
+  // accepts as a whole.
   SchedulerCheckUpgradesMalformed = 2,
-  // The upgrades are well formed, but this build cannot execute under the
-  // configuration that results: a parameter is past what the build sustains,
-  // or parameters that bound each other no longer agree.
+  // The upgrades decode, but this build cannot execute under the
+  // configuration that results.
   SchedulerCheckUpgradesUnsupported = 3
 };
 
@@ -254,9 +261,8 @@ program SchedulerCoord
     //
     // The value's upgrades are applied here, after the block: they change the
     // configuration the tip carries for the next block, not the one this
-    // block executed under. The scheduler checks them as
-    // schedulercoord_check_upgrades does and answers
-    // SchedulerCommitUnsupportedUpgrades if they fail.
+    // block executed under. If the scheduler cannot apply them it answers
+    // SchedulerCommitUnsupportedUpgrades.
     SchedulerCommitOutcome schedulercoord_commit_block(BlockID, ConsensusValue) = 6;
 
     // Returns information about the current highest committed block.
@@ -269,22 +275,18 @@ program SchedulerCoord
       GenesisCeremonyRequest) = 10;
 
     // Asks whether this node could commit a block carrying the given
-    // upgrades. BlockID is that block's parent, as it is for
-    // schedulercoord_validate_block: the upgrades are judged against the
-    // configuration the parent leaves in force, which is the one the block
-    // carrying them executes under.
+    // upgrades. The answer is for the list as a whole.
     //
-    // The answer is for the list as a whole, since the changes are judged
-    // together (see `Upgrades`). It does not depend on what the operator has
-    // armed: whether to nominate an upgrade is the coordinator's decision,
-    // and this only says whether the node could follow a chain that adopts
-    // it. A coordinator that drops upgrades from a nominated value asks again
-    // about what is left.
+    // It does not depend on what the operator has armed: whether to nominate
+    // an upgrade is the coordinator's decision, and this only says whether
+    // the node could follow a chain that adopts it. A coordinator that drops
+    // upgrades from a nominated value asks again about what is left.
     //
     // Separate from schedulercoord_validate_block because a block's upgrades
     // are not an input to executing it: validating the block and judging its
     // upgrades are independent, and the second needs no execution.
-    SchedulerCheckUpgradesOutcome schedulercoord_check_upgrades(BlockID, Upgrades) = 11;
+    SchedulerCheckUpgradesOutcome schedulercoord_check_upgrades(
+      SchedulerCheckUpgradesRequest) = 11;
 
     // Returns transactions from the mempool that have not yet been committed in a block,
     // by their exact signed encoding.

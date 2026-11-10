@@ -53,18 +53,14 @@ struct DbTip {
   /// address with no deployed contract (see
   /// SystemCallHandler::resolve_runtime). Set at genesis from
   /// GenesisConfiguration::default_wallet; carried forward verbatim by
-  /// every subsequent commit, and committed to by ProposalHeader::config_hash
-  /// through ConfigHashPreimage.
+  /// every subsequent commit, and committed to by this tip's own
+  /// ProposalHeader::config_hash through ConfigHashPreimage.
   DeployedContractHash default_wallet;
 
   /// The execution parameters in force for the block that follows this tip.
-  /// Set at genesis from GenesisConfiguration::network_config; each commit
-  /// carries it forward with that block's `ConsensusValue::upgrades` applied.
-  ///
-  /// So it is the configuration this tip's own block executed under -- the
-  /// one `value.proposal_header.config_hash` commits to -- only when
-  /// `value.upgrades` is empty. Otherwise the first header to commit to it is
-  /// the next block's.
+  /// Set at genesis from GenesisConfiguration::network_config and carried
+  /// forward verbatim by every commit: no mechanism changes it after genesis
+  /// yet (see [`ConfigParam`]).
   NetworkConfig network_config;
 };
 

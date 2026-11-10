@@ -33,9 +33,10 @@ enum ConfigParamID {
 /// One configuration parameter and the value in force for it.
 ///
 /// Serves both uses of that pairing: `NetworkConfigV0` states a chain's
-/// configuration as a list of these, and a consensus upgrade carries one per
-/// parameter it changes (`ConsensusUpgrade`, in `consensus.x`), where
-/// everything a block does not name keeps the value it already has. Each arm
+/// configuration as a list of these, and is meant to carry one per parameter
+/// being changed by a consensus upgrade, where everything a block does not
+/// name keeps the value it already has. No upgrade mechanism exists yet:
+/// `ConsensusValue::upgrades` is opaque, and the node leaves it empty. Each arm
 /// carries its own type, so a future parameter need not be an `unsigned int`.
 ///
 /// There is no `default` arm on purpose: a node that cannot name a parameter
