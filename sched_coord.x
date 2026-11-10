@@ -98,18 +98,32 @@ struct SchedulerCheckUpgradesRequest {
   Upgrade upgrades<6>;
 };
 
+enum SchedulerUpgradeStatus {
+  // This node can decode the upgrade and can execute under the configuration
+  // that results from applying it.
+  SchedulerUpgradeOK = 0,
+  // The scheduler cannot decode the upgrade.
+  SchedulerUpgradeMalformed = 1,
+  // The upgrade decodes, but this build cannot execute under the
+  // configuration that results.
+  SchedulerUpgradeUnsupported = 2
+};
+
 enum SchedulerCheckUpgradesOutcome {
-  // This node can decode every upgrade and can execute under the
-  // configuration that results from applying them. An empty list is OK.
   SchedulerCheckUpgradesOK = 0,
   // The scheduler does not hold the parent block.
-  SchedulerCheckUpgradesUnknownParentBlock = 1,
-  // The scheduler cannot decode an upgrade, or the list is not one it
-  // accepts as a whole.
-  SchedulerCheckUpgradesMalformed = 2,
-  // The upgrades decode, but this build cannot execute under the
-  // configuration that results.
-  SchedulerCheckUpgradesUnsupported = 3
+  SchedulerCheckUpgradesUnknownParentBlock = 1
+};
+
+union SchedulerCheckUpgradesResult switch (SchedulerCheckUpgradesOutcome outcome)
+{
+case SchedulerCheckUpgradesOK:
+  // One status per upgrade in the request, in the same order. Each upgrade
+  // is judged on its own against the parent's configuration, so the
+  // coordinator can keep the ones that pass and drop the rest.
+  SchedulerUpgradeStatus statuses<6>;
+case SchedulerCheckUpgradesUnknownParentBlock:
+  void;
 };
 
 enum SchedulerGetTipOutcome {
@@ -274,18 +288,17 @@ program SchedulerCoord
     GenesisCeremonyResult schedulercoord_commit_genesis_ceremony(
       GenesisCeremonyRequest) = 10;
 
-    // Asks whether this node could commit a block carrying the given
-    // upgrades. The answer is for the list as a whole.
+    // Asks, for each of the given upgrades, whether this node could commit a
+    // block carrying it.
     //
-    // It does not depend on what the operator has armed: whether to nominate
-    // an upgrade is the coordinator's decision, and this only says whether
-    // the node could follow a chain that adopts it. A coordinator that drops
-    // upgrades from a nominated value asks again about what is left.
+    // The answer does not depend on what the operator has armed: whether to
+    // nominate an upgrade is the coordinator's decision, and this only says
+    // whether the node could follow a chain that adopts it.
     //
     // Separate from schedulercoord_validate_block because a block's upgrades
     // are not an input to executing it: validating the block and judging its
     // upgrades are independent, and the second needs no execution.
-    SchedulerCheckUpgradesOutcome schedulercoord_check_upgrades(
+    SchedulerCheckUpgradesResult schedulercoord_check_upgrades(
       SchedulerCheckUpgradesRequest) = 11;
 
     // Returns transactions from the mempool that have not yet been committed in a block,
