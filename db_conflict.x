@@ -120,7 +120,10 @@ enum ContractRejectCode {
   /// declares.
   ContractRejectMalformedArtifact = 4,
 
-  /// The artifact's format version is not the one this node reads.
+  /// The artifact's format version is not one this node reads, or is outside
+  /// the range the chain's configuration admits
+  /// (`kConfigParamMinRv32ArtifactVersion`,
+  /// `kConfigParamMaxRv32ArtifactVersion`).
   ContractRejectUnsupportedFormat = 5,
 
   /// The artifact's VM profile, flags, entry ABI, or syscall ABI is not one
