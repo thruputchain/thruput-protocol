@@ -22,10 +22,33 @@ enum SchedulerProposalOutcome {
   SchedulerProposalError = 1
 };
 
+// The upgrades a block would carry, as in `ConsensusValue::upgrades`.
+typedef Upgrade SchedulerUpgrades<6>;
+
+enum SchedulerUpgradeStatus {
+  // This node can decode the upgrade and can execute under the configuration
+  // that results from applying it.
+  SchedulerUpgradeOK = 0,
+  // The scheduler cannot decode the upgrade.
+  SchedulerUpgradeMalformed = 1,
+  // The upgrade decodes, but this build cannot execute under the
+  // configuration that results.
+  SchedulerUpgradeUnsupported = 2
+};
+
 struct SchedulerProposedBlock {
+  // Identifies the executed block together with the upgrades it carries:
+  // those the coordinator offered whose status below is SchedulerUpgradeOK.
+  // A block built on this id runs under the configuration they leave in
+  // force.
   BlockID block_id;
   ParallelSignedTransactionBatch txs;
   Proposal proposal;
+
+  // One status per upgrade the coordinator offered, in the same order. The
+  // coordinator puts in the block's `ConsensusValue` exactly the upgrades
+  // that are SchedulerUpgradeOK.
+  SchedulerUpgradeStatus upgrade_statuses<6>;
 };
 
 union SchedulerProposalResult switch (SchedulerProposalOutcome outcome)
@@ -51,8 +74,16 @@ enum SchedulerValidationOutcome {
 };
 
 struct SchedulerValidationBlock {
+  // Identifies the executed block together with the upgrades it carries:
+  // those given whose status below is SchedulerUpgradeOK. A block built on
+  // this id runs under the configuration they leave in force.
   BlockID block_id;
   ParallelSignedTransactionBatch signed_transactions;
+
+  // One status per upgrade given, in the same order. A value is valid only
+  // if every one is SchedulerUpgradeOK; otherwise `block_id` stands for the
+  // same block without the upgrades that failed.
+  SchedulerUpgradeStatus upgrade_statuses<6>;
 };
 
 union SchedulerValidationResult switch (SchedulerValidationOutcome outcome)
@@ -78,52 +109,7 @@ enum SchedulerCommitOutcome {
   SchedulerCommitOK = 0,
   SchedulerCommitBlockNotFound = 1,
   SchedulerCommitInvalidConsensusValue = 2,
-  SchedulerConcurrentCommit = 3,
-  // The value's upgrades are ones this node cannot apply (see
-  // schedulercoord_check_upgrades). The block is not committed.
-  //
-  // The coordinator commits only what consensus externalized, so this is not
-  // a bad proposal to skip: the chain has moved to rules this node cannot
-  // follow, and it must stop rather than continue under the old ones.
-  SchedulerCommitUnsupportedUpgrades = 4
-};
-
-struct SchedulerCheckUpgradesRequest {
-  // The parent of the block that would carry the upgrades, as for
-  // schedulercoord_validate_block. The upgrades are judged against the
-  // configuration this block leaves in force.
-  BlockID parent;
-
-  // As they would appear in `ConsensusValue::upgrades`.
-  Upgrade upgrades<6>;
-};
-
-enum SchedulerUpgradeStatus {
-  // This node can decode the upgrade and can execute under the configuration
-  // that results from applying it.
-  SchedulerUpgradeOK = 0,
-  // The scheduler cannot decode the upgrade.
-  SchedulerUpgradeMalformed = 1,
-  // The upgrade decodes, but this build cannot execute under the
-  // configuration that results.
-  SchedulerUpgradeUnsupported = 2
-};
-
-enum SchedulerCheckUpgradesOutcome {
-  SchedulerCheckUpgradesOK = 0,
-  // The scheduler does not hold the parent block.
-  SchedulerCheckUpgradesUnknownParentBlock = 1
-};
-
-union SchedulerCheckUpgradesResult switch (SchedulerCheckUpgradesOutcome outcome)
-{
-case SchedulerCheckUpgradesOK:
-  // One status per upgrade in the request, in the same order. Each upgrade
-  // is judged on its own against the parent's configuration, so the
-  // coordinator can keep the ones that pass and drop the rest.
-  SchedulerUpgradeStatus statuses<6>;
-case SchedulerCheckUpgradesUnknownParentBlock:
-  void;
+  SchedulerConcurrentCommit = 3
 };
 
 enum SchedulerGetTipOutcome {
@@ -261,22 +247,32 @@ program SchedulerCoord
 
     // schedulercoord_propose asks the scheduler to prepare a proposal (a
     // block proposal) on top of the given db block.
-    SchedulerProposalResult schedulercoord_propose_block(BlockID, ProposalContext) = 4;
+    //
+    // The upgrades are the ones the coordinator wants the block to carry.
+    // They are not an input to executing the block: they change the
+    // configuration it leaves in force for the block after it.
+    SchedulerProposalResult schedulercoord_propose_block(
+      BlockID, ProposalContext, SchedulerUpgrades) = 4;
 
     // schedulercoord_validate asks the scheduler to validate a proposal,
     // and if successful, return the block ID in the db of the validated
     // block. BlockID is the block onto which the proposal is done.
-    SchedulerValidationResult schedulercoord_validate_block(BlockID, Proposal) = 5;
+    //
+    // The upgrades are the ones the block would carry. The scheduler judges
+    // each without regard to what the operator has armed: which upgrades to
+    // nominate is the coordinator's decision. Validating the same proposal
+    // again with different upgrades does not execute it again.
+    SchedulerValidationResult schedulercoord_validate_block(
+      BlockID, Proposal, SchedulerUpgrades) = 5;
 
     // Commit the block with block ID. This block must have been previously
     // proposed or validated by the mempool.
     // On commit the block is associated with the ConsensusValue that confirmed it.
     // This value is saved in the database and retrievable via schedcoord_get_tip.
     //
-    // The value's upgrades are applied here, after the block: they change the
-    // configuration the tip carries for the next block, not the one this
-    // block executed under. If the scheduler cannot apply them it answers
-    // SchedulerCommitUnsupportedUpgrades.
+    // The value's upgrades must be the ones the block was proposed or
+    // validated with, or the answer is SchedulerCommitInvalidConsensusValue.
+    // They take effect here, after the block.
     SchedulerCommitOutcome schedulercoord_commit_block(BlockID, ConsensusValue) = 6;
 
     // Returns information about the current highest committed block.
@@ -287,19 +283,6 @@ program SchedulerCoord
 
     GenesisCeremonyResult schedulercoord_commit_genesis_ceremony(
       GenesisCeremonyRequest) = 10;
-
-    // Asks, for each of the given upgrades, whether this node could commit a
-    // block carrying it.
-    //
-    // The answer does not depend on what the operator has armed: whether to
-    // nominate an upgrade is the coordinator's decision, and this only says
-    // whether the node could follow a chain that adopts it.
-    //
-    // Separate from schedulercoord_validate_block because a block's upgrades
-    // are not an input to executing it: validating the block and judging its
-    // upgrades are independent, and the second needs no execution.
-    SchedulerCheckUpgradesResult schedulercoord_check_upgrades(
-      SchedulerCheckUpgradesRequest) = 11;
 
     // Returns transactions from the mempool that have not yet been committed in a block,
     // by their exact signed encoding.
