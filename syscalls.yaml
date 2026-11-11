@@ -983,9 +983,9 @@ syscalls:
       Each 64-byte term contains a canonical 32-byte little-endian scalar
       followed by a canonical compressed point. Accepts zero scalars,
       identity points and an empty sum. Validates every term, including
-      zero-scalar terms. At most 256 terms. Output is canonical; invalid-input
-      and out-of-gas failures leave output untouched. All operands are public
-      to the executor.
+      zero-scalar terms. At most 256 terms. Output is canonical. Invalid input
+      leaves output untouched; gas exhaustion terminates the frame. All operands
+      are public to the executor.
     errors:
       - code: kSyscallErrorCodeInvalidSyscallInput
         description: >
