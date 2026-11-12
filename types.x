@@ -32,6 +32,9 @@ typedef unsigned hyper GasAmount; // uint64_t
 
 /// Represents a 512-bit Ed25519 signature.
 typedef opaque Ed25519Signature[64]; // #[rust(newtype)]
+/// Canonical compressed Ristretto255 group element.
+typedef opaque Ristretto255Point[32]; // #[rust(newtype)]
+
 /// Represents a 256-bit Ed25519 public key.
 typedef opaque Ed25519PublicKey[32]; // #[rust(newtype)]
 /// Represents a 64-byte Ed25519 secret key.

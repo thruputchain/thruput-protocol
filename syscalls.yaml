@@ -24,6 +24,10 @@ syscall_input_count: 7
 # rust_uses_as_ptr: true means that the SDK passes the type by calling
 # .as_ptr() on it.
 type_mappings:
+  - base_name: "Ristretto255Point"
+    rust_name: "Ristretto255Point"
+    rust_uses_as_ptr: false
+    newtype: true
   - base_name: "uint32_t"  # The cpp name, which is used in this spec
     rust_name: "u32"
     rust_uses_as_ptr: false
@@ -965,3 +969,24 @@ syscalls:
       key is pending, since such a key has no flags. As with SetStorageFlags,
       a clear made in a frame that aborts is discarded with that frame.
     errors:
+  - name: "Ristretto255Msm"
+    read_only: true
+    inputs:
+      - name: "terms"
+        span_argument: true
+    outputs:
+      - name: "point"
+        typename: "Ristretto255Point"
+    number: 39
+    description: >
+      Experimental bounded Ristretto255 sum of scalar-point products.
+      Each 64-byte term contains a canonical 32-byte little-endian scalar
+      followed by a canonical compressed point. Accepts zero scalars,
+      identity points and an empty sum. Validates every term, including
+      zero-scalar terms. At most 256 terms. Output is canonical. Invalid input
+      leaves output untouched; gas exhaustion terminates the frame. All operands
+      are public to the executor.
+    errors:
+      - code: kSyscallErrorCodeInvalidSyscallInput
+        description: >
+          Invalid length, too many terms, noncanonical scalar or invalid point.

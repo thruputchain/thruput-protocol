@@ -557,6 +557,19 @@ struct SyscallClearStorageFlagsTrace {
   SyscallClearStorageFlagsOutputs *outputs;
 };
 
+struct SyscallRistretto255MsmInputs {
+  opaque terms<>;
+};
+
+struct SyscallRistretto255MsmOutputs {
+  Ristretto255Point point;
+};
+
+struct SyscallRistretto255MsmTrace {
+  SyscallRistretto255MsmInputs inputs;
+  SyscallRistretto255MsmOutputs *outputs;
+};
+
 // === Main Trace Body ===
 
 union SyscallTraceBody switch (SyscallNo syscall_number)
@@ -639,6 +652,8 @@ case kGetStorageFlags:
   SyscallGetStorageFlagsTrace get_storage_flags;
 case kClearStorageFlags:
   SyscallClearStorageFlagsTrace clear_storage_flags;
+case kRistretto255Msm:
+  SyscallRistretto255MsmTrace ristretto255_msm;
 default:
   void;
 };
