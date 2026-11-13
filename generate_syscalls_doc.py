@@ -16,6 +16,9 @@ import json
 from pathlib import Path
 from typing import Dict, List, Any, Optional
 
+sys.path.insert(0, str(Path(__file__).resolve().parent / 'scripts'))
+import syscallcompat  # noqa: E402
+
 
 def format_type(typename: str, yaml_data: Dict[str, Any], is_span: bool = False, 
                 is_optional: bool = False, is_primitive: bool = False) -> str:
@@ -261,6 +264,12 @@ def generate_markdown(yaml_data: Dict[str, Any], output_path: Path) -> List[str]
 
     lines = [header]
     syscalls = yaml_data.get('syscalls', [])
+
+    validation_issues.extend(syscallcompat.validate(yaml_data))
+    version = syscallcompat.api_version(yaml_data)
+    if version is not None:
+        lines.append(f"Syscall API version {version[0]}.{version[1]}.")
+        lines.append("")
     
     # Sort by number to ensure correct order
     syscalls_sorted = sorted(syscalls, key=lambda s: s.get('number', -1))
@@ -288,6 +297,12 @@ def generate_markdown(yaml_data: Dict[str, Any], output_path: Path) -> List[str]
         # Generate documentation
         lines.append(f"# {name}")
         lines.append("")
+        if version is not None and 'since_minor' in syscall:
+            since = f"Since {version[0]}.{syscall['since_minor']}."
+            if syscall.get('experimental', False):
+                since += " Experimental: may change or be removed."
+            lines.append(since)
+            lines.append("")
         signature = format_signature(syscall, yaml_data)
         # Handle both single-line and multi-line signatures
         lines.append("## Signature")

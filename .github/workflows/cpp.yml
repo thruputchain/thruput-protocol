@@ -87,3 +87,23 @@ jobs:
       run: |
         sudo apt-get install python3-yaml
         python3 generate_syscalls_doc.py
+    - name: check syscall API versioning rules
+      env:
+        EVENT_NAME: ${{ github.event_name }}
+        PR_BASE_SHA: ${{ github.event.pull_request.base.sha }}
+        PR_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        PUSH_BEFORE_SHA: ${{ github.event.before }}
+      run: |
+        (cd scripts && python3 syscallcompat_test.py)
+        if [[ "$EVENT_NAME" == "pull_request" ]]; then
+          base="$(git merge-base "$PR_BASE_SHA" "$PR_HEAD_SHA")"
+        else
+          base="$PUSH_BEFORE_SHA"
+        fi
+        # No predecessor on an initial branch push, and none to compare with
+        # if the base commit has no syscalls.yaml.
+        if git show "$base:syscalls.yaml" > "$RUNNER_TEMP/base.yaml" 2>/dev/null; then
+          python3 scripts/syscallcompat.py "$RUNNER_TEMP/base.yaml" syscalls.yaml
+        else
+          python3 scripts/syscallcompat.py syscalls.yaml
+        fi

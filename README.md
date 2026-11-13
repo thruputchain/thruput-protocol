@@ -10,6 +10,9 @@ XDR protocol files and other common definitions that must be shared between lang
   `syscalls_generated.md`, from it. Both outputs are gitignored; run
   `python3 generate_syscalls_doc.py` to produce them. CI runs it to validate
   `syscalls.yaml`.
+  It carries the syscall API version; `scripts/syscallcompat.py` checks a change
+  against the versioning rules stated at the top of the file, and CI runs it
+  against the base revision.
 - `syscalls.md`: conventions that hold across all syscalls. The generator puts
   them at the head of `syscalls_generated.md`.
 
