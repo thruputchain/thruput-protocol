@@ -42,82 +42,47 @@ syscall_input_count: 7
 # or repr(C) types.
 # primitive_type: true means that the type can be passed by value as a single
 # 32-bit argument slot to the syscall. Such a type MUST be at most 32 bits
-# wide; wider types (e.g. BlockHeight, a 64-bit value) are passed by reference
-# (as an offset into contract memory) instead. The uint64_t and int64_t
-# mappings below carry the flag but are only used as outputs, which are always
-# passed by reference; using one as an input would fail that width check.
-# rust_uses_as_ptr: true means that the SDK passes the type by calling
-# .as_ptr() on it.
+# wide; wider types (e.g. BlockHeight and TimePoint, both 64-bit) are passed
+# by reference (as an offset into contract memory) instead. The uint64_t and
+# int64_t mappings below carry the flag but are only used as outputs, which are
+# always passed by reference; using one as an input would fail that width
+# check.
+# This flag is the only thing that makes an argument by-value: arguments do not
+# set it themselves, and an input of an unmapped type is passed by reference.
 type_mappings:
-  - base_name: "Ristretto255Point"
-    rust_name: "Ristretto255Point"
-    rust_uses_as_ptr: false
-    newtype: true
   - base_name: "uint32_t"  # The cpp name, which is used in this spec
     rust_name: "u32"
-    rust_uses_as_ptr: false
     primitive_type: true
   - base_name: "int32_t"
     rust_name: "i32"
-    rust_uses_as_ptr: false
     primitive_type: true
   - base_name: "uint64_t"
     rust_name: "u64"
-    rust_uses_as_ptr: false
     primitive_type: true
   - base_name: "int64_t"
     rust_name: "i64"
-    rust_uses_as_ptr: false
     primitive_type: true
   - base_name: "int128_t"
     rust_name: "i128"
-    rust_uses_as_ptr: false
   - base_name: "uint128_t"
     rust_name: "u128"
-    rust_uses_as_ptr: false
   - base_name: "bool"
     rust_name: "bool"
-    rust_uses_as_ptr: false
     primitive_type: true
   - base_name: "generated::AuthClaim"
     rust_name: "AuthClaim"
-    rust_uses_as_ptr: false
   - base_name: "Weight"
     rust_name: "u32"
-    rust_uses_as_ptr: false
     primitive_type: true
   - base_name: "Topic"
     rust_name: "[u8; 32]"
-    rust_uses_as_ptr: false
   - base_name: "StorageDeltaFlagSet"
     rust_name: "StorageDeltaFlagSet"
-    rust_uses_as_ptr: false
     primitive_type: true
-  - base_name: "BlockHeight"
-    rust_name: "BlockHeight"
-    rust_uses_as_ptr: false
-    # NOT primitive_type: BlockHeight is a 64-bit value (typedef hyper), which
-    # does not fit in a single 32-bit syscall argument slot. It is therefore
-    # passed by reference (as an offset into contract memory), not by value.
-    newtype: true
-  - base_name: "TimePoint"
-    rust_name: "TimePoint"
-    rust_uses_as_ptr: false
-    # NOT primitive_type, for the same reason as BlockHeight above: TimePoint
-    # is a 64-bit value (typedef unsigned hyper), so it is passed by reference
-    # rather than in a 32-bit argument slot.
-    newtype: true
   - base_name: "TransactionStatistic"
     rust_name: "TransactionStatistic"
-    rust_uses_as_ptr: false
     primitive_type: true
     dot_zero_type: true
-  - base_name: "CopyableInvokeInputs"
-    rust_name: "CopyableInvokeInputs"
-    rust_uses_as_ptr: false
-  - base_name: "CopyableInvokeOutputs"
-    rust_name: "CopyableInvokeOutputs"
-    rust_uses_as_ptr: false
 # Syscalls MUST be defined in increasing numerical order (by the 'number'
 # field)
 #
@@ -190,7 +155,6 @@ syscalls:
         span_argument: true
       - name: "written_len"
         typename: "RuntimeMemoryLength"
-        primitive_type: true
       - name: "auth_token_count"
         typename: "uint32_t"
     number: 3
@@ -291,7 +255,6 @@ syscalls:
         span_argument: true
       - name: "revert_frame"
         typename: "bool"
-        primitive_type: true
       - name: "returned_auth_token_ids"
         span_argument: true
     outputs:
@@ -319,7 +282,6 @@ syscalls:
         span_argument: true
       - name: "written_len"
         typename: "RuntimeMemoryLength"
-        primitive_type: true
       - name: "returned_auth_token_start"
         typename: "uint32_t"
       - name: "returned_auth_token_count"
@@ -437,7 +399,6 @@ syscalls:
         # int32_t to make sure the generated rust code does not assume
         # that the enum does not get extended with more signature schemes
         typename: "int32_t"
-        primitive_type: true
       - name: "signature"
         span_argument: true
       - name: "public_key"
@@ -528,7 +489,6 @@ syscalls:
         typename: "StorageKeyContractData"
       - name: "force_load_from_snapshot"
         typename: "bool"
-        primitive_type: true
     outputs:
       - name: "current_set"
         typename: "int128_t"
@@ -636,13 +596,11 @@ syscalls:
         typename: "StorageKeyContractData"
       - name: "peek"
         typename: "bool"
-        primitive_type: true
     outputs:
       - name: "queue_entry"
         span_argument: true
       - name: "written_len"
         typename: "RuntimeMemoryLength"
-        primitive_type: true
     number: 21
     since_minor: 0
     description: >
@@ -777,12 +735,10 @@ syscalls:
     inputs:
       - name: "index"
         typename: "uint32_t"
-        primitive_type: true
       - name: "buffer"
         span_argument: true
       - name: "reset"
         typename: "bool"
-        primitive_type: true
     description: >
       Updates the SHA256 hash computation at the specified index with
       the provided buffer. If reset is true, the hash input is reset
@@ -802,7 +758,6 @@ syscalls:
     inputs:
       - name: "index"
         typename: "uint32_t"
-        primitive_type: true
     outputs:
       - name: "output"
         typename: "SHA256Hash"
@@ -846,7 +801,6 @@ syscalls:
     outputs:
       - name: "len"
         typename: "RuntimeMemoryLength"
-        primitive_type: true
     number: 30
     since_minor: 0
     description: >
@@ -896,7 +850,6 @@ syscalls:
         typename: "ContractAddress"
       - name: "auth_payload_written_len"
         typename: "RuntimeMemoryLength"
-        primitive_type: true
       - name: "unwrapped_token_id_start"
         typename: "uint32_t"
       - name: "unwrapped_token_id_count"
@@ -923,10 +876,8 @@ syscalls:
     inputs:
       - name: "src_index"
         typename: "uint32_t"
-        primitive_type: true
       - name: "dst_index"
         typename: "uint32_t"
-        primitive_type: true
     description: >
       Copies the in-progress SHA256 hash computation at src_index to
       dst_index, replacing any hash computation already at dst_index.
