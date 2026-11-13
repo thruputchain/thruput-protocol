@@ -20,8 +20,8 @@ sys.path.insert(0, str(Path(__file__).resolve().parent / 'scripts'))
 import syscallcompat  # noqa: E402
 
 
-def format_type(typename: str, yaml_data: Dict[str, Any], is_span: bool = False, 
-                is_optional: bool = False, is_primitive: bool = False) -> str:
+def format_type(typename: str, yaml_data: Dict[str, Any], is_span: bool = False,
+                is_optional: bool = False) -> str:
     """Format a type name for the signature using rust_name from type_mappings."""
     if is_span:
         return "[u8]"
@@ -52,9 +52,8 @@ def format_signature(syscall: Dict[str, Any], yaml_data: Dict[str, Any]) -> str:
         typename = inp.get('typename', '')
         is_span = inp.get('span_argument', False)
         is_optional = inp.get('optional', False)
-        is_primitive = inp.get('primitive_type', False)
-        
-        rust_type = format_type(typename, yaml_data, is_span, is_optional, is_primitive)
+
+        rust_type = format_type(typename, yaml_data, is_span, is_optional)
         
         if is_optional:
             input_parts.append(f"{inp_name}: Option<{rust_type}>")
@@ -74,9 +73,8 @@ def format_signature(syscall: Dict[str, Any], yaml_data: Dict[str, Any]) -> str:
         typename = out.get('typename', '')
         is_span = out.get('span_argument', False)
         is_optional = out.get('optional', False)
-        is_primitive = out.get('primitive_type', False)
-        
-        rust_type = format_type(typename, yaml_data, is_span, is_optional, is_primitive)
+
+        rust_type = format_type(typename, yaml_data, is_span, is_optional)
         output_parts.append(rust_type)
     
     # Build signature with multi-line formatting for 2+ parameters
