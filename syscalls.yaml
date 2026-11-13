@@ -42,16 +42,14 @@ syscall_input_count: 7
 # or repr(C) types.
 # primitive_type: true means that the type can be passed by value as a single
 # 32-bit argument slot to the syscall. Such a type MUST be at most 32 bits
-# wide; wider types (e.g. BlockHeight, a 64-bit value) are passed by reference
-# (as an offset into contract memory) instead. The uint64_t and int64_t
-# mappings below carry the flag but are only used as outputs, which are always
-# passed by reference; using one as an input would fail that width check.
+# wide; wider types (e.g. BlockHeight and TimePoint, both 64-bit) are passed
+# by reference (as an offset into contract memory) instead. The uint64_t and
+# int64_t mappings below carry the flag but are only used as outputs, which are
+# always passed by reference; using one as an input would fail that width
+# check.
 # This flag is the only thing that makes an argument by-value: arguments do not
 # set it themselves, and an input of an unmapped type is passed by reference.
 type_mappings:
-  - base_name: "Ristretto255Point"
-    rust_name: "Ristretto255Point"
-    newtype: true
   - base_name: "uint32_t"  # The cpp name, which is used in this spec
     rust_name: "u32"
     primitive_type: true
@@ -81,18 +79,6 @@ type_mappings:
   - base_name: "StorageDeltaFlagSet"
     rust_name: "StorageDeltaFlagSet"
     primitive_type: true
-  - base_name: "BlockHeight"
-    rust_name: "BlockHeight"
-    # NOT primitive_type: BlockHeight is a 64-bit value (typedef hyper), which
-    # does not fit in a single 32-bit syscall argument slot. It is therefore
-    # passed by reference (as an offset into contract memory), not by value.
-    newtype: true
-  - base_name: "TimePoint"
-    rust_name: "TimePoint"
-    # NOT primitive_type, for the same reason as BlockHeight above: TimePoint
-    # is a 64-bit value (typedef unsigned hyper), so it is passed by reference
-    # rather than in a 32-bit argument slot.
-    newtype: true
   - base_name: "TransactionStatistic"
     rust_name: "TransactionStatistic"
     primitive_type: true
