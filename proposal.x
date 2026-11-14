@@ -39,9 +39,11 @@ struct ProposalTxs {
 /// other field), and the hashes of `signed_hash` and `nondeterministic_data`.
 /// A batch hashes as the SHA-256, in order, of
 /// `cxs(DomainSeparator("ParallelBatch"))`, the XDR hash of the batch with
-/// `xdr` emptied (its index: `segment_tokens` and `segment_bytes`), and the
-/// SHA-256 of each segment of `xdr`, as `segment_bytes` splits it. Combining
-/// in order, rather than by XOR, binds each segment to its position.
+/// `xdr` emptied, and the SHA-256 of each segment of `xdr`, as
+/// `segment_bytes` splits it. The segment hashes cover the bytes but not
+/// `segment_tokens`, so the emptied batch adds the layout (`segment_tokens`
+/// and `segment_bytes`) without hashing the bytes a second time, serially.
+/// Combining in order, rather than by XOR, binds each segment to its position.
 typedef SHA256Hash ProposalTxsHash; // #[rust(newtype)]
 
 /// A candidate block: header plus the transaction metadata needed to
