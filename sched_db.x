@@ -25,11 +25,11 @@ struct Delta {
 
 // One slice of the native-token balance deltas a committed block finalized.
 //
-// hog_db publishes a block's deltas as a run of chunk_count chunks, all for
-// the same block, after the block is committed. hog_db chooses the chunk
+// The db publishes a block's deltas as a run of chunk_count chunks, all for
+// the same block, after the block is committed. The db chooses the chunk
 // size; the wire bounds a chunk only by the link's record cap. The chunks of
 // a run may be sent concurrently and over several connections, so they can
-// arrive in any order; hog_db starts the next block's run only after every
+// arrive in any order; the db starts the next block's run only after every
 // chunk of this one is acknowledged, so the mempool never has more than one
 // block's run in flight. An address appears in at most one chunk of a block's
 // run (a shard holds one balance per address) and every delta is nonzero. The
@@ -62,7 +62,7 @@ program SchedDb
     // fails to dispatch rather than misparse a newer payload:
     //   2: the unchunked form of procedure 4, a block's deltas in one
     //      unbounded record, which a block with enough distinct recipients
-    //      grows past any single-record cap (hogd#2332).
+    //      grows past any single-record cap.
     //   3: scheddb_changed_addresses(BlockHeight, ContractAddressBatch),
     //      removed in e413dc9. Its payload also opens with a block height and
     //      a vector length, so a chunk sent on 3 would decode there as

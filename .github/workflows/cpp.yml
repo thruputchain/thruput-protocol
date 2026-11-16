@@ -68,12 +68,12 @@ jobs:
     - name: install goxdr
       run: go install github.com/xdrpp/goxdr/cmd/goxdr@latest
     - name: check go generate
-      # goxdr emits one Go package, so a parallel variant that redeclares names
-      # from the file it supersedes (repair2.x, discovery2.x, multiplex2.x)
-      # stays out of it; xdrcompat leaves out the same two new files.
+      # goxdr emits one Go package, and the Go bindings still use the
+      # *_deprecated.x files, so the current repair.x, discovery.x and
+      # multiplex.x, which redeclare their names, stay out of it.
       run: |
         shopt -s extglob
-        $HOME/go/bin/goxdr -o generated.go !(transaction_trace|ffi_enums|storage_lock|executor_to_db_rpc|invoke_flag|contract_spec|view|view_gateway|invoke_args|repair2|discovery2|multiplex2).x
+        $HOME/go/bin/goxdr -o generated.go !(transaction_trace|ffi_enums|executor_to_db_rpc|invoke_flag|contract_spec|view|view_gateway|invoke_args|repair|discovery|multiplex).x
     - name: check go build
       # go vet has warnings on the goxdr/xdr package,
       # so we set -composites=false to ignore those errors
@@ -83,3 +83,27 @@ jobs:
         go vet -composites=false generated.go
     - name: lint yaml
       run: yamllint -s syscalls.yaml
+    - name: validate syscalls.yaml
+      run: |
+        sudo apt-get install python3-yaml
+        python3 generate_syscalls_doc.py
+    - name: check syscall API versioning rules
+      env:
+        EVENT_NAME: ${{ github.event_name }}
+        PR_BASE_SHA: ${{ github.event.pull_request.base.sha }}
+        PR_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        PUSH_BEFORE_SHA: ${{ github.event.before }}
+      run: |
+        (cd scripts && python3 syscallcompat_test.py)
+        if [[ "$EVENT_NAME" == "pull_request" ]]; then
+          base="$(git merge-base "$PR_BASE_SHA" "$PR_HEAD_SHA")"
+        else
+          base="$PUSH_BEFORE_SHA"
+        fi
+        # No predecessor on an initial branch push, and none to compare with
+        # if the base commit has no syscalls.yaml.
+        if git show "$base:syscalls.yaml" > "$RUNNER_TEMP/base.yaml" 2>/dev/null; then
+          python3 scripts/syscallcompat.py "$RUNNER_TEMP/base.yaml" syscalls.yaml
+        else
+          python3 scripts/syscallcompat.py syscalls.yaml
+        fi

@@ -1,4 +1,29 @@
 ---
+# The version of the syscall API this file defines, as major.minor.
+#
+# A guest built against version M.n runs on any host implementing M.h with
+# h >= n. An RV32 artifact declares the version it was built against and the
+# host admits it by that rule, so the version is the whole compatibility
+# contract between a contract and the chain it is deployed to.
+#
+# minor: bump when adding a syscall. A new syscall takes the next free number
+#   and sets since_minor to the new minor. Nothing a guest built against an
+#   earlier minor can observe may change.
+# major: bump for anything else a guest can observe: removing or renumbering a
+#   syscall, changing its inputs, outputs, read_only or returns, changing a type
+#   mapping or the calling convention. minor returns to 0, and so does the
+#   since_minor of every syscall that survives.
+#
+# Descriptions and gas prices are not part of the version. Prices are set by
+# the chain, not chosen by the contract.
+#
+# A syscall marked experimental is outside this contract: it may change or be
+# removed in any release, and a chain may refuse to offer it.
+#
+# scripts/syscallcompat.py checks a change to this file against these rules.
+syscall_api_version:
+  major: 1
+  minor: 1
 # The number of u32 arguments to a syscall.
 # (The riscv32 syscall ABI passes each argument slot in a 32-bit register.
 # The native mock entrypoint in test_ffi keeps u64 slots so it can carry host
@@ -17,80 +42,53 @@ syscall_input_count: 7
 # or repr(C) types.
 # primitive_type: true means that the type can be passed by value as a single
 # 32-bit argument slot to the syscall. Such a type MUST be at most 32 bits
-# wide; wider types (e.g. BlockHeight, a 64-bit value) are passed by reference
-# (as an offset into contract memory) instead. The uint64_t and int64_t
-# mappings below carry the flag but are only used as outputs, which are always
-# passed by reference; using one as an input would fail that width check.
-# rust_uses_as_ptr: true means that the SDK passes the type by calling
-# .as_ptr() on it.
+# wide; wider types (e.g. BlockHeight and TimePoint, both 64-bit) are passed
+# by reference (as an offset into contract memory) instead. The uint64_t and
+# int64_t mappings below carry the flag but must never be inputs, which would
+# fail that width check: uint64_t is used only as an output, which is always
+# passed by reference, and int64_t is not used.
+# This flag is the only thing that makes an argument by-value: arguments do not
+# set it themselves, and an input of an unmapped type is passed by reference.
 type_mappings:
   - base_name: "uint32_t"  # The cpp name, which is used in this spec
     rust_name: "u32"
-    rust_uses_as_ptr: false
     primitive_type: true
   - base_name: "int32_t"
     rust_name: "i32"
-    rust_uses_as_ptr: false
     primitive_type: true
   - base_name: "uint64_t"
     rust_name: "u64"
-    rust_uses_as_ptr: false
     primitive_type: true
   - base_name: "int64_t"
     rust_name: "i64"
-    rust_uses_as_ptr: false
     primitive_type: true
   - base_name: "int128_t"
     rust_name: "i128"
-    rust_uses_as_ptr: false
   - base_name: "uint128_t"
     rust_name: "u128"
-    rust_uses_as_ptr: false
   - base_name: "bool"
     rust_name: "bool"
-    rust_uses_as_ptr: false
     primitive_type: true
   - base_name: "generated::AuthClaim"
     rust_name: "AuthClaim"
-    rust_uses_as_ptr: false
   - base_name: "Weight"
     rust_name: "u32"
-    rust_uses_as_ptr: false
     primitive_type: true
   - base_name: "Topic"
     rust_name: "[u8; 32]"
-    rust_uses_as_ptr: false
   - base_name: "StorageDeltaFlagSet"
     rust_name: "StorageDeltaFlagSet"
-    rust_uses_as_ptr: false
     primitive_type: true
-  - base_name: "BlockHeight"
-    rust_name: "BlockHeight"
-    rust_uses_as_ptr: false
-    # NOT primitive_type: BlockHeight is a 64-bit value (typedef hyper), which
-    # does not fit in a single 32-bit syscall argument slot. It is therefore
-    # passed by reference (as an offset into contract memory), not by value.
-    newtype: true
-  - base_name: "TimePoint"
-    rust_name: "TimePoint"
-    rust_uses_as_ptr: false
-    # NOT primitive_type, for the same reason as BlockHeight above: TimePoint
-    # is a 64-bit value (typedef unsigned hyper), so it is passed by reference
-    # rather than in a 32-bit argument slot.
-    newtype: true
   - base_name: "TransactionStatistic"
     rust_name: "TransactionStatistic"
-    rust_uses_as_ptr: false
     primitive_type: true
     dot_zero_type: true
-  - base_name: "CopyableInvokeInputs"
-    rust_name: "CopyableInvokeInputs"
-    rust_uses_as_ptr: false
-  - base_name: "CopyableInvokeOutputs"
-    rust_name: "CopyableInvokeOutputs"
-    rust_uses_as_ptr: false
 # Syscalls MUST be defined in increasing numerical order (by the 'number'
 # field)
+#
+# since_minor is the minor version of syscall_api_version that introduced the
+# syscall. It changes only on a major bump. experimental (default false) is
+# described with syscall_api_version above.
 #
 # All contracts can return a SyscallErrorCode::kSyscallErrorCodeFault if
 # any of the pointers passed to them are out of contract memory bounds.
@@ -105,7 +103,6 @@ type_mappings:
 syscalls:
   - name: "SHA256"
     read_only: true
-    needs_gas: true
     inputs:
       - name: "buffer"
         span_argument: true
@@ -113,6 +110,7 @@ syscalls:
       - name: "hash"
         typename: "SHA256Hash"
     number: 0
+    since_minor: 0
     description: >
       Returns the SHA256 hash of the input buffer.
     errors:
@@ -123,6 +121,7 @@ syscalls:
       - name: "sender"
         typename: "ContractAddress"
     number: 1
+    since_minor: 0
     description: >
       Returns the contract address of the contract that invoked the
       current call frame.
@@ -140,6 +139,7 @@ syscalls:
       - name: "auth_token_count"
         typename: "uint32_t"
     number: 2
+    since_minor: 0
     description: >
       Returns the length of the calldata supplied to the invocation
       associated with the current call frame.
@@ -154,10 +154,10 @@ syscalls:
         span_argument: true
       - name: "written_len"
         typename: "RuntimeMemoryLength"
-        primitive_type: true
       - name: "auth_token_count"
         typename: "uint32_t"
     number: 3
+    since_minor: 0
     description: >
       Returns the calldata supplied to the invocation associated with
       the current call frame.
@@ -172,7 +172,6 @@ syscalls:
       them.
     errors:
   - name: "ConsoleLog"
-    needs_context: false
     # Logging is for debugging only.
     # On release builds, this is a no-op.
     # On debug builds, this logs to console.
@@ -182,6 +181,7 @@ syscalls:
         span_argument: true
     outputs:
     number: 4
+    since_minor: 0
     description: >
       Logs the input buffer to the console.
       This is a no-op on release builds or when deployed on-chain.
@@ -193,7 +193,6 @@ syscalls:
     errors:
   - name: "Invoke"
     read_only: true
-    needs_gas: true
     inputs:
       - name: "address"
         typename: "ContractAddress"
@@ -207,6 +206,7 @@ syscalls:
       - name: "outputs"
         typename: "CopyableInvokeOutputs"
     number: 5
+    since_minor: 0
     description: |
       Invokes the specified method of the contract at the specified
       address, with the supplied parameters. Creates a new invocation
@@ -252,12 +252,12 @@ syscalls:
         span_argument: true
       - name: "revert_frame"
         typename: "bool"
-        primitive_type: true
       - name: "returned_auth_token_ids"
         span_argument: true
     outputs:
     returns: false
     number: 6
+    since_minor: 0
     description: >
       Returns data from the current call frame and optionally marks
       the frame for revert. The return buffer will be available to
@@ -279,12 +279,12 @@ syscalls:
         span_argument: true
       - name: "written_len"
         typename: "RuntimeMemoryLength"
-        primitive_type: true
       - name: "returned_auth_token_start"
         typename: "uint32_t"
       - name: "returned_auth_token_count"
         typename: "uint32_t"
     number: 7
+    since_minor: 0
     description: >
       Returns the return buffer from the most recent subcall invocation
       that ended with Return, including a Return that marked the frame for
@@ -306,11 +306,11 @@ syscalls:
           been no subcalls within this call frame.
   - name: "Exit"
     read_only: true
-    needs_context: false
     inputs:
     outputs:
     returns: false
     number: 8
+    since_minor: 0
     description: >
       Terminates execution of the current call frame immediately.
       The current call frame reverts, returning a deterministic error
@@ -331,6 +331,7 @@ syscalls:
       - name: "to_be_deployed"
         typename: "ContractAddress"
     number: 9
+    since_minor: 0
     description: >
       Computes the address that would be deployed for a contract with
       the given deployer address, nonce, and contract hash. This is a
@@ -348,6 +349,7 @@ syscalls:
       - name: "deployed_address"
         typename: "ContractAddress"
     number: 10
+    since_minor: 0
     description: >
       Deploys a contract with the specified nonce and contract hash to
       a computed address. The contract must be provided in the
@@ -378,13 +380,13 @@ syscalls:
       - name: "source_tx_hash"
         typename: "SHA256Hash"
     number: 11
+    since_minor: 0
     description: >
       Returns the hash of the transaction that initiated the current
       execution: sha256 of the XDR-encoded Transaction, the same
       TransactionHash that identifies it network-wide.
     errors:
   - name: "VerifySignature"
-    needs_context: false
     read_only: true
     inputs:
       - name: "scheme"
@@ -392,7 +394,6 @@ syscalls:
         # int32_t to make sure the generated rust code does not assume
         # that the enum does not get extended with more signature schemes
         typename: "int32_t"
-        primitive_type: true
       - name: "signature"
         span_argument: true
       - name: "public_key"
@@ -401,6 +402,7 @@ syscalls:
         span_argument: true
     outputs:  # No outputs: check the error code returned
     number: 12
+    since_minor: 0
     description: >
       Verifies a cryptographic signature against a public key and
       message. Returns kSyscallErrorCodeNone if verification succeeds,
@@ -420,6 +422,7 @@ syscalls:
       - name: "length"
         typename: "RuntimeMemoryLength"
     number: 13
+    since_minor: 0
     description: >
       Returns the length of the bytestring stored at the specified key.
     errors:
@@ -442,6 +445,7 @@ syscalls:
       - name: "written_len"
         typename: "RuntimeMemoryLength"
     number: 14
+    since_minor: 0
     description: >
       Retrieves the bytestring stored at the specified key.
 
@@ -464,6 +468,7 @@ syscalls:
         span_argument: true
     outputs:
     number: 15
+    since_minor: 0
     description: >
       Sets the bytestring value at the specified storage key.
       Note that this will overwrite any existing value at that key,
@@ -479,7 +484,6 @@ syscalls:
         typename: "StorageKeyContractData"
       - name: "force_load_from_snapshot"
         typename: "bool"
-        primitive_type: true
     outputs:
       - name: "current_set"
         typename: "int128_t"
@@ -488,6 +492,7 @@ syscalls:
       - name: "current_add"
         typename: "int128_t"
     number: 16
+    since_minor: 0
     description: >
       Retrieves the nonnegative integer value at the specified storage
       key.
@@ -529,6 +534,7 @@ syscalls:
         typename: "int128_t"
     outputs:
     number: 17
+    since_minor: 0
     description: >
       Sets or modifies a nonnegative integer at the specified storage
       key. The set_value (if provided) sets the base value, and
@@ -546,6 +552,7 @@ syscalls:
         typename: "StorageKeyContractData"
     outputs:
     number: 18
+    since_minor: 0
     description: >
       Deletes the object at the specified storage key.
     errors:
@@ -556,6 +563,7 @@ syscalls:
       - name: "address"
         typename: "ContractAddress"
     number: 19
+    since_minor: 0
     description: >
       Returns the contract address of the current call frame.
     errors:
@@ -567,6 +575,7 @@ syscalls:
         span_argument: true
     outputs:
     number: 20
+    since_minor: 0
     description: >
       Inserts an entry into the retrocausal queue at the specified
       storage key. Like any storage write, this replaces a value of
@@ -582,14 +591,13 @@ syscalls:
         typename: "StorageKeyContractData"
       - name: "peek"
         typename: "bool"
-        primitive_type: true
     outputs:
       - name: "queue_entry"
         span_argument: true
       - name: "written_len"
         typename: "RuntimeMemoryLength"
-        primitive_type: true
     number: 21
+    since_minor: 0
     description: >
       Consumes (or peeks at) the next entry from the retrocausal queue
       at the specified storage key. If peek is true, the entry is not
@@ -617,7 +625,6 @@ syscalls:
           condition.
   - name: "GetTransactionStatistics"
     read_only: true
-    needs_gas: true
     # Note: Some or all of these statistics
     # might be disabled during release builds
     # and/or during production execution.
@@ -631,6 +638,7 @@ syscalls:
       - name: "result"
         typename: "uint64_t"
     number: 22
+    since_minor: 0
     description: >
       Returns a transaction statistic value. Note that statistics may
       be disabled in release builds or production execution, and may
@@ -658,6 +666,7 @@ syscalls:
         optional: true
     outputs:
     number: 23
+    since_minor: 0
     description: >
       Changes the public key registration for the current contract
       address at the specified key index. If key_scheme is None, the
@@ -683,6 +692,7 @@ syscalls:
         span_argument: true
     outputs:
     number: 24
+    since_minor: 0
     description: >
       Logs an event with up to 3 topics and additional data. Constructs a
       TxEmittedEvent where the serialized_event field contains the topics
@@ -706,23 +716,22 @@ syscalls:
       - name: "auth_claim"
         typename: "generated::AuthClaim"
     number: 25
+    since_minor: 0
     description: >
       Returns the authentication claim associated with the
       current transaction.
     errors:
   - name: "SHA256Update"
     number: 26
+    since_minor: 0
     read_only: true
-    needs_gas: true
     inputs:
       - name: "index"
         typename: "uint32_t"
-        primitive_type: true
       - name: "buffer"
         span_argument: true
       - name: "reset"
         typename: "bool"
-        primitive_type: true
     description: >
       Updates the SHA256 hash computation at the specified index with
       the provided buffer. If reset is true, the hash input is reset
@@ -737,11 +746,11 @@ syscalls:
           - There are too many active hash buffers.
   - name: "SHA256Finalize"
     number: 27
+    since_minor: 0
     read_only: true
     inputs:
       - name: "index"
         typename: "uint32_t"
-        primitive_type: true
     outputs:
       - name: "output"
         typename: "SHA256Hash"
@@ -759,9 +768,9 @@ syscalls:
     inputs:
       - name: "required_weight"
         typename: "Weight"
-        syscall_pass_by_value: true
     outputs:
     number: 28
+    since_minor: 0
     description: >
       Writes the required weight threshold for the current contract
       address. This is the minimum total weight of signing keys needed
@@ -773,6 +782,7 @@ syscalls:
       - name: "result"
         typename: "BlockHeight"
     number: 29
+    since_minor: 0
     description: >
       Returns the current block height.
     errors:
@@ -783,8 +793,8 @@ syscalls:
     outputs:
       - name: "len"
         typename: "RuntimeMemoryLength"
-        primitive_type: true
     number: 30
+    since_minor: 0
     description: >
       Returns the byte length of the next entry in the retrocausal queue at
       the specified storage key, without consuming it: the queue_entry
@@ -812,6 +822,7 @@ syscalls:
       - name: "token_id"
         typename: "uint32_t"
     number: 31
+    since_minor: 0
     description: >
       Mints an authentication token for the current contract address.
     errors:
@@ -831,12 +842,12 @@ syscalls:
         typename: "ContractAddress"
       - name: "auth_payload_written_len"
         typename: "RuntimeMemoryLength"
-        primitive_type: true
       - name: "unwrapped_token_id_start"
         typename: "uint32_t"
       - name: "unwrapped_token_id_count"
         typename: "uint32_t"
     number: 32
+    since_minor: 0
     description: >
       Consumes an authentication token for the current contract address.
       Returns any nested tokens unwrapped by the token.
@@ -852,14 +863,13 @@ syscalls:
           or the auth token has expired.
   - name: "SHA256Copy"
     number: 33
+    since_minor: 0
     read_only: true
     inputs:
       - name: "src_index"
         typename: "uint32_t"
-        primitive_type: true
       - name: "dst_index"
         typename: "uint32_t"
-        primitive_type: true
     description: >
       Copies the in-progress SHA256 hash computation at src_index to
       dst_index, replacing any hash computation already at dst_index.
@@ -881,6 +891,7 @@ syscalls:
       - name: "network_hash"
         typename: "NetworkHash"
     number: 34
+    since_minor: 0
     description: >
       Returns the hash of the network name, the identifier that separates
       this network's blocks from those of every other network. It is fixed
@@ -901,6 +912,7 @@ syscalls:
       - name: "block_timepoint"
         typename: "TimePoint"
     number: 35
+    since_minor: 0
     description: >
       Returns the timepoint of the block currently executing. The value is
       fixed by the coordinator before execution begins and is carried in the
@@ -922,6 +934,7 @@ syscalls:
         typename: "StorageDeltaFlagSet"
     outputs:
     number: 36
+    since_minor: 0
     description: >
       Adds flags (a bitwise OR) to the storage flags the current transaction
       requests for the key. Writes never change a key's flags: every change
@@ -947,6 +960,7 @@ syscalls:
       - name: "flags"
         typename: "StorageDeltaFlagSet"
     number: 37
+    since_minor: 0
     description: >
       Returns the storage flags the current transaction requests for the
       key, as visible in the current call frame. A key with no pending write
@@ -959,9 +973,33 @@ syscalls:
         typename: "StorageKeyContractData"
     outputs:
     number: 38
+    since_minor: 0
     description: >
       Clears every storage flag the current transaction requests for the key,
       as visible in the current call frame. Does nothing if no write to the
       key is pending, since such a key has no flags. As with SetStorageFlags,
       a clear made in a frame that aborts is discarded with that frame.
     errors:
+  - name: "Ristretto255Msm"
+    read_only: true
+    inputs:
+      - name: "terms"
+        span_argument: true
+    outputs:
+      - name: "point"
+        typename: "Ristretto255Point"
+    number: 39
+    since_minor: 1
+    experimental: true
+    description: >
+      Experimental bounded Ristretto255 sum of scalar-point products.
+      Each 64-byte term contains a canonical 32-byte little-endian scalar
+      followed by a canonical compressed point. Accepts zero scalars,
+      identity points and an empty sum. Validates every term, including
+      zero-scalar terms. At most 256 terms. Output is canonical. Invalid input
+      leaves output untouched; gas exhaustion terminates the frame. All operands
+      are public to the executor.
+    errors:
+      - code: kSyscallErrorCodeInvalidSyscallInput
+        description: >
+          Invalid length, too many terms, noncanonical scalar or invalid point.

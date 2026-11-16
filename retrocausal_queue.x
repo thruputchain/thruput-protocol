@@ -15,15 +15,13 @@ typedef opaque QueueEntry<kQueueEntryMaxLen>; // #[rust(newtype)]
 /// family as gas, not an RPC artifact. Because it is a tx-observable count
 /// checked against this protocol constant, the limit is consensus-uniform
 /// (every node agrees on "<= cap reads") and independent of any RPC buffer size.
-/// (Full rationale — incl. why an RPC-message-size bound would be unsafe — in
-/// the PR.)
 const kMaxConcurrentRcqReadsPerTx = 16384;
 
 /// Maximum number of entries in a single RetrocausalQueue block.
 /// Each entry is at most 256 bytes. With XDR serialization overhead (4 bytes
-/// per entry length prefix, 12 bytes framing), ramdb key overhead (73 bytes),
-/// and ItemHeader (24 bytes), 250 entries of 256 bytes fits within ramdb's
-/// 64 KiB item limit (kBigItemThreshold). See issue #1437.
+/// per entry length prefix, 12 bytes framing), storage key overhead (73 bytes),
+/// and item header (24 bytes), 250 entries of 256 bytes fits within the
+/// storage engine's 64 KiB item limit.
 const kRetrocausalQueueBlockEntriesMaxLen = 250;
 
 // A block in a retrocausal queue, containing a list of entries and a block
@@ -73,7 +71,7 @@ struct RetrocausalQueueDelta {
   RetrocausalQueueConsumeDelta *consume;
   RetrocausalQueueInsertDelta insert;
   // Concurrent entries observed (e.g. via peek) but not consumed.
-  // HogDb validates that each entry was actually inserted by a concurrent
+  // The db validates that each entry was actually inserted by a concurrent
   // transaction. Unlike current_block_consumed, these do not decrement the
   // insert balance — they only require that a matching insert exists.
   //
@@ -83,7 +81,7 @@ struct RetrocausalQueueDelta {
   // validator replays a proposed block, the executor rebuilds this per-queue
   // array from the proposer-supplied observation list, and a dishonest proposer
   // can pack a whole transaction's observations into a single queue. The bogus
-  // entries are caught afterward (HogDb matches each observed entry to a real
+  // entries are caught afterward (the db matches each observed entry to a real
   // insert), but the array must be built before that check runs -- so it has to
   // hold a full transaction's worth. Capping it at the per-block size would make
   // that rebuild overflow and crash the validator instead of cleanly rejecting.

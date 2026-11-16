@@ -140,11 +140,11 @@ enum SchedulerTransactionErrorSource {
   // There is no error to report.
   SchedulerTransactionErrorNone = 0,
 
-  // The error was triggered by the authentication subsystem (hog-auth).
+  // The error was triggered by the authentication subsystem.
   SchedulerTransactionErrorAuth = 1,
-  // The error was triggered by the mempool (hog-mempool).
+  // The error was triggered by the mempool.
   SchedulerTransactionErrorScheduler = 2,
-  // The error was triggered by an executor (hog-exec).
+  // The error was triggered by an executor.
   SchedulerTransactionErrorExecutor = 3
 };
 

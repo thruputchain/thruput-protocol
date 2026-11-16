@@ -1,6 +1,6 @@
 namespace hogd {
 
-// Error codes returned from a runtime (wasmi) invocation.
+// Error codes returned from a contract invocation.
 // This is the external interface to a smart contract. Normally wrapped in an
 // InvokeStatus<int32_t> (a std::expected).
 //
@@ -11,10 +11,9 @@ namespace hogd {
 // {InvokeErrorCode::None, code} back as a
 // {HostFnErrorCode::NoneOrRecoverable, code}).
 //
-// This value is generated as either the returned value from the selected
-// WebAssembly exported function that was run, the code caused by a host
-// function returning HostFnErrorCode::Exit, or 0, if invocation ends because a
-// host function returns HostFnErrorCode::Return.
+// This value is either the value returned by the contract's entry point, the
+// code caused by a host function returning HostFnErrorCode::Exit, or 0, if
+// invocation ends because a host function returns HostFnErrorCode::Return.
 enum InvokeErrorCode {
   // A call frame can only succeed if this code is returned.
   // All others revert the call frame.
@@ -27,17 +26,11 @@ enum InvokeErrorCode {
   // Signals a serious system issue or a serious bug in our code and should be
   // diagnosed ASAP.
   Unrecoverable = 3,
-  // Discovered during validation that proposer submitted bad data.
-  // If a block contains a transaction with this error, the block does not need
-  // to be discarded.  The transaction that causes this error is discarded,
-  // and the block proposer should be penalized (via whatever out of band
-  // mechanism),
-  // but the rest of the block can still be processed.
-  // Note that this is different from the case of a block proposal with
-  // conflicting transactions;
-  // those errors are discovered _after_ executing the transactions in a block,
-  // and require
-  // discarding the entire block.
+  // Discovered during validation that the proposer submitted bad data.
+  // The transaction is aborted and consumes nothing, and execution continues
+  // with the rest of the batch, but the block fails validation and is
+  // rejected, as it is for any transaction whose result is not OK, a
+  // deterministic error or a root frame revert.
   ValidationFailure = 4,
   // The transaction was aborted due to an external reason (such as the current
   // block being discarded),
@@ -50,37 +43,36 @@ enum InvokeErrorCode {
 // normal usage pattern is to wrap them within HostFnStatus<int32_t>, where the
 // int32 is the more detailed error code.
 //
-// In WebAssembly, a host function is defined as a function that can be
-// called outside of WebAssembly. We import one of these functions to provide
-// access to our table of system call handlers.
+// A host function is one the contract runtime provides to the contract; system
+// calls are made through host functions.
 //
 // When a HostFnStatus<int32_t> (a wrapper around std::expected) has an int32_t
 // value, (and a HostFnErrorCode::NoneOrRecoverable), that int32_t is passed to
-// WebAssembly as a handleable error code, as the return result from the host
-// function. The WebAssembly bytecode (the smart contract) itself never sees the
-// HostFnErrorCode. Other HostFnErrorCodes terminate the WebAssembly runtime
-// (returning to the caller), and are handled by the WebAssembly runtime.
+// the contract as a handleable error code, as the return result from the host
+// function. The contract itself never sees the HostFnErrorCode. Other
+// HostFnErrorCodes terminate the contract (returning to the caller), and are
+// handled by the contract runtime.
 enum HostFnErrorCode {
   NoneOrRecoverable = 0,
-  // Insufficient gas to continue WebAssembly execution.
+  // Insufficient gas to continue contract execution.
   //
-  // Result: the WebAssembly runtime immediately returns an
+  // Result: the contract runtime immediately returns an
   // InvokeErrorCode::OutOfGas.
   OutOfGas = 1,
   // Unrecoverable (nondeterministic) error, such as a malloc error.
   // The only course of action is to abort the entire transaction.
   //
-  // Result: the WebAssembly runtime immediately returns an
+  // Result: the contract runtime immediately returns an
   // InvokeErrorCode::Unrecoverable
   // Signals a serious system issue or a serious bug in our code and should be
   // diagnosed ASAP.
   Unrecoverable = 2,
-  // Return from a WebAssembly invocation to the caller.  Registers a byte
+  // Return from a contract invocation to the caller.  Registers a byte
   // buffer to be passed back to the caller.
   //
   // Result: Runtime immediately returns an {InvokeErrorCode::None, 0}.
   Return = 3,
-  // Return from a WebAssembly invocation to the caller, with some (int32_t)
+  // Return from a contract invocation to the caller, with some (int32_t)
   // error code.
   //
   // Result: Runtime immediately returns an {InvokeErrorCode::None, code}.
@@ -91,14 +83,14 @@ enum HostFnErrorCode {
   // Validation fails because a proposer submitted bad nondeterministic
   // proposal data.
   //
-  // Result: the WebAssembly runtime immediately returns an
+  // Result: the contract runtime immediately returns an
   // InvokeErrorCode::ValidationFailure
   ValidationFailure = 5,
   // The transaction was aborted due to an external reason (such as the current
   // block being discarded), but this is not the result of a totally
   // unrecoverable error. This is to be expected during normal system operation.
   //
-  // Result: the WebAssembly runtime immediately returns an
+  // Result: the contract runtime immediately returns an
   // InvokeErrorCode::Abandon
   Abandon = 6
 };

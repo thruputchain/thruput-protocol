@@ -9,19 +9,19 @@ namespace hogd
 // Address Authorization Data
 //
 // This module defines the authorization configuration stored at each address.
-// This configuration data tells Groundhog whether or not a given transaction
+// This configuration data tells Thruput whether or not a given transaction
 // can begin execution in a given block.
 //
-// In Groundhog, every address can originate transactions and can be configured
+// In Thruput, every address can originate transactions and can be configured
 // with multiple signing keys and weighted multi-signature requirements.
 //
-// TODO(geoff): give an example of what that might look like here.
+// TODO: give an example of what that might look like here.
 //
 // Unlike the common blockchain model (as in, for example, Ethereum), in which
 // there is an explicit demarcation between so-called "externally owned addresses" (EOAs)
 // that can initiate transactions but have no associated code, and "contract addresses",
 // which hold invocable code but cannot initiate transactions,
-// Groundhog treats every address uniformly: all addresses can both hold a contract
+// Thruput treats every address uniformly: all addresses can both hold a contract
 // and initiate a transaction.
 //==============================================================================
 
@@ -85,10 +85,9 @@ const kDefaultNewAddressKeyID = 0;
 ///
 /// # TODO
 ///
-/// (geoff) and (dobog): The initialization workflow (when upgrading
-/// an address from just a pk to a full contract) should explicitly set the
-/// auth data with sensible defaults, so that the default is NOT to accidentally
-/// lock the address.
+/// The initialization workflow (when upgrading an address from just a pk to
+/// a full contract) should explicitly set the auth data with sensible
+/// defaults, so that the default is NOT to accidentally lock the address.
 struct AddressAuthData {
   /// Array of up to `kMaxSigners` public keys.
   ///
@@ -103,7 +102,7 @@ struct AddressAuthData {
   ///
   /// # TODO
   ///
-  /// (geoff): this can be removed once hog_db has a way to track this directly
+  /// This can be removed once the database has a way to track this directly
   /// on each db item.
   BlockHeight last_written_height;
 };

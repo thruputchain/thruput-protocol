@@ -1,7 +1,6 @@
 // clang-format off
 %#include "auth_token.hh"
 %#include "contract.hh"
-%#include "hog_exec_constants.hh"
 %#include "storage_cost.hh"
 %#include "types.hh"
 
@@ -26,7 +25,9 @@ enum ConfigParamID {
   kConfigParamMaxAuthTokens = 10,
   kConfigParamMaxCalldataLen = 11,
   kConfigParamMaxReturnBufferLen = 12,
-  kConfigParamMaxTxGas = 13
+  kConfigParamMaxTxGas = 13,
+  kConfigParamMinRv32ArtifactVersion = 14,
+  kConfigParamMaxRv32ArtifactVersion = 15
 };
 
 /// One configuration parameter and the value in force for it.
@@ -35,7 +36,7 @@ enum ConfigParamID {
 /// configuration as a list of these, and is meant to carry one per parameter
 /// being changed by a consensus upgrade, where everything a block does not
 /// name keeps the value it already has. No upgrade mechanism exists yet:
-/// `ConsensusValue::upgrades` is opaque, and hogd leaves it empty. Each arm
+/// `ConsensusValue::upgrades` is opaque, and the node leaves it empty. Each arm
 /// carries its own type, so a future parameter need not be an `unsigned int`.
 ///
 /// There is no `default` arm on purpose: a node that cannot name a parameter
@@ -71,8 +72,8 @@ case kConfigParamMaxNewContractsPerTx:
   /// Together with `kConfigParamMaxContractSizeBytes` this is what bounds the
   /// transaction's final commit batch, which the executor sends to storage as
   /// a single message. A chain must set the pair low enough that the largest
-  /// batch it admits still fits that message; hogd rejects a genesis that
-  /// does not.
+  /// batch it admits still fits that message; the node rejects a genesis
+  /// that does not.
   unsigned int max_new_contracts_per_tx;
 
 case kConfigParamMaxBytestringLen:
@@ -97,7 +98,7 @@ case kConfigParamMaxContractSizeBytes:
   /// contract it thereby admits, that every attached contract still fits a
   /// transaction (`kMaxBytesSignedTransaction`), and that the commit batch
   /// `kConfigParamMaxNewContractsPerTx` bounds fits one storage message.
-  /// hogd rejects a genesis that does not.
+  /// The node rejects a genesis that does not.
   unsigned int max_contract_size_bytes;
 
 case kConfigParamMaxSavepointDepth:
@@ -110,12 +111,12 @@ case kConfigParamMaxSavepointDepth:
   /// `TryInvoke` below it. A `TryInvoke` whose child would go past the limit
   /// still runs, then fails deterministically, as one that loses a lock
   /// conflict does, and its writes are discarded.
-  /// `kMaxSavepointDepth` (1024) is the value in force for a configuration
-  /// that does not state one.
+  /// 1024 is the value in force for a configuration that does not state
+  /// one.
   ///
   /// Every open savepoint is a live nested VM on one executor thread, so a
-  /// chain must keep this within what its executors' stacks hold; hogd
-  /// rejects a genesis above its build ceiling.
+  /// chain must keep this within what its executors' stacks hold; the
+  /// node rejects a genesis above its build ceiling.
   unsigned int max_savepoint_depth;
 
 case kConfigParamMaxSHA256BufferBytes:
@@ -136,25 +137,25 @@ case kConfigParamMaxAuthTokenDepth:
 case kConfigParamMaxRv32CodeBytes:
   /// Bytes of code (`code_size` in the artifact header) an RV32 artifact may
   /// carry to be admitted as an attached contract.
-  /// `kDefaultMaxRv32CodeBytes` (262144) is the value in force for a
-  /// configuration that does not state one.
+  /// 262144 is the value in force for a configuration that does not state
+  /// one.
   ///
   /// Checked where a contract is attached, not where a deployed one is
   /// instantiated, so lowering it leaves deployed contracts runnable. The
-  /// artifact format itself does not bound the field; hogd rejects a genesis
-  /// above what its VM can translate.
+  /// artifact format itself does not bound the field; the node rejects a
+  /// genesis above what its VM can translate.
   unsigned int max_rv32_code_bytes;
 
 case kConfigParamMaxRv32MemoryBytes:
   /// Bytes of guest data memory (`memory_bytes` in the artifact header) an
   /// RV32 artifact may declare to be admitted as an attached contract.
-  /// `kDefaultMaxRv32MemoryBytes` (65536) is the value in force for a
-  /// configuration that does not state one.
+  /// 65536 is the value in force for a configuration that does not state
+  /// one.
   ///
   /// Checked at attachment like `kConfigParamMaxRv32CodeBytes`. Every
   /// invocation provisions and seeds the declared memory outside gas, so a
-  /// chain raising this accepts that per-call cost; hogd rejects a genesis
-  /// above what its VM provisions.
+  /// chain raising this accepts that per-call cost; the node rejects a
+  /// genesis above what its VM provisions.
   unsigned int max_rv32_memory_bytes;
 
 case kConfigParamMaxAuthTokens:
@@ -224,6 +225,35 @@ case kConfigParamMaxTxGas:
   /// `GasAmount` rather than an `unsigned int` so that a chain may state any
   /// budget a transaction can.
   GasAmount max_tx_gas;
+
+case kConfigParamMinRv32ArtifactVersion:
+  /// Lowest RV32 artifact format version (`format_version` in the artifact
+  /// header) admitted as an attached contract. 5 is the value in force for a
+  /// configuration that does not state one, which is the oldest format
+  /// admitted before this parameter.
+  ///
+  /// Checked where a contract is attached, like
+  /// `kConfigParamMaxRv32CodeBytes`, not where a deployed one is
+  /// instantiated: raising it stops new deployments in an old format and
+  /// leaves contracts already deployed in one runnable. Retiring a format
+  /// from execution is a separate decision about stored contracts.
+  ///
+  /// A node admits only formats it can read, so the node rejects a genesis
+  /// whose range reaches below the oldest format its build reads, or whose
+  /// minimum exceeds `kConfigParamMaxRv32ArtifactVersion`.
+  unsigned int min_rv32_artifact_version;
+
+case kConfigParamMaxRv32ArtifactVersion:
+  /// Highest RV32 artifact format version admitted as an attached contract,
+  /// checked with `kConfigParamMinRv32ArtifactVersion` and inclusive like it.
+  /// 6 is the value in force for a configuration that does not state one,
+  /// which is the newest format admitted before this parameter.
+  ///
+  /// This is what activates a format: a node whose build reads a newer
+  /// format still refuses it until the chain's configuration admits it, so
+  /// nodes on different builds agree on which contracts attach. The node
+  /// rejects a genesis above the newest format its build reads.
+  unsigned int max_rv32_artifact_version;
 };
 
 /// The parameters a chain states, as a list rather than fixed fields. A new
@@ -281,7 +311,7 @@ struct ConfigHashPreimage {
   /// It selects executing code, so a node running under a different one from
   /// its peers executes a different chain. Nothing else commits to it: a
   /// node's copy travels in the tip, which implementations are free to keep
-  /// outside the state the storage hash covers, and hogd does. Committing to
+  /// outside the state the storage hash covers, and some do. Committing to
   /// it here is what binds the value a node executes under to the one
   /// consensus agreed, rather than to whatever its own storage returns.
   DeployedContractHash default_wallet;

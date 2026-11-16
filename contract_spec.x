@@ -58,16 +58,25 @@ struct ContractSpecId {
 // ContractType (Rust: ContractType) — recursive union
 // ---------------------------------------------------------------------------
 
-% union ContractType;
+// Forward declaration for C++, where x23 generates XDR unions as structs.
+% struct ContractType;
 
 struct ContractArrayType {
-  ContractType element; // #[rust(box_ptr)]
+  ContractType element; // #[rust(box_ptr)], #[cpp(box)]
   unsigned int len;
 };
 
 struct ContractVectorType {
-  ContractType element; // #[rust(box_ptr)]
+  ContractType element; // #[rust(box_ptr)], #[cpp(box)]
   unsigned int max_len;
+};
+
+// ---------------------------------------------------------------------------
+// SignedTokenPreimage (Rust: SignedTokenPreimage)
+// ---------------------------------------------------------------------------
+
+struct ContractSignedTokenPreimage {
+  ContractType *preimage_type; // #[rust(box_ptr)], #[cpp(box)]
 };
 
 enum ContractTypeKind {
@@ -139,14 +148,6 @@ case U256:
   void;
 case I256:
   void;
-};
-
-// ---------------------------------------------------------------------------
-// SignedTokenPreimage (Rust: SignedTokenPreimage)
-// ---------------------------------------------------------------------------
-
-struct ContractSignedTokenPreimage {
-  ContractType *preimage_type; // #[rust(box_ptr)], #[cpp(box)]
 };
 
 // ---------------------------------------------------------------------------

@@ -11,14 +11,14 @@ namespace hogd
 //==============================================================================
 // Transactions and Invocations
 //
-// This module defines the transaction model for Groundhog. Transactions are
+// This module defines the transaction model for Thruput. Transactions are
 // the fundamental unit of state modification in the system.
 //
 // Key concepts:
 // - Each transaction invokes a contract method with specified parameters
 // - Transactions include authorization claims and signatures
 // - Transactions can deploy new contracts
-// - Groundhog executes transactions in parallel, using two-phase commit for conflict resolution
+// - Thruput executes transactions in parallel, using two-phase commit for conflict resolution
 // - Proposers attach nondeterministic data to ensure deterministic re-execution
 //
 // Transaction lifecycle:
@@ -36,18 +36,16 @@ namespace hogd
 
 /// Opaque encoded call arguments passed to a contract invocation.
 ///
-/// Contracts can encode calldata arbitrarily, but the SDK default uses
-/// XDR serialization per RFC 4506 (<https://datatracker.ietf.org/doc/html/rfc4506>).
-/// The SDK typically encodes a tuple or struct of the method's parameters.
-///
-/// Note: "TXS" refers to "traditional XDR serialization". A more compact
-/// encoding is planned but not yet enabled.
+/// Contracts can encode calldata arbitrarily, but the SDKs encode a tuple or
+/// struct of the method's parameters in CXS (compact XDR serialization), a
+/// variant of RFC 4506 XDR without 4-byte padding and with variable-length
+/// integers, lengths and discriminants.
 typedef opaque Calldata<>;
 
 /// Opaque encoded return value from a contract invocation.
 ///
 /// Like Calldata, contracts can encode return values arbitrarily, but the
-/// SDK default uses XDR serialization per RFC 4506 (<https://datatracker.ietf.org/doc/html/rfc4506>).
+/// SDKs use CXS.
 ///
 /// Unbounded here, as `Calldata` is: what a chain permits is stated by
 /// `kConfigParamMaxReturnBufferLen` and enforced where the Return syscall
@@ -141,7 +139,7 @@ struct Uniquifier {
 // Transactions
 //------------------------------------------------------------------------------
 
-/// A complete transaction that can be executed on the Groundhog blockchain.
+/// A complete transaction that can be executed on the Thruput blockchain.
 ///
 /// Transactions are the fundamental unit of state modification. Each transaction:
 /// - Invokes a single contract method (which may make subinvocations)
@@ -291,7 +289,7 @@ typedef SignedTransactionHash SignedTransactionHashBatch<>;
 
 /// Nondeterministic data captured during transaction execution by the proposer.
 ///
-/// Groundhog executes transactions in parallel, which introduces nondeterminism
+/// Thruput executes transactions in parallel, which introduces nondeterminism
 /// (e.g., from two-phase commit conflict resolution). To ensure validators can deterministically
 /// re-execute transactions, the proposer captures all nondeterministic decisions
 /// and includes them in the block proposal.
@@ -316,11 +314,18 @@ struct NondeterministicProposalData {
   /// this field tracks the exact bit count to avoid trailing garbage bits.
   unsigned int nondeterministic_bit_count;
 
-  /// Sequence of retrocausal queue entries observed during execution.
+  /// Retrocausal queue entries inserted by concurrent transactions in the same
+  /// block that this transaction observed, so validators replay the same reads.
   ///
-  /// TODO(geoff): Update this documentation once retrocausal queue handling
-  /// is finalized. This field captures the queue entries consumed during
-  /// execution to ensure deterministic replay.
+  /// An entry is recorded when a peek or consume reads a concurrent entry.
+  /// Reads of entries from past blocks or inserted by this transaction itself
+  /// record nothing. Entries appear in the order they were first observed
+  /// during execution, interleaved across queues; within one queue they are
+  /// that queue's concurrent entries in index order, starting at 0. Each
+  /// (queue, index) is recorded once however many times it is read, so
+  /// repeated peeks, or a peek followed by a consume, add a single entry.
+  /// Whether each concurrent read found an entry is recorded separately, one
+  /// bit per read, in nondeterministic_bits.
   QueueEntry observed_queue_entry_sequence<kMaxConcurrentRcqReadsPerTx>;
 };
 

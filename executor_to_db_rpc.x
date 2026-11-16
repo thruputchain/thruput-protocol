@@ -6,7 +6,6 @@
 %#include "storage_item.hh"
 %#include "rpc_types.hh"
 %#include "db_conflict.hh"
-%#include "hog_exec_constants.hh"
 
 namespace hogd
 {
@@ -34,13 +33,13 @@ typedef unsigned int SubtransactionID;
 /// version of every change made in either; popping it reverts both, and the
 /// state between them is gone. The list may name the pushed subtransaction
 /// itself, but not the bottom one of the stack (reverting past it stays
-/// possible), an id not on the stack, or an id twice. Nothing is merged when
-/// the push fails.
+/// possible), an id not on the stack, or an id twice, so it is never longer
+/// than the stack. Nothing is merged when the push fails.
 ///
 /// The executor lists every start that no open frame can revert to anymore:
 /// of each open frame's subtransactions all but the oldest, with the pushing
 /// frame's counted as its parent's.
-typedef SubtransactionID SubtransactionMerges<kMaxSavepointDepth>;
+typedef SubtransactionID SubtransactionMerges<>;
 
 /// Result of try_push_new_subtransaction. On kRPCStorageWriteFailed —
 /// the nondeterministic transaction failure — carries the conflict
@@ -101,7 +100,7 @@ program DatabaseToExecutorInterface
 							      unsigned int) =
     102;
 
-    // TODO(geoff) consider whether we want to combine these or not.
+    // TODO: consider whether we want to combine these or not.
     // Tradeoff is messages vs maybe sending redundant contracts.
     // Perhaps the sender could cache whether it expects the client to have
     // the contract, and optionally send accordingly.

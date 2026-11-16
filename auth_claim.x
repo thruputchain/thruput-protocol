@@ -5,16 +5,16 @@ namespace hogd {
 //==============================================================================
 // Authentication Claims
 //
-// This module defines the authorization model for Groundhog transactions.
+// This module defines the authorization model for Thruput transactions.
 // Each transaction includes an AuthClaim that specifies which signatures
 // are required to authorize the transaction's execution.
 //
 // Workflow:
 // 1. A user constructs a Transaction, which includes an AuthClaim.
 // 2. Signatures are added to create a SignedTransaction
-// 3. Groundhog verifies that signatures match the AuthClaim (before execution)
-// 4. During execution, contracts can read the AuthClaim and relevant compressed metadata,
-// (such as which keys were used to authorize the transaction), but not the actual signatures.
+// 3. Thruput verifies that signatures match the AuthClaim (before execution)
+// 4. During execution, contracts can read the AuthClaim (GetAuthClaim), but not
+// the signatures or which keys produced them.
 //
 // This design ensures transaction behavior depends only on the AuthClaim
 // (which are included in what gets signed), not on the signature bytes themselves.
@@ -75,7 +75,7 @@ enum AuthClaimType {
   /// The runtime checks whether the signing keys' weights sum to at least the
   /// larger of the auth data's required weight and the claim's own
   /// `required_weight`.
-  // TODO(geoff): consider surfacing the data about which keys signed in a syscall.
+  // TODO: consider surfacing the data about which keys signed in a syscall.
   kSourceAddressAuthData = 0,
 
   /// Requires a signature from a specific public key.

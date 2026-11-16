@@ -6,9 +6,15 @@ XDR protocol files and other common definitions that must be shared between lang
 
 - `*.x`: XDR types and RPC programs (RFC 4506 and RFC 5531).
 - `syscalls.yaml`: the contract syscall interface. `generate_syscalls_doc.py`
-  validates it and renders `syscalls_generated.md` and `syscalls_docs.json`
-  from it.
-- `syscalls.md`: conventions that hold across all syscalls.
+  validates it and renders `syscalls_docs.json` and the per-syscall reference,
+  `syscalls_generated.md`, from it. Both outputs are gitignored; run
+  `python3 generate_syscalls_doc.py` to produce them. CI runs it to validate
+  `syscalls.yaml`.
+  It carries the syscall API version; `scripts/syscallcompat.py` checks a change
+  against the versioning rules stated at the top of the file, and CI runs it
+  against the base revision.
+- `syscalls.md`: conventions that hold across all syscalls. The generator puts
+  them at the head of `syscalls_generated.md`.
 
 ## Usage
 

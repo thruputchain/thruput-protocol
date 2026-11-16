@@ -120,7 +120,10 @@ enum ContractRejectCode {
   /// declares.
   ContractRejectMalformedArtifact = 4,
 
-  /// The artifact's format version is not the one this node reads.
+  /// The artifact's format version is not one this node reads, or is outside
+  /// the range the chain's configuration admits
+  /// (`kConfigParamMinRv32ArtifactVersion`,
+  /// `kConfigParamMaxRv32ArtifactVersion`).
   ContractRejectUnsupportedFormat = 5,
 
   /// The artifact's VM profile, flags, entry ABI, or syscall ABI is not one
@@ -174,7 +177,7 @@ case TxFailureContractRejected:
 
 /// Best-effort diagnostic for a transaction the proposer excluded from a
 /// proposal: the executing block height of the failed attempt plus why it
-/// failed -- the first conflicting storage op hog_db reported during
+/// failed -- the first conflicting storage op the database reported during
 /// two-phase commit, or the first contract attachment the executor refused.
 /// Fixed-size by construction; the wire and caches carry exactly one
 /// diagnostic per failure to bound memory end to end.

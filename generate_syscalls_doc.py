@@ -16,9 +16,12 @@ import json
 from pathlib import Path
 from typing import Dict, List, Any, Optional
 
+sys.path.insert(0, str(Path(__file__).resolve().parent / 'scripts'))
+import syscallcompat  # noqa: E402
 
-def format_type(typename: str, yaml_data: Dict[str, Any], is_span: bool = False, 
-                is_optional: bool = False, is_primitive: bool = False) -> str:
+
+def format_type(typename: str, yaml_data: Dict[str, Any], is_span: bool = False,
+                is_optional: bool = False) -> str:
     """Format a type name for the signature using rust_name from type_mappings."""
     if is_span:
         return "[u8]"
@@ -49,9 +52,8 @@ def format_signature(syscall: Dict[str, Any], yaml_data: Dict[str, Any]) -> str:
         typename = inp.get('typename', '')
         is_span = inp.get('span_argument', False)
         is_optional = inp.get('optional', False)
-        is_primitive = inp.get('primitive_type', False)
-        
-        rust_type = format_type(typename, yaml_data, is_span, is_optional, is_primitive)
+
+        rust_type = format_type(typename, yaml_data, is_span, is_optional)
         
         if is_optional:
             input_parts.append(f"{inp_name}: Option<{rust_type}>")
@@ -71,9 +73,8 @@ def format_signature(syscall: Dict[str, Any], yaml_data: Dict[str, Any]) -> str:
         typename = out.get('typename', '')
         is_span = out.get('span_argument', False)
         is_optional = out.get('optional', False)
-        is_primitive = out.get('primitive_type', False)
-        
-        rust_type = format_type(typename, yaml_data, is_span, is_optional, is_primitive)
+
+        rust_type = format_type(typename, yaml_data, is_span, is_optional)
         output_parts.append(rust_type)
     
     # Build signature with multi-line formatting for 2+ parameters
@@ -251,23 +252,37 @@ def generate_markdown(yaml_data: Dict[str, Any], output_path: Path) -> List[str]
     """Generate markdown documentation from YAML data."""
     validation_issues = []
     
-    # Header text (from original syscalls.md)
-    header = """All syscalls can return error kFault if a user-supplied argument points to an
-invalid contract memory address.
+    # The conventions that hold across all syscalls are written by hand in
+    # syscalls.md, next to the YAML; they head the generated reference.
+    conventions = (output_path.parent / 'syscalls.md').read_text().strip()
+    header = (
+        "<!-- Generated from syscalls.yaml by generate_syscalls_doc.py; do not edit. -->\n\n"
+        + conventions + "\n\n"
+    )
 
-All syscalls that return a bytespan of non-static size (a [u8], as written
-here) take as one of their arguments a contract-allocated bytespan, in which
-the output argument should be written, AND return a RuntimeMemoryLength
-variable, which describes how much of the contract-supplied bytespan was
-overwritten. We do not change any of the remaining elements of the bytespan.
-
-"""
-    
     lines = [header]
     syscalls = yaml_data.get('syscalls', [])
+
+    validation_issues.extend(syscallcompat.validate(yaml_data))
+    version = syscallcompat.api_version(yaml_data)
+    if version is not None:
+        lines.append(f"Syscall API version {version[0]}.{version[1]}.")
+        lines.append("")
     
     # Sort by number to ensure correct order
     syscalls_sorted = sorted(syscalls, key=lambda s: s.get('number', -1))
+
+    # Syscall numbers are the ABI and names are the generated identifiers, so
+    # both must be unique.
+    for key in ('number', 'name'):
+        seen = {}
+        for syscall in syscalls_sorted:
+            value = syscall.get(key)
+            if value in seen:
+                validation_issues.append(
+                    f"Duplicate syscall {key} {value!r}: {seen[value]} and {syscall.get('name')}")
+            else:
+                seen[value] = syscall.get('name')
     
     for syscall in syscalls_sorted:
         number = syscall.get('number', -1)
@@ -280,6 +295,12 @@ overwritten. We do not change any of the remaining elements of the bytespan.
         # Generate documentation
         lines.append(f"# {name}")
         lines.append("")
+        if version is not None and 'since_minor' in syscall:
+            since = f"Since {version[0]}.{syscall['since_minor']}."
+            if syscall.get('experimental', False):
+                since += " Experimental: may change or be removed."
+            lines.append(since)
+            lines.append("")
         signature = format_signature(syscall, yaml_data)
         # Handle both single-line and multi-line signatures
         lines.append("## Signature")

@@ -226,10 +226,10 @@ func TestAmbiguousDuplicatesAreErrors(t *testing.T) {
 	}
 	// The sanctioned arrangement is the same program number and identity split into distinct versions.
 	m := newModel()
-	if err := Parse("program Repair { version Repair1 { void a(void)=1; }=1; }=0x2233cccc;", m, "repair.x"); err != nil {
+	if err := Parse("program Repair { version Repair1 { void a(void)=1; }=1; }=0x2233cccc;", m, "repair_deprecated.x"); err != nil {
 		t.Fatal(err)
 	}
-	if err := Parse("program Repair { version Repair2 { void b(void)=2; }=2; }=0x2233cccc;", m, "repair2.x"); err != nil {
+	if err := Parse("program Repair { version Repair2 { void b(void)=2; }=2; }=0x2233cccc;", m, "repair.x"); err != nil {
 		t.Fatal(err)
 	}
 	if len(m.Programs) != 1 || len(m.Programs["Repair"].Versions) != 2 {
