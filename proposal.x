@@ -42,7 +42,8 @@ struct ProposalTxs {
 ///
 /// where `base` is the `ProposalTxs` with both batches replaced by an empty
 /// [`ParallelBatch`], which commits to every other field, and `hash` is the
-/// hash of a batch given at [`ParallelBatch`] in parallel.x.
+/// hash of a batch, `sha256(cxs(BatchCommit))`, given at [`BatchCommit`] in
+/// parallel.x.
 typedef SHA256Hash ProposalTxsHash; // #[rust(newtype)]
 
 /// A candidate block: header plus the transaction metadata needed to
