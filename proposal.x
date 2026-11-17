@@ -1,6 +1,7 @@
 // clang-format off
 %#include "validator.hh"
 %#include "parallel.hh"
+%#include "preimage.hh"
 %#include "transaction.hh"
 %#include "types.hh"
 %#include "header.hh"
@@ -36,15 +37,37 @@ struct ProposalTxs {
 /// the two batches can hash in parallel. It is
 ///
 /// ```text
-/// sha256(cxs(DomainSeparator("ProposalTxs")) || sha256(xdr(base)) ||
-///        hash(signed_hash) || hash(nondeterministic_data))
+/// sha256(cxs(ProposalTxsCommit))
 /// ```
 ///
-/// where `base` is the `ProposalTxs` with both batches replaced by an empty
-/// [`ParallelBatch`], which commits to every other field, and `hash` is the
-/// hash of a batch, `sha256(cxs(BatchCommit))`, given at [`BatchCommit`] in
-/// parallel.x.
+/// of the [`ProposalTxsCommit`] made from the `ProposalTxs`.
 typedef SHA256Hash ProposalTxsHash; // #[rust(newtype)]
+
+/// The preimage of [`ProposalTxsHash`], the hash that commits to a
+/// [`ProposalTxs`]:
+///
+/// ```text
+/// sha256(cxs(ProposalTxsCommit))
+/// ```
+///
+/// It holds, in place of each of the two batches, the hash that commits to
+/// that batch: `sha256(cxs(BatchCommit))`, given at [`BatchCommit`] in
+/// parallel.x. Those two hashes are all it takes from the `ProposalTxs`. It
+/// has no field for the `ext` of the `ProposalTxs`, whose only value today is
+/// 0, so the first revision that gives that `ext` a second value must add a
+/// field here that commits to it.
+///
+/// Does not travel on network: a node makes it from a `ProposalTxs` to hash
+/// it.
+struct ProposalTxsCommit {
+  /// `DomainSeparator("ProposalTxs")`: an `ext` of 0, and the bytes of the
+  /// name as `domain_separator`.
+  DomainSeparator domain_separator;
+  /// The hash that commits to the `signed_hash` batch.
+  SHA256Hash signed_hash_hash;
+  /// The hash that commits to the `nondeterministic_data` batch.
+  SHA256Hash nondeterministic_data_hash;
+};
 
 /// A candidate block: header plus the transaction metadata needed to
 /// re-execute it.
