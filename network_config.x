@@ -27,7 +27,8 @@ enum ConfigParamID {
   kConfigParamMaxReturnBufferLen = 12,
   kConfigParamMaxTxGas = 13,
   kConfigParamMinRv32ArtifactVersion = 14,
-  kConfigParamMaxRv32ArtifactVersion = 15
+  kConfigParamMaxRv32ArtifactVersion = 15,
+  kConfigParamMaxSubtransactionOutputBytes = 16
 };
 
 /// One configuration parameter and the value in force for it.
@@ -250,6 +251,29 @@ case kConfigParamMaxRv32ArtifactVersion:
   /// nodes on different builds agree on which contracts attach. The node
   /// rejects a genesis above the newest format its build reads.
   unsigned int max_rv32_artifact_version;
+
+case kConfigParamMaxSubtransactionOutputBytes:
+  /// Storage output (see `kStorageOutputBytesPerDelta`) one subtransaction
+  /// may carry to storage, summed over its deltas. A transaction writes one
+  /// subtransaction at its root commit, holding everything the transaction
+  /// writes (including the replay-cache and deployment records the executor
+  /// adds), and in a proposal one more for each successful `TryInvoke`
+  /// frame's lock probe, holding that frame's writes.
+  ///
+  /// A root commit over the limit fails the transaction deterministically,
+  /// as a fault in the root frame does: it is included, its body's effects
+  /// are discarded, and its replay-cache record still commits. A `TryInvoke`
+  /// lock probe over the limit fails that frame as a lock conflict does.
+  /// `kDefaultMaxSubtransactionOutputBytes` is the value in force for a
+  /// configuration that does not state one.
+  ///
+  /// Storage output is defined apart from any encoding of the deltas, so
+  /// nothing here ties it to what a node's storage link can carry. A chain
+  /// must keep it low enough that its nodes can send the largest
+  /// subtransaction it admits, together with a validator's rebuilt
+  /// observations, to storage in one message; hogd rejects a genesis that
+  /// does not.
+  unsigned int max_subtransaction_output_bytes;
 };
 
 /// The parameters a chain states, as a list rather than fixed fields. A new
