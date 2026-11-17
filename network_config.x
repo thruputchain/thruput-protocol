@@ -253,24 +253,41 @@ case kConfigParamMaxRv32ArtifactVersion:
   unsigned int max_rv32_artifact_version;
 
 case kConfigParamMaxSubtransactionOutputBytes:
-  /// Storage output (see `kStorageOutputBytesPerDelta`) one subtransaction
-  /// may carry to storage, summed over its deltas. A transaction writes one
-  /// subtransaction at its root commit, holding everything the transaction
-  /// writes (including the replay-cache and deployment records the executor
-  /// adds), and in a proposal one more for each successful `TryInvoke`
-  /// frame's lock probe, holding that frame's writes.
+  /// Storage output one subtransaction may carry to storage, summed over its
+  /// [`FlaggedStorageDelta`]s. A transaction writes one subtransaction at its
+  /// root commit, holding everything the transaction writes (including the
+  /// replay-cache and deployment records the executor adds), and in a
+  /// proposal one more for each successful `TryInvoke` frame's lock probe,
+  /// holding that frame's writes.
+  ///
+  /// Storage output counts the values a delta carries, not any encoding of
+  /// it, so a node computes the same figure however its storage link frames
+  /// deltas. Each delta has a fixed charge, which covers its storage key, its
+  /// flags and every fixed-size value its arm carries. On top of that:
+  ///
+  ///   - `kDeltaTypeBytestringSet` adds the bytestring's length in bytes.
+  ///   - `kDeltaTypeRetrocausalQueue` adds, for each entry in
+  ///     `insert.added_entries` and in `consume.current_block_consumed`, a
+  ///     fixed charge plus the entry's length in bytes.
+  ///     `observed_concurrent_entries` are not counted, and neither is a delta
+  ///     a validator adds only to carry them, for a queue the transaction did
+  ///     not otherwise modify: a validator rebuilds both from the proposal's
+  ///     recorded observations, which a proposer's batch does not carry, so
+  ///     counting them would give the two different figures for the same
+  ///     transaction. `kMaxConcurrentRcqReadsPerTx` bounds them instead.
+  ///   - `kDeltaTypeAuthDataChange` adds a fixed charge for each entry in
+  ///     `auth_data_change_signers`.
+  ///
+  /// The node defines the fixed charges and the value in force for a
+  /// configuration that does not state this parameter.
   ///
   /// A root commit over the limit fails the transaction deterministically,
   /// as a fault in the root frame does: it is included, its body's effects
   /// are discarded, and its replay-cache record still commits. A `TryInvoke`
   /// lock probe over the limit fails that frame as a lock conflict does.
-  /// `kDefaultMaxSubtransactionOutputBytes` is the value in force for a
-  /// configuration that does not state one.
   ///
-  /// Storage output is defined apart from any encoding of the deltas, so
-  /// nothing here ties it to what a node's storage link can carry. A chain
-  /// must keep it low enough that its nodes can send the largest
-  /// subtransaction it admits, together with a validator's rebuilt
+  /// A chain must keep the limit low enough that its nodes can send the
+  /// largest subtransaction it admits, together with a validator's rebuilt
   /// observations, to storage in one message; hogd rejects a genesis that
   /// does not.
   unsigned int max_subtransaction_output_bytes;
