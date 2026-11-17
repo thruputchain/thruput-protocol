@@ -311,8 +311,10 @@ const kStorageOutputBytesPerDelta = 128;
 /// or consumes, on top of the entry's own length.
 const kStorageOutputBytesPerQueueEntry = 8;
 
-/// Storage output charged for each signer an auth data change states.
-const kStorageOutputBytesPerAuthSigner = 64;
+/// Storage output charged for each signer an auth data change states,
+/// whatever its key scheme. It covers the largest public key a signer can
+/// carry.
+const kStorageOutputBytesPerAuthSigner = 2048;
 
 /// The value of `kConfigParamMaxSubtransactionOutputBytes` in force when a
 /// configuration does not state one.
