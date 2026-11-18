@@ -28,7 +28,9 @@ enum ConfigParamID {
   kConfigParamMaxTxGas = 13,
   kConfigParamMinRv32ArtifactVersion = 14,
   kConfigParamMaxRv32ArtifactVersion = 15,
-  kConfigParamMaxSubtransactionOutputBytes = 16
+  kConfigParamMaxSubtransactionOutputBytes = 16,
+  kConfigParamMinSyscallApiMinor = 17,
+  kConfigParamMaxSyscallApiMinor = 18
 };
 
 /// One configuration parameter and the value in force for it.
@@ -243,8 +245,8 @@ case kConfigParamMinRv32ArtifactVersion:
 case kConfigParamMaxRv32ArtifactVersion:
   /// Highest RV32 artifact format version admitted as an attached contract,
   /// checked with `kConfigParamMinRv32ArtifactVersion` and inclusive like it.
-  /// 6 is the value in force for a configuration that does not state one,
-  /// which is the newest format admitted before this parameter.
+  /// The value in force for a configuration that does not state one is the
+  /// newest format the node's build reads.
   ///
   /// This is what activates a format: a node whose build reads a newer
   /// format still refuses it until the chain's configuration admits it, so
@@ -291,6 +293,49 @@ case kConfigParamMaxSubtransactionOutputBytes:
   /// observations, to storage in one message; hogd rejects a genesis that
   /// does not.
   unsigned int max_subtransaction_output_bytes;
+
+case kConfigParamMinSyscallApiMinor:
+  /// Lowest syscall API minor version an RV32 artifact may declare and be
+  /// admitted as an attached contract. `syscalls.yaml` defines the syscall
+  /// API version and its compatibility rules; an artifact in format 7 or
+  /// later declares the version its guest was built against. 0 is the value
+  /// in force for a configuration that does not state one, which admits every
+  /// minor up to the maximum.
+  ///
+  /// Only the minor is configurable. The major is fixed by what a node
+  /// implements: an artifact declaring another major does not attach under
+  /// any configuration.
+  ///
+  /// A guest built against an older minor calls a subset of what a newer one
+  /// provides, so nothing in the API requires a floor. A chain raises this to
+  /// stop admitting contracts built against a syscall API it considers too
+  /// old.
+  ///
+  /// Checked where a contract is attached, like
+  /// `kConfigParamMinRv32ArtifactVersion`, not where a deployed one is
+  /// instantiated: raising it leaves contracts already deployed runnable. It
+  /// does not apply to an artifact in format 5 or 6, which declares no minor;
+  /// `kConfigParamMinRv32ArtifactVersion` is what stops those attaching.
+  ///
+  /// The node rejects a genesis whose minimum exceeds
+  /// `kConfigParamMaxSyscallApiMinor`.
+  unsigned int min_syscall_api_minor;
+
+case kConfigParamMaxSyscallApiMinor:
+  /// Highest syscall API minor version an RV32 artifact may declare and be
+  /// admitted as an attached contract, checked with
+  /// `kConfigParamMinSyscallApiMinor` and inclusive like it. The value in
+  /// force for a configuration that does not state one is the newest minor
+  /// the node's build implements.
+  ///
+  /// This is what activates the syscalls a minor adds: a guest built against
+  /// minor n may call anything introduced up to n, and a node whose build
+  /// implements a newer minor still refuses an artifact declaring it until
+  /// the chain's configuration admits it, so nodes on different builds agree
+  /// on which contracts attach. A chain that relies on that MUST state this
+  /// parameter. The node rejects a genesis above the newest minor its build
+  /// implements.
+  unsigned int max_syscall_api_minor;
 };
 
 /// The parameters a chain states, as a list rather than fixed fields. A new
