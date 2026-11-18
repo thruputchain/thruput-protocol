@@ -23,7 +23,7 @@
 # scripts/syscallcompat.py checks a change to this file against these rules.
 syscall_api_version:
   major: 1
-  minor: 1
+  minor: 2
 # The number of u32 arguments to a syscall.
 # (The riscv32 syscall ABI passes each argument slot in a 32-bit register.
 # The native mock entrypoint in test_ffi keeps u64 slots so it can carry host
@@ -75,6 +75,11 @@ type_mappings:
     rust_name: "u32"
     primitive_type: true
   - base_name: "Topic"
+    rust_name: "[u8; 32]"
+  # An unsigned 256-bit integer: 32 bytes, least significant byte first.
+  # This is how the SDK's U256 lies in guest memory, so a contract passes
+  # a pointer to the value it already holds.
+  - base_name: "U256"
     rust_name: "[u8; 32]"
   - base_name: "StorageDeltaFlagSet"
     rust_name: "StorageDeltaFlagSet"
@@ -1003,3 +1008,52 @@ syscalls:
       - code: kSyscallErrorCodeInvalidSyscallInput
         description: >
           Invalid length, too many terms, noncanonical scalar or invalid point.
+  - name: "U256MulDivRem"
+    read_only: true
+    inputs:
+      - name: "a"
+        typename: "U256"
+      - name: "b"
+        typename: "U256"
+      - name: "divisor"
+        typename: "U256"
+    outputs:
+      - name: "quotient_lo"
+        typename: "U256"
+      - name: "quotient_hi"
+        typename: "U256"
+      - name: "remainder"
+        typename: "U256"
+    number: 40
+    since_minor: 2
+    experimental: true
+    description: >
+      Experimental unsigned 256-bit multiply-then-divide. Forms the exact
+      512-bit product a * b and divides it by divisor. Writes the quotient,
+      floor(a * b / divisor), as its low and high 256 bits, and the remainder,
+      a * b mod divisor. With divisor = 1 the quotient is the full product.
+      With b = 1 the quotient and remainder are those of a / divisor. A
+      nonzero quotient_hi means the quotient does not fit 256 bits. Every
+      input is read before any output is written, so an output may alias an
+      input; the outputs must not alias each other. A zero divisor leaves the
+      outputs untouched. The cost does not depend on the operands' values.
+    errors:
+      - code: kSyscallErrorCodeInvalidSyscallInput
+        description: >
+          The divisor is zero.
+  - name: "U256Sqrt"
+    read_only: true
+    inputs:
+      - name: "value"
+        typename: "U256"
+    outputs:
+      - name: "root"
+        typename: "U256"
+    number: 41
+    since_minor: 2
+    experimental: true
+    description: >
+      Experimental unsigned 256-bit integer square root. Writes the largest
+      root with root * root <= value. The output may alias the input. The
+      cost does not depend on the operand's value.
+    errors:
