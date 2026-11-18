@@ -1,7 +1,6 @@
 // clang-format off
 %#include "validator.hh"
 %#include "parallel.hh"
-%#include "preimage.hh"
 %#include "transaction.hh"
 %#include "types.hh"
 %#include "header.hh"
@@ -37,32 +36,37 @@ struct ProposalTxs {
 /// the two batches can hash in parallel. It is
 ///
 /// ```text
-/// sha256(cxs(ProposalTxsCommit))
+/// sha256(cxs(DomainSeparator("ProposalTxs")) || cxs(ProposalTxsCommit))
 /// ```
 ///
 /// of the [`ProposalTxsCommit`] made from the `ProposalTxs`.
 typedef SHA256Hash ProposalTxsHash; // #[rust(newtype)]
 
 /// The preimage of [`ProposalTxsHash`], the hash that commits to a
-/// [`ProposalTxs`]:
+/// [`ProposalTxs`]. As for the other hashes that use a `DomainSeparator` (see
+/// preimage.x), the separator comes before it:
 ///
 /// ```text
-/// sha256(cxs(ProposalTxsCommit))
+/// sha256(cxs(DomainSeparator("ProposalTxs")) || cxs(ProposalTxsCommit))
 /// ```
 ///
-/// It holds, in place of each of the two batches, the hash that commits to
-/// that batch: `sha256(cxs(BatchCommit))`, given at [`BatchCommit`] in
-/// parallel.x. Those two hashes are all it takes from the `ProposalTxs`. It
-/// has no field for the `ext` of the `ProposalTxs`, whose only value today is
-/// 0, so the first revision that gives that `ext` a second value must add a
-/// field here that commits to it.
+/// `DomainSeparator("ProposalTxs")` has an `ext` of 0 and the bytes of the
+/// name as its `domain_separator`. That `ext` belongs to the separator, which
+/// every use of the type shares, and is not the version of this hash: the
+/// `ext` of this struct is.
+///
+/// The struct holds, in place of each of the two batches, the hash that
+/// commits to that batch, given at [`BatchCommit`] in parallel.x. Those two
+/// hashes are all it takes from the batches of the `ProposalTxs`.
 ///
 /// Does not travel on network: a node makes it from a `ProposalTxs` to hash
 /// it.
 struct ProposalTxsCommit {
-  /// `DomainSeparator("ProposalTxs")`: an `ext` of 0, and the bytes of the
-  /// name as `domain_separator`.
-  DomainSeparator domain_separator;
+  /// The version of this preimage, whose only value today is 0. It follows
+  /// the `ext` of the `ProposalTxs`: a revision that gives that `ext` a
+  /// second value gives this one the matching value, so that the hash
+  /// commits to the version of the `ProposalTxs`.
+  ExtensionPoint ext;
   /// The hash that commits to the `signed_hash` batch.
   SHA256Hash signed_hash_hash;
   /// The hash that commits to the `nondeterministic_data` batch.
