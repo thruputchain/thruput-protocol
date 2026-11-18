@@ -1057,3 +1057,32 @@ syscalls:
       root with root * root <= value. The output may alias the input. The
       cost does not depend on the operand's value.
     errors:
+  - name: "U128MulDivRem"
+    read_only: true
+    inputs:
+      - name: "a"
+        typename: "uint128_t"
+      - name: "b"
+        typename: "uint128_t"
+      - name: "divisor"
+        typename: "uint128_t"
+    outputs:
+      - name: "quotient_lo"
+        typename: "uint128_t"
+      - name: "quotient_hi"
+        typename: "uint128_t"
+      - name: "remainder"
+        typename: "uint128_t"
+    number: 42
+    since_minor: 2
+    experimental: true
+    description: >
+      Experimental unsigned 128-bit multiply-then-divide: U256MulDivRem at
+      half the width. Forms the exact 256-bit product a * b and divides it by
+      divisor. Writes the quotient, floor(a * b / divisor), as its low and
+      high 128 bits, and the remainder, a * b mod divisor. Aliasing, the zero
+      divisor and the cost follow U256MulDivRem.
+    errors:
+      - code: kSyscallErrorCodeInvalidSyscallInput
+        description: >
+          The divisor is zero.
