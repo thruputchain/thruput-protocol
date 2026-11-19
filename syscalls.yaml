@@ -1033,9 +1033,9 @@ syscalls:
       floor(a * b / divisor), as its low and high 256 bits, and the remainder,
       a * b mod divisor. With divisor = 1 the quotient is the full product.
       With b = 1 the quotient and remainder are those of a / divisor. A
-      nonzero quotient_hi means the quotient does not fit 256 bits. Every
-      input is read before any output is written, so an output may alias an
-      input; the outputs must not alias each other. A zero divisor leaves the
+      nonzero quotient_hi means the quotient does not fit 256 bits. No
+      output may overlap an input or another output. Inputs may overlap each
+      other, so one buffer can be both factors. A zero divisor leaves the
       outputs untouched. The cost does not depend on the operands' values.
     errors:
       - code: kSyscallErrorCodeInvalidSyscallInput
@@ -1048,14 +1048,15 @@ syscalls:
         typename: "U256"
     outputs:
       - name: "root"
-        typename: "U256"
+        typename: "uint128_t"
     number: 41
     since_minor: 2
     experimental: true
     description: >
       Experimental unsigned 256-bit integer square root. Writes the largest
-      root with root * root <= value. The output may alias the input. The
-      cost does not depend on the operand's value.
+      root with root * root <= value, which always fits 128 bits. The output
+      must not overlap the input. The cost does not depend on the operand's
+      value.
     errors:
   - name: "U128MulDivRem"
     read_only: true
@@ -1080,7 +1081,7 @@ syscalls:
       Experimental unsigned 128-bit multiply-then-divide: U256MulDivRem at
       half the width. Forms the exact 256-bit product a * b and divides it by
       divisor. Writes the quotient, floor(a * b / divisor), as its low and
-      high 128 bits, and the remainder, a * b mod divisor. Aliasing, the zero
+      high 128 bits, and the remainder, a * b mod divisor. Overlap, the zero
       divisor and the cost follow U256MulDivRem.
     errors:
       - code: kSyscallErrorCodeInvalidSyscallInput
