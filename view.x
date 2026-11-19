@@ -21,6 +21,12 @@ struct TransactionViewQuery {
   SerializedAuthToken forwarded_tokens<>;
   InvokeFlagSet invoke_flags;
 
+  // The block timepoint the view observes (GetBlockTimepoint). The executor
+  // supplies no default. A value earlier than the timepoint of the committed
+  // tip the view runs against is rejected as invalid input: no block could
+  // follow that tip at an earlier time. The executing height is unaffected.
+  TimePoint block_timepoint;
+
   // Intentionally not putting newly deployed contracts here, at least for now.
   // We do not want people flooding us with new contracts,
   // and new contracts start with empty state anyways -- this can be simulated locally.
