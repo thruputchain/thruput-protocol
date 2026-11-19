@@ -1031,7 +1031,10 @@ syscalls:
       Experimental unsigned 256-bit multiply-then-divide. Forms the exact
       512-bit product a * b and divides it by divisor. Writes the quotient,
       floor(a * b / divisor), as its low and high 256 bits, and the remainder,
-      a * b mod divisor. With divisor = 1 the quotient is the full product.
+      a * b mod divisor, so that
+      a * b = (quotient_hi * 2^256 + quotient_lo) * divisor + remainder
+      with remainder < divisor. With divisor = 1 the quotient is the full
+      product.
       With b = 1 the quotient and remainder are those of a / divisor. A
       nonzero quotient_hi means the quotient does not fit 256 bits. No
       output may overlap an input or another output. Inputs may overlap each
@@ -1081,8 +1084,10 @@ syscalls:
       Experimental unsigned 128-bit multiply-then-divide: U256MulDivRem at
       half the width. Forms the exact 256-bit product a * b and divides it by
       divisor. Writes the quotient, floor(a * b / divisor), as its low and
-      high 128 bits, and the remainder, a * b mod divisor. Overlap, the zero
-      divisor and the cost follow U256MulDivRem.
+      high 128 bits, and the remainder, a * b mod divisor, so that
+      a * b = (quotient_hi * 2^128 + quotient_lo) * divisor + remainder
+      with remainder < divisor. Overlap, the zero divisor and the cost follow
+      U256MulDivRem.
     errors:
       - code: kSyscallErrorCodeInvalidSyscallInput
         description: >
