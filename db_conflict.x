@@ -126,8 +126,10 @@ enum ContractRejectCode {
   /// `kConfigParamMaxRv32ArtifactVersion`).
   ContractRejectUnsupportedFormat = 5,
 
-  /// The artifact's VM profile, flags, entry ABI, or syscall ABI is not one
-  /// this node runs.
+  /// The artifact's VM profile, flags, entry ABI, or syscall API major is not
+  /// one this node runs, or the syscall API minor it declares is outside the
+  /// range the chain's configuration admits
+  /// (`kConfigParamMinSyscallApiMinor`, `kConfigParamMaxSyscallApiMinor`).
   ContractRejectUnsupportedAbi = 6,
 
   /// The gas schedule (version, digest) stamped into the artifact is not one
