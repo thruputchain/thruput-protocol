@@ -570,6 +570,19 @@ struct SyscallRistretto255MsmTrace {
   SyscallRistretto255MsmOutputs *outputs;
 };
 
+struct SyscallU256SqrtInputs {
+  U256Le value;
+};
+
+struct SyscallU256SqrtOutputs {
+  uint128_xdr root;
+};
+
+struct SyscallU256SqrtTrace {
+  SyscallU256SqrtInputs inputs;
+  SyscallU256SqrtOutputs *outputs;
+};
+
 // === Main Trace Body ===
 
 union SyscallTraceBody switch (SyscallNo syscall_number)
@@ -654,6 +667,8 @@ case kClearStorageFlags:
   SyscallClearStorageFlagsTrace clear_storage_flags;
 case kRistretto255Msm:
   SyscallRistretto255MsmTrace ristretto255_msm;
+case kU256Sqrt:
+  SyscallU256SqrtTrace u256_sqrt;
 default:
   void;
 };
