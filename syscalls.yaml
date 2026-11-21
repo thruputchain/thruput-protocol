@@ -23,7 +23,7 @@
 # scripts/syscallcompat.py checks a change to this file against these rules.
 syscall_api_version:
   major: 1
-  minor: 1
+  minor: 2
 # The number of u32 arguments to a syscall.
 # (The riscv32 syscall ABI passes each argument slot in a 32-bit register.
 # The native mock entrypoint in test_ffi keeps u64 slots so it can carry host
@@ -75,6 +75,9 @@ type_mappings:
     rust_name: "u32"
     primitive_type: true
   - base_name: "Topic"
+    rust_name: "[u8; 32]"
+  # An unsigned 256-bit integer: 32 bytes, least significant byte first.
+  - base_name: "U256Le"
     rust_name: "[u8; 32]"
   - base_name: "StorageDeltaFlagSet"
     rust_name: "StorageDeltaFlagSet"
@@ -1003,3 +1006,18 @@ syscalls:
       - code: kSyscallErrorCodeInvalidSyscallInput
         description: >
           Invalid length, too many terms, noncanonical scalar or invalid point.
+  - name: "U256Sqrt"
+    read_only: true
+    inputs:
+      - name: "value"
+        typename: "U256Le"
+    outputs:
+      - name: "root"
+        typename: "uint128_t"
+    number: 40
+    since_minor: 2
+    experimental: true
+    description: >
+      Experimental unsigned 256-bit integer square root. Returns the largest
+      root with root * root <= value, which always fits 128 bits.
+    errors:
