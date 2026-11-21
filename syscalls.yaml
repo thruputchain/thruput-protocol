@@ -76,7 +76,8 @@ type_mappings:
     primitive_type: true
   - base_name: "Topic"
     rust_name: "[u8; 32]"
-  # An unsigned 256-bit integer: 32 bytes, least significant byte first.
+  # An unsigned 256-bit integer: 32 bytes, least significant byte first, the
+  # order a 128-bit integer's 16 bytes have in contract memory.
   - base_name: "U256Le"
     rust_name: "[u8; 32]"
   - base_name: "StorageDeltaFlagSet"
@@ -1018,6 +1019,8 @@ syscalls:
     since_minor: 2
     experimental: true
     description: >
-      Experimental unsigned 256-bit integer square root. Returns the largest
-      root with root * root <= value, which always fits 128 bits.
+      Experimental unsigned 256-bit integer square root. value is 32 bytes,
+      least significant byte first, as a 128-bit integer argument is 16.
+      Returns the largest root with root * root <= value, which always fits
+      128 bits.
     errors:
