@@ -39,8 +39,13 @@ struct ProposalHeader {
   /// those of other networks.
   NetworkHash network_hash;
 
-  /// The hash of the post-block [`ConfigHashPreimage`]: the storage cost
-  /// model, network configuration and default wallet.
+  /// The hash of the [`ConfigHashPreimage`] this block executed under: the
+  /// storage cost model, network configuration and default wallet.
+  ///
+  /// An input to executing the block, not an output of it: it is the
+  /// configuration the parent block left in force, which is the parent's own
+  /// with the parent's `ConsensusValue::upgrades` applied. A block's own
+  /// upgrades therefore first show in its child's header.
   ConfigHash config_hash;
 
   /// Block proposer. Nodes missing block data fetch it from the proposer.
