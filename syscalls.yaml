@@ -6,10 +6,9 @@
 # host admits it by that rule, so the version is the whole compatibility
 # contract between a contract and the chain it is deployed to.
 #
-# minor: bump when adding a syscall to a minor that has been released. A new
-#   syscall takes the next free number and sets since_minor to the current
-#   minor, so syscalls added before a minor is released share it. Nothing a
-#   guest built against an earlier minor can observe may change.
+# minor: bump when adding a syscall. A new syscall takes the next free number
+#   and sets since_minor to the new minor. Nothing a guest built against an
+#   earlier minor can observe may change.
 # major: bump for anything else a guest can observe: removing or renumbering a
 #   syscall, changing its inputs, outputs, read_only or returns, changing a type
 #   mapping or the calling convention. minor returns to 0, and so does the
@@ -22,7 +21,6 @@
 # removed in any release, and a chain may refuse to offer it.
 #
 # scripts/syscallcompat.py checks a change to this file against these rules.
-# It cannot see what has been released, so it does not ask for the bump.
 syscall_api_version:
   major: 1
   minor: 2
