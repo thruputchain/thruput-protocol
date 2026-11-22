@@ -6,6 +6,7 @@
 %#include "event.hh"
 %#include "invoke_args.hh"
 %#include "db_conflict.hh"
+%#include "syscall_error.hh"
 
 namespace hogd
 {

@@ -4,6 +4,7 @@
 %#include "auth_token.hh"
 %#include "invoke_flag.hh"
 %#include "event.hh"
+%#include "syscall_error.hh"
 
 namespace hogd {
 
