@@ -1,6 +1,7 @@
 // clang-format off
 
 %#include "network.hh"
+%#include "syscall_error.hh"
 %#include "types.hh"
 %#include "view.hh"
 
