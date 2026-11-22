@@ -23,7 +23,7 @@
 # scripts/syscallcompat.py checks a change to this file against these rules.
 syscall_api_version:
   major: 1
-  minor: 3
+  minor: 2
 # The number of u32 arguments to a syscall.
 # (The riscv32 syscall ABI passes each argument slot in a 32-bit register.
 # The native mock entrypoint in test_ffi keeps u64 slots so it can carry host
@@ -1041,7 +1041,7 @@ syscalls:
       - name: "remainder"
         typename: "U256Le"
     number: 41
-    since_minor: 3
+    since_minor: 2
     experimental: true
     description: >
       Experimental unsigned 256-bit multiply-then-divide. Divides the exact
@@ -1072,7 +1072,7 @@ syscalls:
       - name: "remainder"
         typename: "uint128_t"
     number: 42
-    since_minor: 3
+    since_minor: 2
     experimental: true
     description: >
       Experimental unsigned 128-bit multiply-then-divide: U256MulDivRem at
