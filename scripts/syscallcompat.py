@@ -125,9 +125,10 @@ def compare(base: Dict[str, Any], head: Dict[str, Any]) -> List[str]:
     for name, new in head_by_name.items():
         if name in base_names:
             continue
-        if head_minor == base_minor:
-            issues.append(f"{name}: new syscall: bump minor")
-        elif new.get("since_minor") != head_minor:
+        # The minor moves when a syscall is added to a released one. Releases
+        # are not visible here, so a new syscall may join the current minor,
+        # and all that is checked is that it joins no earlier one.
+        if new.get("since_minor") != head_minor:
             issues.append(f"{name}: new syscall must have since_minor "
                           f"{head_minor}")
     return issues

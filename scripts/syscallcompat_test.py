@@ -88,16 +88,22 @@ class Compare(unittest.TestCase):
         head["type_mappings"].append({"base_name": "T", "rust_name": "T"})
         self.check(head)
 
-    def test_add_without_bump(self):
+    def test_add_to_current_minor(self):
+        # A minor that has not been released takes more syscalls.
         head = added(spec())
         head["syscall_api_version"]["minor"] = 1
         head["syscalls"][-1]["since_minor"] = 1
-        self.check(head, "bump minor")
+        self.check(head)
 
     def test_add_with_stale_since(self):
         head = added(spec())
         head["syscalls"][-1]["since_minor"] = 1
         self.check(head, "must have since_minor 2")
+        # The same without a bump: the newest minor is 2, and 1 is not it.
+        base = spec(minor=2)
+        head = copy.deepcopy(base)
+        head["syscalls"].append({"name": "C", "number": 2, "since_minor": 1})
+        self.check(head, "must have since_minor 2", base=base)
 
     def test_breaks(self):
         head = spec()
