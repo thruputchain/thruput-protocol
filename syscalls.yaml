@@ -23,7 +23,7 @@
 # scripts/syscallcompat.py checks a change to this file against these rules.
 syscall_api_version:
   major: 1
-  minor: 2
+  minor: 3
 # The number of u32 arguments to a syscall.
 # (The riscv32 syscall ABI passes each argument slot in a 32-bit register.
 # The native mock entrypoint in test_ffi keeps u64 slots so it can carry host
@@ -1024,3 +1024,64 @@ syscalls:
       Returns the largest root with root * root <= value, which always fits
       128 bits.
     errors:
+  - name: "U256MulDivRem"
+    read_only: true
+    inputs:
+      - name: "a"
+        typename: "U256Le"
+      - name: "b"
+        typename: "U256Le"
+      - name: "divisor"
+        typename: "U256Le"
+    outputs:
+      - name: "quotient_lo"
+        typename: "U256Le"
+      - name: "quotient_hi"
+        typename: "U256Le"
+      - name: "remainder"
+        typename: "U256Le"
+    number: 41
+    since_minor: 3
+    experimental: true
+    description: >
+      Experimental unsigned 256-bit multiply-then-divide. Divides the exact
+      512-bit product a * b by divisor. Returns the quotient as its low and
+      high 256 bits, and the remainder, so that
+      a * b = (quotient_hi * 2^256 + quotient_lo) * divisor + remainder
+      with remainder < divisor. A nonzero quotient_hi means the quotient does
+      not fit 256 bits. Each value is 32 bytes, least significant byte first.
+      A zero divisor leaves the outputs untouched.
+    errors:
+      - code: kSyscallErrorCodeInvalidSyscallInput
+        description: >
+          The divisor is zero.
+  - name: "U128MulDivRem"
+    read_only: true
+    inputs:
+      - name: "a"
+        typename: "uint128_t"
+      - name: "b"
+        typename: "uint128_t"
+      - name: "divisor"
+        typename: "uint128_t"
+    outputs:
+      - name: "quotient_lo"
+        typename: "uint128_t"
+      - name: "quotient_hi"
+        typename: "uint128_t"
+      - name: "remainder"
+        typename: "uint128_t"
+    number: 42
+    since_minor: 3
+    experimental: true
+    description: >
+      Experimental unsigned 128-bit multiply-then-divide: U256MulDivRem at
+      half the width. Divides the exact 256-bit product a * b by divisor.
+      Returns the quotient as its low and high 128 bits, and the remainder,
+      so that
+      a * b = (quotient_hi * 2^128 + quotient_lo) * divisor + remainder
+      with remainder < divisor. A zero divisor leaves the outputs untouched.
+    errors:
+      - code: kSyscallErrorCodeInvalidSyscallInput
+        description: >
+          The divisor is zero.
