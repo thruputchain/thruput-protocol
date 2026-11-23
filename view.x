@@ -4,8 +4,13 @@
 %#include "auth_token.hh"
 %#include "invoke_flag.hh"
 %#include "event.hh"
+%#include "syscall_error.hh"
 
 namespace hogd {
+
+// An XDR-encoded AuthToken, left opaque so the node decodes it under the
+// chain's max_auth_token_depth, as it does a token MintAuthToken mints.
+typedef opaque SerializedAuthToken<>;
 
 struct TransactionViewQuery {
   // The invocation to be queried
@@ -14,8 +19,14 @@ struct TransactionViewQuery {
   // Context around the invocation
   ContractAddress *parent_address;
   AuthClaim auth_claim;
-  AuthToken forwarded_tokens<>;
+  SerializedAuthToken forwarded_tokens<>;
   InvokeFlagSet invoke_flags;
+
+  // The block timepoint the view observes (GetBlockTimepoint). The executor
+  // supplies no default. A value earlier than the timepoint of the committed
+  // tip the view runs against is rejected as invalid input: no block could
+  // follow that tip at an earlier time. The executing height is unaffected.
+  TimePoint block_timepoint;
 
   // Intentionally not putting newly deployed contracts here, at least for now.
   // We do not want people flooding us with new contracts,
@@ -26,6 +37,8 @@ struct TransactionViewQuery {
 struct TransactionViewResult {
   // The result of the invocation
   InvocationFrameOutput output;
+
+  GasAmount gas_consumed;
 
   TxEmittedEvent events<>;
 };

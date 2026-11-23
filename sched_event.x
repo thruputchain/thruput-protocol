@@ -59,6 +59,6 @@ program SchedEvent
   }
   = 1;
 }
-= 0x7ee79998;
+= 0x7ee79996;
 
 } // namespace hogd

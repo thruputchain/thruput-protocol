@@ -101,8 +101,21 @@ func readBlobs(repo string, specs []string) ([]string, error) {
 	return contents, nil
 }
 
+// excludedFiles are deprecated variants whose names the current file
+// redeclares: discovery.x declares program Discovery under a second number
+// to discovery_deprecated.x, and multiplex.x redeclares
+// multiplex_deprecated.x's enum and union. The parser rejects such
+// redeclarations as ambiguous, so the deprecated files are left out of the
+// model and are not checked. discovery2.x and multiplex2.x are the current
+// files' names before the rename, so revisions from before it still load.
+var excludedFiles = map[string]bool{
+	"discovery_deprecated.x": true, "multiplex_deprecated.x": true,
+	"discovery2.x": true, "multiplex2.x": true,
+}
+
 // LoadRevision parses the production interface set: .x files at the protocol
-// repository root. Tool fixtures and other nested test data are never protocol.
+// repository root, less excludedFiles. Tool fixtures and other nested test
+// data are never protocol.
 func LoadRevision(repo, ref string) (*Model, error) {
 	listing, err := gitOutput(repo, "ls-tree", "-r", "--name-only", ref)
 	if err != nil {
@@ -111,7 +124,7 @@ func LoadRevision(repo, ref string) (*Model, error) {
 
 	var paths []string
 	for _, p := range strings.Split(listing, "\n") {
-		if strings.HasSuffix(p, ".x") && !strings.Contains(p, "/") {
+		if strings.HasSuffix(p, ".x") && !strings.Contains(p, "/") && !excludedFiles[p] {
 			paths = append(paths, p)
 		}
 	}

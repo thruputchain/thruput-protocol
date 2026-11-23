@@ -3,6 +3,8 @@
 namespace hogd {
 
 const kAuthTokenMaxLen = 256; // #[rust(const=u32)]
+/// Levels of node nesting a token may carry when a configuration does not
+/// state `kConfigParamMaxAuthTokenDepth`. Consensus-critical, so frozen.
 const kAuthTokenMaxDepth = 4; // #[rust(const=u32)]
 const kAuthTokenMaxChildNodes = 4; // #[rust(const=u32)]
 

@@ -12,7 +12,7 @@ enum SyscallErrorCode {
   /// No error
   kSyscallErrorCodeNone = 0,
 
-  /// Out of bounds pointer to wasm memory passed to syscall
+  /// Out of bounds pointer to contract memory passed to syscall
   kSyscallErrorCodeFault = 1,
 
   /// System call for supplied number is not supported
@@ -28,11 +28,11 @@ enum SyscallErrorCode {
   /// same address)
   kSyscallErrorCodeContractAlreadyDeployed = 5,
 
-  /// No return buffer is available.  Either the most recent subcall failed, or
+  /// No return buffer is available.  Either the most recent subcall faulted, or
   /// there have been no subcalls within this call frame.
   kSyscallErrorCodeNoReturnBufferAvailable = 6,
 
-  /// Invalid input to a syscall, such as subtracting below 0 on an nnint64
+  /// Invalid input to a syscall, such as subtracting below 0 on an nnint
   /// or a bytestring that is too long
   kSyscallErrorCodeInvalidSyscallInput = 7,
 

@@ -1,7 +1,9 @@
 // clang-format off
 
 %#include "network.hh"
+%#include "network_config.hh"
 %#include "rpc_types.hh"
+%#include "storage_cost.hh"
 %#include "storage_item.hh"
 %#include "types.hh"
 
@@ -17,7 +19,7 @@ typedef AddressAndKey AddressAndKeyBatch<>;
 /// The success case carries the WireStorageItem; kRPCNotFound is the
 /// legitimate outcome for an item that does not exist in the committed
 /// snapshot (e.g., a balance item for an address that has never received
-/// hogs); other errors indicate server-side failures.  Defined locally
+/// native tokens); other errors indicate server-side failures.  Defined locally
 /// rather than reusing `ExpectedStorageItem` from executor_to_db_rpc so
 /// this program has no cross-dependency on the executor-side RPC.
 union DbGatewayItemResult switch (RPCError error)
@@ -47,18 +49,53 @@ default:
   void;
 };
 
+/// Network-supplied execution and storage rules read at one committed tip.
+/// `tip.network_config` preserves the parameters explicitly stated by the chain.
+/// `effective_config` states every parameter understood by the serving runtime,
+/// resolving omitted values through the same rules used by execution. It is a
+/// resolved reading, not a replacement for the hashed network configuration.
+/// The rules apply to execution following `tip`; they are not a promise about
+/// the block in which a subsequently submitted transaction will be included.
+/// Storage prices are integer native-token base units (10^7 per token).
+struct DbGatewayConfig {
+  DbTip tip;
+  NetworkConfig effective_config;
+  StorageCostModelXdr storage_cost_model;
+};
+
+/// No committed tip: kRPCNotFound. Unreadable rules: kRPCUnrecoverable.
+/// A missing reading must never be represented as zero prices or empty rules.
+union DbGatewayConfigResult switch (RPCError error)
+{
+case kRPCNone:
+  DbGatewayConfig config;
+default:
+  void;
+};
+
+/// Complete canonical XDR Contract bytes, keyed by SHA256 of these bytes.
+/// A miss means unavailable here, not proof that the hash never existed.
+/// Content availability is not proof of deployment or transaction commitment.
+union DbGatewayContractResult switch (RPCError error)
+{
+case kRPCNone:
+  opaque contract_xdr<>;
+default:
+  void;
+};
+
 enum DbGatewayIntroOutcome {
   DbGatewayIntroSuccess = 0,
   DbGatewayIntroMismatchedProtocol = 1
 };
 
-// API exposed from the Db (hog_db) for the public RPC Gateway.
+// API exposed from the Db for the public RPC Gateway.
 //
 // Reads are always against the latest committed snapshot at the time
 // the RPC is served; no BlockID argument is accepted in v1.  A future
 // method variant can add historical reads without breaking this shape.
 //
-// Batch is the only read form exposed; callers that want a single
+// Batch is the only storage-item read form exposed; callers that want a single
 // item pass a one-element batch.  The gateway aggregates concurrent
 // reads into batches itself, so a singular form would be redundant.
 program DbGateway
@@ -67,6 +104,8 @@ program DbGateway
   {
     DbGatewayIntroOutcome dbgateway_intro(ProtocolCommit) = 0;
     DbGatewayResult dbgateway_get_items(AddressAndKeyBatch) = 1;
+    DbGatewayConfigResult dbgateway_get_config(void) = 2;
+    DbGatewayContractResult dbgateway_get_contract(SHA256Hash) = 3;
   } = 1;
 }
 = 0x44424757;

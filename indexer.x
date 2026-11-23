@@ -22,8 +22,9 @@ struct TxInfo {
 enum TxInfoOutcome {
   TxInfoFound = 0,
   TxInfoNotFound = 1,
-  /// No committed record, but the transaction failed nondeterministically
-  /// within the last few blocks and the indexer still holds the diagnostic.
+  /// No committed record, but a proposer excluded the transaction within the
+  /// last few blocks (a two-phase-commit conflict or a refused contract
+  /// attachment) and the indexer still holds the diagnostic.
   /// Best-effort and advisory: reports are dropped freely under load, only
   /// the proposing node's indexers hear them, and a later retry of the same
   /// tx may still commit (at which point TxInfoFound wins). Absence of this
@@ -56,10 +57,11 @@ typedef IdentifiedEvent IdentifiedEventBatch<>;
 
 typedef TxInfo TxInfoBatch<>;
 
-/// Max contracts per filter and max filters per query.  Matches Soroban
-/// getEvents' limit of 5; designed to be low enough that the merge-walk
-/// stays cheap even on degenerate inputs.
+/// Max contracts per filter.  Matches Soroban getEvents' limit of 5;
+/// designed to be low enough that the merge-walk stays cheap even on
+/// degenerate inputs.
 const kMaxContractAddressesPerEventFilter = 5;
+/// Max filters per query, chosen like `kMaxContractAddressesPerEventFilter`.
 const kMaxEventFiltersPerQuery = 5;
 
 typedef ContractAddress ContractAddressList<kMaxContractAddressesPerEventFilter>;
@@ -81,11 +83,12 @@ struct EventTopicFilter {
 };
 
 /// A single event-filter predicate: events must be emitted by one of
-/// `contract_addresses` AND match the topic constraints.  Required
-/// non-empty contract_addresses — the indexer has no topic-indexed
-/// column family and can't efficiently serve "any contract" scans.
-/// (When such an index is added, the gateway relaxes the non-empty
-/// check; the XDR stays the same.)
+/// `contract_addresses` AND match the topic constraints.  The indexer has
+/// no topic-indexed column family and can't efficiently serve "any
+/// contract" scans, so a query with no filters, or with any filter whose
+/// contract_addresses is empty, matches nothing: it returns an empty page,
+/// or IndexerQueryInvalidCursor if it carries a cursor.  (When such an
+/// index is added, the indexer can relax this; the XDR stays the same.)
 struct EventFilter {
   ContractAddressList contract_addresses;
   EventTopicFilter topics;
@@ -205,8 +208,9 @@ struct BlockTransactionQuery {
   IterationOrder order;
   /// Empty on the initial call. Non-empty to continue at the same height;
   /// `order` is ignored when a cursor is supplied because the cursor carries it.
-  /// Malformed, stale, or height-mismatched cursors produce an empty page with
-  /// an empty cursor.
+  /// Malformed, wrong-block, or height-mismatched cursors return
+  /// IndexerQueryInvalidCursor. A valid continuation whose block is not yet
+  /// indexed returns IndexerQueryHistoryUnavailable.
   PaginationCursor cursor;
   /// Clamped server-side to [1, 200]; 0 means server default (50).
   unsigned int limit;
@@ -217,7 +221,11 @@ struct BlockTransactionQuery {
 struct TransactionRefPage {
   TransactionRefBatch refs;
   PaginationCursor cursor;
+  /// Highest block the indexer serves.
   BlockHeight latest_block;
+  /// Lowest block the query covers: 1 (the first indexed block) for
+  /// get_transactions_by_block, and the indexer's oldest retained block
+  /// (today always 0) for get_transactions_by_address.
   BlockHeight oldest_block;
 };
 
@@ -227,13 +235,24 @@ struct TransactionRefPage {
 /// broken or still-opening node is not rendered as an empty chain.
 enum IndexerQueryOutcome {
   IndexerQueryOk = 0,
-  /// The indexer's database is not open (still starting up, or shut
-  /// down).  Transient from the cluster's point of view: retry, or ask
-  /// a healthy node.
+  /// The indexer cannot serve the query yet: its database is not open
+  /// (still starting up, or shut down), or, for block queries, no block
+  /// is indexed yet or the block projection is still being built.
+  /// Transient from the cluster's point of view: retry, or ask a healthy
+  /// node.
   IndexerQueryNotReady = 1,
   /// Unrecoverable backend failure (corrupt record, storage error).
   /// Details are in the indexer's logs.
-  IndexerQueryInternalFailure = 2
+  IndexerQueryInternalFailure = 2,
+  /// The supplied continuation is malformed, unsupported, or inconsistent
+  /// with the query or its indexed block identity/position. Not exhaustion.
+  /// No automatic restart is implied. Cursor validation depends on the method;
+  /// this outcome does not promise query binding for every cursor format.
+  IndexerQueryInvalidCursor = 3,
+  /// The indexer cannot serve the history required by a continuation: its
+  /// serving watermark is below the cursor's saved bound, or its target block
+  /// is not yet indexed. Preserve the cursor; do not silently narrow the walk.
+  IndexerQueryHistoryUnavailable = 4
 };
 
 union EventPageResult switch (IndexerQueryOutcome outcome) {
@@ -270,9 +289,9 @@ program IndexerBlockExplorer
     IndexerBlockExplorerIntroOutcome indexer_block_explorer_intro(ProtocolCommit) = 0;
     TxInfoResult get_transaction_info(TransactionHash) = 1;
 
-    // The canonical consensus value for a retained, indexed height. Unknown,
-    // future, and unavailable heights return BlockNotFound; backend failures
-    // remain RPC errors.
+    // The canonical consensus value for a retained, indexed height. Heights
+    // outside ready indexed coverage return BlockNotFound. An index that is
+    // not ready or has an internal failure returns an x23 SYSTEM_ERR, not a miss.
     BlockLookupResult get_block_by_height(BlockHeight) = 2;
 
     // Paginated, filtered events query.  A candidate event matches
@@ -342,13 +361,26 @@ struct IndexerInitializedProgress {
   ConsensusValueHash last_consensus_hash;
 };
 
+/// Where the indexer stands, as its pull request states it.
 enum IndexerProgressState {
+  /// No origin adopted yet. The server answers with the oldest retained
+  /// origin, or its first block; never held.
   IndexerProgressUninitialized = 0,
-  IndexerProgressInitialized = 1
+  /// Applied everything through `initialized`; asks what comes next. Answered
+  /// at once: the next block, `EventIndexerPullCaughtUp` when there is none,
+  /// or a conflict. The first pull of every connection is this, since the
+  /// caught-up reply is the indexer's readiness signal.
+  IndexerProgressInitialized = 1,
+  /// Same cursor, and already answered caught up on this connection. Asks the
+  /// server to hold the request until the next publication and answer with
+  /// it, so a block is pulled the moment it is committed rather than when the
+  /// indexer next asks. Request-only: an indexer never persists this state.
+  IndexerProgressCaughtUp = 2
 };
 
 union IndexerProgress switch (IndexerProgressState state) {
 case IndexerProgressInitialized:
+case IndexerProgressCaughtUp:
   IndexerInitializedProgress initialized;
 default:
   void;

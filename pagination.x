@@ -34,9 +34,9 @@ case AnchorAtHeight:
 /// Opaque pagination cursor authored by the server.  Clients pass
 /// back whatever they received in the previous response's `cursor`
 /// field to continue pagination.  The encoding is a server-side
-/// implementation detail and may change between versions; the first
-/// byte is a format-version tag so stale cursors fail cleanly rather
-/// than being silently misinterpreted.
+/// implementation detail and may change between versions; it begins
+/// with a server-defined version word so stale cursors fail cleanly
+/// rather than being silently misinterpreted.
 typedef opaque PaginationCursor<>;
 
 } // namespace hogd

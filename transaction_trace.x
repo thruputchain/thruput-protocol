@@ -6,6 +6,7 @@
 %#include "event.hh"
 %#include "invoke_args.hh"
 %#include "db_conflict.hh"
+%#include "syscall_error.hh"
 
 namespace hogd
 {
@@ -60,7 +61,7 @@ struct SyscallGetCalldataInputs {
 
 struct SyscallGetCalldataOutputs {
   opaque calldata<>;
-  unsigned int auth_tokens<>;
+  unsigned int auth_token_count;
 };
 
 struct SyscallGetCalldataTrace {
@@ -117,7 +118,8 @@ struct SyscallGetReturnedBufferInputs {
 
 struct SyscallGetReturnedBufferOutputs {
   ReturnBuffer buffer;
-  opaque returned_auth_tokens<>;
+  unsigned int returned_auth_token_start;
+  unsigned int returned_auth_token_count;
 };
 
 struct SyscallGetReturnedBufferTrace {
@@ -225,7 +227,6 @@ struct SyscallBytestringGetTrace {
 struct SyscallBytestringSetInputs {
   StorageKeyContractData key;
   opaque bytestring<>;
-  StorageDeltaFlagSet flags;
 };
 
 struct SyscallBytestringSetOutputs {
@@ -256,7 +257,6 @@ struct SyscallNonnegativeIntSetAddInputs {
   StorageKeyContractData key;
   int128_xdr *set_value;
   int128_xdr add_value;
-  StorageDeltaFlagSet flags;
 };
 
 struct SyscallNonnegativeIntSetAddOutputs {
@@ -270,7 +270,6 @@ struct SyscallNonnegativeIntSetAddTrace {
 
 struct SyscallDeleteObjectInputs {
   StorageKeyContractData key;
-  int flags;
 };
 
 struct SyscallDeleteObjectOutputs {
@@ -519,6 +518,106 @@ struct SyscallGetBlockTimepointTrace {
   SyscallGetBlockTimepointOutputs *outputs;
 };
 
+struct SyscallSetStorageFlagsInputs {
+  StorageKeyContractData key;
+  StorageDeltaFlagSet flags;
+};
+
+struct SyscallSetStorageFlagsOutputs {
+  void;
+};
+
+struct SyscallSetStorageFlagsTrace {
+  SyscallSetStorageFlagsInputs inputs;
+  SyscallSetStorageFlagsOutputs *outputs;
+};
+
+struct SyscallGetStorageFlagsInputs {
+  StorageKeyContractData key;
+};
+
+struct SyscallGetStorageFlagsOutputs {
+  StorageDeltaFlagSet flags;
+};
+
+struct SyscallGetStorageFlagsTrace {
+  SyscallGetStorageFlagsInputs inputs;
+  SyscallGetStorageFlagsOutputs *outputs;
+};
+
+struct SyscallClearStorageFlagsInputs {
+  StorageKeyContractData key;
+};
+
+struct SyscallClearStorageFlagsOutputs {
+  void;
+};
+
+struct SyscallClearStorageFlagsTrace {
+  SyscallClearStorageFlagsInputs inputs;
+  SyscallClearStorageFlagsOutputs *outputs;
+};
+
+struct SyscallRistretto255MsmInputs {
+  opaque terms<>;
+};
+
+struct SyscallRistretto255MsmOutputs {
+  Ristretto255Point point;
+};
+
+struct SyscallRistretto255MsmTrace {
+  SyscallRistretto255MsmInputs inputs;
+  SyscallRistretto255MsmOutputs *outputs;
+};
+
+struct SyscallU256SqrtInputs {
+  U256Le value;
+};
+
+struct SyscallU256SqrtOutputs {
+  uint128_xdr root;
+};
+
+struct SyscallU256SqrtTrace {
+  SyscallU256SqrtInputs inputs;
+  SyscallU256SqrtOutputs *outputs;
+};
+
+struct SyscallU256MulDivRemInputs {
+  U256Le a;
+  U256Le b;
+  U256Le divisor;
+};
+
+struct SyscallU256MulDivRemOutputs {
+  U256Le quotient_lo;
+  U256Le quotient_hi;
+  U256Le remainder;
+};
+
+struct SyscallU256MulDivRemTrace {
+  SyscallU256MulDivRemInputs inputs;
+  SyscallU256MulDivRemOutputs *outputs;
+};
+
+struct SyscallU128MulDivRemInputs {
+  uint128_xdr a;
+  uint128_xdr b;
+  uint128_xdr divisor;
+};
+
+struct SyscallU128MulDivRemOutputs {
+  uint128_xdr quotient_lo;
+  uint128_xdr quotient_hi;
+  uint128_xdr remainder;
+};
+
+struct SyscallU128MulDivRemTrace {
+  SyscallU128MulDivRemInputs inputs;
+  SyscallU128MulDivRemOutputs *outputs;
+};
+
 // === Main Trace Body ===
 
 union SyscallTraceBody switch (SyscallNo syscall_number)
@@ -595,6 +694,20 @@ case kGetNetworkHash:
   SyscallGetNetworkHashTrace get_network_hash;
 case kGetBlockTimepoint:
   SyscallGetBlockTimepointTrace get_block_timepoint;
+case kSetStorageFlags:
+  SyscallSetStorageFlagsTrace set_storage_flags;
+case kGetStorageFlags:
+  SyscallGetStorageFlagsTrace get_storage_flags;
+case kClearStorageFlags:
+  SyscallClearStorageFlagsTrace clear_storage_flags;
+case kRistretto255Msm:
+  SyscallRistretto255MsmTrace ristretto255_msm;
+case kU256Sqrt:
+  SyscallU256SqrtTrace u256_sqrt;
+case kU256MulDivRem:
+  SyscallU256MulDivRemTrace u256_mul_div_rem;
+case kU128MulDivRem:
+  SyscallU128MulDivRemTrace u128_mul_div_rem;
 default:
   void;
 };

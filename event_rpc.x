@@ -18,12 +18,13 @@ program EventExecutor
     // Called when executor closes its handle to a block - decrements count
     RPCError eventexecutor_close_block(BlockID) = 32;
 
-    // Best-effort report that a transaction failed nondeterministically
-    // during 2-phase commit and was excluded from the proposal. The event
-    // server places this in a bounded best-effort mailbox for the indexer to
-    // pull; it touches no per-block state (the tx will never commit, so it has
-    // no place in the commit pipeline). The executor sends fire-and-forget and
-    // ignores the result.
+    // Best-effort report that a transaction was excluded from the proposal:
+    // it failed nondeterministically during 2-phase commit, or the executor
+    // refused one of its contract attachments. The event server places this
+    // in a bounded best-effort mailbox for the indexer to pull; it touches no
+    // per-block state (this attempt will never commit, so it has no place in
+    // the commit pipeline). The executor sends fire-and-forget and ignores
+    // the result.
     RPCError eventexecutor_report_tx_failure(TransactionHash,
                                              TxFailureDiagnostic) = 33;
 
@@ -59,7 +60,7 @@ program EventSched
     EventBlockResult eventsched_close_block(BlockID, BlockHeight) = 30;
     // Called after finalization. Durably publishes the event/indexer record;
     // the record becomes pullable as soon as this call succeeds, even if the
-    // local HogDB commit running alongside it has not completed yet.
+    // local database commit running alongside it has not completed yet.
     RPCError eventsched_commit_block(BlockID, ConsensusValue) = 31;
     RPCError eventsched_abandon_block(BlockID) = 40;
   } = 1;
