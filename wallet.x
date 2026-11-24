@@ -39,6 +39,6 @@ program Wallet
   }
   = 1;
 }
-= 0x8aa87aa7;
+= 0x8aa87aa6;
 
 } // namespace hogd
