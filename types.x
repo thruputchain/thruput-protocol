@@ -21,6 +21,10 @@ typedef unsigned int Protocol; // #[rust(newtype)]
 /// January 1, 1970 UTC
 typedef unsigned hyper TimePoint; // #[rust(newtype)]
 
+/// uint64_t, a length of time in nanoseconds: the difference between
+/// two TimePoints, in the unit of TimePoint.
+typedef unsigned hyper TimeSpan; // #[rust(newtype)]
+
 /// Typedef representing a length of memory in bytes, within
 /// a contract's memory.  This is primarily used as an argument to syscalls,
 /// and should not be directly used by most contracts.
@@ -34,6 +38,9 @@ typedef unsigned hyper GasAmount; // uint64_t
 typedef opaque Ed25519Signature[64]; // #[rust(newtype)]
 /// Canonical compressed Ristretto255 group element.
 typedef opaque Ristretto255Point[32]; // #[rust(newtype)]
+/// An unsigned 256-bit integer as a syscall passes it: 32 bytes, least
+/// significant byte first.
+typedef opaque U256Le[32]; // #[rust(newtype)]
 
 /// Represents a 256-bit Ed25519 public key.
 typedef opaque Ed25519PublicKey[32]; // #[rust(newtype)]
