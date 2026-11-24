@@ -21,6 +21,10 @@ typedef unsigned int Protocol; // #[rust(newtype)]
 /// January 1, 1970 UTC
 typedef unsigned hyper TimePoint; // #[rust(newtype)]
 
+/// uint64_t, a length of time in nanoseconds: the difference between
+/// two TimePoints, in the unit of TimePoint.
+typedef unsigned hyper TimeSpan; // #[rust(newtype)]
+
 /// Typedef representing a length of memory in bytes, within
 /// a contract's memory.  This is primarily used as an argument to syscalls,
 /// and should not be directly used by most contracts.
