@@ -149,6 +149,17 @@ struct Uniquifier {
 /// - Can deploy new contracts that will be available during execution
 /// - Must have a [`Uniquifier`] that has never before been used for this address
 struct Transaction {
+  /// The version of this transaction format, whose only value today is 0.
+  ///
+  /// It leads the struct, so it is the first thing in every encoding of a
+  /// transaction: the one the signatures and [`TransactionHash`] cover, and
+  /// the [`SignedTransaction`] and [`ProposedTransaction`] that wrap it. A
+  /// later format takes a new value and states its own body after it (see
+  /// [`ExtensionPoint`] in types.x), and a node that does not know the value
+  /// fails to decode the transaction rather than read one format's bytes as
+  /// another's.
+  ExtensionPoint ext;
+
   /// The root contract invocation for this transaction.
   Invocation invocation;
 
