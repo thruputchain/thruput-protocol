@@ -18,19 +18,18 @@ enum ConfigParamID {
   kConfigParamMaxBytestringLen = 3,
   kConfigParamMaxContractSizeBytes = 4,
   kConfigParamMaxSavepointDepth = 5,
-  kConfigParamMaxSHA256BufferBytes = 6,
-  kConfigParamMaxAuthTokenDepth = 7,
-  kConfigParamMaxRv32CodeBytes = 8,
-  kConfigParamMaxRv32MemoryBytes = 9,
-  kConfigParamMaxAuthTokens = 10,
-  kConfigParamMaxCalldataLen = 11,
-  kConfigParamMaxReturnBufferLen = 12,
-  kConfigParamMaxTxGas = 13,
-  kConfigParamMinRv32ArtifactVersion = 14,
-  kConfigParamMaxRv32ArtifactVersion = 15,
-  kConfigParamMaxSubtransactionOutputBytes = 16,
-  kConfigParamMinSyscallApiMinor = 17,
-  kConfigParamMaxSyscallApiMinor = 18
+  kConfigParamMaxAuthTokenDepth = 6,
+  kConfigParamMaxRv32CodeBytes = 7,
+  kConfigParamMaxRv32MemoryBytes = 8,
+  kConfigParamMaxAuthTokens = 9,
+  kConfigParamMaxCalldataLen = 10,
+  kConfigParamMaxReturnBufferLen = 11,
+  kConfigParamMaxTxGas = 12,
+  kConfigParamMinRv32ArtifactVersion = 13,
+  kConfigParamMaxRv32ArtifactVersion = 14,
+  kConfigParamMaxSubtransactionOutputBytes = 15,
+  kConfigParamMinSyscallApiMinor = 16,
+  kConfigParamMaxSyscallApiMinor = 17
 };
 
 /// One configuration parameter and the value in force for it.
@@ -117,12 +116,6 @@ case kConfigParamMaxSavepointDepth:
   /// chain must keep this within what its executors' stacks hold; the
   /// node rejects a genesis above its build ceiling.
   unsigned int max_savepoint_depth;
-
-case kConfigParamMaxSHA256BufferBytes:
-  /// Legacy cumulative SHA-256 byte limit. Retained for wire compatibility
-  /// and configuration hashing; no longer enforced. SHA256Update checks gas
-  /// before processing input and keeps constant-size incremental state.
-  unsigned int max_sha256_buffer_bytes;
 
 case kConfigParamMaxAuthTokenDepth:
   /// Levels of `AuthTokenNode` nesting an auth token may carry, counted from
