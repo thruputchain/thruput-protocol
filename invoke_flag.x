@@ -8,6 +8,9 @@ namespace hogd {
 /// Note: InvokeFlagSet is NOT part of the Invocation struct itself, but is
 /// instead a parameter to the Invoke syscall. The root transaction invocation
 /// always has no flags set (equivalent to None).
+///
+/// A bit with no flag here is unassigned, and Invoke rejects a flag set that
+/// carries one with kSyscallErrorCodeInvalidSyscallInput.
 enum InvokeFlag {
   /// No special behavior (default).
   None = 0,
@@ -31,20 +34,7 @@ enum InvokeFlag {
   ///
   /// The subinvocation can read storage but cannot write, deploy contracts,
   /// or perform any other state-modifying operations.
-  ReadOnly = 0x00000002,
-
-  /// Execute the target contract's code in the caller's context.
-  ///
-  /// Similar to Ethereum's DELEGATECALL: the invoked code runs with the
-  /// caller's storage and address context, allowing library-like code reuse.
-  ///
-  /// TODO: This flag is not yet implemented. When implementing, provide
-  /// a comprehensive specification of what changes and what doesn't change in
-  /// a delegatecall frame. For example, GetMsgSender and GetCurrentAddress
-  /// should NOT change (they return the original caller and current address),
-  /// but storage operations should operate on the caller's storage. Document
-  /// the behavior of all syscalls in a delegatecall context.
-  DelegateCall = 0x00000004
+  ReadOnly = 0x00000002
 };
 
 /// A bitset of InvokeFlag values.
