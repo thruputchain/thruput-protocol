@@ -13,11 +13,7 @@ enum StorageItemType {
   kItemTypeRetrocausalQueue = 2,
   kItemTypeReplayCacheData = 3,
   kItemTypeAuthData = 4,
-  kItemTypeDeployedContractHash = 5,
-
-  // #[doc(hidden)]
-  // This will be removed when we get rid of the old db interface.
-  kItemTypeDeleted = -1
+  kItemTypeDeployedContractHash = 5
 };
 
 /// The largest bytestring the wire format admits, and so the ceiling on
