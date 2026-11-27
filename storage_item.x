@@ -22,7 +22,7 @@ enum StorageItemType {
 const kBytestringCeilingLen = 65000;
 
 /// The limit in force when a configuration does not state one.
-const kDefaultMaxBytestringLen = 1024;
+const kDefaultMaxBytestringLen = 4096;
 
 /// An arbitrary value, stored as an opaque string of bytes.
 ///
