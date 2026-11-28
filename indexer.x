@@ -457,6 +457,42 @@ default:
   IndexerFailureMessage diagnostic;
 };
 
+/// A committed block as event_indexer_pull_next_chunked answers it: everything
+/// but its event logs and transaction bodies, which the event server has
+/// already sent as a run of `chunk_count` EventIndexerBlockChunk calls.
+struct EventIndexerChunkedBlock {
+  IndexerOutboxOrigin origin;
+  unsigned int format_version;
+  ConsensusValue consensus_value;
+  IndexerCommittedBlockIdentity identity;
+  unsigned int chunk_count;
+};
+
+/// Outcomes as for `event_indexer_pull_next`.
+union EventIndexerChunkedPullResult switch (EventIndexerPullOutcome outcome) {
+case EventIndexerPullBlock:
+  EventIndexerChunkedBlock chunked_block;
+case EventIndexerPullCaughtUp:
+  IndexerOutboxOrigin origin;
+default:
+  IndexerFailureMessage diagnostic;
+};
+
+/// One chunk of a pulled block's two positionally paired batches. The chunks
+/// of a block follow the KeyChangeChunk convention: every chunk carries the
+/// same chunk_count, each index in [0, chunk_count) is sent exactly once, the
+/// chunks may be sent concurrently and arrive in any order, and a block with
+/// no transactions is a run of one empty chunk. Concatenated in index order,
+/// the chunks' batches are the block's `event_logs` and `tx_bodies`.
+struct EventIndexerBlockChunk {
+  BlockHeight block_height;
+  IndexerCommittedBlockIdentity identity;
+  unsigned int chunk_index;
+  unsigned int chunk_count;
+  TxEventLogBatch event_logs;
+  ProposedTransactionBatch tx_bodies;
+};
+
 struct IndexerTxFailureNotice {
   TransactionHash tx_hash;
   TxFailureDiagnostic diagnostic;
@@ -474,8 +510,31 @@ program EventIndexer
     EventIndexerPullResult event_indexer_pull_next(
       EventIndexerPullRequest) = 10;
     IndexerTxFailureNoticeBatch event_indexer_pull_tx_failures(void) = 11;
+
+    // event_indexer_pull_next for a block of any size. The same request,
+    // outcomes and parking, but a block's event logs and bodies do not travel
+    // in the reply: before replying, the event server sends them as a run of
+    // indexer_event_block_chunk calls back over the same connection, to the
+    // IndexerEvent1 program the indexer serves there. Every chunk has been
+    // acknowledged by the time the reply arrives, so the reply completes the
+    // block. A connection lost part way loses the attempt; the indexer pulls
+    // the block again from its durable progress.
+    EventIndexerChunkedPullResult event_indexer_pull_next_chunked(
+      EventIndexerPullRequest) = 12;
   } = 1;
 }
 = 0x4321aaac;
+
+// Served by the indexer on its own connection to the event server, which
+// calls it to deliver the chunks of a block event_indexer_pull_next_chunked is
+// answering.
+program IndexerEvent
+{
+  version IndexerEvent1
+  {
+    void indexer_event_block_chunk(EventIndexerBlockChunk) = 1;
+  } = 1;
+}
+= 0x4321aaad;
 
 } // namespace hogd
